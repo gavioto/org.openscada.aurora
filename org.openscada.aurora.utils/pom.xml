@@ -6,6 +6,7 @@
 	<groupId>org.openscada.aurora</groupId>
 	<artifactId>org.openscada.aurora.utils</artifactId>
 	<version>0.12.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>OpenSCADA-Common-Utilities</name>
 	<description>Utility classes for use throughout the OpenSCADA project</description>
 	<url>http://www.openscada.org</url>
@@ -15,16 +16,6 @@
 		<name>inavare GmbH</name>
 		<url>http://www.inavare.com</url>
 	</organization>
-	
-	<developers>
-		<developer>
-			<id>jens.reimann@inavare.net</id>
-			<name>Jens Reimann</name>
-			<email>jens.reimann@inavare.net</email>
-			<organization>inavare GmbH</organization>
-			<organizationUrl>http://www.inavare.com</organizationUrl>
-		</developer>
-	</developers>
 	
 	<licenses>
 		<license>
