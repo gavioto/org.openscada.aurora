@@ -28,4 +28,56 @@
 		<module>../org.openscada.aurora.slice.plugin</module>
 	</modules>
 
+	<profiles>
+		<!-- profile is used in inavare internal environment -->
+		<profile>
+			<id>inavare</id>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>openscada-repos</id>
+					<name>openscada-repos</name>
+					<url>${openscada.internal.repository}</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<repositories>
+				<repository>
+					<id>openscada-repos</id>
+					<name>openscada-repos</name>
+					<url>${openscada.internal.repository}</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<distributionManagement>
+				<repository>
+					<id>openscada-releases</id>
+					<name>openscada-releases</name>
+					<url>${openscada.distrib.repository}</url>
+				</repository>
+				<snapshotRepository>
+					<id>openscada-snapshots</id>
+					<name>openscada-snapshots</name>
+					<url>${openscada.distrib.repository}</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+	</profiles>
 </project>
