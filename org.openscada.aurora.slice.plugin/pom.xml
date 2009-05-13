@@ -19,7 +19,7 @@
 		<name>inavare GmbH</name>
 		<url>http://www.inavare.com</url>
 	</organization>
-	
+
 	<licenses>
 		<license>
 			<name>GNU General Public License, version 2</name>
@@ -31,7 +31,7 @@
 			</comments>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<connection>scm:svn:http://pubsvn.inavare.net/openscada/modules/aurora/trunk/org.openscada.aurora.slice.plugin</connection>
 		<developerConnection>scm:svn:${inavare.svn.repository}/openscada/modules/aurora/trunk/org.openscada.aurora.slice.plugin</developerConnection>
@@ -63,6 +63,14 @@
 				</configuration>
 			</plugin>
 		</plugins>
+
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-file</artifactId>
+				<version>1.0-beta-5</version>
+			</extension>
+		</extensions>
 	</build>
 
 	<dependencies>

@@ -42,6 +42,14 @@
 				</configuration>
 			</plugin>
 		</plugins>
+
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-file</artifactId>
+				<version>1.0-beta-5</version>
+			</extension>
+		</extensions>
 	</build>
 
 	<dependencies>
