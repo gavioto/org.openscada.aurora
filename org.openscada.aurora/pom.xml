@@ -20,7 +20,7 @@
 	<scm>
 		<connection>scm:svn:http://pubsvn.inavare.net/openscada/modules/aurora/trunk/org.openscada.aurora</connection>
 		<developerConnection>scm:svn:${inavare.svn.repository}/openscada/modules/aurora/trunk/org.openscada.aurora</developerConnection>
-		<url>http://pubsvn.inavare.net/openscada/modules/atlantis/trunk/org.openscada.aurora</url>
+		<url>http://pubsvn.inavare.net/openscada/modules/aurora/trunk/org.openscada.aurora</url>
 	</scm>
 
 	<modules>
@@ -66,18 +66,6 @@
 					</snapshots>
 				</repository>
 			</repositories>
-			<distributionManagement>
-				<repository>
-					<id>openscada-releases</id>
-					<name>openscada-releases</name>
-					<url>${openscada.distrib.repository}</url>
-				</repository>
-				<snapshotRepository>
-					<id>openscada-snapshots</id>
-					<name>openscada-snapshots</name>
-					<url>${openscada.distrib.repository}</url>
-				</snapshotRepository>
-			</distributionManagement>
 		</profile>
 		<!-- profile is used in 3rdparty environment -->
 		<profile>
@@ -86,7 +74,7 @@
 				<pluginRepository>
 					<id>openscada-public-repos</id>
 					<name>openscada-public-repos</name>
-					<url>http://www.openscada.org/download/maven-repo/</url>
+					<url>http://repo.openscada.org/maven2/</url>
 					<releases>
 						<enabled>true</enabled>
 						<updatePolicy>always</updatePolicy>
@@ -103,7 +91,7 @@
 				<repository>
 					<id>openscada-public-repos</id>
 					<name>openscada-public-repos</name>
-					<url>http://www.openscada.org/download/maven-repo/</url>
+					<url>http://repo.openscada.org/maven2/</url>
 					<releases>
 						<enabled>true</enabled>
 						<updatePolicy>always</updatePolicy>
@@ -116,6 +104,22 @@
 					</snapshots>
 				</repository>
 			</repositories>
+		</profile>
+		<!-- profile is used for deployment -->
+		<profile>
+			<id>deploy</id>
+			<distributionManagement>
+				<repository>
+					<id>openscada-releases</id>
+					<name>openscada-releases</name>
+					<url>${openscada.distrib.repository}</url>
+				</repository>
+				<snapshotRepository>
+					<id>openscada-snapshots</id>
+					<name>openscada-snapshots</name>
+					<url>${openscada.distrib.repository}</url>
+				</snapshotRepository>
+			</distributionManagement>
 		</profile>
 	</profiles>
 
