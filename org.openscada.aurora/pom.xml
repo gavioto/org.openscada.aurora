@@ -17,6 +17,10 @@
 		<url>http://www.inavare.com</url>
 	</organization>
 
+	<properties>
+		<update.policy>interval:10080</update.policy>
+	</properties>
+
 	<scm>
 		<connection>scm:svn:http://pubsvn.inavare.net/openscada/modules/aurora/trunk/org.openscada.aurora</connection>
 		<developerConnection>scm:svn:${inavare.svn.repository}/openscada/modules/aurora/trunk/org.openscada.aurora</developerConnection>
@@ -39,12 +43,12 @@
 					<url>${openscada.internal.repository}</url>
 					<releases>
 						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
+						<updatePolicy>${update.policy}</updatePolicy>
 						<checksumPolicy>warn</checksumPolicy>
 					</releases>
 					<snapshots>
 						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
+						<updatePolicy>${update.policy}</updatePolicy>
 						<checksumPolicy>warn</checksumPolicy>
 					</snapshots>
 				</pluginRepository>
@@ -56,12 +60,12 @@
 					<url>${openscada.internal.repository}</url>
 					<releases>
 						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
+						<updatePolicy>${update.policy}</updatePolicy>
 						<checksumPolicy>warn</checksumPolicy>
 					</releases>
 					<snapshots>
 						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
+						<updatePolicy>${update.policy}</updatePolicy>
 						<checksumPolicy>warn</checksumPolicy>
 					</snapshots>
 				</repository>
