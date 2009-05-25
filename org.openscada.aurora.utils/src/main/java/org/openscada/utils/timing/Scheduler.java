@@ -22,10 +22,19 @@ package org.openscada.utils.timing;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated Instead of using the {@link Scheduler} class one should use exisiting classes
+ * like {@link Executor} or event {@link Timer}  
+ * @author Jens Reimann
+ * 
+ */
+@Deprecated
 public class Scheduler implements Runnable
 {
     private static Logger log = LoggerFactory.getLogger ( Scheduler.class );
