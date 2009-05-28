@@ -26,4 +26,8 @@ public interface NotifyFuture<T> extends Future<T>
     public void addListener ( FutureListener<T> listener );
 
     public void removeListener ( FutureListener<T> listener );
+
+    public void addListener ( Runnable listener );
+
+    public void removeListener ( Runnable listener );
 }

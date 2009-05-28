@@ -36,7 +36,11 @@ public class FutureTask<T> extends java.util.concurrent.FutureTask<T> implements
         super ( runnable, result );
     }
 
+    private final Object lock = new Object ();
+
     private final Set<FutureListener<T>> listeners = new HashSet<FutureListener<T>> ();
+
+    private final Set<Runnable> runnables = new HashSet<Runnable> ();
 
     private boolean done = false;
 
@@ -46,7 +50,8 @@ public class FutureTask<T> extends java.util.concurrent.FutureTask<T> implements
         super.done ();
 
         Set<FutureListener<T>> listeners;
-        synchronized ( this.listeners )
+        Set<Runnable> runnables;
+        synchronized ( this.lock )
         {
             if ( this.done )
             {
@@ -55,6 +60,7 @@ public class FutureTask<T> extends java.util.concurrent.FutureTask<T> implements
 
             this.done = true;
             listeners = new HashSet<FutureListener<T>> ( this.listeners );
+            runnables = new HashSet<Runnable> ( this.runnables );
         }
 
         // notify
@@ -68,15 +74,55 @@ public class FutureTask<T> extends java.util.concurrent.FutureTask<T> implements
             {
             }
         }
+        for ( final Runnable runnable : runnables )
+        {
+            try
+            {
+                runnable.run ();
+            }
+            catch ( final Throwable e )
+            {
+            }
+        }
 
         // just clean up
         this.listeners.clear ();
+        this.runnables.clear ();
+    }
+
+    public void addListener ( final Runnable listener )
+    {
+        boolean notifyNow = false;
+        synchronized ( this.lock )
+        {
+            if ( this.done )
+            {
+                notifyNow = true;
+            }
+            else
+            {
+                this.runnables.add ( listener );
+            }
+        }
+
+        if ( notifyNow )
+        {
+            listener.run ();
+        }
+    }
+
+    public void removeListener ( final Runnable listener )
+    {
+        synchronized ( this.lock )
+        {
+            this.runnables.remove ( listener );
+        }
     }
 
     public void addListener ( final FutureListener<T> listener )
     {
         boolean notifyNow = false;
-        synchronized ( this.listeners )
+        synchronized ( this.lock )
         {
             if ( this.done )
             {
@@ -96,12 +142,8 @@ public class FutureTask<T> extends java.util.concurrent.FutureTask<T> implements
 
     public void removeListener ( final FutureListener<T> listener )
     {
-        synchronized ( this.listeners )
+        synchronized ( this.lock )
         {
-            if ( this.done )
-            {
-                return;
-            }
             this.listeners.remove ( listener );
         }
     }

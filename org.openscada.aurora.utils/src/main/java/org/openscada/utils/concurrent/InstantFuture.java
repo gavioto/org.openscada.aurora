@@ -73,4 +73,14 @@ public class InstantFuture<T> implements NotifyFuture<T>
     {
         // nothing to do
     }
+
+    public void addListener ( final Runnable listener )
+    {
+        listener.run ();
+    }
+
+    public void removeListener ( final Runnable listener )
+    {
+        // nothing to do
+    }
 }
