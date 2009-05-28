@@ -29,22 +29,22 @@ import java.util.concurrent.TimeoutException;
  *
  * @param <T> the type of the future
  */
-public class InstantFuture<T> extends InstantFutureBase<T>
+public class InstantErrorFuture<T> extends InstantFutureBase<T>
 {
-    private final T value;
+    private final Throwable error;
 
-    public InstantFuture ( final T value )
+    public InstantErrorFuture ( final Throwable error )
     {
-        this.value = value;
+        this.error = error;
     }
 
     public T get () throws InterruptedException, ExecutionException
     {
-        return this.value;
+        throw new ExecutionException ( this.error );
     }
 
     public T get ( final long timeout, final TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException
     {
-        return this.value;
+        throw new ExecutionException ( this.error );
     }
 }
