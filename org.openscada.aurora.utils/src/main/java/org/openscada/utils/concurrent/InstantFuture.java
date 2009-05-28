@@ -20,7 +20,6 @@
 package org.openscada.utils.concurrent;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -30,7 +29,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @param <T> the type of the future
  */
-public class InstantFuture<T> implements Future<T>
+public class InstantFuture<T> implements NotifyFuture<T>
 {
     private final T value;
 
@@ -62,5 +61,16 @@ public class InstantFuture<T> implements Future<T>
     public boolean isDone ()
     {
         return true;
+    }
+
+    public void addListener ( final FutureListener<T> listener )
+    {
+        // we can simple trigger the listener
+        listener.complete ( this );
+    }
+
+    public void removeListener ( final FutureListener<T> listener )
+    {
+        // nothing to do
     }
 }
