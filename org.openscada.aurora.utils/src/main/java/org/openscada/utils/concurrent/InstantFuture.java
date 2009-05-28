@@ -19,11 +19,48 @@
 
 package org.openscada.utils.concurrent;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-public interface NotifyFuture<T> extends Future<T>
+/**
+ * A future that never has to run since the result is already known
+ * @author Jens Reimann
+ *
+ * @param <T> the type of the future
+ */
+class InstantFuture<T> implements Future<T>
 {
-    public void addListener ( FutureListener<T> listener );
+    private final T value;
 
-    public void removeListener ( FutureListener<T> listener );
+    public InstantFuture ( final T value )
+    {
+        this.value = value;
+    }
+
+    public boolean cancel ( final boolean mayInterruptIfRunning )
+    {
+        return false;
+    }
+
+    public T get () throws InterruptedException, ExecutionException
+    {
+        return this.value;
+    }
+
+    public T get ( final long timeout, final TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException
+    {
+        return this.value;
+    }
+
+    public boolean isCancelled ()
+    {
+        return false;
+    }
+
+    public boolean isDone ()
+    {
+        return true;
+    }
 }
