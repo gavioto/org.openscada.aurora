@@ -30,7 +30,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @param <T> the type of the future
  */
-class InstantFuture<T> implements Future<T>
+public class InstantFuture<T> implements Future<T>
 {
     private final T value;
 
