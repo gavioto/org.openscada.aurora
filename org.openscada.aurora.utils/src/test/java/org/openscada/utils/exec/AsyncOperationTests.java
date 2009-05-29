@@ -21,19 +21,16 @@ package org.openscada.utils.exec;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openscada.utils.exec.AsyncBasedOperation;
-import org.openscada.utils.exec.Operation;
-import org.openscada.utils.exec.OperationResult;
 
 public class AsyncOperationTests
 {
 
-    Operation<String, String> _opAsyncSuccess = null;
+    Operation<String, String> opAsyncSuccess = null;
 
     @org.junit.Before
     public void setUp () throws Exception
     {
-        _opAsyncSuccess = new AsyncBasedOperation<String, String> () {
+        this.opAsyncSuccess = new AsyncBasedOperation<String, String> () {
 
             @Override
             protected void startExecute ( final OperationResult<String> or, final String arg0 )
@@ -50,7 +47,7 @@ public class AsyncOperationTests
 
                             or.notifySuccess ( "Hello to: " + arg0 );
                         }
-                        catch ( Exception e )
+                        catch ( final Exception e )
                         {
                             or.notifyFailure ( e );
                         }
@@ -64,13 +61,13 @@ public class AsyncOperationTests
     @Test
     public void testSync () throws Exception
     {
-        Assert.assertEquals ( _opAsyncSuccess.execute ( "Alice" ), "Hello to: Alice" );
+        Assert.assertEquals ( this.opAsyncSuccess.execute ( "Alice" ), "Hello to: Alice" );
     }
 
     @Test
     public void testAsync () throws Exception
     {
-        OperationResult<String> or = _opAsyncSuccess.startExecute ( "Bob" );
+        final OperationResult<String> or = this.opAsyncSuccess.startExecute ( "Bob" );
         System.out.println ( "Started execution" );
 
         or.complete ();
@@ -82,9 +79,9 @@ public class AsyncOperationTests
     @Test
     public void testAsyncHandler () throws Exception
     {
-        OperationHandlerTestImpl<String> handler = new OperationHandlerTestImpl<String> ();
+        final OperationHandlerTestImpl<String> handler = new OperationHandlerTestImpl<String> ();
 
-        OperationResult<String> or = _opAsyncSuccess.startExecute ( handler, "Bob" );
+        final OperationResult<String> or = this.opAsyncSuccess.startExecute ( handler, "Bob" );
         System.out.println ( "Started execution" );
 
         or.complete ();
