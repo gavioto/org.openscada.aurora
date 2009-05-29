@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestListeningFuture
+public class ListeningFutureTest
 {
 
     private TestingFuture<Object> future;
@@ -80,7 +80,7 @@ public class TestListeningFuture
                 public Object call () throws Exception
                 {
                     System.out.println ( "Waiting" );
-                    final Object result = TestListeningFuture.this.future.get ();
+                    final Object result = ListeningFutureTest.this.future.get ();
                     System.out.println ( "Completed" );
                     return result;
                 }
