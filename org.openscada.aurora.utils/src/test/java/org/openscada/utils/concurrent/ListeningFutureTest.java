@@ -19,7 +19,7 @@ public class ListeningFutureTest
     private TestingFuture<Object> future;
 
     @Before
-    public void setup ()
+    public void setUp () throws Exception
     {
         this.future = new TestingFuture<Object> ();
     }
