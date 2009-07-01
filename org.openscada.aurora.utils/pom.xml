@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.openscada.aurora</groupId>
-	<artifactId>org.openscada.aurora.utils</artifactId>
+	<artifactId>org.openscada.utils</artifactId>
 	<version>0.13.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 	<name>OpenSCADA-Common-Utilities</name>
 	<description>Utility classes for use throughout the OpenSCADA project</description>
 	<url>http://www.openscada.org</url>
@@ -27,6 +27,7 @@
 	
 	<properties>
 		<update.policy>interval:10080</update.policy>
+		<bundle.namespace>org.openscada.utils</bundle.namespace>
 	</properties>
 	
 	<scm>
@@ -46,10 +47,30 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+		        <artifactId>maven-bundle-plugin</artifactId>
+		        <extensions>true</extensions>
+		        <configuration>
+		        	<manifestLocation>META-INF</manifestLocation>
+		        	<instructions>
+		        		<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+		        		<Export-Package>!${bundle.namespace}.internal.*,${bundle.namespace}.*;version="${pom.version}"</Export-Package>
+		        		<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>		        		
+		        	</instructions>
+		        </configuration>
+			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
+		<dependency>
+	      <groupId>org.apache.felix</groupId>
+	      <artifactId>org.osgi.core</artifactId>
+	      <version>1.0.0</version>
+	      <scope>provided</scope>
+	    </dependency>
+	
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.api</artifactId>
