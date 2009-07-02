@@ -16,7 +16,7 @@
 		<name>inavare GmbH</name>
 		<url>http://www.inavare.com</url>
 	</organization>
-	
+
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License, version 2.1</name>
@@ -24,12 +24,12 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	
+
 	<properties>
 		<update.policy>interval:10080</update.policy>
 		<bundle.namespace>org.openscada.utils</bundle.namespace>
 	</properties>
-	
+
 	<scm>
 		<connection>scm:svn:http://pubsvn.inavare.net/openscada/modules/aurora/trunk/org.openscada.aurora.utils</connection>
 		<developerConnection>scm:svn:${inavare.svn.repository}/openscada/modules/aurora/trunk/org.openscada.aurora.utils</developerConnection>
@@ -49,28 +49,28 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
-		        <artifactId>maven-bundle-plugin</artifactId>
-		        <extensions>true</extensions>
-		        <configuration>
-		        	<manifestLocation>META-INF</manifestLocation>
-		        	<instructions>
-		        		<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-		        		<Export-Package>!${bundle.namespace}.internal.*,${bundle.namespace}.*;version="${pom.version}"</Export-Package>
-		        		<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>		        		
-		        	</instructions>
-		        </configuration>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<manifestLocation>META-INF</manifestLocation>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Export-Package>!${bundle.namespace}.internal.*,${bundle.namespace}.*;version="${pom.version}"</Export-Package>
+						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+					</instructions>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
 		<dependency>
-	      <groupId>org.apache.felix</groupId>
-	      <artifactId>org.osgi.core</artifactId>
-	      <version>1.0.0</version>
-	      <scope>provided</scope>
-	    </dependency>
-	
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>1.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.api</artifactId>
