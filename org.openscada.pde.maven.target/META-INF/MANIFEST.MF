@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Maven Repository Target Platform Provisoner
+Bundle-SymbolicName: org.openscada.pde.maven.target;singleton:=true
+Bundle-Version: 1.0.2
+Bundle-Activator: com.inavare.maven.platform.Activator
+Bundle-Vendor: inavare GmbH
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.pde.ui
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
