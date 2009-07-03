@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description name="OpenSCADA Eclipse Extensions" url="http://repo.openscada.org/eclipse">
+      This repository contains extensions to the eclipse IDE.
+   </description>
+   <feature url="features/org.openscada.pde.maven.target_1.0.2.jar" id="org.openscada.pde.maven.target" version="1.0.2">
+      <category name="PDE"/>
+   </feature>
+   <category-def name="PDE" label="PDE">
+      <description>
+         Extensions to Eclipse PDE
+      </description>
+   </category-def>
+</site>
