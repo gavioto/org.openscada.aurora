@@ -20,14 +20,15 @@
 package org.openscada.utils.exec;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class AsyncOperationTests
+public class AsyncOperationTest
 {
 
     Operation<String, String> opAsyncSuccess = null;
 
-    @org.junit.Before
+    @Before
     public void setUp () throws Exception
     {
         this.opAsyncSuccess = new AsyncBasedOperation<String, String> () {

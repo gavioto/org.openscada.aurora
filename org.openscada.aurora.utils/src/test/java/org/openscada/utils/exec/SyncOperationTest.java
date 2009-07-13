@@ -21,11 +21,12 @@ package org.openscada.utils.exec;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.openscada.utils.exec.Operation;
 import org.openscada.utils.exec.OperationResult;
 import org.openscada.utils.exec.SyncBasedOperation;
 
-public class SyncOperationTests
+public class SyncOperationTest
 {
     Operation<String, String> _opSyncSuccess = null;
 
@@ -44,11 +45,13 @@ public class SyncOperationTests
         };
     }
 
+    @Test
     public void testSync () throws Exception
     {
         Assert.assertEquals ( _opSyncSuccess.execute ( "Alice" ), "Hello to: Alice" );
     }
 
+    @Test
     public void testAsync () throws Exception
     {
         OperationResult<String> or = _opSyncSuccess.startExecute ( "Bob" );
@@ -60,6 +63,7 @@ public class SyncOperationTests
         Assert.assertTrue ( or.isSuccess () );
     }
 
+    @Test
     public void testAsyncHandler () throws Exception
     {
         OperationHandlerTestImpl<String> handler = new OperationHandlerTestImpl<String> ();

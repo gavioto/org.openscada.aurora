@@ -32,15 +32,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ListeningFutureTests
+public class ListeningFutureTest
 {
 
-    private TestingFuture<Object> future;
+    private FutureTestImpl<Object> future;
 
     @Before
     public void setUp () throws Exception
     {
-        this.future = new TestingFuture<Object> ();
+        this.future = new FutureTestImpl<Object> ();
     }
 
     @Test ( expected = CancellationException.class )
@@ -99,7 +99,7 @@ public class ListeningFutureTests
                 public Object call () throws Exception
                 {
                     System.out.println ( "Waiting" );
-                    final Object result = ListeningFutureTests.this.future.get ();
+                    final Object result = ListeningFutureTest.this.future.get ();
                     System.out.println ( "Completed" );
                     return result;
                 }

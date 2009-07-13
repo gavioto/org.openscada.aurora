@@ -49,7 +49,7 @@ public class EncoderTest
         assertEquals ( "+", StringEncoder.decode ( "%2B" ) );
     }
 
-    private void testEqual ( String string )
+    private void assertStringEquals ( String string )
     {
         assertEquals ( string, StringEncoder.decode ( StringEncoder.encode ( string ) ) );
     }
@@ -57,13 +57,13 @@ public class EncoderTest
     @Test
     public void testBoth ()
     {
-        testEqual ( "abc" );
-        testEqual ( "123" );
-        testEqual ( "" );
-        testEqual ( "%" );
-        testEqual ( "%20" );
-        testEqual ( " " );
-        testEqual ( "+" );
+        assertStringEquals ( "abc" );
+        assertStringEquals ( "123" );
+        assertStringEquals ( "" );
+        assertStringEquals ( "%" );
+        assertStringEquals ( "%20" );
+        assertStringEquals ( " " );
+        assertStringEquals ( "+" );
     }
 
 }
