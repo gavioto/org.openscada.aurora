@@ -19,7 +19,7 @@
 
 package org.openscada.utils.concurrent;
 
-public class TestingFuture<T> extends AbstractFuture<T>
+public class FutureTestImpl<T> extends AbstractFuture<T>
 {
     @Override
     protected void setError ( final Throwable error )
