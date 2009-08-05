@@ -111,7 +111,7 @@
 		</profile>
 		<!-- profile is used for deployment -->
 		<profile>
-			<id>deploy</id>
+			<id>inavare</id>
 			<distributionManagement>
 				<repository>
 					<id>openscada-releases</id>
