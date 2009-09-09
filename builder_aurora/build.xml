@@ -32,7 +32,7 @@
 	<!-- ================================= 
           target: aurora              
          ================================= -->
-    <target name="aurora" depends="" description="OpenSCADA External">
+    <target name="aurora" depends="" description="OpenSCADA Aurora">
     	<openscada.bundleBuild builder="builder"/>
     </target>
 
@@ -40,7 +40,6 @@
           target: clean              
          ================================= -->
     <target name="clean" depends="" description="Clean up">
-        <delete dir="${deploy.repo.root}"/>
     </target>
 
 	<!-- ================================= 
