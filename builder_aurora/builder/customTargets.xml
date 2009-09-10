@@ -75,13 +75,8 @@
 		</target>
 
 	
-	<target name="preProcessRepos">
-		<mkdir dir="${repoBaseLocation}"/>
-		<copy todir="${repoBaseLocation}">
-			<fileset dir="${deploy.repo.root}" >
-				<include name="*p2repo.zip"/>
-			</fileset>
-		</copy>
+	<target name="preProcessRepos">	
+		<openscada.import.repository id="org.openscada.external" version="0.14.0" todir="${repoBaseLocation}"/>
   	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
