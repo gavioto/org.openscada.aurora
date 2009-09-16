@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @deprecated Instead of using the {@link Scheduler} class one should use exisiting classes
+ * @deprecated Instead of using the {@link Scheduler} class one should use existing classes
  * like {@link Executor} or event {@link Timer}  
  * @author Jens Reimann
  * 
