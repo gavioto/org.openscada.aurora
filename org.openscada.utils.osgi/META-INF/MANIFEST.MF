@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenSCADA OSGi Utilities
+Bundle-SymbolicName: org.openscada.utils.osgi
+Bundle-Version: 0.14.0
+Bundle-Vendor: inavare GmbH
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.osgi.framework,
+ org.osgi.util.tracker
+Export-Package: org.openscada.utils.osgi;version="0.14.0"
