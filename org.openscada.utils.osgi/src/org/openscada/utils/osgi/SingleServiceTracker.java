@@ -1,12 +1,31 @@
 package org.openscada.utils.osgi;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 public class SingleServiceTracker
 {
+    private final class ServiceTrackerCustomizerImplementation implements ServiceTrackerCustomizer
+    {
+        public void removedService ( final ServiceReference reference, final Object service )
+        {
+            SingleServiceTracker.this.removedService ( reference, service );
+        }
+
+        public void modifiedService ( final ServiceReference reference, final Object service )
+        {
+            SingleServiceTracker.this.modifiedService ( reference, service );
+        }
+
+        public Object addingService ( final ServiceReference reference )
+        {
+            return SingleServiceTracker.this.addingService ( reference );
+        }
+    }
+
     private final ServiceTracker tracker;
 
     private final BundleContext context;
@@ -15,27 +34,18 @@ public class SingleServiceTracker
 
     private final SingleServiceListener listener;
 
+    public SingleServiceTracker ( final BundleContext context, final Filter filter, final SingleServiceListener listener )
+    {
+        this.context = context;
+        this.listener = listener;
+        this.tracker = new ServiceTracker ( context, filter, new ServiceTrackerCustomizerImplementation () );
+    }
+
     public SingleServiceTracker ( final BundleContext context, final String clazz, final SingleServiceListener listener )
     {
         this.context = context;
-        this.tracker = new ServiceTracker ( context, clazz, new ServiceTrackerCustomizer () {
-
-            public void removedService ( final ServiceReference reference, final Object service )
-            {
-                SingleServiceTracker.this.removedService ( reference, service );
-            }
-
-            public void modifiedService ( final ServiceReference reference, final Object service )
-            {
-                SingleServiceTracker.this.modifiedService ( reference, service );
-            }
-
-            public Object addingService ( final ServiceReference reference )
-            {
-                return SingleServiceTracker.this.addingService ( reference );
-            }
-        } );
         this.listener = listener;
+        this.tracker = new ServiceTracker ( context, clazz, new ServiceTrackerCustomizerImplementation () );
     }
 
     /**
