@@ -100,8 +100,9 @@
   <!-- ===================================================================== -->
   <target name="postSetup">
     <antcall target="getBaseComponents" />
-
-  	<openscada.builder.copyPlugin id="org.openscada.utils" />
+  	
+	<openscada.builder.copyPlugin id="org.openscada.utils" />
+	<openscada.builder.copyPlugin id="org.openscada.utils.osgi" />
   	<openscada.builder.copyFeature id="org.openscada.utils" />
   </target>
 
