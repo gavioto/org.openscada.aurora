@@ -5,7 +5,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.openscada.utils;version="0.14.0",
  org.openscada.utils.collection;version="0.14.0";uses:="org.openscada.utils.lang",
  org.openscada.utils.concurrent;version="0.14.0";uses:="org.openscada.utils.concurrent.internal",
- org.openscada.utils.concurrent.internal;version="0.14.0";uses:="org.openscada.utils.concurrent",
  org.openscada.utils.concurrent.task;version="0.14.0";uses:="org.openscada.utils.concurrent,org.slf4j",
  org.openscada.utils.exec;version="0.14.0",
  org.openscada.utils.factory;version="0.14.0";uses:="org.openscada.utils.statuscodes",
@@ -14,7 +13,7 @@ Export-Package: org.openscada.utils;version="0.14.0",
  org.openscada.utils.statuscodes;version="0.14.0",
  org.openscada.utils.str;version="0.14.0",
  org.openscada.utils.timing;version="0.14.0";uses:="org.openscada.utils.statuscodes,org.slf4j"
-Bundle-Version: 0.14.0
+Bundle-Version: 0.14.0.qualifier
 Bundle-Name: OpenSCADA Common Utilities
 Bundle-Description: Utility classes for use throughout the OpenSCADA p
  roject
