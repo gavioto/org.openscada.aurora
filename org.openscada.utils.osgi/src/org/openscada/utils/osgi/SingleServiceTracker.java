@@ -1,15 +1,17 @@
 package org.openscada.utils.osgi;
 
-import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SingleServiceTracker
 {
-    private final static Logger logger = Logger.getLogger ( SingleServiceTracker.class );
+
+    private final static Logger logger = LoggerFactory.getLogger ( SingleServiceTracker.class );
 
     private final class ServiceTrackerCustomizerImplementation implements ServiceTrackerCustomizer
     {
@@ -74,7 +76,7 @@ public class SingleServiceTracker
 
     protected synchronized Object addingService ( final ServiceReference reference )
     {
-        logger.info ( "Adding service: " + reference );
+        logger.info ( "Adding service: {}", reference );
 
         final Object service = this.context.getService ( reference );
 
@@ -100,7 +102,7 @@ public class SingleServiceTracker
             if ( ref != null )
             {
                 this.currentService = this.tracker.getService ( ref );
-                logger.info ( "Setting next service: " + ref + "/" + this.currentService );
+                logger.info ( "Setting next service: {} / {}", new Object[] { ref, this.currentService } );
                 notifyService ( ref, this.currentService );
             }
             else

@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openscada.utils.osgi
 Bundle-Version: 0.14.0.qualifier
 Bundle-Vendor: inavare GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Import-Package: org.apache.log4j;version="1.2.15",
- org.osgi.framework,
- org.osgi.util.tracker
+Import-Package: org.osgi.framework,
+ org.osgi.util.tracker,
+ org.slf4j;version="1.5.6"
 Export-Package: org.openscada.utils.osgi;version="0.14.0"
