@@ -173,7 +173,7 @@
   <!-- ===================================================================== -->
   <target name="postBuild">
     <antcall target="gatherLogs" />
-  	<openscada.deploy.repository name="org.openscada.utils"/>
+  	<openscada.deploy.repository name="org.openscada.aurora.sdk"/>
   </target>
 
   <!-- ===================================================================== -->

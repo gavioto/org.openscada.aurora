@@ -48,7 +48,7 @@
           target: publish              
          ================================= -->
     <target name="publish" depends="" description="Publish artifacts">
-    	<openscada.publish.repository id="org.openscada.utils" project="aurora"/>
+    	<openscada.publish.repository id="org.openscada.aurora.sdk" project="aurora"/>
     </target>
 	
 </project>
