@@ -96,6 +96,8 @@ public class SingleServiceTracker
 
     protected synchronized void removedService ( final ServiceReference reference, final Object service )
     {
+        this.context.ungetService ( reference );
+
         if ( this.currentService == service )
         {
             final ServiceReference ref = this.tracker.getServiceReference ();
