@@ -1,4 +1,4 @@
-package org.openscada.ca.file.internal;
+package org.openscada.ca.common;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import org.apache.log4j.Logger;
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationEvent;
@@ -22,6 +21,8 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdministrator, ServiceListener
 {
@@ -36,7 +37,7 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
         }
     }
 
-    private final static Logger logger = Logger.getLogger ( AbstractConfigurationAdminImpl.class );
+    private final static Logger logger = LoggerFactory.getLogger ( AbstractConfigurationAdminImpl.class );
 
     private final ExecutorService executor;
 

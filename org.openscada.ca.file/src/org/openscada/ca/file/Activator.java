@@ -4,7 +4,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.ca.ConfigurationAdministrator;
-import org.openscada.ca.file.internal.AbstractConfigurationAdminImpl;
+import org.openscada.ca.common.AbstractConfigurationAdminImpl;
 import org.openscada.ca.file.internal.ConfigurationAdminImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

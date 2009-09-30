@@ -1,16 +1,17 @@
-package org.openscada.ca.file.internal;
+package org.openscada.ca.common;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationEvent;
 import org.openscada.ca.ConfigurationState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationImpl implements Configuration
 {
-    private final static Logger logger = Logger.getLogger ( ConfigurationImpl.class );
+    private final static Logger logger = LoggerFactory.getLogger ( ConfigurationImpl.class );
 
     private final String id;
 

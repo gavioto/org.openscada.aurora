@@ -1,4 +1,4 @@
-package org.openscada.ca.file.internal;
+package org.openscada.ca.common;
 
 import java.util.Collection;
 import java.util.HashMap;

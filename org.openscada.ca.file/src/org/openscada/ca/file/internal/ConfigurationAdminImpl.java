@@ -11,9 +11,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.openscada.ca.common.AbstractConfigurationAdminImpl;
+import org.openscada.ca.common.ConfigurationImpl;
+import org.openscada.ca.common.FactoryImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
 {
@@ -31,7 +35,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
 
     private static final String META_FILE = ".meta";
 
-    private final static Logger logger = Logger.getLogger ( ConfigurationAdminImpl.class );
+    private final static Logger logger = LoggerFactory.getLogger ( ConfigurationAdminImpl.class );
 
     private static final String STORE = "openscadaConfigStore";
 
@@ -48,7 +52,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
 
     private File initRoot ()
     {
-        File file = this.context.getDataFile ( STORE );
+        final File file = this.context.getDataFile ( STORE );
         if ( file != null )
         {
             if ( !file.exists () )
@@ -81,13 +85,13 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             return;
         }
 
-        for ( String pathName : this.root.list () )
+        for ( final String pathName : this.root.list () )
         {
-            File path = new File ( this.root, pathName );
+            final File path = new File ( this.root, pathName );
             if ( path.isDirectory () )
             {
                 logger.debug ( "Checking for path: " + path.getName () );
-                String factoryId = detectFactory ( path );
+                final String factoryId = detectFactory ( path );
                 if ( factoryId != null )
                 {
                     logger.debug ( String.format ( "Path %s is a possible factory (%s). Adding...", path.getName (), factoryId ) );
@@ -99,15 +103,15 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
 
     private String detectFactory ( final File path )
     {
-        File meta = new File ( path, META_FILE );
-        Properties p = new Properties ();
+        final File meta = new File ( path, META_FILE );
+        final Properties p = new Properties ();
         FileInputStream stream = null;
         try
         {
             stream = new FileInputStream ( meta );
             p.load ( stream );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             return null;
         }
@@ -119,7 +123,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
                 {
                     stream.close ();
                 }
-                catch ( IOException e )
+                catch ( final IOException e )
                 {
                     logger.warn ( "Failed to close stream", e );
                 }
@@ -137,7 +141,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             return;
         }
 
-        File path = getFactoryPath ( factory );
+        final File path = getFactoryPath ( factory );
         load ( path, factory );
     }
 
@@ -148,8 +152,8 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             logger.warn ( "Failed to create store: " + factoryRoot );
             return;
         }
-        File meta = new File ( factoryRoot, META_FILE );
-        Properties p = new Properties ();
+        final File meta = new File ( factoryRoot, META_FILE );
+        final Properties p = new Properties ();
         p.put ( "id", factory.getId () );
         FileOutputStream stream = null;
         try
@@ -158,7 +162,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
 
             p.store ( stream, "" );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             logger.warn ( "Failed to initialize store: " + factoryRoot );
         }
@@ -170,7 +174,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
                 {
                     stream.close ();
                 }
-                catch ( IOException e )
+                catch ( final IOException e )
                 {
                     logger.warn ( "Failed to close stream", e );
                 }
@@ -182,15 +186,15 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
     {
         logger.info ( "Loading from: " + configurationRoot.getName () );
 
-        Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>> ();
+        final Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>> ();
 
-        for ( File file : configurationRoot.listFiles ( new DataFilenameFilter () ) )
+        for ( final File file : configurationRoot.listFiles ( new DataFilenameFilter () ) )
         {
             logger.info ( "Loading file: " + file.getName () );
-            Map<String, String> cfg = loadConfiguration ( file );
+            final Map<String, String> cfg = loadConfiguration ( file );
             if ( cfg != null )
             {
-                String id = cfg.get ( "id" );
+                final String id = cfg.get ( "id" );
                 if ( id != null )
                 {
                     configurations.put ( id, cfg );
@@ -205,9 +209,9 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
     {
         try
         {
-            Properties p = new Properties ();
+            final Properties p = new Properties ();
 
-            FileInputStream stream = new FileInputStream ( file );
+            final FileInputStream stream = new FileInputStream ( file );
             try
             {
                 p.load ( stream );
@@ -217,14 +221,14 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
                 stream.close ();
             }
 
-            Map<String, String> result = new HashMap<String, String> ();
-            for ( Entry<Object, Object> entry : p.entrySet () )
+            final Map<String, String> result = new HashMap<String, String> ();
+            for ( final Entry<Object, Object> entry : p.entrySet () )
             {
                 result.put ( entry.getKey ().toString (), entry.getValue ().toString () );
             }
             return result;
         }
-        catch ( Throwable e )
+        catch ( final Throwable e )
         {
             logger.warn ( "Failed to load" );
             return null;
@@ -253,10 +257,10 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             return;
         }
 
-        File path = new File ( this.root, getPath ( factoryImpl ) );
+        final File path = new File ( this.root, getPath ( factoryImpl ) );
         logger.info ( "Deleting factory: " + factoryImpl.getId () );
 
-        File meta = new File ( path, META_FILE );
+        final File meta = new File ( path, META_FILE );
         meta.delete ();
         path.delete ();
     }
@@ -269,18 +273,18 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             return;
         }
 
-        File path = getFactoryPath ( configurationImpl.getFactory () );
+        final File path = getFactoryPath ( configurationImpl.getFactory () );
 
-        String id = configurationImpl.getId ();
-        File file = new File ( path, encode ( id ) );
+        final String id = configurationImpl.getId ();
+        final File file = new File ( path, encode ( id ) );
 
         logger.info ( String.format ( "Storing %s to %s", configurationImpl.getId (), file ) );
 
-        Properties p = new Properties ();
+        final Properties p = new Properties ();
         p.putAll ( properties );
         p.put ( "id", id );
 
-        FileOutputStream stream = new FileOutputStream ( file );
+        final FileOutputStream stream = new FileOutputStream ( file );
         try
         {
             p.store ( stream, "" );
@@ -293,7 +297,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
 
     private File getFactoryPath ( final FactoryImpl factoryImpl )
     {
-        File path = new File ( this.root, getPath ( factoryImpl ) );
+        final File path = new File ( this.root, getPath ( factoryImpl ) );
         if ( !path.exists () )
         {
             logger.info ( String.format ( "Store for factory (%s) does not exist", factoryImpl.getId () ) );
@@ -305,10 +309,10 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
     @Override
     protected void performDeleteConfiguration ( final ConfigurationImpl configurationImpl )
     {
-        File path = getFactoryPath ( configurationImpl.getFactory () );
+        final File path = getFactoryPath ( configurationImpl.getFactory () );
 
-        String id = configurationImpl.getId ();
-        File file = new File ( path, encode ( id ) );
+        final String id = configurationImpl.getId ();
+        final File file = new File ( path, encode ( id ) );
 
         logger.info ( "Deleting " + id );
 
