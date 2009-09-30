@@ -10,7 +10,6 @@ import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationEvent;
 import org.openscada.ca.ConfigurationFactory;
-import org.openscada.ca.ConfigurationListener;
 import org.openscada.ca.Factory;
 import org.openscada.ca.FactoryEvent;
 import org.openscada.ca.FactoryState;
@@ -20,7 +19,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +45,7 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
 
     private final Map<ServiceReference, String> factoryMap = new HashMap<ServiceReference, String> ();
 
-    private final ServiceTracker listenerTracker;
+    private final ListenerTracker listenerTracker;
 
     public AbstractConfigurationAdminImpl ( final BundleContext context ) throws InvalidSyntaxException
     {
@@ -55,7 +53,7 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
 
         this.executor = Executors.newFixedThreadPool ( 1, new ThreadFactoryImpl () );
 
-        this.listenerTracker = new ServiceTracker ( context, ConfigurationListener.class.getName (), null );
+        this.listenerTracker = new ListenerTracker ( context, this.executor );
         this.listenerTracker.open ();
     }
 
@@ -298,65 +296,7 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
     private void setFactoryState ( final FactoryImpl factory, final FactoryState state )
     {
         factory.setState ( state );
-        fireEvent ( new FactoryEvent ( FactoryEvent.Type.STATE, factory.getId () ) );
-    }
-
-    private void fireEvent ( final FactoryEvent factoryEvent )
-    {
-        this.executor.execute ( new Runnable () {
-
-            public void run ()
-            {
-                final Object[] services = AbstractConfigurationAdminImpl.this.listenerTracker.getServices ();
-                if ( services != null )
-                {
-                    for ( final Object o : services )
-                    {
-                        if ( o instanceof ConfigurationListener )
-                        {
-                            final ConfigurationListener listener = (ConfigurationListener)o;
-                            try
-                            {
-                                listener.factoryEvent ( factoryEvent );
-                            }
-                            catch ( final Throwable e )
-                            {
-                                logger.warn ( "Failed to handle listener", e );
-                            }
-                        }
-                    }
-                }
-            }
-        } );
-    }
-
-    /*package*/void fireEvent ( final ConfigurationEvent configurationEvent )
-    {
-        this.executor.execute ( new Runnable () {
-
-            public void run ()
-            {
-                final Object[] services = AbstractConfigurationAdminImpl.this.listenerTracker.getServices ();
-                if ( services != null )
-                {
-                    for ( final Object o : services )
-                    {
-                        if ( o instanceof ConfigurationListener )
-                        {
-                            final ConfigurationListener listener = (ConfigurationListener)o;
-                            try
-                            {
-                                listener.configurationEvent ( configurationEvent );
-                            }
-                            catch ( final Throwable e )
-                            {
-                                logger.warn ( "Failed to handle listener", e );
-                            }
-                        }
-                    }
-                }
-            }
-        } );
+        this.listenerTracker.fireEvent ( new FactoryEvent ( FactoryEvent.Type.STATE, factory.getId () ) );
     }
 
     public void performUpdateConfiguration ( final ConfigurationImpl configurationImpl )
@@ -414,7 +354,7 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
                 {
                     service.update ( configurationImpl.getId (), properties );
                 }
-                fireEvent ( new ConfigurationEvent ( ConfigurationEvent.Type.MODIFIED, configurationImpl ) );
+                this.listenerTracker.fireEvent ( new ConfigurationEvent ( ConfigurationEvent.Type.MODIFIED, configurationImpl ) );
 
                 configurationImpl.setApplied ();
             }
@@ -424,7 +364,7 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
                 {
                     service.delete ( configurationImpl.getId () );
                 }
-                fireEvent ( new ConfigurationEvent ( ConfigurationEvent.Type.REMOVED, configurationImpl ) );
+                this.listenerTracker.fireEvent ( new ConfigurationEvent ( ConfigurationEvent.Type.REMOVED, configurationImpl ) );
                 configurationImpl.getFactory ().deleteConfiguration ( configurationImpl.getId () );
             }
         }
@@ -460,7 +400,7 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
             public void run ()
             {
                 performPurge ( factoryImpl );
-                fireEvent ( new FactoryEvent ( FactoryEvent.Type.PURGED, factoryImpl.getId () ) );
+                AbstractConfigurationAdminImpl.this.listenerTracker.fireEvent ( new FactoryEvent ( FactoryEvent.Type.PURGED, factoryImpl.getId () ) );
                 if ( service != null )
                 {
                     service.purge ();
@@ -468,6 +408,11 @@ public abstract class AbstractConfigurationAdminImpl implements ConfigurationAdm
             }
         } );
 
+    }
+
+    public ListenerTracker getListenerTracker ()
+    {
+        return this.listenerTracker;
     }
 
     protected abstract void performPurge ( final FactoryImpl factoryImpl );

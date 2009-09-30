@@ -107,7 +107,7 @@ public class ConfigurationImpl implements Configuration
 
     private void fireStateChange ()
     {
-        this.admin.fireEvent ( new ConfigurationEvent ( ConfigurationEvent.Type.STATE, this ) );
+        this.admin.getListenerTracker ().fireEvent ( new ConfigurationEvent ( ConfigurationEvent.Type.STATE, this ) );
     }
 
     public synchronized void setApplyError ( final Throwable e )
@@ -139,4 +139,5 @@ public class ConfigurationImpl implements Configuration
         this.state = ConfigurationState.AVAILABLE;
         fireStateChange ();
     }
+
 }

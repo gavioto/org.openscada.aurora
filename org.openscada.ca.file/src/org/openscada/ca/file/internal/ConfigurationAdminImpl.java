@@ -320,6 +320,5 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
         {
             logger.info ( "Failed to delete: " + file );
         }
-
     }
 }

@@ -23,9 +23,9 @@ public class Activator implements BundleActivator
 
         this.service.start ();
 
-        Dictionary<Object, Object> properties = new Hashtable<Object, Object> ();
+        final Dictionary<Object, Object> properties = new Hashtable<Object, Object> ();
         properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
-        properties.put ( Constants.SERVICE_DESCRIPTION, "An OpenSCADA CA Implementation" );
+        properties.put ( Constants.SERVICE_DESCRIPTION, "An OpenSCADA CA File Implementation" );
 
         this.handle = context.registerService ( ConfigurationAdministrator.class.getName (), this.service, properties );
     }
