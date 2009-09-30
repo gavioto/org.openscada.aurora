@@ -29,4 +29,10 @@ public class ConfigurationEvent
     {
         return this.type;
     }
+
+    @Override
+    public String toString ()
+    {
+        return String.format ( "%s -> %s / %s", this.configuration.getId (), this.type, this.configuration );
+    }
 }
