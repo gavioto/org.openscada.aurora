@@ -41,6 +41,7 @@ public class ListenerTracker
 
             public void run ()
             {
+                logger.debug ( "Fire configuration event: {}", configurationEvent );
                 final Object[] services = ListenerTracker.this.listenerTracker.getServices ();
                 if ( services != null )
                 {
@@ -70,6 +71,7 @@ public class ListenerTracker
 
             public void run ()
             {
+                logger.debug ( "Fire factory event: {}", factoryEvent );
                 final Object[] services = ListenerTracker.this.listenerTracker.getServices ();
                 if ( services != null )
                 {
