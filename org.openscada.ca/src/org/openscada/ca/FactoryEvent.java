@@ -1,5 +1,8 @@
 package org.openscada.ca;
 
+import org.openscada.utils.lang.Immutable;
+
+@Immutable
 public class FactoryEvent
 {
 
