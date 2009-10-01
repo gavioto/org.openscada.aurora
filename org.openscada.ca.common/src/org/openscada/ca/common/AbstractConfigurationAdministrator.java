@@ -12,6 +12,7 @@ import org.openscada.ca.ConfigurationAlreadyExistsException;
 import org.openscada.ca.ConfigurationFactory;
 import org.openscada.ca.ConfigurationState;
 import org.openscada.ca.FactoryNotFoundException;
+import org.openscada.ca.SelfManagedConfigurationFactory;
 import org.openscada.utils.concurrent.AbstractFuture;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.NotifyFuture;
@@ -38,7 +39,11 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
     private final Map<ServiceReference, ConfigurationFactory> services = new HashMap<ServiceReference, ConfigurationFactory> ();
 
+    private final Map<ServiceReference, SelfManagedConfigurationFactory> selfServices = new HashMap<ServiceReference, SelfManagedConfigurationFactory> ();
+
     private final ServiceTracker serviceListener;
+
+    private final ServiceTracker selfServiceListener;
 
     public AbstractConfigurationAdministrator ( final BundleContext context )
     {
@@ -55,12 +60,27 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
             public void modifiedService ( final ServiceReference reference, final Object service )
             {
-                AbstractConfigurationAdministrator.this.modifiedService ( reference, service );
             }
 
             public Object addingService ( final ServiceReference reference )
             {
                 return AbstractConfigurationAdministrator.this.addingService ( reference );
+            }
+        } );
+        this.selfServiceListener = new ServiceTracker ( context, SelfManagedConfigurationFactory.class.getName (), new ServiceTrackerCustomizer () {
+
+            public void removedService ( final ServiceReference reference, final Object service )
+            {
+                AbstractConfigurationAdministrator.this.removedSelfService ( reference, service );
+            }
+
+            public void modifiedService ( final ServiceReference reference, final Object service )
+            {
+            }
+
+            public Object addingService ( final ServiceReference reference )
+            {
+                return AbstractConfigurationAdministrator.this.addingSelfService ( reference );
             }
         } );
     }
@@ -69,12 +89,14 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
     {
         this.listenerTracker.open ();
         this.serviceListener.open ();
+        this.selfServiceListener.open ();
     }
 
     public synchronized void stop ()
     {
         this.listenerTracker.close ();
         this.serviceListener.close ();
+        this.selfServiceListener.close ();
     }
 
     protected synchronized void addStoredFactory ( final String factoryId, final ConfigurationImpl[] configurations )
@@ -98,6 +120,18 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
                 applyConfiguration ( null, factoryService, factory, cfg );
             }
         }
+    }
+
+    private void addFactorySelfService ( final String factoryId, final SelfManagedConfigurationFactory factory, final String description )
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void removeSelfFactoryService ( final String property, final SelfManagedConfigurationFactory factoryService )
+    {
+        // TODO Auto-generated method stub
+
     }
 
     protected synchronized void addFactoryService ( final String factoryId, final ConfigurationFactory service, final String description )
@@ -129,6 +163,11 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         if ( factory == null )
         {
             return;
+        }
+
+        for ( final ConfigurationImpl configuration : factory.getConfigurations () )
+        {
+            configuration.setState ( ConfigurationState.AVAILABLE, null );
         }
 
         if ( factory.getService () == service )
@@ -199,6 +238,10 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
                     AbstractConfigurationAdministrator.this.applyConfiguration ( future, factoryService, factory, applyConfiguration );
                 }
             } );
+        }
+        else
+        {
+            future.setResult ( configuration );
         }
     }
 
@@ -381,22 +424,8 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
     protected Object addingService ( final ServiceReference reference )
     {
-        if ( ! ( reference.getProperty ( FACTORY_ID ) instanceof String ) )
-        {
-            logger.warn ( "Found new service {} but it is missing 'factoryId' in its properties", reference );
-            return null;
-        }
-
-        final String factoryId = (String)reference.getProperty ( FACTORY_ID );
-        String description;
-        if ( reference.getProperty ( Constants.SERVICE_DESCRIPTION ) instanceof String )
-        {
-            description = (String)reference.getProperty ( Constants.SERVICE_DESCRIPTION );
-        }
-        else
-        {
-            description = null;
-        }
+        final String factoryId = checkAndGetFactoryId ( reference );
+        final String description = getDescription ( reference );
 
         Object service = null;
         try
@@ -420,11 +449,6 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
     }
 
-    protected void modifiedService ( final ServiceReference reference, final Object service )
-    {
-        // nothing to do
-    }
-
     protected synchronized void removedService ( final ServiceReference reference, final Object service )
     {
         final ConfigurationFactory factoryService = this.services.remove ( reference );
@@ -433,6 +457,70 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             this.context.ungetService ( reference );
             removeFactoryService ( (String)reference.getProperty ( FACTORY_ID ), factoryService );
         }
+    }
+
+    protected Object addingSelfService ( final ServiceReference reference )
+    {
+        final String factoryId = checkAndGetFactoryId ( reference );
+
+        final String description = getDescription ( reference );
+
+        Object service = null;
+        try
+        {
+            service = this.context.getService ( reference );
+            final SelfManagedConfigurationFactory factory = (SelfManagedConfigurationFactory)service;
+
+            addFactorySelfService ( factoryId, factory, description );
+
+            this.selfServices.put ( reference, factory );
+
+            return factory;
+        }
+        catch ( final ClassCastException e )
+        {
+            if ( service != null )
+            {
+                this.context.ungetService ( reference );
+            }
+            return null;
+        }
+    }
+
+    private String getDescription ( final ServiceReference reference )
+    {
+        String description;
+        if ( reference.getProperty ( Constants.SERVICE_DESCRIPTION ) instanceof String )
+        {
+            description = (String)reference.getProperty ( Constants.SERVICE_DESCRIPTION );
+        }
+        else
+        {
+            description = null;
+        }
+        return description;
+    }
+
+    protected void removedSelfService ( final ServiceReference reference, final Object service )
+    {
+        final SelfManagedConfigurationFactory factoryService = this.selfServices.remove ( reference );
+        if ( factoryService != null )
+        {
+            this.context.ungetService ( reference );
+            removeSelfFactoryService ( (String)reference.getProperty ( FACTORY_ID ), factoryService );
+        }
+    }
+
+    private String checkAndGetFactoryId ( final ServiceReference reference )
+    {
+        if ( ! ( reference.getProperty ( FACTORY_ID ) instanceof String ) )
+        {
+            logger.warn ( "Found new service {} but it is missing 'factoryId' in its properties", reference );
+            return null;
+        }
+
+        final String factoryId = (String)reference.getProperty ( FACTORY_ID );
+        return factoryId;
     }
 
 }

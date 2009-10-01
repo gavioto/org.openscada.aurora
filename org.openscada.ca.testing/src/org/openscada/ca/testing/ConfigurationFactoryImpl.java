@@ -2,13 +2,13 @@ package org.openscada.ca.testing;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.openscada.ca.ConfigurationFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationFactoryImpl implements ConfigurationFactory
 {
-
-    private final static Logger logger = Logger.getLogger ( ConfigurationFactoryImpl.class );
+    private final static Logger logger = LoggerFactory.getLogger ( ConfigurationFactoryImpl.class );
 
     public void update ( final String configurationId, final Map<String, String> properties )
     {
