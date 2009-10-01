@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Testing Plug-in
 Bundle-SymbolicName: org.openscada.ca.testing
-Bundle-Version: 0.14.0
+Bundle-Version: 0.14.0.qualifier
 Bundle-Activator: org.openscada.ca.testing.Activator
 Bundle-Vendor: inavare GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
