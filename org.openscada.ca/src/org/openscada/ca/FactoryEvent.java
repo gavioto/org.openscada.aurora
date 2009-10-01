@@ -9,22 +9,23 @@ public class FactoryEvent
     public static enum Type
     {
         STATE,
-        PURGED
+        ADDED,
+        REMOVED,
     }
 
-    private final String factoryId;
+    private final Factory factory;
 
     private final Type type;
 
-    public FactoryEvent ( final Type type, final String factoryId )
+    public FactoryEvent ( final Type type, final Factory factory )
     {
         this.type = type;
-        this.factoryId = factoryId;
+        this.factory = factory;
     }
 
-    public String getFactoryId ()
+    public Factory getFactory ()
     {
-        return this.factoryId;
+        return this.factory;
     }
 
     public Type getType ()
@@ -35,6 +36,6 @@ public class FactoryEvent
     @Override
     public String toString ()
     {
-        return String.format ( "%s -> %s", this.factoryId, this.type );
+        return String.format ( "%s -> %s", this.factory.getId (), this.type );
     }
 }

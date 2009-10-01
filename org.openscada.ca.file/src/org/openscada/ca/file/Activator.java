@@ -4,7 +4,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.ca.ConfigurationAdministrator;
-import org.openscada.ca.common.AbstractConfigurationAdminImpl;
+import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.file.internal.ConfigurationAdminImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -13,7 +13,7 @@ import org.osgi.framework.ServiceRegistration;
 
 public class Activator implements BundleActivator
 {
-    private AbstractConfigurationAdminImpl service;
+    private AbstractConfigurationAdministrator service;
 
     private ServiceRegistration handle;
 
@@ -35,7 +35,7 @@ public class Activator implements BundleActivator
         this.handle.unregister ();
         this.handle = null;
 
-        this.service.dispose ();
+        this.service.stop ();
         this.service = null;
     }
 

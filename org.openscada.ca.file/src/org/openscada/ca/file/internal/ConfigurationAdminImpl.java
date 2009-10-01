@@ -7,19 +7,20 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import org.openscada.ca.common.AbstractConfigurationAdminImpl;
+import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.common.ConfigurationImpl;
-import org.openscada.ca.common.FactoryImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
+public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 {
     private final static class DataFilenameFilter implements FilenameFilter
     {
@@ -77,6 +78,12 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
     }
 
     @Override
+    public synchronized void start ()
+    {
+        super.start ();
+        performInitialLoad ();
+    }
+
     protected void performInitialLoad ()
     {
         if ( this.root == null )
@@ -95,7 +102,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
                 if ( factoryId != null )
                 {
                     logger.debug ( String.format ( "Path %s is a possible factory (%s). Adding...", path.getName (), factoryId ) );
-                    addFactory ( factoryId );
+                    performLoadFactory ( factoryId );
                 }
             }
         }
@@ -132,8 +139,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
         return p.getProperty ( "id" );
     }
 
-    @Override
-    protected void performLoadFactory ( final FactoryImpl factory )
+    protected void performLoadFactory ( final String factoryId )
     {
         if ( this.root == null )
         {
@@ -141,11 +147,11 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             return;
         }
 
-        final File path = getFactoryPath ( factory );
-        load ( path, factory );
+        final File path = getFactoryPath ( factoryId );
+        loadAll ( path, factoryId );
     }
 
-    private void createStore ( final File factoryRoot, final FactoryImpl factory )
+    private void createStore ( final File factoryRoot, final String factoryId )
     {
         if ( !factoryRoot.mkdir () )
         {
@@ -154,12 +160,13 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
         }
         final File meta = new File ( factoryRoot, META_FILE );
         final Properties p = new Properties ();
-        p.put ( "id", factory.getId () );
+        p.put ( "id", factoryId );
         FileOutputStream stream = null;
         try
         {
             stream = new FileOutputStream ( meta );
 
+            logger.debug ( "Creating new store: {}", factoryRoot );
             p.store ( stream, "" );
         }
         catch ( final Exception e )
@@ -182,30 +189,27 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
         }
     }
 
-    private void load ( final File configurationRoot, final FactoryImpl factory )
+    private void loadAll ( final File configurationRoot, final String factoryId )
     {
         logger.info ( "Loading from: " + configurationRoot.getName () );
 
-        final Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>> ();
+        final List<ConfigurationImpl> configurations = new LinkedList<ConfigurationImpl> ();
 
         for ( final File file : configurationRoot.listFiles ( new DataFilenameFilter () ) )
         {
             logger.info ( "Loading file: " + file.getName () );
-            final Map<String, String> cfg = loadConfiguration ( file );
+            final ConfigurationImpl cfg = loadConfiguration ( factoryId, file );
+
             if ( cfg != null )
             {
-                final String id = cfg.get ( "id" );
-                if ( id != null )
-                {
-                    configurations.put ( id, cfg );
-                }
+                configurations.add ( cfg );
             }
         }
 
-        factory.setConfigurations ( configurations );
+        addStoredFactory ( factoryId, configurations.toArray ( new ConfigurationImpl[0] ) );
     }
 
-    private Map<String, String> loadConfiguration ( final File file )
+    private ConfigurationImpl loadConfiguration ( final String factoryId, final File file )
     {
         try
         {
@@ -226,7 +230,12 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             {
                 result.put ( entry.getKey ().toString (), entry.getValue ().toString () );
             }
-            return result;
+            final String id = result.get ( "id" );
+            if ( id == null )
+            {
+                return null;
+            }
+            return new ConfigurationImpl ( id, factoryId, result );
         }
         catch ( final Throwable e )
         {
@@ -235,11 +244,9 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
         }
     }
 
-    private String getPath ( final FactoryImpl factory )
+    private String getPath ( final String factoryId )
     {
-        String path = factory.getId ();
-        path = encode ( path );
-        return path;
+        return encode ( factoryId );
     }
 
     private String encode ( String path )
@@ -249,7 +256,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
         return path;
     }
 
-    protected void performPurge ( final FactoryImpl factoryImpl )
+    protected void performStoreConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final ConfigurationFuture future ) throws FileNotFoundException, IOException
     {
         if ( this.root == null )
         {
@@ -257,68 +264,57 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdminImpl
             return;
         }
 
-        final File path = new File ( this.root, getPath ( factoryImpl ) );
-        logger.info ( "Deleting factory: " + factoryImpl.getId () );
+        final File path = getFactoryPath ( factoryId );
 
-        final File meta = new File ( path, META_FILE );
-        meta.delete ();
-        path.delete ();
-    }
+        final File file = new File ( path, encode ( configurationId ) );
 
-    protected void performStoreConfiguration ( final ConfigurationImpl configurationImpl, final Map<String, String> properties ) throws FileNotFoundException, IOException
-    {
-        if ( this.root == null )
-        {
-            logger.warn ( "Unable to store : no root" );
-            return;
-        }
-
-        final File path = getFactoryPath ( configurationImpl.getFactory () );
-
-        final String id = configurationImpl.getId ();
-        final File file = new File ( path, encode ( id ) );
-
-        logger.info ( String.format ( "Storing %s to %s", configurationImpl.getId (), file ) );
+        logger.info ( String.format ( "Storing %s to %s", configurationId, file ) );
 
         final Properties p = new Properties ();
         p.putAll ( properties );
-        p.put ( "id", id );
+        p.put ( "id", configurationId );
 
         final FileOutputStream stream = new FileOutputStream ( file );
         try
         {
+            logger.debug ( "Storing {}/{} -> {}", new Object[] { factoryId, configurationId, properties } );
             p.store ( stream, "" );
         }
         finally
         {
             stream.close ();
         }
+
+        // notify the abstract service from our content change
+        changeConfiguration ( factoryId, configurationId, properties, future );
     }
 
-    private File getFactoryPath ( final FactoryImpl factoryImpl )
+    private File getFactoryPath ( final String factoryId )
     {
-        final File path = new File ( this.root, getPath ( factoryImpl ) );
+        final File path = new File ( this.root, getPath ( factoryId ) );
         if ( !path.exists () )
         {
-            logger.info ( String.format ( "Store for factory (%s) does not exist", factoryImpl.getId () ) );
-            createStore ( path, factoryImpl );
+            logger.info ( String.format ( "Store for factory (%s) does not exist", factoryId ) );
+            createStore ( path, factoryId );
         }
         return path;
     }
 
     @Override
-    protected void performDeleteConfiguration ( final ConfigurationImpl configurationImpl )
+    protected void performDeleteConfiguration ( final String factoryId, final String configurationId, final ConfigurationFuture future )
     {
-        final File path = getFactoryPath ( configurationImpl.getFactory () );
+        final File path = getFactoryPath ( factoryId );
 
-        final String id = configurationImpl.getId ();
-        final File file = new File ( path, encode ( id ) );
+        final File file = new File ( path, encode ( configurationId ) );
 
-        logger.info ( "Deleting " + id );
+        logger.info ( "Deleting {}", configurationId );
 
         if ( !file.delete () )
         {
-            logger.info ( "Failed to delete: " + file );
+            logger.info ( "Failed to delete: {}", file );
         }
+
+        // notify the abstract service from our content change
+        changeConfiguration ( factoryId, configurationId, null, future );
     }
 }

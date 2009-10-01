@@ -3,6 +3,7 @@ package org.openscada.ca.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -10,9 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -86,7 +88,7 @@ public class ListServlet extends HttpServlet
             }
             if ( req.getParameter ( "cmd_purge" ) != null )
             {
-                handlePurge ( admin, req, resp );
+                // handlePurge ( admin, req, resp );
             }
             if ( req.getParameter ( "cmd_delete" ) != null )
             {
@@ -116,23 +118,8 @@ public class ListServlet extends HttpServlet
             return;
         }
 
-        final Map<String, String> properties = parseData ( data );
-
-        final Factory f = admin.getFactory ( factoryId );
-        if ( f == null )
-        {
-            resp.getOutputStream ().print ( "Failed to load factory" );
-            return;
-        }
-
-        final Configuration c = f.getConfiguration ( configurationId );
-        if ( c == null )
-        {
-            resp.getOutputStream ().print ( "Failed to load configuration" );
-            return;
-        }
-
-        c.update ( properties );
+        final PrintWriter stream = resp.getWriter ();
+        waitForFuture ( stream, admin.updateConfiguration ( factoryId, configurationId, parseData ( data ) ) );
     }
 
     private void handleDelete ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
@@ -140,35 +127,9 @@ public class ListServlet extends HttpServlet
         final String factoryId = req.getParameter ( "factoryId" );
         final String configurationId = req.getParameter ( "configurationId" );
 
-        final Factory f = admin.getFactory ( factoryId );
-        if ( f == null )
-        {
-            resp.getOutputStream ().print ( "Failed to load factory" );
-            return;
-        }
+        final PrintWriter stream = resp.getWriter ();
 
-        final Configuration c = f.getConfiguration ( configurationId );
-        if ( c == null )
-        {
-            resp.getOutputStream ().print ( "Failed to load configuration" );
-            return;
-        }
-
-        c.delete ();
-    }
-
-    private void handlePurge ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp )
-    {
-        final String id = req.getParameter ( "id" );
-        final Factory f = admin.getFactory ( id );
-        if ( f != null )
-        {
-            f.purge ();
-        }
-        else
-        {
-
-        }
+        waitForFuture ( stream, admin.deleteConfiguration ( factoryId, configurationId ) );
     }
 
     private void handleCreate ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
@@ -182,16 +143,31 @@ public class ListServlet extends HttpServlet
             return;
 
         }
-        final ServletOutputStream stream = resp.getOutputStream ();
+        final PrintWriter stream = resp.getWriter ();
 
         stream.print ( "<div class='log'>" );
         stream.print ( String.format ( "<div class='%s'>%s</div>", "info", "Creating configuration " + id + " => " + data ) );
 
         final Map<String, String> properties = parseData ( data );
 
-        admin.createConfiguration ( factoryId, id, properties );
+        waitForFuture ( stream, admin.createConfiguration ( factoryId, id, properties ) );
 
         stream.print ( "</div>" );
+    }
+
+    private void waitForFuture ( final PrintWriter stream, final Future<?> future ) throws IOException
+    {
+        try
+        {
+            future.get ( 1, TimeUnit.SECONDS );
+        }
+        catch ( final Throwable e )
+        {
+            stream.print ( "Failed to wait" );
+            stream.print ( "<pre>" );
+            e.printStackTrace ( stream );
+            stream.print ( "</pre>" );
+        }
     }
 
     private Map<String, String> parseData ( final String data ) throws IOException
@@ -222,7 +198,7 @@ public class ListServlet extends HttpServlet
 
     private void stopPage ( final HttpServletResponse resp ) throws IOException
     {
-        resp.getOutputStream ().print ( "</body></html>" );
+        resp.getWriter ().print ( "</body></html>" );
     }
 
     private void startPage ( final HttpServletResponse resp, final String title ) throws IOException
@@ -230,7 +206,7 @@ public class ListServlet extends HttpServlet
         resp.setCharacterEncoding ( "UTF-8" );
         resp.setContentType ( "text/html; charset=UTF-8" );
 
-        final ServletOutputStream stream = resp.getOutputStream ();
+        final PrintWriter stream = resp.getWriter ();
         stream.print ( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" );
         stream.print ( "<html>" );
         stream.print ( "<head>" );
@@ -242,26 +218,29 @@ public class ListServlet extends HttpServlet
 
     private void showFactories ( final HttpServletResponse resp, final ConfigurationAdministrator admin ) throws IOException
     {
-        final ServletOutputStream stream = resp.getOutputStream ();
+        final PrintWriter stream = resp.getWriter ();
         stream.print ( "<table class='factories'>" );
         stream.print ( "<tr><th>ID</th><th>Description</th><th>#</th><th>State</th></tr>" );
 
-        for ( final Factory factory : admin.listKnownFactories () )
+        for ( final Factory factory : admin.getKnownFactories () )
         {
             stream.print ( "<tr>" );
             stream.print ( String.format ( "<td>%s</td>", factory.getId () ) );
             stream.print ( String.format ( "<td>%s</td>", factory.getDescription () ) );
-            stream.print ( String.format ( "<td>%s</td>", factory.getConfigurations ().length ) );
+
+            final Configuration[] configurations = admin.getConfigurations ( factory.getId () );
+
+            stream.print ( String.format ( "<td>%s</td>", configurations.length ) );
             stream.print ( String.format ( "<td>%s</td>", factory.getState () ) );
 
             stream.print ( "<td><form method='POST'><input type='submit' value='Purge' name='cmd_purge' /><input type='hidden' value='" + factory.getId () + "' name='id' /></form></td>" );
 
             stream.print ( "</tr>" );
 
-            if ( factory.getConfigurations ().length > 0 )
+            if ( configurations.length > 0 )
             {
                 stream.print ( "<tr><td></td><td colspan='4'>" );
-                showConfigurations ( resp, admin, factory.getId (), factory.getConfigurations () );
+                showConfigurations ( resp, admin, factory.getId (), configurations );
                 stream.print ( "</td></tr>" );
             }
         }
@@ -274,12 +253,11 @@ public class ListServlet extends HttpServlet
         stream.print ( "<textarea name='data' cols='60' rows='5'></textarea><br />" );
         stream.print ( "<input type='submit' value='Create' name='cmd_create' /><br />" );
         stream.print ( "</form>" );
-
     }
 
     private void showConfigurations ( final HttpServletResponse resp, final ConfigurationAdministrator admin, final String factoryId, final Configuration[] configurations ) throws IOException
     {
-        final ServletOutputStream stream = resp.getOutputStream ();
+        final PrintWriter stream = resp.getWriter ();
         stream.print ( "<table class='configuration' width='100%'>" );
         stream.print ( "<tr><th>ID</th><th>State</th><th>Error</th><th>Data</th></tr>" );
 
@@ -311,7 +289,7 @@ public class ListServlet extends HttpServlet
         stream.print ( "</table>" );
     }
 
-    private void showData ( final ServletOutputStream stream, final Map<String, String> data, final String factoryId, final String configurationId ) throws IOException
+    private void showData ( final PrintWriter stream, final Map<String, String> data, final String factoryId, final String configurationId ) throws IOException
     {
 
         final Properties p = new Properties ();
