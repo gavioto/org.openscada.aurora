@@ -152,7 +152,7 @@ public abstract class AbstractFuture<T> implements NotifyFuture<T>
 
     public T get ( final long timeout, final TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException
     {
-        if ( this.lock.tryAcquire ( 0, timeout, unit ) )
+        if ( !this.lock.tryAcquire ( 0, timeout, unit ) )
         {
             throw new TimeoutException ();
         }
