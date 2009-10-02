@@ -9,9 +9,10 @@ public enum FactoryState
     /**
      * The configuration was loaded and applied
      */
-    CONFIGURED,
+    BOUND,
     /**
-     * The factory was found but not configuration was available
+     * The configuration as loaded, the service became available and
+     * the loaded configuration is currently being applied.
      */
-    FOUND
+    BINDING
 }

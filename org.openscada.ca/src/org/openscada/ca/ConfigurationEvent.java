@@ -14,10 +14,26 @@ public class ConfigurationEvent
 
     private final Type type;
 
-    public ConfigurationEvent ( final Type type, final Configuration configuration )
+    private final ConfigurationState state;
+
+    private final Throwable error;
+
+    public ConfigurationEvent ( final Type type, final Configuration configuration, final ConfigurationState state, final Throwable error )
     {
         this.type = type;
         this.configuration = configuration;
+        this.state = state;
+        this.error = error;
+    }
+
+    public ConfigurationState getState ()
+    {
+        return this.state;
+    }
+
+    public Throwable getError ()
+    {
+        return this.error;
     }
 
     public Configuration getConfiguration ()
@@ -33,6 +49,13 @@ public class ConfigurationEvent
     @Override
     public String toString ()
     {
-        return String.format ( "%s -> %s / %s", this.configuration.getId (), this.type, this.configuration );
+        switch ( this.type )
+        {
+        case STATE:
+            return String.format ( "%s -> %s / %s", this.configuration.getId (), this.type, this.state );
+        default:
+            return String.format ( "%s -> %s / %s", this.configuration.getId (), this.type, this.configuration );
+        }
+
     }
 }

@@ -13,5 +13,9 @@ public enum ConfigurationState
     /**
      * The configuration was available but could not be applied to the service
      */
-    ERROR
+    ERROR,
+    /**
+     * The configuration is currently being applied
+     */
+    APPLYING,
 }

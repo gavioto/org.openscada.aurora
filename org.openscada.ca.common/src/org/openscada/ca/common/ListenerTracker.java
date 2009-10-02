@@ -40,15 +40,16 @@ public class ListenerTracker
 
     public void fireEvent ( final ConfigurationEvent configurationEvent )
     {
+        logger.debug ( "Fire configuration event: {}", configurationEvent );
+
         final Object[] services = this.listenerTracker.getServices ();
 
-        if ( services.length > 0 )
+        if ( services != null && services.length > 0 )
         {
             this.executor.execute ( new Runnable () {
 
                 public void run ()
                 {
-                    logger.debug ( "Fire configuration event: {}", configurationEvent );
                     if ( services != null )
                     {
                         for ( final Object o : services )
@@ -74,15 +75,15 @@ public class ListenerTracker
 
     public void fireEvent ( final FactoryEvent factoryEvent )
     {
+        logger.debug ( "Fire factory event: {}", factoryEvent );
+
         final Object[] services = this.listenerTracker.getServices ();
-        if ( services.length > 0 )
+        if ( services != null && services.length > 0 )
         {
             this.executor.execute ( new Runnable () {
 
                 public void run ()
                 {
-                    logger.debug ( "Fire factory event: {}", factoryEvent );
-
                     if ( services != null )
                     {
                         for ( final Object o : services )

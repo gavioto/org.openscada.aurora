@@ -17,10 +17,18 @@ public class FactoryEvent
 
     private final Type type;
 
-    public FactoryEvent ( final Type type, final Factory factory )
+    private final FactoryState state;
+
+    public FactoryEvent ( final Type type, final Factory factory, final FactoryState state )
     {
         this.type = type;
         this.factory = factory;
+        this.state = state;
+    }
+
+    public FactoryState getState ()
+    {
+        return this.state;
     }
 
     public Factory getFactory ()
@@ -36,6 +44,13 @@ public class FactoryEvent
     @Override
     public String toString ()
     {
-        return String.format ( "%s -> %s", this.factory.getId (), this.type );
+        switch ( this.type )
+        {
+        case STATE:
+            return String.format ( "%s -> %s : %s", this.factory.getId (), this.type, this.state );
+        default:
+            return String.format ( "%s -> %s", this.factory.getId (), this.type );
+        }
+
     }
 }

@@ -9,9 +9,12 @@ import java.util.concurrent.Future;
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationAlreadyExistsException;
+import org.openscada.ca.ConfigurationEvent;
 import org.openscada.ca.ConfigurationFactory;
 import org.openscada.ca.ConfigurationState;
+import org.openscada.ca.FactoryEvent;
 import org.openscada.ca.FactoryNotFoundException;
+import org.openscada.ca.FactoryState;
 import org.openscada.ca.SelfManagedConfigurationFactory;
 import org.openscada.utils.concurrent.AbstractFuture;
 import org.openscada.utils.concurrent.InstantErrorFuture;
@@ -94,9 +97,9 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
     public synchronized void stop ()
     {
-        this.listenerTracker.close ();
         this.serviceListener.close ();
         this.selfServiceListener.close ();
+        this.listenerTracker.close ();
     }
 
     protected synchronized void addStoredFactory ( final String factoryId, final ConfigurationImpl[] configurations )
@@ -107,6 +110,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         if ( factory == null )
         {
             factory = new FactoryImpl ( factoryId );
+            setFactoryState ( factory, FactoryState.LOADED );
             this.factories.put ( factoryId, factory );
             // FIXME: announce new factory
         }
@@ -115,23 +119,43 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         final ConfigurationFactory factoryService = factory.getService ();
         if ( factoryService != null )
         {
-            for ( final ConfigurationImpl cfg : configurations )
-            {
-                applyConfiguration ( null, factoryService, factory, cfg );
-            }
+            scheduleBind ( configurations, factoryService, factory );
         }
     }
 
-    private void addFactorySelfService ( final String factoryId, final SelfManagedConfigurationFactory factory, final String description )
+    private synchronized void setConfigurationStatus ( final ConfigurationImpl configuration, final ConfigurationState configurationState, final Throwable error )
     {
-        // TODO Auto-generated method stub
-
+        configuration.setState ( configurationState, error );
+        this.listenerTracker.fireEvent ( new ConfigurationEvent ( ConfigurationEvent.Type.STATE, configuration, configurationState, error ) );
     }
 
-    private void removeSelfFactoryService ( final String property, final SelfManagedConfigurationFactory factoryService )
+    protected synchronized void setFactoryState ( final FactoryImpl factory, final FactoryState state )
     {
-        // TODO Auto-generated method stub
+        factory.setState ( state );
+        this.listenerTracker.fireEvent ( new FactoryEvent ( FactoryEvent.Type.STATE, factory, state ) );
+    }
 
+    private synchronized void scheduleBind ( final ConfigurationImpl[] configurations, final ConfigurationFactory factoryService, final FactoryImpl factory )
+    {
+        setFactoryState ( factory, FactoryState.BINDING );
+
+        // set all to "APPLYING" now
+        for ( final ConfigurationImpl cfg : configurations )
+        {
+            setConfigurationStatus ( cfg, ConfigurationState.APPLYING, null );
+        }
+
+        this.executor.execute ( new Runnable () {
+
+            public void run ()
+            {
+                for ( final ConfigurationImpl cfg : configurations )
+                {
+                    applyConfiguration ( null, factoryService, factory, cfg );
+                }
+                setFactoryState ( factory, FactoryState.BOUND );
+            }
+        } );
     }
 
     protected synchronized void addFactoryService ( final String factoryId, final ConfigurationFactory service, final String description )
@@ -141,7 +165,9 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         {
             factory = new FactoryImpl ( factoryId );
             this.factories.put ( factoryId, factory );
+
             // FIXME: announce new factory
+            setFactoryState ( factory, FactoryState.BINDING );
         }
 
         if ( factory.getService () == null )
@@ -149,11 +175,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             factory.setDescription ( description );
             factory.setService ( service );
 
-            // apply the already loaded configurations
-            for ( final ConfigurationImpl cfg : factory.getConfigurations () )
-            {
-                applyConfiguration ( null, service, factory, cfg );
-            }
+            scheduleBind ( factory.getConfigurations (), service, factory );
         }
     }
 
@@ -174,7 +196,20 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         {
             // remove service
             factory.setService ( null );
+            setFactoryState ( factory, FactoryState.LOADED );
         }
+    }
+
+    private void addFactorySelfService ( final String factoryId, final SelfManagedConfigurationFactory factory, final String description )
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void removeSelfFactoryService ( final String property, final SelfManagedConfigurationFactory factoryService )
+    {
+        // TODO Auto-generated method stub
+
     }
 
     protected abstract void performStoreConfiguration ( String factoryId, String configurationId, Map<String, String> properties, ConfigurationFuture future ) throws Exception;
@@ -230,6 +265,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         if ( factoryService != null && configuration != null )
         {
             final ConfigurationImpl applyConfiguration = configuration;
+            setConfigurationStatus ( configuration, ConfigurationState.APPLYING, null );
 
             this.executor.execute ( new Runnable () {
 
@@ -265,23 +301,25 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             if ( properties != null )
             {
                 factoryService.update ( configuration.getId (), properties );
-
-                synchronized ( this )
-                {
-                    configuration.setState ( ConfigurationState.APPLIED, null );
-                }
             }
             else
             {
                 factoryService.delete ( configuration.getId () );
                 // FIXME: notify remove                
             }
+            synchronized ( this )
+            {
+                setConfigurationStatus ( configuration, ConfigurationState.APPLIED, null );
+            }
+
+            logger.info ( "Applied configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () } );
         }
         catch ( final Throwable e )
         {
+            logger.info ( "Apply failed configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () }, e );
             synchronized ( this )
             {
-                configuration.setState ( ConfigurationState.ERROR, e );
+                setConfigurationStatus ( configuration, ConfigurationState.ERROR, e );
             }
         }
 
