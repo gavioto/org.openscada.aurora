@@ -50,11 +50,11 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
         private final Set<StorageListener> listeners = new HashSet<StorageListener> ();
 
-        private final ConfigurationData[] configurations;
+        private final Configuration[] configurations;
 
         private final ExecutorService executor;
 
-        public InternalStorage ( final ExecutorService executor, final String factoryId, final ConfigurationData[] initialConfigurations )
+        public InternalStorage ( final ExecutorService executor, final String factoryId, final Configuration[] initialConfigurations )
         {
             this.executor = executor;
             this.factoryId = factoryId;
