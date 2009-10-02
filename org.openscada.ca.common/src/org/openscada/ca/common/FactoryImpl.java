@@ -20,9 +20,17 @@ public class FactoryImpl implements Factory
 
     private ConfigurationFactory service;
 
-    public FactoryImpl ( final String id )
+    private final Storage storage;
+
+    public FactoryImpl ( final String id, final Storage storage )
     {
         this.id = id;
+        this.storage = storage;
+    }
+
+    public Storage getStorage ()
+    {
+        return this.storage;
     }
 
     public void setDescription ( final String description )

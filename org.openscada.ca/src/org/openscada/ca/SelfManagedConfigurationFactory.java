@@ -1,7 +1,5 @@
 package org.openscada.ca;
 
-import java.util.Map;
-
 public interface SelfManagedConfigurationFactory
 {
     /**
@@ -16,7 +14,7 @@ public interface SelfManagedConfigurationFactory
      * </p> 
      * @param listener The new listener to add
      */
-    public void addConfigurationListener ( ConfigurationListener listener );
+    public void addConfigurationListener ( StorageListener listener );
 
     /**
      * Remove a listener from the factory
@@ -25,9 +23,9 @@ public interface SelfManagedConfigurationFactory
      * </p>
      * @param listener
      */
-    public void removeConfigurationListener ( ConfigurationListener listener );
+    public void removeConfigurationListener ( StorageListener listener );
 
-    public void update ( String configurationId, Map<String, String> properties ) throws Exception;
+    public void update ( ConfigurationData configuration ) throws Exception;
 
-    public void delete ( String configurationId );
+    public void delete ( String configurationId ) throws Exception;
 }

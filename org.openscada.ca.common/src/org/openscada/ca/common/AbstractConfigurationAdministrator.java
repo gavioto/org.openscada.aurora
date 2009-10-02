@@ -18,7 +18,6 @@ import org.openscada.ca.FactoryState;
 import org.openscada.ca.SelfManagedConfigurationFactory;
 import org.openscada.utils.concurrent.AbstractFuture;
 import org.openscada.utils.concurrent.InstantErrorFuture;
-import org.openscada.utils.concurrent.NotifyFuture;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -34,7 +33,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
     private final BundleContext context;
 
-    private final ExecutorService executor;
+    protected final ExecutorService executor;
 
     private final ListenerTracker listenerTracker;
 
@@ -102,14 +101,14 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         this.listenerTracker.close ();
     }
 
-    protected synchronized void addStoredFactory ( final String factoryId, final ConfigurationImpl[] configurations )
+    protected synchronized void addStoredFactory ( final String factoryId, final Storage storage, final ConfigurationImpl[] configurations )
     {
         logger.info ( "Adding stored factory: {} ({})", new Object[] { factoryId, configurations.length } );
 
         FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
         {
-            factory = new FactoryImpl ( factoryId );
+            factory = new FactoryImpl ( factoryId, storage );
             setFactoryState ( factory, FactoryState.LOADED );
             this.factories.put ( factoryId, factory );
             // FIXME: announce new factory
@@ -163,7 +162,18 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
         {
-            factory = new FactoryImpl ( factoryId );
+            Storage storage;
+            try
+            {
+                storage = performCreateStorage ( factoryId );
+            }
+            catch ( final Exception e )
+            {
+                // FIXME: better handling
+                return;
+            }
+
+            factory = new FactoryImpl ( factoryId, storage );
             this.factories.put ( factoryId, factory );
 
             // FIXME: announce new factory
@@ -200,28 +210,24 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
     }
 
-    private void addFactorySelfService ( final String factoryId, final SelfManagedConfigurationFactory factory, final String description )
+    private synchronized void addFactorySelfService ( final String factoryId, final SelfManagedConfigurationFactory factoryService, final String description )
     {
         // TODO Auto-generated method stub
-
     }
 
-    private void removeSelfFactoryService ( final String property, final SelfManagedConfigurationFactory factoryService )
+    private synchronized void removeSelfFactoryService ( final String property, final SelfManagedConfigurationFactory factoryService )
     {
         // TODO Auto-generated method stub
-
     }
 
-    protected abstract void performStoreConfiguration ( String factoryId, String configurationId, Map<String, String> properties, ConfigurationFuture future ) throws Exception;
-
-    protected abstract void performDeleteConfiguration ( String factoryId, String configurationId, ConfigurationFuture future ) throws Exception;
+    protected abstract Storage performCreateStorage ( String factoryId ) throws Exception;
 
     /**
      * Request a change of the configuration
      * @param factoryId
      * @param configurationId
      * @param properties
-     * @param future
+     * @param future the future to notify after completion or <code>null</code> if no notification is needed
      */
     protected synchronized void changeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final ConfigurationFuture future )
     {
@@ -262,6 +268,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
         final ConfigurationFactory factoryService = factory.getService ();
 
+        // now apply the configuration if the factory has a service attached
         if ( factoryService != null && configuration != null )
         {
             final ConfigurationImpl applyConfiguration = configuration;
@@ -344,7 +351,9 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             return new InstantErrorFuture<Configuration> ( new ConfigurationAlreadyExistsException ( factoryId, configurationId ).fillInStackTrace () );
         }
 
-        return invokeStore ( factoryId, configurationId, properties );
+        return factory.getStorage ().store ( configurationId, properties );
+
+        // return invokeStore ( factoryId, configurationId, properties );
     }
 
     public synchronized Future<Configuration> updateConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties )
@@ -361,7 +370,8 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             return new InstantErrorFuture<Configuration> ( new ConfigurationNotFoundException ( factoryId, configurationId ).fillInStackTrace () );
         }
 
-        return invokeStore ( factoryId, configurationId, properties );
+        return factory.getStorage ().store ( configurationId, properties );
+        // return invokeStore ( factoryId, configurationId, properties );
     }
 
     public synchronized Future<Configuration> deleteConfiguration ( final String factoryId, final String configurationId )
@@ -378,10 +388,11 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             return new InstantErrorFuture<Configuration> ( new ConfigurationNotFoundException ( factoryId, configurationId ).fillInStackTrace () );
         }
 
-        return invokeDelete ( factoryId, configurationId );
+        return factory.getStorage ().delete ( configurationId );
+        // return invokeDelete ( factoryId, configurationId );
     }
 
-    protected final class ConfigurationFuture extends AbstractFuture<Configuration>
+    public final class ConfigurationFuture extends AbstractFuture<Configuration>
     {
         @Override
         public void setError ( final Throwable error )
@@ -394,46 +405,6 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         {
             super.setResult ( result );
         }
-    }
-
-    private NotifyFuture<Configuration> invokeStore ( final String factoryId, final String configurationId, final Map<String, String> properties )
-    {
-        final ConfigurationFuture future = new ConfigurationFuture ();
-        this.executor.execute ( new Runnable () {
-
-            public void run ()
-            {
-                try
-                {
-                    performStoreConfiguration ( factoryId, configurationId, properties, future );
-                }
-                catch ( final Throwable e )
-                {
-                    future.setError ( e );
-                }
-            }
-        } );
-        return future;
-    }
-
-    private NotifyFuture<Configuration> invokeDelete ( final String factoryId, final String configurationId )
-    {
-        final ConfigurationFuture future = new ConfigurationFuture ();
-        this.executor.execute ( new Runnable () {
-
-            public void run ()
-            {
-                try
-                {
-                    performDeleteConfiguration ( factoryId, configurationId, future );
-                }
-                catch ( final Throwable e )
-                {
-                    future.setError ( e );
-                }
-            }
-        } );
-        return future;
     }
 
     /* readers */
@@ -497,6 +468,25 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
     }
 
+    /**
+     * Get the description from a service reference
+     * @param reference the reference to use
+     * @return the description or <code>null</code> if none exists
+     */
+    private String getDescription ( final ServiceReference reference )
+    {
+        String description;
+        if ( reference.getProperty ( Constants.SERVICE_DESCRIPTION ) instanceof String )
+        {
+            description = (String)reference.getProperty ( Constants.SERVICE_DESCRIPTION );
+        }
+        else
+        {
+            description = null;
+        }
+        return description;
+    }
+
     protected Object addingSelfService ( final ServiceReference reference )
     {
         final String factoryId = checkAndGetFactoryId ( reference );
@@ -523,20 +513,6 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             }
             return null;
         }
-    }
-
-    private String getDescription ( final ServiceReference reference )
-    {
-        String description;
-        if ( reference.getProperty ( Constants.SERVICE_DESCRIPTION ) instanceof String )
-        {
-            description = (String)reference.getProperty ( Constants.SERVICE_DESCRIPTION );
-        }
-        else
-        {
-            description = null;
-        }
-        return description;
     }
 
     protected void removedSelfService ( final ServiceReference reference, final Object service )

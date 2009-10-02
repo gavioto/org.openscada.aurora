@@ -8,8 +8,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.openscada.ca.Configuration;
-import org.openscada.ca.ConfigurationListener;
+import org.openscada.ca.ConfigurationData;
 import org.openscada.ca.SelfManagedConfigurationFactory;
+import org.openscada.ca.StorageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
 
     private final String factoryId;
 
-    private final Set<ConfigurationListener> listeners = new HashSet<ConfigurationListener> ();
+    private final Set<StorageListener> listeners = new HashSet<StorageListener> ();
 
     public SelfManagedConfigurationFactoryImpl ( final String factoryId )
     {
@@ -51,7 +52,7 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         this.executor = null;
     }
 
-    public synchronized void addConfigurationListener ( final ConfigurationListener listener )
+    public synchronized void addConfigurationListener ( final StorageListener listener )
     {
         if ( !this.listeners.add ( listener ) )
         {
@@ -79,13 +80,13 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
      */
     private void notifyListeners ( final Configuration[] addedOrChanged, final String[] deleted )
     {
-        final Set<ConfigurationListener> listeners = new HashSet<ConfigurationListener> ( this.listeners );
+        final Set<StorageListener> listeners = new HashSet<StorageListener> ( this.listeners );
 
         this.executor.execute ( new Runnable () {
 
             public void run ()
             {
-                for ( final ConfigurationListener listener : listeners )
+                for ( final StorageListener listener : listeners )
                 {
                     listener.configurationUpdate ( addedOrChanged, deleted );
                 }
@@ -93,22 +94,22 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         } );
     }
 
-    public synchronized void removeConfigurationListener ( final ConfigurationListener listener )
+    public synchronized void removeConfigurationListener ( final StorageListener listener )
     {
         this.listeners.remove ( listener );
     }
 
-    public synchronized void update ( final String configurationId, final Map<String, String> properties ) throws Exception
+    public synchronized void update ( final ConfigurationData configuration ) throws Exception
     {
-        logger.info ( "Updating: {} -> {}", new Object[] { configurationId, properties } );
-        ConfigurationImpl cfg = this.configurations.get ( configurationId );
+        logger.info ( "Updating: {} -> {}", new Object[] { configuration.getId (), configuration.getData () } );
+        ConfigurationImpl cfg = this.configurations.get ( configuration.getId () );
         if ( cfg != null )
         {
-            cfg.setData ( properties );
+            cfg.setData ( configuration.getData () );
         }
         else
         {
-            cfg = new ConfigurationImpl ( configurationId, this.factoryId, properties );
+            cfg = new ConfigurationImpl ( configuration.getId (), this.factoryId, configuration.getData () );
         }
 
         notifyListeners ( new Configuration[] { cfg }, null );
