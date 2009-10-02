@@ -6,5 +6,5 @@ public interface ConfigurationFactory
 {
     public void update ( String configurationId, Map<String, String> properties ) throws Exception;
 
-    public void delete ( String configurationId );
+    public void delete ( String configurationId ) throws Exception;
 }
