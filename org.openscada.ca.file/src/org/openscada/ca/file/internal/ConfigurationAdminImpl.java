@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.openscada.ca.Configuration;
-import org.openscada.ca.ConfigurationData;
 import org.openscada.ca.StorageListener;
 import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.common.ConfigurationDataImpl;
@@ -82,7 +81,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             this.listeners.remove ( listener );
         }
 
-        public synchronized void changeConfiguration ( final ConfigurationData[] addedOrChanged, final String[] deleted )
+        public synchronized void changeConfiguration ( final Configuration[] addedOrChanged, final String[] deleted )
         {
             for ( final StorageListener listener : this.listeners )
             {
@@ -391,7 +390,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
         // notify the abstract service from our content change
         // changeConfiguration ( factoryId, configurationId, properties, future );
-        storage.changeConfiguration ( new ConfigurationData[] { new ConfigurationDataImpl ( configurationId, properties ) }, null );
+        storage.changeConfiguration ( new Configuration[] { new ConfigurationImpl ( factoryId, configurationId, properties ) }, null );
     }
 
     private File getFactoryPath ( final String factoryId )
