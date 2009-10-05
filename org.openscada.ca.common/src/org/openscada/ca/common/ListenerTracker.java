@@ -25,7 +25,7 @@ public class ListenerTracker
     public ListenerTracker ( final BundleContext context )
     {
         this.listenerTracker = new ServiceTracker ( context, ConfigurationAdministratorListener.class.getName (), null );
-        this.executor = new ThreadPoolExecutor ( 0, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable> () );
+        this.executor = new ThreadPoolExecutor ( 0, 1, 1000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable> (), new NamedThreadFactory ( "Configuration / Listener Tracker" ) );
     }
 
     public void open ()

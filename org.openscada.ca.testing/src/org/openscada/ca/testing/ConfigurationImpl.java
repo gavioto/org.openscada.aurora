@@ -13,11 +13,17 @@ public class ConfigurationImpl implements Configuration
 
     private Map<String, String> data;
 
-    public ConfigurationImpl ( final String id, final String factoryId, final Map<String, String> data )
+    private final ConfigurationState state;
+
+    private final Throwable errorInformation;
+
+    public ConfigurationImpl ( final String id, final String factoryId, final Map<String, String> data, final ConfigurationState state, final Throwable errorInformation )
     {
         this.id = id;
         this.factoryId = factoryId;
         this.data = data;
+        this.state = state;
+        this.errorInformation = errorInformation;
     }
 
     public Map<String, String> getData ()
@@ -27,7 +33,7 @@ public class ConfigurationImpl implements Configuration
 
     public Throwable getErrorInformation ()
     {
-        return null;
+        return this.errorInformation;
     }
 
     public String getFactoryId ()
@@ -42,7 +48,7 @@ public class ConfigurationImpl implements Configuration
 
     public ConfigurationState getState ()
     {
-        return null;
+        return this.state;
     }
 
     public void setData ( final Map<String, String> properties )

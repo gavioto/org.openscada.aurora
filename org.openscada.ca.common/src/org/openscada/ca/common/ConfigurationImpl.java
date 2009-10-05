@@ -10,24 +10,21 @@ public class ConfigurationImpl implements Configuration
 
     private final String id;
 
-    private Map<String, String> data;
-
     private final String factoryId;
 
-    private ConfigurationState state;
+    private final Map<String, String> data;
 
-    private Throwable error;
+    private final ConfigurationState state;
 
-    public ConfigurationImpl ( final String id, final String factoryId, final Map<String, String> data )
+    private final Throwable errorInformation;
+
+    public ConfigurationImpl ( final Configuration cfg )
     {
-        this.id = id;
-        this.factoryId = factoryId;
-        this.data = data;
-    }
-
-    public String getFactoryId ()
-    {
-        return this.factoryId;
+        this.id = cfg.getId ();
+        this.factoryId = cfg.getFactoryId ();
+        this.data = cfg.getData ();
+        this.state = cfg.getState ();
+        this.errorInformation = cfg.getErrorInformation ();
     }
 
     public Map<String, String> getData ()
@@ -37,7 +34,12 @@ public class ConfigurationImpl implements Configuration
 
     public Throwable getErrorInformation ()
     {
-        return this.error;
+        return this.errorInformation;
+    }
+
+    public String getFactoryId ()
+    {
+        return this.factoryId;
     }
 
     public String getId ()
@@ -48,17 +50,6 @@ public class ConfigurationImpl implements Configuration
     public ConfigurationState getState ()
     {
         return this.state;
-    }
-
-    public void setData ( final Map<String, String> data )
-    {
-        this.data = data;
-    }
-
-    public void setState ( final ConfigurationState state, final Throwable e )
-    {
-        this.state = state;
-        this.error = e;
     }
 
 }
