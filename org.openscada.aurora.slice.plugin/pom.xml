@@ -1,0 +1,244 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.openscada.aurora</groupId>
+	<artifactId>org.openscada.aurora.slice.plugin</artifactId>
+	<version>0.14.0-SNAPSHOT</version>
+	<packaging>maven-plugin</packaging>
+	<name>OpenSCADA-Common-Maven-Slice-Plugin</name>
+	<description>Plugin to generate needed slice files. It is essentially a
+	thin wrapper over the ant tasks of the Ice distribution. For further
+	information have a look at http://www.zeroc.com/ice.html
+	</description>
+	<url>http://www.openscada.org</url>
+	<inceptionYear>2008</inceptionYear>
+
+	<organization>
+		<name>inavare GmbH</name>
+		<url>http://www.inavare.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>GNU General Public License, version 2</name>
+			<url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+			<distribution>repo</distribution>
+			<comments>
+			this plugin contains source code
+			developed by ZeroC, Inc. http://www.zeroc.com/about.html
+			</comments>
+		</license>
+	</licenses>
+
+	<properties>
+		<update.policy>interval:10080</update.policy>
+	</properties>
+	
+	<scm>
+		<connection>scm:svn:http://pubsvn.inavare.net/openscada/modules/aurora/trunk/org.openscada.aurora.slice.plugin</connection>
+		<developerConnection>scm:svn:${inavare.svn.repository}/openscada/modules/aurora/trunk/org.openscada.aurora.slice.plugin</developerConnection>
+		<url>http://pubsvn.inavare.net/openscada/modules/aurora/trunk/org.openscada.aurora.slice.plugin</url>
+	</scm>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>2.4</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.plugin-tools</groupId>
+						<artifactId>maven-plugin-tools-ant</artifactId>
+						<version>2.4</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<goalPrefix>slice</goalPrefix>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-script-ant</artifactId>
+			<version>2.0.9</version>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<!-- profile is used in inavare internal environment -->
+		<profile>
+			<id>inavare</id>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>openscada-repos</id>
+					<name>openscada-repos</name>
+					<url>${openscada.internal.repository}</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<repositories>
+				<repository>
+					<id>openscada-repos</id>
+					<name>openscada-repos</name>
+					<url>${openscada.internal.repository}</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<distributionManagement>
+				<repository>
+					<id>openscada-releases</id>
+					<name>openscada-releases</name>
+					<url>${openscada.distrib.repository}</url>
+				</repository>
+				<snapshotRepository>
+					<id>openscada-snapshots</id>
+					<name>openscada-snapshots</name>
+					<url>${openscada.distrib.repository}</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<!-- profile is used in 3rdparty environment -->
+		<profile>
+			<id>public</id>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>openscada-public-repos</id>
+					<name>openscada-public-repos</name>
+					<url>http://www.openscada.org/download/maven-repo/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<repositories>
+				<repository>
+					<id>openscada-public-repos</id>
+					<name>openscada-public-repos</name>
+					<url>http://www.openscada.org/download/maven-repo/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>${update.policy}</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+		</profile>
+		<!-- profile used in deploy environment -->
+		<profile>
+			<id>deploy</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-dependencies</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>package-dependencies</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<zip
+											zipfile="target/${project.artifactId}-${project.version}-with-dependencies.zip">
+											<fileset dir="target">
+												<include name="*.jar" />
+												<include name="dependency/*.jar" />
+											</fileset>
+										</zip>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
