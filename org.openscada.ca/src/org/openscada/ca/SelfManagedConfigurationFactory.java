@@ -1,6 +1,7 @@
 package org.openscada.ca;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import org.openscada.utils.concurrent.NotifyFuture;
 
@@ -44,12 +45,27 @@ public interface SelfManagedConfigurationFactory
     public void removeConfigurationListener ( StorageListener listener );
 
     /**
-     * Create or update a configuration
+     * Create a configuration
      * <p>
      * The call must also send out the changed or created configuration to the listeners
      * </p>
      * <p>
-     * The call must finish the future it returns after the configuration is stored and applied.
+     * The call must process the future it returns after the configuration is stored and applied.
+     * </p>
+     * @param configurationId the id of the configuration
+     * @param properties the updated or initial properties
+     * @return the configuration future
+     */
+
+    public Future<Configuration> create ( String configurationId, Map<String, String> properties );
+
+    /**
+     * Update a configuration
+     * <p>
+     * The call must also send out the changed or created configuration to the listeners
+     * </p>
+     * <p>
+     * The call must process the future it returns after the configuration is stored and applied.
      * </p>
      * @param configurationId the id of the configuration
      * @param properties the updated or initial properties
@@ -69,4 +85,5 @@ public interface SelfManagedConfigurationFactory
      * @return the configuration future
      */
     public NotifyFuture<Configuration> delete ( String configurationId );
+
 }
