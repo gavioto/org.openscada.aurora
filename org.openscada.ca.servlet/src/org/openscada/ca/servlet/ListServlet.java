@@ -207,13 +207,14 @@ public class ListServlet extends HttpServlet
         resp.setContentType ( "text/html; charset=UTF-8" );
 
         final PrintWriter stream = resp.getWriter ();
-        stream.print ( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" );
-        stream.print ( "<html>" );
-        stream.print ( "<head>" );
-        stream.print ( "<title>" + title + "</title>" );
-        stream.print ( "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">" );
-        stream.print ( "<link type=\"text/css\" media=\"screen,print\" rel=\"stylesheet\" href=\"/ca/resources/style.css\"></link>" );
-        stream.print ( "</head><body>" );
+        stream.println ( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" );
+        stream.println ( "<html>" );
+        stream.println ( "<head>" );
+        stream.println ( "<title>" + title + "</title>" );
+        stream.println ( "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">" );
+        stream.println ( "<script src=\"/ca/resources/code.js\" type=\"text/javascript\"></script>" );
+        stream.println ( "<link type=\"text/css\" media=\"screen,print\" rel=\"stylesheet\" href=\"/ca/resources/style.css\"></link>" );
+        stream.println ( "</head><body>" );
     }
 
     private void showFactories ( final HttpServletResponse resp, final ConfigurationAdministrator admin ) throws IOException
@@ -225,7 +226,7 @@ public class ListServlet extends HttpServlet
         for ( final Factory factory : admin.getKnownFactories () )
         {
             stream.print ( "<tr>" );
-            stream.print ( String.format ( "<td>%s</td>", factory.getId () ) );
+            stream.print ( String.format ( "<td><a href=\"javascript:selectFactory('%1$s')\">%1$s</a></td>", factory.getId () ) );
             stream.print ( String.format ( "<td>%s</td>", factory.getDescription () ) );
 
             final Configuration[] configurations = admin.getConfigurations ( factory.getId () );
@@ -247,6 +248,7 @@ public class ListServlet extends HttpServlet
         stream.print ( "</table>" );
 
         stream.print ( "<form method='GET'><input type='submit' value='Refresh' /></form>" );
+
         stream.print ( "<form method='POST'>" );
         stream.print ( "<label for='create_factoryId'>Factory Id:</label><input id='create_factory_id' type='text' value='' name='factoryId' /><br />" );
         stream.print ( "<label for='create_id'>Id:</label><input id='create_id' type='text' value='' name='id' /><br />" );
