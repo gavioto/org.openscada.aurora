@@ -54,9 +54,8 @@ public interface SelfManagedConfigurationFactory
      * @param configurationId the id of the configuration
      * @param properties the updated or initial properties
      * @return the configuration future
-     * @throws Exception if anything goes wrong
      */
-    public NotifyFuture<Configuration> update ( String configurationId, Map<String, String> properties ) throws Exception;
+    public NotifyFuture<Configuration> update ( String configurationId, Map<String, String> properties );
 
     /**
      * Delete a configuration
@@ -68,7 +67,6 @@ public interface SelfManagedConfigurationFactory
      * </p>
      * @param configurationId the configuration id to delete
      * @return the configuration future
-     * @throws Exception if anything goes wrong
      */
-    public NotifyFuture<Configuration> delete ( String configurationId ) throws Exception;
+    public NotifyFuture<Configuration> delete ( String configurationId );
 }
