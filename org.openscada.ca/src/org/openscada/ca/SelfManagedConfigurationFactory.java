@@ -6,7 +6,8 @@ import org.openscada.utils.concurrent.NotifyFuture;
  * A self managed configuration factory
  * <p>
  * The configuration factory must guarantee that the order of events
- * is correct when calling the listeners.
+ * is correct when calling the listeners. The listener must be called
+ * without any locks held.
  * </p>
  * <p>
  * The factory also applies to configuration to itself. So the configuration
@@ -45,6 +46,9 @@ public interface SelfManagedConfigurationFactory
      * <p>
      * The call must also send out the changed or created configuration to the listeners
      * </p>
+     * <p>
+     * The call must finish the future it returns after the configuration is stored and applied.
+     * </p>
      * @param configuration the configuration data
      * @return the configuration future
      * @throws Exception if anything goes wrong
@@ -55,6 +59,9 @@ public interface SelfManagedConfigurationFactory
      * Delete a configuration
      * <p>
      * The call must also send out the deleted configuration to the listeners
+     * </p>
+     * <p>
+     * The call must finish the future it returns after the configuration is stored and applied.
      * </p>
      * @param configurationId the configuration id to delete
      * @return the configuration future
