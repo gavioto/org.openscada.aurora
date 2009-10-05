@@ -1,7 +1,6 @@
 package org.openscada.ca;
 
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import org.openscada.utils.concurrent.NotifyFuture;
 
@@ -57,7 +56,7 @@ public interface SelfManagedConfigurationFactory
      * @return the configuration future
      */
 
-    public Future<Configuration> create ( String configurationId, Map<String, String> properties );
+    public NotifyFuture<Configuration> create ( String configurationId, Map<String, String> properties );
 
     /**
      * Update a configuration
