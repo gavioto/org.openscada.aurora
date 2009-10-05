@@ -1,5 +1,7 @@
 package org.openscada.ca;
 
+import java.util.Map;
+
 import org.openscada.utils.concurrent.NotifyFuture;
 
 /**
@@ -49,11 +51,12 @@ public interface SelfManagedConfigurationFactory
      * <p>
      * The call must finish the future it returns after the configuration is stored and applied.
      * </p>
-     * @param configuration the configuration data
+     * @param configurationId the id of the configuration
+     * @param properties the updated or initial properties
      * @return the configuration future
      * @throws Exception if anything goes wrong
      */
-    public NotifyFuture<Configuration> update ( ConfigurationData configuration ) throws Exception;
+    public NotifyFuture<Configuration> update ( String configurationId, Map<String, String> properties ) throws Exception;
 
     /**
      * Delete a configuration
