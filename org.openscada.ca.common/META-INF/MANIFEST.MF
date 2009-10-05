@@ -12,4 +12,3 @@ Import-Package: org.openscada.ca;version="0.14.0",
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-Activator: org.openscada.ca.common.Activator

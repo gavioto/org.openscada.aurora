@@ -1,11 +1,12 @@
 package org.openscada.ca.file;
 
+import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.ca.ConfigurationAdministrator;
-import org.openscada.ca.common.AbstractConfigurationAdministrator;
-import org.openscada.ca.file.internal.ConfigurationAdminImpl;
+import org.openscada.ca.common.AbstractConfigurationAdministratorImpl;
+import org.openscada.ca.file.internal.ConfigurationAdministratorImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -13,13 +14,13 @@ import org.osgi.framework.ServiceRegistration;
 
 public class Activator implements BundleActivator
 {
-    private AbstractConfigurationAdministrator service;
+    private AbstractConfigurationAdministratorImpl service;
 
     private ServiceRegistration handle;
 
     public void start ( final BundleContext context ) throws Exception
     {
-        this.service = new ConfigurationAdminImpl ( context );
+        this.service = new ConfigurationAdministratorImpl ( context, new File ( context.getDataFile ( "" ), "ca" ) );
 
         this.service.start ();
 

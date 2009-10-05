@@ -84,5 +84,4 @@ public interface SelfManagedConfigurationFactory
      * @return the configuration future
      */
     public NotifyFuture<Configuration> delete ( String configurationId );
-
 }

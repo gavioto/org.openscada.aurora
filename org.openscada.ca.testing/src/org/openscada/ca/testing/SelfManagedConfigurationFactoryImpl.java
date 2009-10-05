@@ -133,7 +133,7 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         return task;
     }
 
-    public synchronized Future<Configuration> create ( final String configurationId, final Map<String, String> properties )
+    public synchronized NotifyFuture<Configuration> create ( final String configurationId, final Map<String, String> properties )
     {
         if ( this.executor == null )
         {

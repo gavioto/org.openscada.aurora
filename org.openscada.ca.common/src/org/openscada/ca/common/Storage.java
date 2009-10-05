@@ -1,18 +1,13 @@
 package org.openscada.ca.common;
 
 import java.util.Map;
-import java.util.concurrent.Future;
 
-import org.openscada.ca.Configuration;
-import org.openscada.ca.StorageListener;
 
 public interface Storage
 {
-    public Future<Configuration> store ( String configurationId, Map<String, String> properties );
+    public void store ( String configurationId, Map<String, String> properties, ConfigurationFuture future );
 
-    public Future<Configuration> delete ( String configurationId );
+    public void delete ( String configurationId, ConfigurationFuture future );
 
-    public void addConfigurationListener ( StorageListener listener );
-
-    public void removeConfigurationListener ( StorageListener listener );
+    public void setStorageManager ( StorageManager manager );
 }

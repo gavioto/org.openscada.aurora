@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationAdministrator;
+import org.openscada.ca.ConfigurationFactory;
 import org.openscada.ca.Factory;
 import org.openscada.ca.FactoryNotFoundException;
 import org.openscada.ca.SelfManagedConfigurationFactory;
@@ -19,9 +20,9 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigurationAdministratorImpl implements ConfigurationAdministrator
+public abstract class AbstractConfigurationAdministratorImpl implements ConfigurationAdministrator
 {
-    private final static Logger logger = LoggerFactory.getLogger ( ConfigurationAdministratorImpl.class );
+    private final static Logger logger = LoggerFactory.getLogger ( AbstractConfigurationAdministratorImpl.class );
 
     private final BundleContext context;
 
@@ -33,7 +34,11 @@ public class ConfigurationAdministratorImpl implements ConfigurationAdministrato
 
     private final Map<String, FactoryHandler> factories = new HashMap<String, FactoryHandler> ();
 
-    public ConfigurationAdministratorImpl ( final BundleContext context )
+    private final Map<ConfigurationFactory, SelfManagedConfigurationFactory> wrappers = new HashMap<ConfigurationFactory, SelfManagedConfigurationFactory> ();
+
+    private final ServiceTracker serviceListener2;
+
+    public AbstractConfigurationAdministratorImpl ( final BundleContext context )
     {
         this.context = context;
         this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( "Configuration Administrator" ) );
@@ -44,7 +49,7 @@ public class ConfigurationAdministratorImpl implements ConfigurationAdministrato
 
             public void removedService ( final ServiceReference reference, final Object service )
             {
-                ConfigurationAdministratorImpl.this.removedService ( reference, service );
+                AbstractConfigurationAdministratorImpl.this.removedService ( reference, service );
             }
 
             public void modifiedService ( final ServiceReference reference, final Object service )
@@ -53,12 +58,29 @@ public class ConfigurationAdministratorImpl implements ConfigurationAdministrato
 
             public Object addingService ( final ServiceReference reference )
             {
-                return ConfigurationAdministratorImpl.this.addingService ( reference );
+                return AbstractConfigurationAdministratorImpl.this.addingService ( reference );
+            }
+        } );
+
+        this.serviceListener2 = new ServiceTracker ( context, ConfigurationFactory.class.getName (), new ServiceTrackerCustomizer () {
+
+            public void removedService ( final ServiceReference reference, final Object service )
+            {
+                AbstractConfigurationAdministratorImpl.this.removedService ( reference, service );
+            }
+
+            public void modifiedService ( final ServiceReference reference, final Object service )
+            {
+            }
+
+            public Object addingService ( final ServiceReference reference )
+            {
+                return AbstractConfigurationAdministratorImpl.this.addingService ( reference );
             }
         } );
     }
 
-    protected synchronized void removedService ( final ServiceReference reference, final Object service )
+    protected void removedService ( final ServiceReference reference, final Object service )
     {
         final String factoryId = getFactoryId ( reference );
 
@@ -68,14 +90,36 @@ public class ConfigurationAdministratorImpl implements ConfigurationAdministrato
             return;
         }
 
-        final FactoryHandler handler = this.factories.get ( factoryId );
-        if ( handler != null )
+        if ( service instanceof SelfManagedConfigurationFactory )
         {
-            handler.removeService ( (SelfManagedConfigurationFactory)service );
+            removeFactory ( factoryId, (SelfManagedConfigurationFactory)service );
+        }
+        else if ( service instanceof ConfigurationFactory )
+        {
+            removeFactory ( factoryId, (ConfigurationFactory)service );
         }
     }
 
-    protected synchronized Object addingService ( final ServiceReference reference )
+    private synchronized void removeFactory ( final String factoryId, final ConfigurationFactory service )
+    {
+        logger.info ( "Removing wrapper for: {}", factoryId );
+
+        final SelfManagedConfigurationFactory wrapper = this.wrappers.remove ( service );
+        removeFactory ( factoryId, wrapper );
+
+    }
+
+    private synchronized void removeFactory ( final String factoryId, final SelfManagedConfigurationFactory service )
+    {
+        final FactoryHandler handler = this.factories.get ( factoryId );
+
+        if ( handler != null )
+        {
+            handler.removeService ( service );
+        }
+    }
+
+    protected Object addingService ( final ServiceReference reference )
     {
         final String factoryId = getFactoryId ( reference );
 
@@ -87,21 +131,23 @@ public class ConfigurationAdministratorImpl implements ConfigurationAdministrato
 
         try
         {
-            final SelfManagedConfigurationFactory service = (SelfManagedConfigurationFactory)this.context.getService ( reference );
+            final Object o = this.context.getService ( reference );
 
-            FactoryHandler handler;
-            if ( this.factories.containsKey ( factoryId ) )
+            if ( o instanceof SelfManagedConfigurationFactory )
             {
-                handler = this.factories.get ( factoryId );
+                final SelfManagedConfigurationFactory service = (SelfManagedConfigurationFactory)o;
+                addFactory ( factoryId, service );
+                return service;
             }
-            else
+            else if ( o instanceof ConfigurationFactory )
             {
-                handler = new FactoryHandler ( factoryId );
-                this.factories.put ( factoryId, handler );
+                addFactory ( factoryId, (ConfigurationFactory)o );
+                return o;
             }
 
-            handler.addService ( service );
-            return service;
+            // ups
+            this.context.ungetService ( reference );
+            return null;
         }
         catch ( final Throwable e )
         {
@@ -109,6 +155,32 @@ public class ConfigurationAdministratorImpl implements ConfigurationAdministrato
             this.context.ungetService ( reference );
             return null;
         }
+    }
+
+    protected abstract Storage createStorage ( String factoryId );
+
+    private synchronized void addFactory ( final String factoryId, final ConfigurationFactory service )
+    {
+        logger.info ( "Adding wrapper for: {}", factoryId );
+
+        final SelfManagedConfigurationFactory wrapper = new Wrapper ( factoryId, service, createStorage ( factoryId ) );
+        this.wrappers.put ( service, wrapper );
+        addFactory ( factoryId, wrapper );
+    }
+
+    private synchronized void addFactory ( final String factoryId, final SelfManagedConfigurationFactory service )
+    {
+        FactoryHandler handler;
+        if ( this.factories.containsKey ( factoryId ) )
+        {
+            handler = this.factories.get ( factoryId );
+        }
+        else
+        {
+            handler = new FactoryHandler ( factoryId );
+            this.factories.put ( factoryId, handler );
+        }
+        handler.addService ( service );
     }
 
     private String getFactoryId ( final ServiceReference reference )
@@ -125,11 +197,13 @@ public class ConfigurationAdministratorImpl implements ConfigurationAdministrato
     {
         this.listenerTracker.open ();
         this.serviceListener.open ();
+        this.serviceListener2.open ();
     }
 
     public synchronized void stop ()
     {
         this.serviceListener.close ();
+        this.serviceListener2.close ();
         this.listenerTracker.close ();
     }
 

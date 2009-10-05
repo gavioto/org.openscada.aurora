@@ -27,6 +27,15 @@ public class ConfigurationImpl implements Configuration
         this.errorInformation = cfg.getErrorInformation ();
     }
 
+    public ConfigurationImpl ( final String id, final String factoryId, final Map<String, String> data, final ConfigurationState state, final Throwable errorInformation )
+    {
+        this.id = id;
+        this.factoryId = factoryId;
+        this.data = data;
+        this.state = state;
+        this.errorInformation = errorInformation;
+    }
+
     public Map<String, String> getData ()
     {
         return this.data;

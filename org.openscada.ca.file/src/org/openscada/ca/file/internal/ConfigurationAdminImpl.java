@@ -7,29 +7,22 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.openscada.ca.Configuration;
-import org.openscada.ca.StorageListener;
-import org.openscada.ca.common.AbstractConfigurationAdministrator;
-import org.openscada.ca.common.ConfigurationDataImpl;
+import org.openscada.ca.common.AbstractConfigurationAdministratorImpl;
 import org.openscada.ca.common.ConfigurationImpl;
 import org.openscada.ca.common.Storage;
-import org.openscada.utils.concurrent.NotifyFuture;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
+public class ConfigurationAdminImpl extends AbstractConfigurationAdministratorImpl
 {
     private final static class DataFilenameFilter implements FilenameFilter
     {
@@ -40,59 +33,6 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
                 return false;
             }
             return true;
-        }
-    }
-
-    private class InternalStorage implements Storage
-    {
-        private final String factoryId;
-
-        private final Set<StorageListener> listeners = new HashSet<StorageListener> ();
-
-        private final Configuration[] configurations;
-
-        private final ExecutorService executor;
-
-        public InternalStorage ( final ExecutorService executor, final String factoryId, final Configuration[] initialConfigurations )
-        {
-            this.executor = executor;
-            this.factoryId = factoryId;
-            this.configurations = initialConfigurations;
-        }
-
-        public Future<Configuration> store ( final String configurationId, final Map<String, String> properties )
-        {
-            return invokeStore ( this, this.factoryId, configurationId, properties );
-        }
-
-        public Future<Configuration> delete ( final String configurationId )
-        {
-            return invokeDelete ( this, this.factoryId, configurationId );
-        }
-
-        public synchronized void addConfigurationListener ( final StorageListener listener )
-        {
-            this.listeners.add ( listener );
-            listener.configurationUpdate ( this.configurations, null );
-        }
-
-        public synchronized void removeConfigurationListener ( final StorageListener listener )
-        {
-            this.listeners.remove ( listener );
-        }
-
-        public synchronized void changeConfiguration ( final Configuration[] addedOrChanged, final String[] deleted )
-        {
-            for ( final StorageListener listener : this.listeners )
-            {
-                this.executor.execute ( new Runnable () {
-
-                    public void run ()
-                    {
-                        listener.configurationUpdate ( addedOrChanged, deleted );
-                    }
-                } );
-            }
         }
     }
 
@@ -255,12 +195,12 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     {
         logger.info ( "Loading from: " + configurationRoot.getName () );
 
-        final List<ConfigurationDataImpl> configurations = new LinkedList<ConfigurationDataImpl> ();
+        final List<ConfigurationImpl> configurations = new LinkedList<ConfigurationImpl> ();
 
         for ( final File file : configurationRoot.listFiles ( new DataFilenameFilter () ) )
         {
             logger.info ( "Loading file: " + file.getName () );
-            final ConfigurationDataImpl cfg = loadConfiguration ( factoryId, file );
+            final ConfigurationImpl cfg = loadConfiguration ( factoryId, file );
 
             if ( cfg != null )
             {
@@ -272,47 +212,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         // addStoredFactory ( factoryId, new InternalStorage ( this.executor, factoryId, configurations.toArray ( new ConfigurationImpl[0] ) ) );
     }
 
-    private NotifyFuture<Configuration> invokeStore ( final InternalStorage storage, final String factoryId, final String configurationId, final Map<String, String> properties )
-    {
-        final ConfigurationFuture future = new ConfigurationFuture ();
-        this.executor.execute ( new Runnable () {
-
-            public void run ()
-            {
-                try
-                {
-                    performStoreConfiguration ( factoryId, storage, configurationId, properties, future );
-                }
-                catch ( final Throwable e )
-                {
-                    future.setError ( e );
-                }
-            }
-        } );
-        return future;
-    }
-
-    private NotifyFuture<Configuration> invokeDelete ( final InternalStorage storage, final String factoryId, final String configurationId )
-    {
-        final ConfigurationFuture future = new ConfigurationFuture ();
-        this.executor.execute ( new Runnable () {
-
-            public void run ()
-            {
-                try
-                {
-                    performDeleteConfiguration ( storage, factoryId, configurationId, future );
-                }
-                catch ( final Throwable e )
-                {
-                    future.setError ( e );
-                }
-            }
-        } );
-        return future;
-    }
-
-    private ConfigurationDataImpl loadConfiguration ( final String factoryId, final File file )
+    private ConfigurationImpl loadConfiguration ( final String factoryId, final File file )
     {
         try
         {
@@ -338,7 +238,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             {
                 return null;
             }
-            return new ConfigurationDataImpl ( id, result );
+            return new ConfigurationImpl ( id, result );
         }
         catch ( final Throwable e )
         {
