@@ -338,6 +338,9 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         if ( factoryService != null && configuration != null )
         {
             final ConfigurationImpl applyConfiguration = configuration;
+
+            // quick fix the "id" property
+            applyConfiguration.getData ().put ( "id", configurationId );
             setConfigurationStatus ( configuration, ConfigurationState.APPLYING, null );
 
             this.executor.execute ( new Runnable () {
