@@ -42,7 +42,7 @@ public class ConfigurationImpl implements Configuration
 
     public ConfigurationState getState ()
     {
-        return null;
+        return ConfigurationState.APPLIED;
     }
 
     public void setData ( final Map<String, String> properties )

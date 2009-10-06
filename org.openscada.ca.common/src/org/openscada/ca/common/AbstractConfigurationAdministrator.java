@@ -11,6 +11,7 @@ import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationAlreadyExistsException;
 import org.openscada.ca.ConfigurationEvent;
 import org.openscada.ca.ConfigurationFactory;
+import org.openscada.ca.ConfigurationListener;
 import org.openscada.ca.ConfigurationState;
 import org.openscada.ca.FactoryEvent;
 import org.openscada.ca.FactoryNotFoundException;
@@ -116,7 +117,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
         factory.setConfigurations ( configurations );
 
-        final ConfigurationFactory factoryService = factory.getService ();
+        final ConfigurationFactory factoryService = factory.getConfigurationFactoryService ();
         if ( factoryService != null )
         {
             scheduleBind ( configurations, factoryService, factory );
@@ -187,28 +188,100 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             return;
         }
 
-        for ( final ConfigurationImpl configuration : factory.getConfigurations () )
-        {
-            configuration.setState ( ConfigurationState.AVAILABLE, null );
-        }
-
         if ( factory.getService () == service )
         {
             // remove service
+            for ( final ConfigurationImpl configuration : factory.getConfigurations () )
+            {
+                configuration.setState ( ConfigurationState.AVAILABLE, null );
+            }
+
             factory.setService ( null );
             setFactoryState ( factory, FactoryState.LOADED );
         }
     }
 
-    private void addFactorySelfService ( final String factoryId, final SelfManagedConfigurationFactory factory, final String description )
+    private synchronized void addFactorySelfService ( final String factoryId, final SelfManagedConfigurationFactory factoryService, final String description )
     {
+        logger.info ( "Adding self service: {}", factoryId );
         // TODO Auto-generated method stub
 
+        FactoryImpl factory = this.factories.get ( factoryId );
+        if ( factory == null )
+        {
+            factory = new FactoryImpl ( factoryId );
+            this.factories.put ( factoryId, factory );
+        }
+
+        if ( factory.getService () == null )
+        {
+            factory.setService ( factoryService );
+            factory.setDescription ( description );
+
+            // remove existing configurations
+            factory.setConfigurations ( new ConfigurationImpl[0] );
+
+            final ConfigurationListener listener = new ConfigurationListener () {
+
+                public void configurationUpdate ( final Configuration[] addedOrChanged, final String[] deleted )
+                {
+                    AbstractConfigurationAdministrator.this.handleSelfChange ( factoryId, addedOrChanged, deleted );
+                }
+            };
+            factory.setListener ( listener );
+            factoryService.addConfigurationListener ( listener );
+            setFactoryState ( factory, FactoryState.BOUND );
+        }
     }
 
-    private void removeSelfFactoryService ( final String property, final SelfManagedConfigurationFactory factoryService )
+    protected synchronized void handleSelfChange ( final String factoryId, final Configuration[] addedOrChanged, final String[] deleted )
     {
-        // TODO Auto-generated method stub
+        final FactoryImpl factory = getFactory ( factoryId );
+        if ( factory == null )
+        {
+            logger.warn ( "Change for unknown factory: {}", factoryId );
+            return;
+        }
+
+        if ( addedOrChanged != null )
+        {
+            for ( final Configuration cfg : addedOrChanged )
+            {
+                final ConfigurationImpl newCfg = new ConfigurationImpl ( cfg.getId (), factoryId, cfg.getData () );
+                factory.addConfiguration ( newCfg );
+                setConfigurationStatus ( newCfg, cfg.getState (), cfg.getErrorInformation () );
+            }
+        }
+        if ( deleted != null )
+        {
+            for ( final String configurationId : deleted )
+            {
+                logger.info ( "Removing {} from self managed factory {}", new Object[] { configurationId, factoryId } );
+                factory.removeConfigration ( configurationId );
+            }
+        }
+    }
+
+    private synchronized void removeSelfFactoryService ( final String factoryId, final SelfManagedConfigurationFactory factoryService )
+    {
+        logger.info ( "Removed self service: {}", factoryId );
+
+        final FactoryImpl factory = getFactory ( factoryId );
+        if ( factory == null )
+        {
+            return;
+        }
+
+        if ( factory.getService () == factoryService )
+        {
+            // remove service
+
+            final ConfigurationListener listener = factory.getListener ();
+            factoryService.removeConfigurationListener ( listener );
+
+            factory.setService ( null );
+            this.factories.remove ( factoryId );
+        }
 
     }
 
@@ -260,7 +333,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             }
         }
 
-        final ConfigurationFactory factoryService = factory.getService ();
+        final ConfigurationFactory factoryService = factory.getConfigurationFactoryService ();
 
         if ( factoryService != null && configuration != null )
         {
@@ -344,7 +417,14 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             return new InstantErrorFuture<Configuration> ( new ConfigurationAlreadyExistsException ( factoryId, configurationId ).fillInStackTrace () );
         }
 
-        return invokeStore ( factoryId, configurationId, properties );
+        if ( !factory.isSelfManaged () )
+        {
+            return invokeStore ( factoryId, configurationId, properties );
+        }
+        else
+        {
+            return factory.getSelfService ().update ( configurationId, properties );
+        }
     }
 
     public synchronized Future<Configuration> updateConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties )
@@ -361,7 +441,14 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             return new InstantErrorFuture<Configuration> ( new ConfigurationNotFoundException ( factoryId, configurationId ).fillInStackTrace () );
         }
 
-        return invokeStore ( factoryId, configurationId, properties );
+        if ( !factory.isSelfManaged () )
+        {
+            return invokeStore ( factoryId, configurationId, properties );
+        }
+        else
+        {
+            return factory.getSelfService ().update ( configurationId, properties );
+        }
     }
 
     public synchronized Future<Configuration> deleteConfiguration ( final String factoryId, final String configurationId )
@@ -378,7 +465,14 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             return new InstantErrorFuture<Configuration> ( new ConfigurationNotFoundException ( factoryId, configurationId ).fillInStackTrace () );
         }
 
-        return invokeDelete ( factoryId, configurationId );
+        if ( !factory.isSelfManaged () )
+        {
+            return invokeDelete ( factoryId, configurationId );
+        }
+        else
+        {
+            return factory.getSelfService ().delete ( configurationId );
+        }
     }
 
     protected final class ConfigurationFuture extends AbstractFuture<Configuration>

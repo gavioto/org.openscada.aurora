@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationListener;
 import org.openscada.ca.SelfManagedConfigurationFactory;
+import org.openscada.utils.concurrent.InstantFuture;
+import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +64,7 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         listener.configurationUpdate ( this.configurations.values ().toArray ( new Configuration[0] ), null );
     }
 
-    public synchronized void delete ( final String configurationId )
+    public synchronized NotifyFuture<Configuration> delete ( final String configurationId )
     {
         logger.info ( "Deleting: {}", configurationId );
 
@@ -70,6 +72,8 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         {
             notifyListeners ( null, new String[] { configurationId } );
         }
+
+        return new InstantFuture<Configuration> ( new ConfigurationImpl ( configurationId, this.factoryId, null ) );
     }
 
     /**
@@ -98,7 +102,7 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         this.listeners.remove ( listener );
     }
 
-    public synchronized void update ( final String configurationId, final Map<String, String> properties ) throws Exception
+    public synchronized NotifyFuture<Configuration> update ( final String configurationId, final Map<String, String> properties )
     {
         logger.info ( "Updating: {} -> {}", new Object[] { configurationId, properties } );
         ConfigurationImpl cfg = this.configurations.get ( configurationId );
@@ -112,5 +116,7 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         }
 
         notifyListeners ( new Configuration[] { cfg }, null );
+
+        return new InstantFuture<Configuration> ( new ConfigurationImpl ( configurationId, this.factoryId, null ) );
     }
 }

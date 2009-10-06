@@ -2,6 +2,8 @@ package org.openscada.ca;
 
 import java.util.Map;
 
+import org.openscada.utils.concurrent.NotifyFuture;
+
 public interface SelfManagedConfigurationFactory
 {
     /**
@@ -27,7 +29,7 @@ public interface SelfManagedConfigurationFactory
      */
     public void removeConfigurationListener ( ConfigurationListener listener );
 
-    public void update ( String configurationId, Map<String, String> properties ) throws Exception;
+    public NotifyFuture<Configuration> update ( String configurationId, Map<String, String> properties );
 
-    public void delete ( String configurationId );
+    public NotifyFuture<Configuration> delete ( String configurationId );
 }

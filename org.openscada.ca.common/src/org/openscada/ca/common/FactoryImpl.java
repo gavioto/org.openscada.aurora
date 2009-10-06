@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openscada.ca.ConfigurationFactory;
+import org.openscada.ca.ConfigurationListener;
 import org.openscada.ca.Factory;
 import org.openscada.ca.FactoryState;
+import org.openscada.ca.SelfManagedConfigurationFactory;
 
 public class FactoryImpl implements Factory
 {
@@ -18,7 +20,9 @@ public class FactoryImpl implements Factory
 
     private final Map<String, ConfigurationImpl> configurations = new HashMap<String, ConfigurationImpl> ();
 
-    private ConfigurationFactory service;
+    private Object service;
+
+    private ConfigurationListener listener;
 
     public FactoryImpl ( final String id )
     {
@@ -69,14 +73,27 @@ public class FactoryImpl implements Factory
         }
     }
 
-    public void setService ( final ConfigurationFactory service )
+    public void setService ( final Object service )
     {
         this.service = service;
     }
 
-    public ConfigurationFactory getService ()
+    public Object getService ()
     {
         return this.service;
+    }
+
+    public ConfigurationFactory getConfigurationFactoryService ()
+    {
+        final Object service = this.service;
+        if ( service instanceof ConfigurationFactory )
+        {
+            return (ConfigurationFactory)service;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public void addConfiguration ( final ConfigurationImpl configuration )
@@ -87,5 +104,33 @@ public class FactoryImpl implements Factory
     public void removeConfigration ( final String configurationId )
     {
         this.configurations.remove ( configurationId );
+    }
+
+    public void setListener ( final ConfigurationListener listener )
+    {
+        this.listener = listener;
+    }
+
+    public ConfigurationListener getListener ()
+    {
+        return this.listener;
+    }
+
+    public SelfManagedConfigurationFactory getSelfService ()
+    {
+        final Object service = this.service;
+        if ( service instanceof SelfManagedConfigurationFactory )
+        {
+            return (SelfManagedConfigurationFactory)service;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public boolean isSelfManaged ()
+    {
+        return this.service instanceof SelfManagedConfigurationFactory;
     }
 }
