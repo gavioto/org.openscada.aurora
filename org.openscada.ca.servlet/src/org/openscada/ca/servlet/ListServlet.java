@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -138,7 +139,7 @@ public class ListServlet extends HttpServlet
         final String data = req.getParameter ( "data" );
         final String factoryId = req.getParameter ( "factoryId" );
 
-        if ( id == null || data == null || id.length () <= 0 || data.length () <= 0 )
+        if ( id == null || id.length () <= 0 )
         {
             return;
 
@@ -172,6 +173,11 @@ public class ListServlet extends HttpServlet
 
     private Map<String, String> parseData ( final String data ) throws IOException
     {
+        if ( data == null || data.length () <= 0 )
+        {
+            return Collections.emptyMap ();
+        }
+
         final Properties p = parseProperties ( data );
         final Map<String, String> properties = new HashMap<String, String> ();
         for ( final Entry<Object, Object> entry : p.entrySet () )
