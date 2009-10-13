@@ -17,10 +17,6 @@
       [Enter License Description here.]
    </license>
 
-   <includes
-         id="org.openscada.hsdb"
-         version="0.0.0"/>
-
    <plugin
          id="org.openscada.utils"
          download-size="0"
