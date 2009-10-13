@@ -108,6 +108,10 @@
   	<openscada.builder.copyPlugin id="org.openscada.ca.common" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.file" />
   	
+  	<openscada.builder.copyFeature id="org.openscada.hsdb" />
+  	<openscada.builder.copyPlugin id="org.openscada.hsdb" />
+  	<openscada.builder.copyPlugin id="org.openscada.hsdb.backend.file" />
+  	
   	<openscada.builder.copyFeature id="org.openscada.aurora" />
   	<openscada.builder.copyFeature id="org.openscada.aurora.sdk" />
   </target>
