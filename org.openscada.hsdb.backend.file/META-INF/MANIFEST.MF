@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Interface Plugin for Storage Component
+Bundle-Name: OpenSCADA Historical Values Archive File Backend Component
 Bundle-SymbolicName: org.openscada.hsdb.backend.file
 Bundle-Version: 0.14.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.openscada.hsdb.backend.file
+Export-Package: org.openscada.hsdb.backend.file;version="0.14.0"
 Import-Package: org.slf4j;version="1.5.8"
