@@ -19,7 +19,7 @@ public class RelictCleanerCallerTask extends TimerTask
 
     /**
      * Constructor.
-     * @param backEnd Object of which old data has to be deleted
+     * @param relictCleaner Object of which old data has to be deleted
      */
     public RelictCleanerCallerTask ( RelictCleaner relictCleaner )
     {
