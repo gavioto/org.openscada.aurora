@@ -1,4 +1,4 @@
-package org.openscada.hsdb.backend.comparator;
+package org.openscada.hsdb.backend.internal;
 
 import java.util.Comparator;
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openscada.hsdb.StorageChannelMetaData;
-import org.openscada.hsdb.backend.comparator.InverseTimeOrderComparator;
+import org.openscada.hsdb.backend.internal.InverseTimeOrderComparator;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.datatypes.LongValue;
 import org.openscada.hsdb.relict.RelictCleaner;

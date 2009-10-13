@@ -20,7 +20,6 @@ Import-Package: org.openscada.ca;version="0.14.0",
  org.slf4j;version="1.5.8"
 Export-Package: org.openscada.hsdb,
  org.openscada.hsdb.backend,
- org.openscada.hsdb.backend.comparator,
  org.openscada.hsdb.calculation,
  org.openscada.hsdb.datatypes,
  org.openscada.hsdb.relict,
