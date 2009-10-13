@@ -1,7 +1,7 @@
-package org.openscada.hd.server.storage.backend;
+package org.openscada.hsdb.backend;
 
-import org.openscada.hd.server.storage.StorageChannel;
-import org.openscada.hd.server.storage.StorageChannelMetaData;
+import org.openscada.hsdb.StorageChannel;
+import org.openscada.hsdb.StorageChannelMetaData;
 
 /**
  * This interface provides methods for storage channel backend implementations.

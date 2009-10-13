@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.calculation;
+package org.openscada.hsdb.calculation;
 
 /**
  * Enumeration of all supported calculation methods.

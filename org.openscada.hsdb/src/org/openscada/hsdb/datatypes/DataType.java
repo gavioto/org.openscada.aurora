@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.datatypes;
+package org.openscada.hsdb.datatypes;
 
 /**
  * Enumeration of all supported datatypes.

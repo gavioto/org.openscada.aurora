@@ -1,10 +1,10 @@
-package org.openscada.hd.server.storage.calculation;
+package org.openscada.hsdb.calculation;
 
-import org.openscada.hd.server.storage.ExtendedStorageChannel;
-import org.openscada.hd.server.storage.datatypes.BaseValue;
-import org.openscada.hd.server.storage.datatypes.DataType;
-import org.openscada.hd.server.storage.datatypes.DoubleValue;
-import org.openscada.hd.server.storage.datatypes.LongValue;
+import org.openscada.hsdb.ExtendedStorageChannel;
+import org.openscada.hsdb.datatypes.BaseValue;
+import org.openscada.hsdb.datatypes.DataType;
+import org.openscada.hsdb.datatypes.DoubleValue;
+import org.openscada.hsdb.datatypes.LongValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +71,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#getGenerateVirtualValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#getGenerateVirtualValues
      */
     public boolean getGenerateVirtualValues ()
     {
@@ -79,7 +79,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#getRequiredTimespanForCalculation
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#getRequiredTimespanForCalculation
      */
     public long getRequiredTimespanForCalculation ()
     {
@@ -87,7 +87,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#getInputType
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#getInputType
      */
     public DataType getInputType ()
     {
@@ -95,7 +95,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#getOutputType
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#getOutputType
      */
     public DataType getOutputType ()
     {
@@ -143,7 +143,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#generateValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#generateValues
      */
     public BaseValue[] generateValues ( BaseValue[] values )
     {

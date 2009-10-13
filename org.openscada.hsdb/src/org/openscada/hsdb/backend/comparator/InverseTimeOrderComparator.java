@@ -1,9 +1,9 @@
-package org.openscada.hd.server.storage.backend.comparator;
+package org.openscada.hsdb.backend.comparator;
 
 import java.util.Comparator;
 
-import org.openscada.hd.server.storage.StorageChannelMetaData;
-import org.openscada.hd.server.storage.backend.BackEnd;
+import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.BackEnd;
 
 /**
  * Comparator that is used to sort storage channel meta data by time span.

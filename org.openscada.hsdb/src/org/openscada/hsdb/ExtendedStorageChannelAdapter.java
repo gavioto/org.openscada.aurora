@@ -1,7 +1,7 @@
-package org.openscada.hd.server.storage;
+package org.openscada.hsdb;
 
-import org.openscada.hd.server.storage.datatypes.DoubleValue;
-import org.openscada.hd.server.storage.datatypes.LongValue;
+import org.openscada.hsdb.datatypes.DoubleValue;
+import org.openscada.hsdb.datatypes.LongValue;
 
 /**
  * Adapter class for storage channel implementations class that provides the support of additional datatypes.
@@ -44,7 +44,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#updateDouble
+     * @see org.openscada.hsdb.ExtendedStorageChannel#updateDouble
      */
     public synchronized void updateDouble ( final DoubleValue doubleValue ) throws Exception
     {
@@ -55,7 +55,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#updateDoubles
+     * @see org.openscada.hsdb.ExtendedStorageChannel#updateDoubles
      */
     public synchronized void updateDoubles ( final DoubleValue[] doubleValues ) throws Exception
     {
@@ -72,7 +72,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#getDoubleValues
+     * @see org.openscada.hsdb.ExtendedStorageChannel#getDoubleValues
      */
     public synchronized DoubleValue[] getDoubleValues ( final long startTime, final long endTime ) throws Exception
     {
@@ -87,7 +87,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     }
 
     /**
-     * @see org.openscada.hd.server.storage.StorageChannel#getLongValues
+     * @see org.openscada.hsdb.StorageChannel#getLongValues
      */
     public synchronized LongValue[] getLongValues ( final long startTime, final long endTime ) throws Exception
     {
@@ -95,7 +95,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     }
 
     /**
-     * @see org.openscada.hd.server.storage.StorageChannel#updateLong
+     * @see org.openscada.hsdb.StorageChannel#updateLong
      */
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
     {
@@ -106,7 +106,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     }
 
     /**
-     * @see org.openscada.hd.server.storage.StorageChannel#updateLongs
+     * @see org.openscada.hsdb.StorageChannel#updateLongs
      */
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
@@ -117,7 +117,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#cleanupRelicts
+     * @see org.openscada.hsdb.ExtendedStorageChannel#cleanupRelicts
      */
     public synchronized void cleanupRelicts () throws Exception
     {

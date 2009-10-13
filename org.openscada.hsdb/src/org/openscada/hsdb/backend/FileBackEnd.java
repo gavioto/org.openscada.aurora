@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.backend;
+package org.openscada.hsdb.backend;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +12,10 @@ import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openscada.hd.server.storage.StorageChannelMetaData;
-import org.openscada.hd.server.storage.calculation.CalculationMethod;
-import org.openscada.hd.server.storage.datatypes.DataType;
-import org.openscada.hd.server.storage.datatypes.LongValue;
+import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.calculation.CalculationMethod;
+import org.openscada.hsdb.datatypes.DataType;
+import org.openscada.hsdb.datatypes.LongValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +87,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEnd#create
+     * @see org.openscada.hsdb.backend.BackEnd#create
      */
     public synchronized void create ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
     {
@@ -177,7 +177,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEnd#initialize
+     * @see org.openscada.hsdb.backend.BackEnd#initialize
      */
     public synchronized void initialize ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
     {
@@ -187,7 +187,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEnd#cleanupRelicts
+     * @see org.openscada.hsdb.backend.BackEnd#cleanupRelicts
      */
     public synchronized void cleanupRelicts () throws Exception
     {
@@ -195,7 +195,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEnd#getMetaData
+     * @see org.openscada.hsdb.backend.BackEnd#getMetaData
      */
     public synchronized StorageChannelMetaData getMetaData () throws Exception
     {
@@ -209,7 +209,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEnd#isTimeSpanConstant
+     * @see org.openscada.hsdb.backend.BackEnd#isTimeSpanConstant
      */
     public synchronized boolean isTimeSpanConstant ()
     {
@@ -217,7 +217,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEnd#deinitialize
+     * @see org.openscada.hsdb.backend.BackEnd#deinitialize
      */
     public synchronized void deinitialize () throws Exception
     {
@@ -227,7 +227,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEnd#delete
+     * @see org.openscada.hsdb.backend.BackEnd#delete
      */
     public synchronized void delete () throws Exception
     {
@@ -590,7 +590,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.StorageChannel#updateLong
+     * @see org.openscada.hsdb.StorageChannel#updateLong
      */
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
     {
@@ -614,7 +614,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.StorageChannel#updateLongs
+     * @see org.openscada.hsdb.StorageChannel#updateLongs
      */
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
@@ -641,7 +641,7 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hd.server.storage.StorageChannel#getLongValues
+     * @see org.openscada.hsdb.StorageChannel#getLongValues
      */
     public synchronized LongValue[] getLongValues ( final long startTime, final long endTime ) throws Exception
     {

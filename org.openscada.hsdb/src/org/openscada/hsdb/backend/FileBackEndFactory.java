@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.backend;
+package org.openscada.hsdb.backend;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.openscada.hd.server.storage.StorageChannelMetaData;
-import org.openscada.hd.server.storage.backend.filefilter.DirectoryFileFilter;
-import org.openscada.hd.server.storage.backend.filefilter.FileFileFilter;
-import org.openscada.hd.server.storage.calculation.CalculationMethod;
+import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.filefilter.DirectoryFileFilter;
+import org.openscada.hsdb.backend.filefilter.FileFileFilter;
+import org.openscada.hsdb.calculation.CalculationMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,7 +184,7 @@ public class FileBackEndFactory implements BackEndFactory
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEndFactory#getExistingBackEndsMetaData
+     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData
      */
     public StorageChannelMetaData[] getExistingBackEndsMetaData () throws Exception
     {
@@ -256,7 +256,7 @@ public class FileBackEndFactory implements BackEndFactory
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEndFactory#getExistingBackEnds
+     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEnds
      */
     public BackEnd[] getExistingBackEnds ( final String configurationId, final long detailLevelId, final CalculationMethod calculationMethod ) throws Exception
     {
@@ -298,7 +298,7 @@ public class FileBackEndFactory implements BackEndFactory
     }
 
     /**
-     * @see org.openscada.hd.server.storage.backend.BackEndFactory#createNewBackEnd
+     * @see org.openscada.hsdb.backend.BackEndFactory#createNewBackEnd
      */
     public BackEnd createNewBackEnd ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
     {

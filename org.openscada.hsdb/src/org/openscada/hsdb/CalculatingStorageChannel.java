@@ -1,16 +1,16 @@
-package org.openscada.hd.server.storage;
+package org.openscada.hsdb;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.openscada.hd.server.storage.calculation.CalculationLogicProvider;
-import org.openscada.hd.server.storage.datatypes.BaseValue;
-import org.openscada.hd.server.storage.datatypes.DataType;
-import org.openscada.hd.server.storage.datatypes.DoubleValue;
-import org.openscada.hd.server.storage.datatypes.LongValue;
-import org.openscada.hd.server.storage.utils.ValueArrayNormalizer;
+import org.openscada.hsdb.calculation.CalculationLogicProvider;
+import org.openscada.hsdb.datatypes.BaseValue;
+import org.openscada.hsdb.datatypes.DataType;
+import org.openscada.hsdb.datatypes.DoubleValue;
+import org.openscada.hsdb.datatypes.LongValue;
+import org.openscada.hsdb.utils.ValueArrayNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -307,7 +307,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#updateLong
+     * @see org.openscada.hsdb.ExtendedStorageChannel#updateLong
      */
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
     {
@@ -315,7 +315,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#updateLongs
+     * @see org.openscada.hsdb.ExtendedStorageChannel#updateLongs
      */
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
@@ -334,7 +334,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#getLongValues
+     * @see org.openscada.hsdb.ExtendedStorageChannel#getLongValues
      */
     public synchronized LongValue[] getLongValues ( final long startTime, final long endTime ) throws Exception
     {
@@ -346,7 +346,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#updateDouble
+     * @see org.openscada.hsdb.ExtendedStorageChannel#updateDouble
      */
     public synchronized void updateDouble ( final DoubleValue doubleValue ) throws Exception
     {
@@ -354,7 +354,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#updateDoubles
+     * @see org.openscada.hsdb.ExtendedStorageChannel#updateDoubles
      */
     public synchronized void updateDoubles ( final DoubleValue[] doubleValues ) throws Exception
     {
@@ -373,7 +373,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#getDoubleValues
+     * @see org.openscada.hsdb.ExtendedStorageChannel#getDoubleValues
      */
     public synchronized DoubleValue[] getDoubleValues ( final long startTime, final long endTime ) throws Exception
     {
@@ -385,7 +385,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
-     * @see org.openscada.hd.server.storage.ExtendedStorageChannel#cleanupRelicts
+     * @see org.openscada.hsdb.ExtendedStorageChannel#cleanupRelicts
      */
     public synchronized void cleanupRelicts () throws Exception
     {

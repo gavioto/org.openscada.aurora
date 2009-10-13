@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage;
+package org.openscada.hsdb;
 
 /**
  * This interface extends the StorageChannel interface with methods for managing StorageChannel objects.

@@ -1,6 +1,6 @@
-package org.openscada.hd.server.storage;
+package org.openscada.hsdb;
 
-import org.openscada.hd.server.storage.datatypes.LongValue;
+import org.openscada.hsdb.datatypes.LongValue;
 
 /**
  * This interface provides methods for storing and retrieving values of type long.

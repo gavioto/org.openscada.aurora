@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.relict;
+package org.openscada.hsdb.relict;
 
 import java.util.TimerTask;
 

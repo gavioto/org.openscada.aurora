@@ -1,8 +1,8 @@
-package org.openscada.hd.server.storage.calculation;
+package org.openscada.hsdb.calculation;
 
-import org.openscada.hd.server.storage.datatypes.DataType;
-import org.openscada.hd.server.storage.datatypes.DoubleValue;
-import org.openscada.hd.server.storage.datatypes.LongValue;
+import org.openscada.hsdb.datatypes.DataType;
+import org.openscada.hsdb.datatypes.DoubleValue;
+import org.openscada.hsdb.datatypes.LongValue;
 
 /**
  * This class implements the CalculationLogicProvider interface for the calculation of maximum values.
@@ -22,7 +22,7 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#getPassThroughValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#getPassThroughValues
      */
     public boolean getPassThroughValues ()
     {
@@ -30,7 +30,7 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProviderBase#generateLongValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValues
      */
     protected LongValue[] generateLongValues ( final LongValue[] values )
     {
@@ -51,7 +51,7 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProviderBase#generateDoubleValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValues
      */
     protected LongValue[] generateLongValues ( final DoubleValue[] values )
     {
@@ -72,7 +72,7 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProviderBase#generateDoubleValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValues
      */
     protected DoubleValue[] generateDoubleValues ( final LongValue[] values )
     {

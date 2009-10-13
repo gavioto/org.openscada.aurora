@@ -1,7 +1,7 @@
-package org.openscada.hd.server.storage.calculation;
+package org.openscada.hsdb.calculation;
 
-import org.openscada.hd.server.storage.datatypes.BaseValue;
-import org.openscada.hd.server.storage.datatypes.DataType;
+import org.openscada.hsdb.datatypes.BaseValue;
+import org.openscada.hsdb.datatypes.DataType;
 
 /**
  * This class implements the CalculationLogicProvider interface for the processing of native values.
@@ -21,7 +21,7 @@ public class NativeCalculationLogicProvider extends CalculationLogicProviderBase
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#getPassThroughValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#getPassThroughValues
      */
     public boolean getPassThroughValues ()
     {
@@ -29,7 +29,7 @@ public class NativeCalculationLogicProvider extends CalculationLogicProviderBase
     }
 
     /**
-     * @see org.openscada.hd.server.storage.calculation.CalculationLogicProvider#generateValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#generateValues
      */
     public BaseValue[] generateValues ( BaseValue[] values )
     {

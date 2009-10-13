@@ -1,9 +1,9 @@
-package org.openscada.hd.server.storage.utils;
+package org.openscada.hsdb.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openscada.hd.server.storage.datatypes.BaseValue;
+import org.openscada.hsdb.datatypes.BaseValue;
 
 /**
  * This class provides methods for normalizing arrrays of base values.

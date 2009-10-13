@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.datatypes;
+package org.openscada.hsdb.datatypes;
 
 /**
  * Base class for all values that can be handled via the storage channel api.

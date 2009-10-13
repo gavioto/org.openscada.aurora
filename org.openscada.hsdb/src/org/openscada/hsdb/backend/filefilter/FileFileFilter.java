@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.backend.filefilter;
+package org.openscada.hsdb.backend.filefilter;
 
 import java.io.File;
 import java.io.FileFilter;

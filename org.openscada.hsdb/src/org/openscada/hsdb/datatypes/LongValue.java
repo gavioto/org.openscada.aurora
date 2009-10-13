@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.datatypes;
+package org.openscada.hsdb.datatypes;
 
 /**
  * This class handles a long value for being storaged in a storage channel.
@@ -41,7 +41,7 @@ public class LongValue extends BaseValue
     }
 
     /**
-     * @see org.openscada.hd.server.storage.datatypes
+     * @see org.openscada.hsdb.datatypes
      */
     public BaseValue createNewValue ( final long time, final double qualityIndicator, final long baseValueCount )
     {

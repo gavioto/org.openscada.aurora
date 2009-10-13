@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.relict;
+package org.openscada.hsdb.relict;
 
 /**
  * This interface provides a method for triggering of cleanup operations.

@@ -1,7 +1,7 @@
-package org.openscada.hd.server.storage;
+package org.openscada.hsdb;
 
-import org.openscada.hd.server.storage.calculation.CalculationMethod;
-import org.openscada.hd.server.storage.datatypes.DataType;
+import org.openscada.hsdb.calculation.CalculationMethod;
+import org.openscada.hsdb.datatypes.DataType;
 
 /**
  * This class provides methods for accessing meta information of storage channels.

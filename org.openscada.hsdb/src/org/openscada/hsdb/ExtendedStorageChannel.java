@@ -1,6 +1,6 @@
-package org.openscada.hd.server.storage;
+package org.openscada.hsdb;
 
-import org.openscada.hd.server.storage.datatypes.DoubleValue;
+import org.openscada.hsdb.datatypes.DoubleValue;
 
 /**
  * This interface extends the storage channel interface with mmethods for additional datatypes.

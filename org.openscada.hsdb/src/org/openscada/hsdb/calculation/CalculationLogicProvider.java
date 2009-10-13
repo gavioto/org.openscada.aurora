@@ -1,7 +1,7 @@
-package org.openscada.hd.server.storage.calculation;
+package org.openscada.hsdb.calculation;
 
-import org.openscada.hd.server.storage.datatypes.BaseValue;
-import org.openscada.hd.server.storage.datatypes.DataType;
+import org.openscada.hsdb.datatypes.BaseValue;
+import org.openscada.hsdb.datatypes.DataType;
 
 /**
  * This interface provides methods for applying calculation logic to base values and calculating new values.
