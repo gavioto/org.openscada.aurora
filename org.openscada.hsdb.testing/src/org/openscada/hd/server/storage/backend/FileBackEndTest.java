@@ -1,4 +1,4 @@
-package org.openscada.hd.server.storage.backend;
+package org.openscada.hsdb.backend;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -6,11 +6,11 @@ import java.net.URLEncoder;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openscada.hd.server.storage.StorageChannelMetaData;
-import org.openscada.hd.server.storage.datatypes.LongValue;
+import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.datatypes.LongValue;
 
 /**
- * Test class for class org.openscada.hd.server.storage.backend.FileBackEnd.
+ * Test class for class org.openscada.hsdb.backend.FileBackEnd.
  * @author Ludwig Straub
  */
 public class FileBackEndTest extends BackEndTestBase

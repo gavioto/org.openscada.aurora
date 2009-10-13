@@ -1,13 +1,13 @@
-package org.openscada.hd.server.storage.backend;
+package org.openscada.hsdb.backend;
 
 import java.io.File;
 
-import org.openscada.hd.server.storage.StorageChannelMetaData;
+import org.openscada.hsdb.StorageChannelMetaData;
 
 /**
  * Test class for following classes:
- * org.openscada.hd.server.storage.backend.FileBackEndFactory.
- * org.openscada.hd.server.storage.backend.BackEndMultiplexor.
+ * org.openscada.hsdb.backend.FileBackEndFactory.
+ * org.openscada.hsdb.backend.BackEndMultiplexor.
  * @author Ludwig Straub
  */
 public class FileBackEndMultiplexorTest extends BackEndTestBase

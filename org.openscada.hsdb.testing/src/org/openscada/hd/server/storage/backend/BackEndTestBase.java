@@ -1,16 +1,16 @@
-package org.openscada.hd.server.storage.backend;
+package org.openscada.hsdb.backend;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openscada.hd.server.storage.StorageChannelMetaData;
-import org.openscada.hd.server.storage.calculation.CalculationMethod;
-import org.openscada.hd.server.storage.datatypes.DataType;
-import org.openscada.hd.server.storage.datatypes.LongValue;
+import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.calculation.CalculationMethod;
+import org.openscada.hsdb.datatypes.DataType;
+import org.openscada.hsdb.datatypes.LongValue;
 
 /**
- * Test class provides methods for testing implementations of interface org.openscada.hd.server.storage.backend.BackEnd.
+ * Test class provides methods for testing implementations of interface org.openscada.hsdb.backend.BackEnd.
  * @author Ludwig Straub
  */
 public abstract class BackEndTestBase
