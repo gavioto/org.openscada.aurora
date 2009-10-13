@@ -1,4 +1,4 @@
-package org.openscada.hd.server;
+package org.openscada.hsdb;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

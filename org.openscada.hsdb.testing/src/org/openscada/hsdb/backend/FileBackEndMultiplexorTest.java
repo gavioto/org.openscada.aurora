@@ -3,6 +3,7 @@ package org.openscada.hsdb.backend;
 import java.io.File;
 
 import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.file.FileBackEndFactory;
 
 /**
  * Test class for following classes:
@@ -48,7 +49,7 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
 
     /**
      * This method deletes the passed directory or file.
-     * In case of a directory, all subdirectories and files will also be deleted.
+     * In case of a directory, all sub directories and files will also be deleted.
      * @param file or directory that has to be deleted
      */
     private void deleteDirectory ( final File file )

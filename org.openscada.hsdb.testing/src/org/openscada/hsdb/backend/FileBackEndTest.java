@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.file.FileBackEnd;
 import org.openscada.hsdb.datatypes.LongValue;
 
 /**
