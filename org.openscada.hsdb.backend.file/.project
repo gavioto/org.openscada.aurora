@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.openscada.hsdb</name>
+	<name>org.openscada.hsdb.backend.file</name>
 	<comment></comment>
 	<projects>
 	</projects>
