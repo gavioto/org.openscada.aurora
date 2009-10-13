@@ -17,6 +17,11 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import plugin="slf4j.api"/>
+      <import plugin="org.eclipse.osgi"/>
+   </requires>
+
    <plugin
          id="org.openscada.utils"
          download-size="0"
