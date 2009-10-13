@@ -96,13 +96,14 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
      */
     public synchronized void cleanupRelicts ()
     {
+        // if only one back end remains, then no more data is deleted
         logger.info ( "deleting old data... start" );
         if ( metaData == null )
         {
             return;
         }
         final long proposedDataAge = System.currentTimeMillis () - metaData.getProposedDataAge () - REPRIEVE;
-        for ( int i = backEnds.size () - 1; i >= 0; i-- )
+        for ( int i = backEnds.size () - 1; i >= 1; i-- )
         {
             BackEnd backEnd = backEnds.get ( i );
             if ( backEnd != null )
