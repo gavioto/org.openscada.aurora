@@ -2,7 +2,7 @@ package org.openscada.hsdb.relict;
 
 /**
  * This interface provides a method for triggering of cleanup operations.
- * @author Ludwig Sickinger
+ * @author Ludwig Straub
  */
 public interface RelictCleaner
 {
