@@ -1,4 +1,4 @@
-package org.openscada.hsdb.backend;
+package org.openscada.hsdb.backend.file;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -10,8 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openscada.hsdb.StorageChannelMetaData;
-import org.openscada.hsdb.backend.filefilter.DirectoryFileFilter;
-import org.openscada.hsdb.backend.filefilter.FileFileFilter;
+import org.openscada.hsdb.backend.BackEnd;
+import org.openscada.hsdb.backend.BackEndFactory;
+import org.openscada.hsdb.backend.file.filter.DirectoryFileFilter;
+import org.openscada.hsdb.backend.file.filter.FileFileFilter;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

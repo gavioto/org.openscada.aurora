@@ -1,4 +1,4 @@
-package org.openscada.hsdb.backend;
+package org.openscada.hsdb.backend.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.BackEnd;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.datatypes.DataType;
 import org.openscada.hsdb.datatypes.LongValue;
