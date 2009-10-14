@@ -12,6 +12,16 @@ public interface StorageChannel
     public final static LongValue[] EMPTY_LONGVALUE_ARRAY = new LongValue[0];
 
     /**
+     * This method returns the metadata that is currently valid by the storage channel backend.
+     * Note: The time related data that is returned via this method has to be treated as snapshot.
+     * To be reliable concerning that data, the storage channel object has to be synchronized.
+     * The data then is reliable as long as the synchronization consists.
+     * @return storageChannelMetaData metadata that is currently valid by the storage channel backend, never null
+     * @throws Exception if no meta data object can be retrieved
+     */
+    public abstract StorageChannelMetaData getMetaData () throws Exception;
+
+    /**
      * This method updates the passed long value.
      * If a value with the same time stamp already exists, the previous value will be replaced.
      * The implementation decides whether the data is processed or not.

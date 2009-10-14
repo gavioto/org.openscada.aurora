@@ -307,6 +307,20 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
+     * @see org.openscada.hsdb.ExtendedStorageChannel#getMetaData
+     */
+    public synchronized StorageChannelMetaData getMetaData () throws Exception
+    {
+        if ( baseStorageChannel == null )
+        {
+            final String message = "no base storage channel available for calculating storage channel! unable to retrieve meta data";
+            logger.error ( message );
+            throw new Exception ( message );
+        }
+        return baseStorageChannel.getMetaData ();
+    }
+
+    /**
      * @see org.openscada.hsdb.ExtendedStorageChannel#updateLong
      */
     public synchronized void updateLong ( final LongValue longValue ) throws Exception

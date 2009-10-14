@@ -2,6 +2,8 @@ package org.openscada.hsdb;
 
 import org.openscada.hsdb.datatypes.DoubleValue;
 import org.openscada.hsdb.datatypes.LongValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Adapter class for storage channel implementations class that provides the support of additional datatypes.
@@ -13,6 +15,9 @@ import org.openscada.hsdb.datatypes.LongValue;
  */
 public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
 {
+    /** The default logger. */
+    private final static Logger logger = LoggerFactory.getLogger ( ExtendedStorageChannelAdapter.class );
+
     /** Storage channel that will be used to store and retrieve data. */
     private StorageChannel storageChannel;
 
@@ -29,7 +34,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      * This method returns the storage channel that will be used to store and retrieve data.
      * @return storage channel that will be used to store and retrieve data
      */
-    public StorageChannel getStorageChannel ()
+    public synchronized StorageChannel getStorageChannel ()
     {
         return storageChannel;
     }
@@ -38,9 +43,23 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      * This method sets the storage channel that will be used to store and retrieve data.
      * @param storageChannel storage channel that will be used to store and retrieve data
      */
-    public void setStorageChannel ( final StorageChannel storageChannel )
+    public synchronized void setStorageChannel ( final StorageChannel storageChannel )
     {
         this.storageChannel = storageChannel;
+    }
+
+    /**
+     * @see org.openscada.hsdb.ExtendedStorageChannel#getMetaData
+     */
+    public synchronized StorageChannelMetaData getMetaData () throws Exception
+    {
+        if ( storageChannel == null )
+        {
+            final String message = "no storage channel available for extended storage channel adapter! unable to retrieve meta data";
+            logger.error ( message );
+            throw new Exception ( message );
+        }
+        return storageChannel.getMetaData ();
     }
 
     /**

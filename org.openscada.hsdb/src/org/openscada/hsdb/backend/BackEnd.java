@@ -27,16 +27,6 @@ public interface BackEnd extends StorageChannel
     public abstract void initialize ( final StorageChannelMetaData storageChannelMetaData ) throws Exception;
 
     /**
-     * This method returns the metadata that is currently valid by the storage channel backend.
-     * Note: The data that is returned via this method has to be treated as snapshot.
-     * To be reliable, the storage channel object has to be synchronized.
-     * The data then is reliable as long as the synchronization consists.
-     * @return storageChannelMetaData metadata that is currently valid by the storage channel backend
-     * @throws Exception in case of any problem
-     */
-    public abstract StorageChannelMetaData getMetaData () throws Exception;
-
-    /**
      * This method returns whether the time span that is defined via the passed start time and end time is identical to the data that is received via the method getMetaData or not.
      * The result specifier further, whether multiple calls to the method getMetaData will always return the same result or not.
      * The information of this flag can be used for optimization while handling storage channel backend objects.

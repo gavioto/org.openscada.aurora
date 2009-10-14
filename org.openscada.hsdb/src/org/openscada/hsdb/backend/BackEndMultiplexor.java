@@ -136,8 +136,32 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                 }
             }
         }
-        backEnds.clear ();
+
+        // update meta data information
+        try
+        {
+            updateMetaData ();
+        }
+        catch ( Exception e )
+        {
+            logger.error ( "could not update meta data", e );
+        }
         logger.info ( "deleting old data... end" );
+    }
+
+    /**
+     * This method updates the time span of the global meta data object according to the currently available back end fragments.
+     * @throws Exception in case of problems accessing the meta data objects of the back end fragments
+     */
+    private void updateMetaData () throws Exception
+    {
+        if ( !backEnds.isEmpty () )
+        {
+            StorageChannelMetaData first = backEnds.get ( 0 ).getMetaData ();
+            StorageChannelMetaData last = backEnds.get ( backEnds.size () - 1 ).getMetaData ();
+            metaData.setStartTime ( Math.min ( metaData.getStartTime (), last.getStartTime () ) );
+            metaData.setEndTime ( Math.max ( metaData.getEndTime (), first.getEndTime () ) );
+        }
     }
 
     /**
@@ -145,12 +169,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
      */
     public synchronized StorageChannelMetaData getMetaData () throws Exception
     {
-        if ( metaData == null )
-        {
-            String message = "method getMetaData must not be called when instance is not initialized";
-            logger.error ( message );
-            throw new Exception ( message );
-        }
+        assureInitialized ();
         return metaData;
     }
 
@@ -225,8 +244,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         backEnd.create ( storageChannelMetaData );
         backEnd.initialize ( storageChannelMetaData );
         backEnds.add ( index, backEnd );
-        metaData.setStartTime ( Math.min ( metaData.getStartTime (), storageChannelMetaData.getStartTime () ) );
-        metaData.setEndTime ( Math.min ( metaData.getEndTime (), storageChannelMetaData.getEndTime () ) );
+        updateMetaData ();
         return backEnd;
     }
 
@@ -285,7 +303,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
      * This method removes backend objects from the internal list.
      * @param backEndsToRemove backend objects that have to be removed
      */
-    private void removeBackEnds ( List<BackEnd> backEndsToRemove )
+    private void removeBackEnds ( final List<BackEnd> backEndsToRemove ) throws Exception
     {
         for ( BackEnd backEnd : backEndsToRemove )
         {
@@ -297,6 +315,10 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
             catch ( Exception e )
             {
             }
+        }
+        if ( !backEndsToRemove.isEmpty () )
+        {
+            updateMetaData ();
         }
     }
 

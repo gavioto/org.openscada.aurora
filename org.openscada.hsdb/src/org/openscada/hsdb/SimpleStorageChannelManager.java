@@ -13,7 +13,7 @@ import org.openscada.hsdb.datatypes.LongValue;
  * This can be useful when complex storage channel structures have to be created and handled.
  * @author Ludwig Straub
  */
-public class SimpleStorageChannelManager implements StorageChannelManager
+public abstract class SimpleStorageChannelManager implements StorageChannelManager
 {
     /** List of currently registers storage channels. */
     private final List<ExtendedStorageChannel> storageChannels;
