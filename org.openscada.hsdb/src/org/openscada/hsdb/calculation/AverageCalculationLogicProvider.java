@@ -34,7 +34,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
      */
     protected LongValue[] generateLongValues ( final LongValue[] values )
     {
-        final long timeSpanSize = getRequiredTimespanForCalculation ();
+        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
         double quality = 0;
         long baseValueCount = 0;
@@ -53,7 +53,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastValue = value.getValue ();
             }
         }
-        return new LongValue[] { new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, (long) ( avgValue / timeSpanSize ) ) };
+        return new LongValue[] { new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) ) };
     }
 
     /**
@@ -61,7 +61,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
      */
     protected LongValue[] generateLongValues ( final DoubleValue[] values )
     {
-        final long timeSpanSize = getRequiredTimespanForCalculation ();
+        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
         double quality = 0;
         long baseValueCount = 0;
@@ -80,7 +80,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastValue = value.getValue ();
             }
         }
-        return new LongValue[] { new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, (long) ( avgValue / timeSpanSize ) ) };
+        return new LongValue[] { new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) ) };
     }
 
     /**
@@ -88,7 +88,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
      */
     protected DoubleValue[] generateDoubleValues ( final LongValue[] values )
     {
-        final long timeSpanSize = getRequiredTimespanForCalculation ();
+        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
         double quality = 0;
         long baseValueCount = 0;
@@ -107,7 +107,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastValue = value.getValue ();
             }
         }
-        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, avgValue / timeSpanSize ) };
+        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) };
     }
 
     /**
@@ -117,7 +117,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
      */
     protected DoubleValue[] generateDoubleValues ( final DoubleValue[] values )
     {
-        final long timeSpanSize = getRequiredTimespanForCalculation ();
+        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
         double quality = 0;
         long baseValueCount = 0;
@@ -136,6 +136,6 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastValue = value.getValue ();
             }
         }
-        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, avgValue / timeSpanSize ) };
+        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) };
     }
 }
