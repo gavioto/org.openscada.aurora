@@ -52,6 +52,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
+            lastTimeStamp = time;
         }
         return new LongValue[] { new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) ) };
     }
@@ -79,6 +80,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
+            lastTimeStamp = time;
         }
         return new LongValue[] { new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) ) };
     }
@@ -106,6 +108,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
+            lastTimeStamp = time;
         }
         return new DoubleValue[] { new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) };
     }
@@ -135,6 +138,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
+            lastTimeStamp = time;
         }
         return new DoubleValue[] { new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) };
     }
