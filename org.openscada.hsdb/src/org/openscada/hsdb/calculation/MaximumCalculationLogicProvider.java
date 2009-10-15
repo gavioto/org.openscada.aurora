@@ -39,11 +39,7 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
         long baseValueCount = 0;
         for ( LongValue value : values )
         {
-            long val = value.getValue ();
-            if ( val > maxValue )
-            {
-                maxValue = val;
-            }
+            maxValue = Math.max ( maxValue, value.getValue () );
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }
@@ -55,16 +51,12 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
      */
     protected LongValue[] generateLongValues ( final DoubleValue[] values )
     {
-        double maxValue = Double.MIN_VALUE;
+        double maxValue = Double.NEGATIVE_INFINITY;
         double quality = 0;
         long baseValueCount = 0;
         for ( DoubleValue value : values )
         {
-            double val = value.getValue ();
-            if ( val > maxValue )
-            {
-                maxValue = val;
-            }
+            maxValue = Math.max ( maxValue, value.getValue () );
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }
@@ -81,11 +73,7 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
         long baseValueCount = 0;
         for ( LongValue value : values )
         {
-            long val = value.getValue ();
-            if ( val > maxValue )
-            {
-                maxValue = val;
-            }
+            maxValue = Math.max ( maxValue, value.getValue () );
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }
@@ -99,16 +87,12 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
      */
     protected DoubleValue[] generateDoubleValues ( final DoubleValue[] values )
     {
-        double maxValue = Double.MIN_VALUE;
+        double maxValue = Double.NEGATIVE_INFINITY;
         double quality = 0;
         long baseValueCount = 0;
         for ( DoubleValue value : values )
         {
-            double val = value.getValue ();
-            if ( val > maxValue )
-            {
-                maxValue = val;
-            }
+            maxValue = Math.max ( maxValue, value.getValue () );
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }

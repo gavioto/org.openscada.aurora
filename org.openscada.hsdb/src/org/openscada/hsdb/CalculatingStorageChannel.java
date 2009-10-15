@@ -86,7 +86,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                         logger.warn ( "could not retrieve old value within update timer!", e );
                     }
                 }
-            }, currentTimeSpan, currentTimeSpan + calculationLogicProvider.getRequiredTimespanForCalculation () );
+            }, currentTimeSpan, calculationLogicProvider.getRequiredTimespanForCalculation () );
         }
         else
         {
