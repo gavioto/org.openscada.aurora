@@ -87,10 +87,6 @@ public class ListServlet extends HttpServlet
             {
                 handleCreate ( admin, req, resp );
             }
-            if ( req.getParameter ( "cmd_purge" ) != null )
-            {
-                // handlePurge ( admin, req, resp );
-            }
             if ( req.getParameter ( "cmd_delete" ) != null )
             {
                 handleDelete ( admin, req, resp );
@@ -240,8 +236,6 @@ public class ListServlet extends HttpServlet
             stream.print ( String.format ( "<td>%s</td>", configurations.length ) );
             stream.print ( String.format ( "<td>%s</td>", factory.getState () ) );
 
-            stream.print ( "<td><form method='POST'><input type='submit' value='Purge' name='cmd_purge' /><input type='hidden' value='" + factory.getId () + "' name='id' /></form></td>" );
-
             stream.print ( "</tr>" );
 
             if ( configurations.length > 0 )
@@ -286,8 +280,6 @@ public class ListServlet extends HttpServlet
 
             showData ( stream, cfg.getData (), factoryId, cfg.getId () );
 
-            //stream.print ( "</td><td>" );
-
             stream.print ( "<form method='post'><input type='Submit' value='Delete' name='cmd_delete' /><input type='hidden' name='factoryId' value='" + factoryId + "' /><input type='hidden' name='configurationId' value=" + cfg.getId () + " /></form>" );
             stream.print ( "</div></td>" );
 
@@ -322,7 +314,7 @@ public class ListServlet extends HttpServlet
 
         stream.print ( sw.getBuffer ().toString () );
 
-        stream.print ( "</textarea>" );
+        stream.print ( "</textarea><br/>" );
 
         stream.print ( String.format ( "<input type='hidden' name='factoryId' value='%s' />", factoryId ) );
         stream.print ( String.format ( "<input type='hidden' name='configurationId' value='%s' />", configurationId ) );
