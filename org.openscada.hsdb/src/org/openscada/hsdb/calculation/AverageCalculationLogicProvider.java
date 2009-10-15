@@ -42,13 +42,13 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         long lastValue = 0;
         for ( LongValue value : values )
         {
+            baseValueCount += value.getBaseValueCount ();
             long time = value.getTime ();
             if ( lastTimeStamp < time )
             {
                 long weightFactor = time - lastTimeStamp;
                 avgValue += lastValue * weightFactor;
                 quality += value.getQualityIndicator () * weightFactor;
-                baseValueCount += value.getBaseValueCount ();
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
@@ -71,12 +71,12 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         for ( DoubleValue value : values )
         {
             long time = value.getTime ();
+            baseValueCount += value.getBaseValueCount ();
             if ( lastTimeStamp < time )
             {
                 long weightFactor = time - lastTimeStamp;
                 avgValue += lastValue * weightFactor;
                 quality += value.getQualityIndicator () * weightFactor;
-                baseValueCount += value.getBaseValueCount ();
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
@@ -99,12 +99,12 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         for ( LongValue value : values )
         {
             long time = value.getTime ();
+            baseValueCount += value.getBaseValueCount ();
             if ( lastTimeStamp < time )
             {
                 long weightFactor = time - lastTimeStamp;
                 avgValue += lastValue * weightFactor;
                 quality += value.getQualityIndicator () * weightFactor;
-                baseValueCount += value.getBaseValueCount ();
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
@@ -129,12 +129,12 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         for ( DoubleValue value : values )
         {
             long time = value.getTime ();
+            baseValueCount += value.getBaseValueCount ();
             if ( lastTimeStamp < time )
             {
                 long weightFactor = time - lastTimeStamp;
                 avgValue += lastValue * weightFactor;
                 quality += value.getQualityIndicator () * weightFactor;
-                baseValueCount += value.getBaseValueCount ();
                 lastTimeStamp = time;
                 lastValue = value.getValue ();
             }
