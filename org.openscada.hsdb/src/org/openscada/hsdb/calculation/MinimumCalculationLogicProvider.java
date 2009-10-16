@@ -26,7 +26,7 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
      */
     public boolean getPassThroughValues ()
     {
-        return true;
+        return false;
     }
 
     /**

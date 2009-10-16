@@ -38,6 +38,9 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     /** The start time of the latest processed time span. */
     private long latestProcessedTimeSpan;
 
+    /** The latest value in the storage channel. */
+    private BaseValue lastValue;
+
     /**
      * Fully initializing constructor.
      * @param baseStorageChannel storage channel that is used as main channel when writing results of calculations
@@ -53,18 +56,22 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // calculate values of the past
         this.latestProcessedTimeSpan = getLastCalculatedValueTime ();
-        final long currentTimeSpan = getTimeSpanStart ( System.currentTimeMillis () );
-        try
+        final long now = System.currentTimeMillis ();
+        final long currentTimeSpan = getTimeSpanStart ( now );
+        if ( latestProcessedTimeSpan != Long.MIN_VALUE )
         {
-            calculateOldValues ( latestProcessedTimeSpan, currentTimeSpan );
-            this.latestProcessedTimeSpan = currentTimeSpan;
-        }
-        catch ( Exception e )
-        {
-            // ignore exception
-            // nothing more can be done here.
-            // the system will continue to function
-            logger.warn ( "could not retrieve old value while constructing instance!", e );
+            try
+            {
+                calculateOldValues ( latestProcessedTimeSpan, currentTimeSpan );
+                this.latestProcessedTimeSpan = currentTimeSpan;
+            }
+            catch ( Exception e )
+            {
+                // ignore exception
+                // nothing more can be done here.
+                // the system will continue to function
+                logger.warn ( "could not retrieve old value while constructing instance!", e );
+            }
         }
 
         // start timer if virtual values have to be calculated
@@ -86,7 +93,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                         logger.warn ( "could not retrieve old value within update timer!", e );
                     }
                 }
-            }, currentTimeSpan, calculationLogicProvider.getRequiredTimespanForCalculation () );
+            }, now - currentTimeSpan, calculationLogicProvider.getRequiredTimespanForCalculation () );
         }
         else
         {
@@ -166,21 +173,20 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     private long getLastCalculatedValueTime ()
     {
-        BaseValue value = null;
+        lastValue = null;
         if ( baseStorageChannel != null )
         {
             BaseValue[] values = getValues ( baseStorageChannel, calculationLogicProvider.getOutputType (), Long.MAX_VALUE - 1, Long.MAX_VALUE );
-            value = ( values != null ) && ( values.length > 0 ) ? values[0] : null;
-
+            lastValue = ( values != null ) && ( values.length > 0 ) ? values[0] : null;
         }
-        return value == null ? Long.MIN_VALUE : value.getTime ();
+        return ( lastValue == null ) ? Long.MIN_VALUE : lastValue.getTime ();
     }
 
     /**
      * This method calculates all values that should have been calculated in the past, but are not available in the storage channel.
      * This is the case if the system was shut down or if a new storage channel with a new calculation method has been added.
      * @param startTime start time of the time span for which a calculation has to be made
-     * @param endTime end time of the time span for whcih a calculation has to be made
+     * @param endTime end time of the time span for which a calculation has to be made
      * @throws Exception in case of any problems
      */
     private void calculateOldValues ( final long startTime, final long endTime ) throws Exception
@@ -204,6 +210,16 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     synchronized void notifyNewValues ( final BaseValue[] values ) throws Exception
     {
+        // assure that at least one value exists
+        if ( latestProcessedTimeSpan == Long.MIN_VALUE )
+        {
+            if ( ( values == null ) || ( values.length == 0 ) )
+            {
+                return;
+            }
+            latestProcessedTimeSpan = getTimeSpanStart ( values[0].getTime () );
+        }
+
         // collect all timespan blocks that have to be updated
         final Set<Long> startTimes = new HashSet<Long> ();
         final long currentlyAvailableData = getTimeSpanStart ( System.currentTimeMillis () );
@@ -266,7 +282,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             while ( blockStart < maxEndTime )
             {
                 final long blockEnd = blockStart + blockTimeSpan;
-                BaseValue[] valueBlock = ValueArrayNormalizer.extractSubArray ( values, blockStart, blockEnd, emptyArray );
+                final BaseValue[] valueBlock = ValueArrayNormalizer.extractSubArray ( values, blockStart, blockEnd, emptyArray );
                 if ( valueBlock.length == 0 )
                 {
                     break;
@@ -277,19 +293,28 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                     {
                     case LONG_VALUE:
                     {
-                        LongValue[] longValues = (LongValue[])calculationLogicProvider.generateValues ( valueBlock );
+                        final LongValue[] longValues = (LongValue[])calculationLogicProvider.generateValues ( valueBlock );
                         if ( baseStorageChannel != null )
                         {
-                            baseStorageChannel.updateLongs ( longValues );
+                            if ( ( longValues.length > 1 ) || ( ( longValues.length == 1 ) && ( ( lastValue == null ) || !lastValue.equals ( longValues[0] ) ) ) )
+                            {
+                                lastValue = longValues[longValues.length - 1];
+                                baseStorageChannel.updateLongs ( longValues );
+                            }
                         }
                         super.updateLongs ( longValues );
                     }
                     case DOUBLE_VALUE:
                     {
-                        DoubleValue[] doubleValues = (DoubleValue[])calculationLogicProvider.generateValues ( valueBlock );
+                        final DoubleValue[] doubleValues = (DoubleValue[])calculationLogicProvider.generateValues ( valueBlock );
                         if ( baseStorageChannel != null )
                         {
-                            baseStorageChannel.updateDoubles ( doubleValues );
+                            final DoubleValue lastDoubleValue = lastValue instanceof DoubleValue ? (DoubleValue)lastValue : null;
+                            if ( ( doubleValues.length > 1 ) || ( ( doubleValues.length == 1 ) && ( ( lastValue == null ) || ( lastDoubleValue.getBaseValueCount () != doubleValues[0].getBaseValueCount () ) || ( lastDoubleValue.getValue () != doubleValues[0].getValue () ) || ( lastDoubleValue.getQualityIndicator () != doubleValues[0].getQualityIndicator () ) ) ) )
+                            {
+                                lastValue = doubleValues[doubleValues.length - 1];
+                                baseStorageChannel.updateDoubles ( doubleValues );
+                            }
                         }
                         super.updateDoubles ( doubleValues );
                     }
@@ -297,7 +322,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                 }
                 catch ( Exception e )
                 {
-                    String message = "could not process values!";
+                    final String message = "could not process values!";
                     logger.error ( message, e );
                     throw new Exception ( message, e );
                 }

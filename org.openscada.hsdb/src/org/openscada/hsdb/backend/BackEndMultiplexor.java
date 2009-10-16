@@ -396,12 +396,20 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
 
         // collect result data
         final List<LongValue> longValues = new LinkedList<LongValue> ();
-        List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
+        final List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
         for ( BackEnd backEnd : backEnds )
         {
             try
             {
                 final StorageChannelMetaData metaData = backEnd.getMetaData ();
+                if ( metaData.getEndTime () <= startTime )
+                {
+                    longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
+                    if ( !longValues.isEmpty () )
+                    {
+                        break;
+                    }
+                }
                 if ( ( metaData.getStartTime () < endTime ) && ( metaData.getEndTime () > startTime ) )
                 {
                     // process values that match the time span
@@ -409,7 +417,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                 }
                 else
                 {
-                    LongValue firstLongValue = longValues.isEmpty () ? null : longValues.get ( 0 );
+                    final LongValue firstLongValue = longValues.isEmpty () ? null : longValues.get ( 0 );
                     if ( ( firstLongValue != null ) && ( firstLongValue.getTime () > startTime ) )
                     {
                         // add value
