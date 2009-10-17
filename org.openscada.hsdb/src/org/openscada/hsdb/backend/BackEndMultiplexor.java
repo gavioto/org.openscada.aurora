@@ -402,32 +402,23 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
             try
             {
                 final StorageChannelMetaData metaData = backEnd.getMetaData ();
-                if ( metaData.getEndTime () <= startTime )
+                final long metaDataStartTime = metaData.getStartTime ();
+                final long metaDataEndTime = metaData.getEndTime ();
+                if ( startTime >= metaDataEndTime )
                 {
-                    longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
+                    if ( longValues.isEmpty () )
+                    {
+                        longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
+                    }
                     if ( !longValues.isEmpty () )
                     {
                         break;
                     }
                 }
-                if ( ( metaData.getStartTime () < endTime ) && ( metaData.getEndTime () > startTime ) )
+                if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
                 {
                     // process values that match the time span
                     longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
-                }
-                else
-                {
-                    final LongValue firstLongValue = longValues.isEmpty () ? null : longValues.get ( 0 );
-                    if ( ( firstLongValue != null ) && ( firstLongValue.getTime () > startTime ) )
-                    {
-                        // add value
-                        List<LongValue> array = Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) );
-                        if ( !array.isEmpty () )
-                        {
-                            longValues.addAll ( 0, array );
-                            break;
-                        }
-                    }
                 }
             }
             catch ( Exception e )

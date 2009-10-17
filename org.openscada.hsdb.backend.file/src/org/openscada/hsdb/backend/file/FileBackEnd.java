@@ -11,6 +11,9 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.backend.BackEnd;
@@ -24,10 +27,16 @@ import org.slf4j.LoggerFactory;
  * This class provides methods for storing and retrieving data in a file using java.io.RandomAccessFile.
  * @author Ludwig Straub
  */
-public class FileBackEnd implements BackEnd
+public class FileBackEnd implements BackEnd, Runnable
 {
     /** The default logger. */
     private final static Logger logger = LoggerFactory.getLogger ( FileBackEnd.class );
+
+    /** Period in milliseconds after which should be checked whether a connection is open but not used for the configured period of time. */
+    private final static long CHECK_PERIOD = 1000;
+
+    /** Period in milliseconds after which a open connection can be closed if it has not been used in the meantime. */
+    private final static long OPEN_CONNECTION_TIMEOUT = 3000;
 
     /** Empty byte array. */
     private final static byte[] emptyByteArray = new byte[0];
@@ -70,6 +79,11 @@ public class FileBackEnd implements BackEnd
 
     /** Flag indicating whether the instance has been initialized or not. */
     private boolean initialized;
+
+    /** Task closing the connection if no access has beed performed for a period of time. */
+    private ScheduledExecutorService closeConnectionTask;
+
+    private long lastAccessTime;
 
     /**
      * Constructor expecting the configuration of the file backend.
@@ -175,6 +189,7 @@ public class FileBackEnd implements BackEnd
             parity = ( parity + calculationMethodParameters[i] ) % SHORT_BORDER;
         }
         randomAccessFile.writeShort ( (short)parity );
+        updateLastAccessTime ();
     }
 
     /**
@@ -185,6 +200,9 @@ public class FileBackEnd implements BackEnd
         metaData = null;
         getMetaData ();
         initialized = true;
+        updateLastAccessTime ();
+        closeConnectionTask = new ScheduledThreadPoolExecutor ( 1 );
+        closeConnectionTask.scheduleWithFixedDelay ( this, 0, CHECK_PERIOD, TimeUnit.MILLISECONDS );
     }
 
     /**
@@ -204,7 +222,7 @@ public class FileBackEnd implements BackEnd
         {
             openConnection ( false );
             metaData = extractMetaData ();
-            closeConnection ();
+            updateLastAccessTime ();
         }
         return metaData;
     }
@@ -222,6 +240,11 @@ public class FileBackEnd implements BackEnd
      */
     public synchronized void deinitialize () throws Exception
     {
+        if ( closeConnectionTask != null )
+        {
+            closeConnectionTask.shutdown ();
+            closeConnectionTask = null;
+        }
         initialized = false;
         closeConnection ();
         metaData = null;
@@ -233,7 +256,7 @@ public class FileBackEnd implements BackEnd
     public synchronized void delete () throws Exception
     {
         // assure that any previous open connection is closed
-        deinitialize ();
+        closeConnection ();
 
         // delete old file if any exists
         File file = new File ( fileName );
@@ -608,8 +631,7 @@ public class FileBackEnd implements BackEnd
             }
             finally
             {
-                // close connection
-                closeConnection ();
+                updateLastAccessTime ();
             }
         }
     }
@@ -635,8 +657,7 @@ public class FileBackEnd implements BackEnd
             }
             finally
             {
-                // close connection
-                closeConnection ();
+                updateLastAccessTime ();
             }
         }
     }
@@ -679,8 +700,7 @@ public class FileBackEnd implements BackEnd
         }
         finally
         {
-            // close connection
-            closeConnection ();
+            updateLastAccessTime ();
         }
     }
 
@@ -727,6 +747,26 @@ public class FileBackEnd implements BackEnd
         catch ( final CharacterCodingException e )
         {
             return new String ( bytes );
+        }
+    }
+
+    /**
+     * This method updates the last access time information to the current time.
+     */
+    private void updateLastAccessTime ()
+    {
+        lastAccessTime = System.currentTimeMillis ();
+    }
+
+    /**
+     * This method closed an open file connection if it was not used for at least the configured time span.
+     */
+    public synchronized void run ()
+    {
+        final long now = System.currentTimeMillis ();
+        if ( ( now - OPEN_CONNECTION_TIMEOUT ) > lastAccessTime )
+        {
+            closeConnection ();
         }
     }
 }
