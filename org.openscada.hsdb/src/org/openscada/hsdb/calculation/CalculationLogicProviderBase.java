@@ -16,14 +16,8 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     /** The default logger. */
     private final static Logger logger = LoggerFactory.getLogger ( CalculationLogicProviderBase.class );
 
-    /** Parameter index of the virtual value calculation flag. */
-    protected final static int VIRTUAL_VALUE_CALCULATION_ENABLE_INDEX = 0;
-
-    /** Default value of the virtual value calculation flag. */
-    protected final static long VIRTUAL_VALUE_CALCULATION_ENABLE_DEFAULT = 0;
-
     /** Parameter index of the calculation time span. */
-    protected final static int TIMESPAN_FOR_CALCULATION_INDEX = 1;
+    protected final static int TIMESPAN_FOR_CALCULATION_INDEX = 0;
 
     /** Default value of the calculation time span. */
     protected final static long TIMESPAN_FOR_CALCULATION_DEFAULT = 1000;
@@ -67,14 +61,6 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             return defaultValue;
         }
         return parameters[index];
-    }
-
-    /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#getGenerateVirtualValues
-     */
-    public boolean getGenerateVirtualValues ()
-    {
-        return getParameterValue ( VIRTUAL_VALUE_CALCULATION_ENABLE_INDEX, VIRTUAL_VALUE_CALCULATION_ENABLE_DEFAULT ) != 0;
     }
 
     /**

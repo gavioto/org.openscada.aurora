@@ -17,12 +17,6 @@ public interface CalculationLogicProvider
     public abstract boolean getPassThroughValues ();
 
     /**
-     * This method returns whether values should be calculated as soon as the time span is exceeded or if the calculation of values should be triggered by the processing of a new incoming value.
-     * @return true, if values should be calculated as soon as the time span is exceeded, otherwise false
-     */
-    public abstract boolean getGenerateVirtualValues ();
-
-    /**
      * This method returns the time span in milliseconds for which values have to be provided so that a new value or set of values can be calculated.
      * @return time span in milliseconds for which values have to be provided
      */
