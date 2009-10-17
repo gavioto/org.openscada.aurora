@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openscada.hsdb.datatypes.BaseValue;
+import org.openscada.hsdb.datatypes.DoubleValue;
+import org.openscada.hsdb.datatypes.LongValue;
 
 /**
  * This class provides methods for normalizing arrrays of base values.
@@ -22,9 +24,9 @@ public class ValueArrayNormalizer
      * @param emptyResultArray empty array that can be used as template for the result
      * @return normalized array
      */
-    public static BaseValue[] extractSubArray ( BaseValue[] values, final long startTime, final long endTime, BaseValue[] emptyResultArray )
+    public static BaseValue[] extractSubArray ( final BaseValue[] values, final long startTime, final long endTime, BaseValue[] emptyResultArray )
     {
-        if ( ( values == null ) || ( values.length == 0 ) )
+        if ( ( values == null ) || ( values.length == 0 ) || ( startTime >= endTime ) )
         {
             return emptyResultArray;
         }
@@ -47,13 +49,27 @@ public class ValueArrayNormalizer
         final long firstStartTime = firstValue.getTime ();
         if ( firstStartTime != startTime )
         {
-            if ( firstStartTime < startTime )
+            if ( firstValue instanceof LongValue )
             {
-                blockValues.add ( firstValue.createNewValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount () ) );
+                if ( firstStartTime < startTime )
+                {
+                    blockValues.add ( new LongValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), ( (LongValue)firstValue ).getValue () ) );
+                }
+                else
+                {
+                    blockValues.add ( new LongValue ( startTime, 0, 0, 0 ) );
+                }
             }
             else
             {
-                blockValues.add ( firstValue.createNewValue ( startTime, 0, 0 ) );
+                if ( firstStartTime < startTime )
+                {
+                    blockValues.add ( new DoubleValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), ( (DoubleValue)firstValue ).getValue () ) );
+                }
+                else
+                {
+                    blockValues.add ( new DoubleValue ( startTime, 0, 0, 0 ) );
+                }
             }
         }
         for ( int i = firstRelevantEntryIndex + 1; i < lastRelevantEntryIndex; i++ )
@@ -63,7 +79,14 @@ public class ValueArrayNormalizer
         final BaseValue lastValue = blockValues.get ( blockValues.size () - 1 );
         if ( lastValue.getTime () != endTime )
         {
-            blockValues.add ( lastValue.createNewValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount () ) );
+            if ( firstValue instanceof LongValue )
+            {
+                blockValues.add ( new LongValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), ( (LongValue)lastValue ).getValue () ) );
+            }
+            else
+            {
+                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), ( (DoubleValue)lastValue ).getValue () ) );
+            }
         }
         return blockValues.toArray ( emptyResultArray );
     }

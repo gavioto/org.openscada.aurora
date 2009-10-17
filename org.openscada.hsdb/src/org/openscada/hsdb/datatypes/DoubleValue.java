@@ -41,14 +41,6 @@ public class DoubleValue extends BaseValue
     }
 
     /**
-     * @see org.openscada.hsdb.datatypes
-     */
-    public BaseValue createNewValue ( final long time, final double qualityIndicator, final long baseValueCount )
-    {
-        return new DoubleValue ( time, qualityIndicator, baseValueCount, value );
-    }
-
-    /**
      * @see java.lang.Object#equals
      */
     public boolean equals ( final Object baseValue )

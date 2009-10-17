@@ -84,15 +84,6 @@ public abstract class BaseValue implements Comparable<BaseValue>
     }
 
     /**
-     * This method creates an object of the same type with the identical value
-     * @param time time stamp of the object that has to be created
-     * @param qualityIndicator quality information of the data
-     * @param baseValueCount count of values that have been combined to get the current value
-     * @return object of the same time with quality indicator set to 0
-     */
-    public abstract BaseValue createNewValue ( final long time, final double qualityIndicator, final long baseValueCount );
-
-    /**
      * @see java.lang.Object#hashCode
      */
     public int hashCode ()
