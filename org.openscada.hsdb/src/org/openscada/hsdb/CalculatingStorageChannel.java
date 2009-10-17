@@ -2,8 +2,9 @@ package org.openscada.hsdb;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.openscada.hsdb.calculation.CalculationLogicProvider;
 import org.openscada.hsdb.datatypes.BaseValue;
@@ -32,8 +33,8 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     /** Logic provider for calculation of values for storage channel. */
     private final CalculationLogicProvider calculationLogicProvider;
 
-    /** Timer that is used to calculate virtual values as soon as the next time span of data is passed. */
-    private final Timer virtualValuesCalculationTimer;
+    /** Task that is used to calculate virtual values as soon as the next time span of data is passed. */
+    private final ScheduledExecutorService virtualValuesCalculationTask;
 
     /** The start time of the latest processed time span. */
     private long latestProcessedTimeSpan;
@@ -77,9 +78,12 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         // start timer if virtual values have to be calculated
         if ( !calculationLogicProvider.getPassThroughValues () && calculationLogicProvider.getGenerateVirtualValues () )
         {
-            virtualValuesCalculationTimer = new Timer ();
-            virtualValuesCalculationTimer.scheduleAtFixedRate ( new TimerTask () {
-                public void run ()
+            virtualValuesCalculationTask = new ScheduledThreadPoolExecutor ( 1 );
+            virtualValuesCalculationTask.scheduleAtFixedRate ( new Runnable () {
+                /**
+                 * This method triggers the calculation of virtual values.
+                 */
+                public synchronized void run ()
                 {
                     try
                     {
@@ -93,11 +97,11 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                         logger.warn ( "could not retrieve old value within update timer!", e );
                     }
                 }
-            }, now - currentTimeSpan, calculationLogicProvider.getRequiredTimespanForCalculation () );
+            }, now - currentTimeSpan, calculationLogicProvider.getRequiredTimespanForCalculation (), TimeUnit.MILLISECONDS );
         }
         else
         {
-            virtualValuesCalculationTimer = null;
+            virtualValuesCalculationTask = null;
         }
     }
 
