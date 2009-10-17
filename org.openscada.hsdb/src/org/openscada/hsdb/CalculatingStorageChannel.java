@@ -2,9 +2,6 @@ package org.openscada.hsdb;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.openscada.hsdb.calculation.CalculationLogicProvider;
 import org.openscada.hsdb.datatypes.BaseValue;
@@ -32,9 +29,6 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
     /** Logic provider for calculation of values for storage channel. */
     private final CalculationLogicProvider calculationLogicProvider;
-
-    /** Task that is used to calculate virtual values as soon as the next time span of data is passed. */
-    private final ScheduledExecutorService virtualValuesCalculationTask;
 
     /** The start time of the latest processed time span. */
     private long latestProcessedTimeSpan;
@@ -73,35 +67,6 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                 // the system will continue to function
                 logger.warn ( "could not retrieve old value while constructing instance!", e );
             }
-        }
-
-        // start timer if virtual values have to be calculated
-        if ( !calculationLogicProvider.getPassThroughValues () && calculationLogicProvider.getGenerateVirtualValues () )
-        {
-            virtualValuesCalculationTask = new ScheduledThreadPoolExecutor ( 1 );
-            virtualValuesCalculationTask.scheduleAtFixedRate ( new Runnable () {
-                /**
-                 * This method triggers the calculation of virtual values.
-                 */
-                public synchronized void run ()
-                {
-                    try
-                    {
-                        notifyNewValues ( null );
-                    }
-                    catch ( Exception e )
-                    {
-                        // ignore exception
-                        // nothing more can be done here.
-                        // the system will continue to function
-                        logger.warn ( "could not retrieve old value within update timer!", e );
-                    }
-                }
-            }, now - currentTimeSpan, calculationLogicProvider.getRequiredTimespanForCalculation (), TimeUnit.MILLISECONDS );
-        }
-        else
-        {
-            virtualValuesCalculationTask = null;
         }
     }
 
@@ -249,8 +214,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // add blocks that have not yet been processed and blocks for virtual values if virtual values are required
         final long requiredTimespanForCalculation = calculationLogicProvider.getRequiredTimespanForCalculation ();
-        final long previousAvailableData = calculationLogicProvider.getGenerateVirtualValues () ? currentlyAvailableData - requiredTimespanForCalculation : maxStartTime;
-        while ( latestProcessedTimeSpan < previousAvailableData )
+        while ( latestProcessedTimeSpan < maxStartTime )
         {
             latestProcessedTimeSpan += requiredTimespanForCalculation;
             startTimes.add ( latestProcessedTimeSpan );
@@ -300,11 +264,11 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                         final LongValue longValue = (LongValue)calculationLogicProvider.generateValues ( valueBlock );
                         if ( baseStorageChannel != null )
                         {
-                            if ( ( longValue != null ) && ( ( lastValue == null ) || !lastValue.equals ( longValue ) ) )
+                            if ( ( longValue != null ) && ( ( lastValue == null ) || !valueContentEquals ( (LongValue)lastValue, longValue ) ) )
                             {
-                                lastValue = longValue;
                                 baseStorageChannel.updateLong ( longValue );
                             }
+                            lastValue = longValue;
                         }
                         super.updateLong ( longValue );
                     }
@@ -313,11 +277,11 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                         final DoubleValue doubleValue = (DoubleValue)calculationLogicProvider.generateValues ( valueBlock );
                         if ( baseStorageChannel != null )
                         {
-                            if ( ( doubleValue != null ) && ( ( lastValue == null ) || !lastValue.equals ( doubleValue ) ) )
+                            if ( ( doubleValue != null ) && ( ( lastValue == null ) || !valueContentEquals ( (DoubleValue)lastValue, doubleValue ) ) )
                             {
-                                lastValue = doubleValue;
                                 baseStorageChannel.updateDouble ( doubleValue );
                             }
+                            lastValue = doubleValue;
                         }
                         super.updateDouble ( doubleValue );
                     }
@@ -434,5 +398,27 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         notifyNewValues ( null );
         super.cleanupRelicts ();
         baseStorageChannel.cleanupRelicts ();
+    }
+
+    /**
+     * This method returns true, if both values are identical in all values except the time stamp.
+     * @param value1 first value to compare
+     * @param value2 second value to compare
+     * @return true, if both values are identical in all values except the time stamp, otherwise false
+     */
+    private static boolean valueContentEquals ( final LongValue value1, final LongValue value2 )
+    {
+        return ( value1.getQualityIndicator () == value2.getQualityIndicator () ) && ( value1.getValue () == value2.getValue () ) && ( value1.getBaseValueCount () == value2.getBaseValueCount () );
+    }
+
+    /**
+     * This method returns true, if both values are identical in all values except the time stamp.
+     * @param value1 first value to compare
+     * @param value2 second value to compare
+     * @return true, if both values are identical in all values except the time stamp, otherwise false
+     */
+    private static boolean valueContentEquals ( final DoubleValue value1, final DoubleValue value2 )
+    {
+        return ( value1.getQualityIndicator () == value2.getQualityIndicator () ) && ( ( Double.isNaN ( value1.getValue () ) && Double.isNaN ( value2.getValue () ) ) || ( value1.getValue () == value2.getValue () ) ) && ( value1.getBaseValueCount () == value2.getBaseValueCount () );
     }
 }

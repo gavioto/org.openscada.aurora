@@ -153,8 +153,8 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             if ( lastTimeStamp < time )
             {
                 quality += qualityIndicator * ( time - lastTimeStamp );
-                lastTimeStamp = time;
             }
+            lastTimeStamp = time;
         }
         return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 );
     }
@@ -183,8 +183,8 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             if ( lastTimeStamp < time )
             {
                 quality += qualityIndicator * ( time - lastTimeStamp );
-                lastTimeStamp = time;
             }
+            lastTimeStamp = time;
         }
         return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 );
     }
@@ -213,8 +213,8 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             if ( lastTimeStamp < time )
             {
                 quality += qualityIndicator * ( time - lastTimeStamp );
-                lastTimeStamp = time;
             }
+            lastTimeStamp = time;
         }
         return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN );
     }
@@ -243,8 +243,8 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             if ( lastTimeStamp < time )
             {
                 quality += qualityIndicator * ( time - lastTimeStamp );
-                lastTimeStamp = time;
             }
+            lastTimeStamp = time;
         }
         return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN );
     }
