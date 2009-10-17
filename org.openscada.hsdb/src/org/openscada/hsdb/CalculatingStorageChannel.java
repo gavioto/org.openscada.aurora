@@ -109,17 +109,17 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                 {
                 case LONG_VALUE:
                 {
-                    return storageChannel.getLongValues ( Long.MAX_VALUE - 1, Long.MAX_VALUE );
+                    return storageChannel.getLongValues ( startTime, endTime );
                 }
                 case DOUBLE_VALUE:
                 {
-                    return storageChannel.getDoubleValues ( Long.MAX_VALUE - 1, Long.MAX_VALUE );
+                    return storageChannel.getDoubleValues ( startTime, endTime );
                 }
                 }
             }
             catch ( Exception e )
             {
-                logger.warn ( "could not retrieve latest value!", e );
+                logger.warn ( "could not retrieve values!", e );
             }
         }
         return null;
