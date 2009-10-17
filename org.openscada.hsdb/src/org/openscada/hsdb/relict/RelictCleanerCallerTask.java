@@ -1,7 +1,5 @@
 package org.openscada.hsdb.relict;
 
-import java.util.TimerTask;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +7,7 @@ import org.slf4j.LoggerFactory;
  * This task is used to periodically delete old data.
  * @author Ludwig Straub
  */
-public class RelictCleanerCallerTask extends TimerTask
+public class RelictCleanerCallerTask implements Runnable
 {
     /** The default logger. */
     private final static Logger logger = LoggerFactory.getLogger ( RelictCleanerCallerTask.class );
