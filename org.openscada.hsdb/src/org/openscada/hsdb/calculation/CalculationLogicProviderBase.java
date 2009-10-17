@@ -1,6 +1,5 @@
 package org.openscada.hsdb.calculation;
 
-import org.openscada.hsdb.ExtendedStorageChannel;
 import org.openscada.hsdb.datatypes.BaseValue;
 import org.openscada.hsdb.datatypes.DataType;
 import org.openscada.hsdb.datatypes.DoubleValue;
@@ -107,50 +106,38 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
      * @param values long values that were processed during the time span
      * @return calculated long values
      */
-    protected LongValue[] generateLongValues ( final LongValue[] values )
-    {
-        return ExtendedStorageChannel.EMPTY_LONGVALUE_ARRAY;
-    }
+    protected abstract LongValue generateLongValue ( final LongValue[] values );
 
     /**
      * This method generates long values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
      * @param values double values that were processed during the time span
      * @return calculated long values
      */
-    protected LongValue[] generateLongValues ( final DoubleValue[] values )
-    {
-        return ExtendedStorageChannel.EMPTY_LONGVALUE_ARRAY;
-    }
+    protected abstract LongValue generateLongValue ( final DoubleValue[] values );
 
     /**
      * This method generates double values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
      * @param values long values that were processed during the time span
      * @return calculated double values
      */
-    protected DoubleValue[] generateDoubleValues ( final LongValue[] values )
-    {
-        return ExtendedStorageChannel.EMPTY_DOUBLEVALUE_ARRAY;
-    }
+    protected abstract DoubleValue generateDoubleValue ( final LongValue[] values );
 
     /**
      * This method generates double values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
      * @param values double values that were processed during the time span
      * @return calculated double values
      */
-    protected DoubleValue[] generateDoubleValues ( final DoubleValue[] values )
-    {
-        return ExtendedStorageChannel.EMPTY_DOUBLEVALUE_ARRAY;
-    }
+    protected abstract DoubleValue generateDoubleValue ( final DoubleValue[] values );
 
     /**
      * @see org.openscada.hsdb.calculation.CalculationLogicProvider#generateValues
      */
-    public BaseValue[] generateValues ( BaseValue[] values )
+    public BaseValue generateValues ( final BaseValue[] values )
     {
         // check input
         if ( ( values == null ) || ( values.length == 0 ) )
         {
-            return values;
+            return null;
         }
 
         // process values
@@ -158,16 +145,16 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         {
         case LONG_VALUE:
         {
-            LongValue[] longValues = (LongValue[])values;
+            final LongValue[] longValues = (LongValue[])values;
             switch ( getOutputType () )
             {
             case LONG_VALUE:
             {
-                return generateLongValues ( longValues );
+                return generateLongValue ( longValues );
             }
             case DOUBLE_VALUE:
             {
-                return generateDoubleValues ( longValues );
+                return generateDoubleValue ( longValues );
             }
             default:
             {
@@ -178,16 +165,16 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         }
         case DOUBLE_VALUE:
         {
-            DoubleValue[] doubleValues = (DoubleValue[])values;
+            final DoubleValue[] doubleValues = (DoubleValue[])values;
             switch ( getOutputType () )
             {
             case LONG_VALUE:
             {
-                return generateLongValues ( doubleValues );
+                return generateLongValue ( doubleValues );
             }
             case DOUBLE_VALUE:
             {
-                return generateDoubleValues ( doubleValues );
+                return generateDoubleValue ( doubleValues );
             }
             default:
             {

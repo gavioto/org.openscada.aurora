@@ -30,9 +30,9 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
      */
-    protected LongValue[] generateLongValues ( final LongValue[] values )
+    protected LongValue generateLongValue ( final LongValue[] values )
     {
         long maxValue = Long.MIN_VALUE;
         double quality = 0;
@@ -43,13 +43,13 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }
-        return new LongValue[] { new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, maxValue ) };
+        return new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, maxValue );
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
      */
-    protected LongValue[] generateLongValues ( final DoubleValue[] values )
+    protected LongValue generateLongValue ( final DoubleValue[] values )
     {
         double maxValue = Double.NEGATIVE_INFINITY;
         double quality = 0;
@@ -60,13 +60,13 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }
-        return new LongValue[] { new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, (long)maxValue ) };
+        return new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, (long)maxValue );
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
      */
-    protected DoubleValue[] generateDoubleValues ( final LongValue[] values )
+    protected DoubleValue generateDoubleValue ( final LongValue[] values )
     {
         long maxValue = Long.MIN_VALUE;
         double quality = 0;
@@ -77,15 +77,13 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }
-        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, maxValue ) };
+        return new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, maxValue );
     }
 
     /**
-     * This method generates double values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
-     * @param values double values that were processed during the time span
-     * @return calculated double values
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
      */
-    protected DoubleValue[] generateDoubleValues ( final DoubleValue[] values )
+    protected DoubleValue generateDoubleValue ( final DoubleValue[] values )
     {
         double maxValue = Double.NEGATIVE_INFINITY;
         double quality = 0;
@@ -96,6 +94,6 @@ public class MaximumCalculationLogicProvider extends CalculationLogicProviderBas
             quality += value.getQualityIndicator ();
             baseValueCount += value.getBaseValueCount ();
         }
-        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, maxValue ) };
+        return new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, maxValue );
     }
 }

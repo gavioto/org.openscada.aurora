@@ -47,4 +47,12 @@ public class LongValue extends BaseValue
     {
         return new LongValue ( time, qualityIndicator, baseValueCount, 0 );
     }
+
+    /**
+     * @see java.lang.Object#equals
+     */
+    public boolean equals ( final Object baseValue )
+    {
+        return ( baseValue instanceof LongValue ) && super.equals ( baseValue ) && ( value == ( (LongValue)baseValue ).getValue () );
+    }
 }

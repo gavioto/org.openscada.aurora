@@ -30,9 +30,9 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
      */
-    protected LongValue[] generateLongValues ( final LongValue[] values )
+    protected LongValue generateLongValue ( final LongValue[] values )
     {
         final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
@@ -54,13 +54,13 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
             }
             lastTimeStamp = time;
         }
-        return new LongValue[] { new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) ) };
+        return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) );
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
      */
-    protected LongValue[] generateLongValues ( final DoubleValue[] values )
+    protected LongValue generateLongValue ( final DoubleValue[] values )
     {
         final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
@@ -82,13 +82,13 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
             }
             lastTimeStamp = time;
         }
-        return new LongValue[] { new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) ) };
+        return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) );
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
      */
-    protected DoubleValue[] generateDoubleValues ( final LongValue[] values )
+    protected DoubleValue generateDoubleValue ( final LongValue[] values )
     {
         final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
@@ -110,15 +110,13 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
             }
             lastTimeStamp = time;
         }
-        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) };
+        return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize );
     }
 
     /**
-     * This method generates double values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
-     * @param values double values that were processed during the time span
-     * @return calculated double values
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
      */
-    protected DoubleValue[] generateDoubleValues ( final DoubleValue[] values )
+    protected DoubleValue generateDoubleValue ( final DoubleValue[] values )
     {
         final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
         double avgValue = 0;
@@ -140,6 +138,6 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
             }
             lastTimeStamp = time;
         }
-        return new DoubleValue[] { new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) };
+        return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize );
     }
 }

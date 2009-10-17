@@ -1,7 +1,8 @@
 package org.openscada.hsdb.calculation;
 
-import org.openscada.hsdb.datatypes.BaseValue;
 import org.openscada.hsdb.datatypes.DataType;
+import org.openscada.hsdb.datatypes.DoubleValue;
+import org.openscada.hsdb.datatypes.LongValue;
 
 /**
  * This class implements the CalculationLogicProvider interface for the processing of native values.
@@ -29,10 +30,34 @@ public class NativeCalculationLogicProvider extends CalculationLogicProviderBase
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#generateValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
      */
-    public BaseValue[] generateValues ( BaseValue[] values )
+    protected DoubleValue generateDoubleValue ( LongValue[] values )
     {
-        return values;
+        return null;
+    }
+
+    /**
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     */
+    protected DoubleValue generateDoubleValue ( DoubleValue[] values )
+    {
+        return null;
+    }
+
+    /**
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
+     */
+    protected LongValue generateLongValue ( LongValue[] values )
+    {
+        return null;
+    }
+
+    /**
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
+     */
+    protected LongValue generateLongValue ( DoubleValue[] values )
+    {
+        return null;
     }
 }

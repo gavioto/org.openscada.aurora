@@ -41,9 +41,9 @@ public interface CalculationLogicProvider
     public abstract DataType getOutputType ();
 
     /**
-     * This method generates values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
+     * This method generates a value for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
      * @param values values that were processed during the time span
-     * @return calculated values
+     * @return calculated value
      */
-    public abstract BaseValue[] generateValues ( final BaseValue[] values );
+    public abstract BaseValue generateValues ( final BaseValue[] values );
 }

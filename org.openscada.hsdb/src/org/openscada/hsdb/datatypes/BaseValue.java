@@ -103,15 +103,20 @@ public abstract class BaseValue implements Comparable<BaseValue>
     /**
      * @see java.lang.Object#equals
      */
-    public boolean equals ( Object baseValue )
+    public boolean equals ( final Object obj )
     {
-        return ( baseValue instanceof BaseValue ) && ( time == ( (BaseValue)baseValue ).getTime () );
+        if ( obj instanceof BaseValue )
+        {
+            final BaseValue baseValue = (BaseValue)obj;
+            return ( time == baseValue.getTime () ) && ( qualityIndicator == baseValue.getQualityIndicator () ) && ( baseValueCount == baseValue.getBaseValueCount () );
+        }
+        return false;
     }
 
     /**
      * @see java.lang.Comparable#compareTo
      */
-    public int compareTo ( BaseValue o2 )
+    public int compareTo ( final BaseValue o2 )
     {
         if ( o2 == null )
         {

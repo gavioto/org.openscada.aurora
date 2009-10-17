@@ -47,4 +47,12 @@ public class DoubleValue extends BaseValue
     {
         return new DoubleValue ( time, qualityIndicator, baseValueCount, value );
     }
+
+    /**
+     * @see java.lang.Object#equals
+     */
+    public boolean equals ( final Object baseValue )
+    {
+        return ( baseValue instanceof DoubleValue ) && super.equals ( baseValue ) && ( value == ( (DoubleValue)baseValue ).getValue () );
+    }
 }

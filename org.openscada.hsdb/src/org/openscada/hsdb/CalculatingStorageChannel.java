@@ -297,30 +297,29 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                     {
                     case LONG_VALUE:
                     {
-                        final LongValue[] longValues = (LongValue[])calculationLogicProvider.generateValues ( valueBlock );
+                        final LongValue longValue = (LongValue)calculationLogicProvider.generateValues ( valueBlock );
                         if ( baseStorageChannel != null )
                         {
-                            if ( ( longValues.length > 1 ) || ( ( longValues.length == 1 ) && ( ( lastValue == null ) || !lastValue.equals ( longValues[0] ) ) ) )
+                            if ( ( longValue != null ) && ( ( lastValue == null ) || !lastValue.equals ( longValue ) ) )
                             {
-                                lastValue = longValues[longValues.length - 1];
-                                baseStorageChannel.updateLongs ( longValues );
+                                lastValue = longValue;
+                                baseStorageChannel.updateLong ( longValue );
                             }
                         }
-                        super.updateLongs ( longValues );
+                        super.updateLong ( longValue );
                     }
                     case DOUBLE_VALUE:
                     {
-                        final DoubleValue[] doubleValues = (DoubleValue[])calculationLogicProvider.generateValues ( valueBlock );
+                        final DoubleValue doubleValue = (DoubleValue)calculationLogicProvider.generateValues ( valueBlock );
                         if ( baseStorageChannel != null )
                         {
-                            final DoubleValue lastDoubleValue = lastValue instanceof DoubleValue ? (DoubleValue)lastValue : null;
-                            if ( ( doubleValues.length > 1 ) || ( ( doubleValues.length == 1 ) && ( ( lastValue == null ) || ( lastDoubleValue.getBaseValueCount () != doubleValues[0].getBaseValueCount () ) || ( lastDoubleValue.getValue () != doubleValues[0].getValue () ) || ( lastDoubleValue.getQualityIndicator () != doubleValues[0].getQualityIndicator () ) ) ) )
+                            if ( ( doubleValue != null ) && ( ( lastValue == null ) || !lastValue.equals ( doubleValue ) ) )
                             {
-                                lastValue = doubleValues[doubleValues.length - 1];
-                                baseStorageChannel.updateDoubles ( doubleValues );
+                                lastValue = doubleValue;
+                                baseStorageChannel.updateDouble ( doubleValue );
                             }
                         }
-                        super.updateDoubles ( doubleValues );
+                        super.updateDouble ( doubleValue );
                     }
                     }
                 }
