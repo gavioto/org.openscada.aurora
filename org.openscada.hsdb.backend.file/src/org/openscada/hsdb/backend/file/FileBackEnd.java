@@ -259,7 +259,7 @@ public class FileBackEnd implements BackEnd, Runnable
         closeConnection ();
 
         // delete old file if any exists
-        File file = new File ( fileName );
+        final File file = new File ( fileName );
         if ( file.exists () )
         {
             logger.info ( String.format ( "deleting existing file '%s'...", fileName ) );
@@ -405,14 +405,14 @@ public class FileBackEnd implements BackEnd, Runnable
             try
             {
                 // open new connection
-                File file = new File ( fileName );
+                final File file = new File ( fileName );
                 randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
                 openInWriteMode = allowWrite;
             }
             catch ( IOException e )
             {
                 // close connection in case of problems
-                String message = String.format ( "file '%s' could not be opened", fileName );
+                final String message = String.format ( "file '%s' could not be opened", fileName );
                 logger.error ( message, e );
                 closeConnection ();
                 throw new Exception ( message, e );
