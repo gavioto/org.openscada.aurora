@@ -1,5 +1,6 @@
 package org.openscada.hsdb;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -212,17 +213,19 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             }
         }
 
-        // add blocks that have not yet been processed and blocks for virtual values if virtual values are required
+        // add blocks that have not yet been processed
         final long requiredTimespanForCalculation = calculationLogicProvider.getRequiredTimespanForCalculation ();
-        while ( latestProcessedTimeSpan < maxStartTime )
+        while ( latestProcessedTimeSpan < currentlyAvailableData )
         {
-            latestProcessedTimeSpan += requiredTimespanForCalculation;
             startTimes.add ( latestProcessedTimeSpan );
+            latestProcessedTimeSpan += requiredTimespanForCalculation;
         }
 
         // process time spans
-        final long timeSpan = calculationLogicProvider.getRequiredTimespanForCalculation ();
-        for ( Long startTime : startTimes )
+        final long timeSpan = requiredTimespanForCalculation;
+        final Long[] sortedStartTimes = startTimes.toArray ( new Long[0] );
+        Arrays.sort ( sortedStartTimes );
+        for ( long startTime : sortedStartTimes )
         {
             final long endTime = startTime + timeSpan;
             calculateOldValues ( startTime, endTime );
