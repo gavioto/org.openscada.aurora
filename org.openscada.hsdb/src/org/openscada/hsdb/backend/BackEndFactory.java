@@ -22,6 +22,18 @@ public interface BackEndFactory
     public abstract StorageChannelMetaData[] getExistingBackEndsMetaData () throws Exception;
 
     /**
+     * This method returns the metadata objects of all existing back end objects for the specified configuration.
+     * If more than one metadata object exists for the same configuration, calculation
+     * method and detail level then the additional information is merged into one single meta data object.
+     * The time span is hereby widened so that the earliest start time is used and the latest end time.
+     * All other information is taken from the sub meta data object with the latest end time.
+     * @param configurationId id of configuration for which all existing back end objects have to be retrieved
+     * @return metadata objects of all existing back end objects
+     * @throws Exception in case of any problems
+     */
+    public abstract StorageChannelMetaData[] getExistingBackEndsMetaData ( final String configurationId ) throws Exception;
+
+    /**
      * This method returns all currently available and previously created backends matching the specified constraints.
      * @param configurationId id of the configuration for which the backends should be retrieved
      * @param detailLevelId detail level of the stored data

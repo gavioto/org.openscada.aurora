@@ -186,9 +186,16 @@ public class FileBackEndFactory implements BackEndFactory
     }
 
     /**
-     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData
+     * This method returns the metadata objects of all existing back end objects within the specified directory.
+     * If more than one metadata object exists for the same configuration, calculation
+     * method and detail level then the additional information is merged into one single meta data object.
+     * The time span is hereby widened so that the earliest start time is used and the latest end time.
+     * All other information is taken from the sub meta data object with the latest end time.
+     * @param directory directory in the root folder from which the back end files are loaded. if no directory is passed then all available directories within the root folder will be processed
+     * @return metadata objects of all existing back end objects
+     * @throws Exception in case of any problems
      */
-    public StorageChannelMetaData[] getExistingBackEndsMetaData () throws Exception
+    private StorageChannelMetaData[] getExistingBackEndsMetaDataInDirectory ( final String directory )
     {
         // check if root folder exists
         File root = new File ( fileRoot );
@@ -198,7 +205,7 @@ public class FileBackEndFactory implements BackEndFactory
         }
 
         // get all directories
-        File[] directories = root.listFiles ( new DirectoryFileFilter ( null ) );
+        File[] directories = root.listFiles ( new DirectoryFileFilter ( directory ) );
         List<StorageChannelMetaData> metaDatas = new LinkedList<StorageChannelMetaData> ();
         for ( File configurationDirectory : directories )
         {
@@ -255,6 +262,22 @@ public class FileBackEndFactory implements BackEndFactory
             }
         }
         return metaDatas.toArray ( emptyMetaDataArray );
+    }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData()
+     */
+    public StorageChannelMetaData[] getExistingBackEndsMetaData () throws Exception
+    {
+        return getExistingBackEndsMetaDataInDirectory ( null );
+    }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData(String)
+     */
+    public StorageChannelMetaData[] getExistingBackEndsMetaData ( String configurationId ) throws Exception
+    {
+        return getExistingBackEndsMetaDataInDirectory ( configurationId );
     }
 
     /**
