@@ -30,114 +30,102 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateLong
      */
-    protected LongValue generateLongValue ( final LongValue[] values )
+    protected long calculateLong ( final LongValue[] values )
     {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
+        if ( values.length == 1 )
+        {
+            return values[0].getValue ();
+        }
+        long timespan = 0;
         double avgValue = 0;
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        long lastValue = 0;
+        LongValue lastValidValue = null;
         for ( LongValue value : values )
         {
-            baseValueCount += value.getBaseValueCount ();
-            long time = value.getTime ();
-            if ( lastTimeStamp < time )
+            if ( lastValidValue != null )
             {
-                long weightFactor = time - lastTimeStamp;
-                avgValue += lastValue * weightFactor;
-                quality += value.getQualityIndicator () * weightFactor;
-                lastTimeStamp = time;
-                lastValue = value.getValue ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
+                avgValue += lastValidValue.getValue () * weight;
+                timespan += weight;
             }
-            lastTimeStamp = time;
+            lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) );
+        return (long) ( avgValue / timespan );
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateLong
      */
-    protected LongValue generateLongValue ( final DoubleValue[] values )
+    protected long calculateLong ( final DoubleValue[] values )
     {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
+        if ( values.length == 1 )
+        {
+            return (long)values[0].getValue ();
+        }
+        long timespan = 0;
         double avgValue = 0;
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        double lastValue = 0;
+        DoubleValue lastValidValue = null;
         for ( DoubleValue value : values )
         {
-            long time = value.getTime ();
-            baseValueCount += value.getBaseValueCount ();
-            if ( lastTimeStamp < time )
+            if ( lastValidValue != null )
             {
-                long weightFactor = time - lastTimeStamp;
-                avgValue += lastValue * weightFactor;
-                quality += value.getQualityIndicator () * weightFactor;
-                lastTimeStamp = time;
-                lastValue = value.getValue ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
+                avgValue += lastValidValue.getValue () * weight;
+                timespan += weight;
             }
-            lastTimeStamp = time;
+            lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, (long) ( timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize ) );
+        return (long) ( avgValue / timespan );
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateDouble
      */
-    protected DoubleValue generateDoubleValue ( final LongValue[] values )
+    protected double calculateDouble ( final LongValue[] values )
     {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
+        if ( values.length == 1 )
+        {
+            return values[0].getValue ();
+        }
+        long timespan = 0;
         double avgValue = 0;
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        long lastValue = 0;
+        LongValue lastValidValue = null;
         for ( LongValue value : values )
         {
-            long time = value.getTime ();
-            baseValueCount += value.getBaseValueCount ();
-            if ( lastTimeStamp < time )
+            if ( lastValidValue != null )
             {
-                long weightFactor = time - lastTimeStamp;
-                avgValue += lastValue * weightFactor;
-                quality += value.getQualityIndicator () * weightFactor;
-                lastTimeStamp = time;
-                lastValue = value.getValue ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
+                avgValue += lastValidValue.getValue () * weight;
+                timespan += weight;
             }
-            lastTimeStamp = time;
+            lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize );
+        return avgValue / timespan;
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateDouble
      */
-    protected DoubleValue generateDoubleValue ( final DoubleValue[] values )
+    protected double calculateDouble ( final DoubleValue[] values )
     {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
+        if ( values.length == 1 )
+        {
+            return values[0].getValue ();
+        }
+        long timespan = 0;
         double avgValue = 0;
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        double lastValue = 0;
+        DoubleValue lastValidValue = null;
         for ( DoubleValue value : values )
         {
-            long time = value.getTime ();
-            baseValueCount += value.getBaseValueCount ();
-            if ( lastTimeStamp < time )
+            if ( lastValidValue != null )
             {
-                long weightFactor = time - lastTimeStamp;
-                avgValue += lastValue * weightFactor;
-                quality += value.getQualityIndicator () * weightFactor;
-                lastTimeStamp = time;
-                lastValue = value.getValue ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
+                avgValue += lastValidValue.getValue () * weight;
+                timespan += weight;
             }
-            lastTimeStamp = time;
+            lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, timeSpanSize == 0 ? values[0].getValue () : avgValue / timeSpanSize );
+        return avgValue / timespan;
     }
 }

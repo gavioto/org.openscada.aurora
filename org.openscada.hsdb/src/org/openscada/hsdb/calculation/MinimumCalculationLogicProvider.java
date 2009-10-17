@@ -30,70 +30,66 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateLong
      */
-    protected LongValue generateLongValue ( final LongValue[] values )
+    protected long calculateLong ( final LongValue[] values )
     {
         long minValue = Long.MAX_VALUE;
-        double quality = 0;
-        long baseValueCount = 0;
         for ( LongValue value : values )
         {
-            minValue = Math.min ( minValue, value.getValue () );
-            quality += value.getQualityIndicator ();
-            baseValueCount += value.getBaseValueCount ();
+            if ( value.getQualityIndicator () > 0 )
+            {
+                minValue = Math.min ( minValue, value.getValue () );
+            }
         }
-        return new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, minValue );
+        return minValue;
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateLong
      */
-    protected LongValue generateLongValue ( final DoubleValue[] values )
+    protected long calculateLong ( final DoubleValue[] values )
     {
         double minValue = Double.POSITIVE_INFINITY;
-        double quality = 0;
-        long baseValueCount = 0;
         for ( DoubleValue value : values )
         {
-            minValue = Math.min ( minValue, value.getValue () );
-            quality += value.getQualityIndicator ();
-            baseValueCount += value.getBaseValueCount ();
+            if ( value.getQualityIndicator () > 0 )
+            {
+                minValue = Math.min ( minValue, value.getValue () );
+            }
         }
-        return new LongValue ( values[0].getTime (), quality / values.length, baseValueCount, (long)minValue );
+        return (long)minValue;
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateDouble
      */
-    protected DoubleValue generateDoubleValue ( final LongValue[] values )
+    protected double calculateDouble ( final LongValue[] values )
     {
         long minValue = Long.MAX_VALUE;
-        double quality = 0;
-        long baseValueCount = 0;
         for ( LongValue value : values )
         {
-            minValue = Math.min ( minValue, value.getValue () );
-            quality += value.getQualityIndicator ();
-            baseValueCount += value.getBaseValueCount ();
+            if ( value.getQualityIndicator () > 0 )
+            {
+                minValue = Math.min ( minValue, value.getValue () );
+            }
         }
-        return new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, minValue );
+        return minValue;
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateDouble
      */
-    protected DoubleValue generateDoubleValue ( final DoubleValue[] values )
+    protected double calculateDouble ( final DoubleValue[] values )
     {
         double minValue = Double.POSITIVE_INFINITY;
-        double quality = 0;
-        long baseValueCount = 0;
         for ( DoubleValue value : values )
         {
-            minValue = Math.min ( minValue, value.getValue () );
-            quality += value.getQualityIndicator ();
-            baseValueCount += value.getBaseValueCount ();
+            if ( value.getQualityIndicator () > 0 )
+            {
+                minValue = Math.min ( minValue, value.getValue () );
+            }
         }
-        return new DoubleValue ( values[0].getTime (), quality / values.length, baseValueCount, minValue );
+        return minValue;
     }
 }

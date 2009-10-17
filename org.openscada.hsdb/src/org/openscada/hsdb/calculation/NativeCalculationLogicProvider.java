@@ -30,34 +30,34 @@ public class NativeCalculationLogicProvider extends CalculationLogicProviderBase
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateLong
      */
-    protected DoubleValue generateDoubleValue ( LongValue[] values )
+    protected long calculateLong ( final LongValue[] values )
     {
-        return null;
+        return 0;
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateDoubleValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateLong
      */
-    protected DoubleValue generateDoubleValue ( DoubleValue[] values )
+    protected long calculateLong ( final DoubleValue[] values )
     {
-        return null;
+        return 0;
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateDouble
      */
-    protected LongValue generateLongValue ( LongValue[] values )
+    protected double calculateDouble ( final LongValue[] values )
     {
-        return null;
+        return Double.NaN;
     }
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#generateLongValue
+     * @see org.openscada.hsdb.calculation.CalculationLogicProviderBase#calculateDouble
      */
-    protected LongValue generateLongValue ( DoubleValue[] values )
+    protected double calculateDouble ( final DoubleValue[] values )
     {
-        return null;
+        return Double.NaN;
     }
 }
