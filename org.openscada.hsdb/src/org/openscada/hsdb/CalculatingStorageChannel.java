@@ -177,7 +177,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      * @param values values that have to be processed
      * @throws Exception in case of any problems
      */
-    synchronized void notifyNewValues ( final BaseValue[] values ) throws Exception
+    private void notifyNewValues ( final BaseValue[] values ) throws Exception
     {
         // assure that at least one value exists
         if ( latestProcessedTimeSpan == Long.MIN_VALUE )
