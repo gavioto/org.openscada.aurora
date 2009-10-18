@@ -6,6 +6,8 @@ import java.util.List;
 import org.openscada.hsdb.datatypes.BaseValue;
 import org.openscada.hsdb.datatypes.DoubleValue;
 import org.openscada.hsdb.datatypes.LongValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides methods for normalizing arrrays of base values.
@@ -14,6 +16,9 @@ import org.openscada.hsdb.datatypes.LongValue;
  */
 public class ValueArrayNormalizer
 {
+    /** The default logger. */
+    private final static Logger logger = LoggerFactory.getLogger ( ValueArrayNormalizer.class );
+
     /**
      * This method extracts a sub array out of the passed array of elements matching the specified criteria.
      * If the exact specified start time is not available in the array then a new virtual entry will be created at the beginning of the resulting array with the start time.
@@ -75,6 +80,11 @@ public class ValueArrayNormalizer
         for ( int i = firstRelevantEntryIndex + 1; i < lastRelevantEntryIndex; i++ )
         {
             blockValues.add ( values[i] );
+        }
+        if ( blockValues.isEmpty () )
+        {
+            logger.error ( String.format ( "no block block values could have been calculated (start:%s;end:%s;values:%s)", startTime, endTime, values ) );
+            return emptyResultArray;
         }
         final BaseValue lastValue = blockValues.get ( blockValues.size () - 1 );
         if ( lastValue.getTime () != endTime )

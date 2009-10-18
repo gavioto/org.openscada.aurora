@@ -82,12 +82,12 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         backEnds.clear ();
         BackEnd[] backEndArray = backEndFactory.getExistingBackEnds ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getCalculationMethod () );
         initialized = true;
-        Arrays.sort ( backEndArray, new InverseTimeOrderComparator () );
-        backEnds.addAll ( Arrays.asList ( backEndArray ) );
-        for ( BackEnd backEnd : backEnds )
+        for ( BackEnd backEnd : backEndArray )
         {
             backEnd.initialize ( storageChannelMetaData );
         }
+        Arrays.sort ( backEndArray, new InverseTimeOrderComparator () );
+        backEnds.addAll ( Arrays.asList ( backEndArray ) );
         metaData = new StorageChannelMetaData ( storageChannelMetaData );
     }
 
@@ -221,7 +221,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
     {
         if ( !initialized )
         {
-            String message = String.format ( "back end (%s) is not properly initialized!", metaData );
+            final String message = String.format ( "back end (%s) is not properly initialized!", metaData );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -397,6 +397,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         // collect result data
         final List<LongValue> longValues = new LinkedList<LongValue> ();
         final List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
+        long earliestAvailableTime = Long.MAX_VALUE;
         for ( BackEnd backEnd : backEnds )
         {
             try
@@ -404,6 +405,14 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                 final StorageChannelMetaData metaData = backEnd.getMetaData ();
                 final long metaDataStartTime = metaData.getStartTime ();
                 final long metaDataEndTime = metaData.getEndTime ();
+                if ( earliestAvailableTime == Long.MAX_VALUE )
+                {
+                    earliestAvailableTime = metaDataEndTime;
+                }
+                if ( ( earliestAvailableTime > metaDataEndTime ) && ( metaDataEndTime <= endTime ) )
+                {
+                    longValues.add ( new LongValue ( metaDataEndTime, 0, 0, 0 ) );
+                }
                 if ( startTime >= metaDataEndTime )
                 {
                     if ( longValues.isEmpty () )
@@ -420,6 +429,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                     // process values that match the time span
                     longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
                 }
+                earliestAvailableTime = metaDataStartTime;
             }
             catch ( Exception e )
             {

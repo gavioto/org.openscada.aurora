@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.openscada.hsdb.datatypes.DoubleValue;
 import org.openscada.hsdb.datatypes.LongValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This StorageChannel implementation provides methods for managing StorageChannel objects.
@@ -15,6 +17,9 @@ import org.openscada.hsdb.datatypes.LongValue;
  */
 public abstract class SimpleStorageChannelManager implements StorageChannelManager
 {
+    /** The default logger. */
+    private final static Logger logger = LoggerFactory.getLogger ( SimpleStorageChannelManager.class );
+
     /** List of currently registers storage channels. */
     private final List<ExtendedStorageChannel> storageChannels;
 
@@ -47,9 +52,26 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
     {
-        for ( StorageChannel storageChannel : storageChannels )
+        Exception innerException = null;
+        for ( ExtendedStorageChannel storageChannel : storageChannels )
         {
-            storageChannel.updateLong ( longValue );
+            try
+            {
+                storageChannel.updateLong ( longValue );
+            }
+            catch ( Exception e )
+            {
+                if ( innerException == null )
+                {
+                    innerException = e;
+                }
+            }
+        }
+        if ( innerException != null )
+        {
+            final String message = "a long value of at least one inner storage channel could not be updated";
+            logger.error ( message, innerException );
+            throw new Exception ( message, innerException );
         }
     }
 
@@ -58,9 +80,26 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
-        for ( StorageChannel storageChannel : storageChannels )
+        Exception innerException = null;
+        for ( ExtendedStorageChannel storageChannel : storageChannels )
         {
-            storageChannel.updateLongs ( longValues );
+            try
+            {
+                storageChannel.updateLongs ( longValues );
+            }
+            catch ( Exception e )
+            {
+                if ( innerException == null )
+                {
+                    innerException = e;
+                }
+            }
+        }
+        if ( innerException != null )
+        {
+            final String message = "long values of at least one inner storage channel could not be updated";
+            logger.error ( message, innerException );
+            throw new Exception ( message, innerException );
         }
     }
 
@@ -76,7 +115,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
         }
 
         // default method logic
-        List<LongValue> longValues = new ArrayList<LongValue> ();
+        final List<LongValue> longValues = new ArrayList<LongValue> ();
         for ( StorageChannel storageChannel : storageChannels )
         {
             longValues.addAll ( Arrays.asList ( storageChannel.getLongValues ( startTime, endTime ) ) );
@@ -89,9 +128,26 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void updateDouble ( final DoubleValue doubleValue ) throws Exception
     {
+        Exception innerException = null;
         for ( ExtendedStorageChannel storageChannel : storageChannels )
         {
-            storageChannel.updateDouble ( doubleValue );
+            try
+            {
+                storageChannel.updateDouble ( doubleValue );
+            }
+            catch ( Exception e )
+            {
+                if ( innerException == null )
+                {
+                    innerException = e;
+                }
+            }
+        }
+        if ( innerException != null )
+        {
+            final String message = "a double value of at least one inner storage channel could not be updated";
+            logger.error ( message, innerException );
+            throw new Exception ( message, innerException );
         }
     }
 
@@ -100,9 +156,26 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void updateDoubles ( final DoubleValue[] doubleValues ) throws Exception
     {
+        Exception innerException = null;
         for ( ExtendedStorageChannel storageChannel : storageChannels )
         {
-            storageChannel.updateDoubles ( doubleValues );
+            try
+            {
+                storageChannel.updateDoubles ( doubleValues );
+            }
+            catch ( Exception e )
+            {
+                if ( innerException == null )
+                {
+                    innerException = e;
+                }
+            }
+        }
+        if ( innerException != null )
+        {
+            final String message = "double values of at least one inner storage channel could not be updated";
+            logger.error ( message, innerException );
+            throw new Exception ( message, innerException );
         }
     }
 
@@ -118,7 +191,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
         }
 
         // default method logic
-        List<DoubleValue> doubleValues = new ArrayList<DoubleValue> ();
+        final List<DoubleValue> doubleValues = new ArrayList<DoubleValue> ();
         for ( ExtendedStorageChannel storageChannel : storageChannels )
         {
             doubleValues.addAll ( Arrays.asList ( storageChannel.getDoubleValues ( startTime, endTime ) ) );
