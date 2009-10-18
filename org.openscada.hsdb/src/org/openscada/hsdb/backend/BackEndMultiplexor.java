@@ -294,8 +294,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         }
 
         // create a new backend channel with a completely independent timespan, since no channel exists
-        // as start time, a time not too far in the past is chosen, since older data might be processed in the future
-        final long startTime = timestamp - this.newBackendTimespan / 10;
+        final long startTime = timestamp - this.newBackendTimespan;
         return createAndAddNewBackEnd ( startTime, startTime + this.newBackendTimespan, backEnds.size () );
     }
 
@@ -398,6 +397,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         final List<LongValue> longValues = new LinkedList<LongValue> ();
         final List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
         long earliestAvailableTime = Long.MAX_VALUE;
+        int addedValueCount = 0;
         for ( BackEnd backEnd : backEnds )
         {
             try
@@ -407,11 +407,12 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                 final long metaDataEndTime = metaData.getEndTime ();
                 if ( earliestAvailableTime == Long.MAX_VALUE )
                 {
-                    earliestAvailableTime = metaDataEndTime;
+                    earliestAvailableTime = metaDataStartTime;
                 }
                 if ( ( earliestAvailableTime > metaDataEndTime ) && ( metaDataEndTime <= endTime ) )
                 {
                     longValues.add ( new LongValue ( metaDataEndTime, 0, 0, 0 ) );
+                    addedValueCount++;
                 }
                 if ( startTime >= metaDataEndTime )
                 {
@@ -430,6 +431,10 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                     longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
                 }
                 earliestAvailableTime = metaDataStartTime;
+                if ( earliestAvailableTime <= startTime )
+                {
+                    break;
+                }
             }
             catch ( Exception e )
             {
@@ -450,6 +455,6 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         removeBackEnds ( backEndsToRemove );
 
         // return final result
-        return longValues.toArray ( EMPTY_LONGVALUE_ARRAY );
+        return addedValueCount == longValues.size () ? EMPTY_LONGVALUE_ARRAY : longValues.toArray ( EMPTY_LONGVALUE_ARRAY );
     }
 }
