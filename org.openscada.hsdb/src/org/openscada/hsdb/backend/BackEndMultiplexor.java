@@ -397,7 +397,6 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         final List<LongValue> longValues = new LinkedList<LongValue> ();
         final List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
         long earliestAvailableTime = Long.MAX_VALUE;
-        int addedValueCount = 0;
         for ( final BackEnd backEnd : backEnds )
         {
             try
@@ -411,8 +410,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                 }
                 if ( ( earliestAvailableTime > metaDataEndTime ) && ( metaDataEndTime <= endTime ) )
                 {
-                    longValues.add ( new LongValue ( metaDataEndTime, 0, 0, 0 ) );
-                    addedValueCount++;
+                    longValues.add ( 0, new LongValue ( metaDataEndTime, 0, 0, 0 ) );
                 }
                 if ( startTime >= metaDataEndTime )
                 {
@@ -455,6 +453,6 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         removeBackEnds ( backEndsToRemove );
 
         // return final result
-        return addedValueCount == longValues.size () ? EMPTY_LONGVALUE_ARRAY : longValues.toArray ( EMPTY_LONGVALUE_ARRAY );
+        return longValues.toArray ( EMPTY_LONGVALUE_ARRAY );
     }
 }

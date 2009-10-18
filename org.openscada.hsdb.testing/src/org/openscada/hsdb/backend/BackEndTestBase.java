@@ -65,7 +65,7 @@ public abstract class BackEndTestBase
     public void testSelectLong1Data () throws Exception
     {
         testAddLong1Data ();
-        Assert.assertEquals ( 0, backEnd.getLongValues ( 100, 200 ).length );
+        Assert.assertEquals ( 1, backEnd.getLongValues ( 200, 201 ).length );
         Assert.assertEquals ( 4, backEnd.getLongValues ( 201, 205 ).length );
         Assert.assertEquals ( 2, backEnd.getLongValues ( 201, 203 ).length );
         Assert.assertEquals ( 1, backEnd.getLongValues ( 210, 220 ).length );
