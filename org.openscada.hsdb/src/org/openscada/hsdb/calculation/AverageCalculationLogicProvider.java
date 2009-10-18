@@ -41,7 +41,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         long timespan = 0;
         double avgValue = 0;
         LongValue lastValidValue = null;
-        for ( LongValue value : values )
+        for ( final LongValue value : values )
         {
             if ( lastValidValue != null )
             {
@@ -66,7 +66,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         long timespan = 0;
         double avgValue = 0;
         DoubleValue lastValidValue = null;
-        for ( DoubleValue value : values )
+        for ( final DoubleValue value : values )
         {
             if ( lastValidValue != null )
             {
@@ -91,7 +91,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         long timespan = 0;
         double avgValue = 0;
         LongValue lastValidValue = null;
-        for ( LongValue value : values )
+        for ( final LongValue value : values )
         {
             if ( lastValidValue != null )
             {
@@ -116,7 +116,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         long timespan = 0;
         double avgValue = 0;
         DoubleValue lastValidValue = null;
-        for ( DoubleValue value : values )
+        for ( final DoubleValue value : values )
         {
             if ( lastValidValue != null )
             {

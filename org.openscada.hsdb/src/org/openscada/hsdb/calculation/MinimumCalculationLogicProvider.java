@@ -35,7 +35,7 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
     protected long calculateLong ( final LongValue[] values )
     {
         long minValue = Long.MAX_VALUE;
-        for ( LongValue value : values )
+        for ( final LongValue value : values )
         {
             if ( value.getQualityIndicator () > 0 )
             {
@@ -51,7 +51,7 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
     protected long calculateLong ( final DoubleValue[] values )
     {
         double minValue = Double.POSITIVE_INFINITY;
-        for ( DoubleValue value : values )
+        for ( final DoubleValue value : values )
         {
             if ( value.getQualityIndicator () > 0 )
             {
@@ -67,7 +67,7 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
     protected double calculateDouble ( final LongValue[] values )
     {
         long minValue = Long.MAX_VALUE;
-        for ( LongValue value : values )
+        for ( final LongValue value : values )
         {
             if ( value.getQualityIndicator () > 0 )
             {
@@ -83,7 +83,7 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
     protected double calculateDouble ( final DoubleValue[] values )
     {
         double minValue = Double.POSITIVE_INFINITY;
-        for ( DoubleValue value : values )
+        for ( final DoubleValue value : values )
         {
             if ( value.getQualityIndicator () > 0 )
             {

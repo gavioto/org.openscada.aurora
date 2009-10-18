@@ -61,7 +61,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                 calculateOldValues ( latestProcessedTimeSpan, currentTimeSpan );
                 this.latestProcessedTimeSpan = currentTimeSpan;
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 // ignore exception
                 // nothing more can be done here.
@@ -118,7 +118,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                 }
                 }
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 logger.warn ( "could not retrieve values!", e );
             }
@@ -146,7 +146,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         lastValue = null;
         if ( baseStorageChannel != null )
         {
-            BaseValue[] values = getValues ( baseStorageChannel, calculationLogicProvider.getOutputType (), Long.MAX_VALUE - 1, Long.MAX_VALUE );
+            final BaseValue[] values = getValues ( baseStorageChannel, calculationLogicProvider.getOutputType (), Long.MAX_VALUE - 1, Long.MAX_VALUE );
             lastValue = ( values != null ) && ( values.length > 0 ) ? values[0] : null;
         }
         return ( lastValue == null ) ? Long.MIN_VALUE : lastValue.getTime ();
@@ -198,12 +198,12 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         long maxStartTime = latestProcessedTimeSpan;
         if ( ( values != null ) && ( values.length > 0 ) )
         {
-            for ( BaseValue value : values )
+            for ( final BaseValue value : values )
             {
                 final long time = value.getTime ();
                 if ( time < currentlyAvailableData )
                 {
-                    long startTime = getTimeSpanStart ( time );
+                    final long startTime = getTimeSpanStart ( time );
                     startTimes.add ( startTime );
                     if ( startTime > maxStartTime )
                     {
@@ -225,7 +225,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         final long timeSpan = requiredTimespanForCalculation;
         final Long[] sortedStartTimes = startTimes.toArray ( new Long[0] );
         Arrays.sort ( sortedStartTimes );
-        for ( long startTime : sortedStartTimes )
+        for ( final long startTime : sortedStartTimes )
         {
             final long endTime = startTime + timeSpan;
             calculateOldValues ( startTime, endTime );
@@ -290,7 +290,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                     }
                     }
                 }
-                catch ( Exception e )
+                catch ( final Exception e )
                 {
                     final String message = "could not process values!";
                     logger.error ( message, e );

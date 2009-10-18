@@ -33,7 +33,7 @@ public class RelictCleanerCallerTask implements Runnable
         {
             relictCleaner.cleanupRelicts ();
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             logger.warn ( "error while cleaning relicts", e );
         }

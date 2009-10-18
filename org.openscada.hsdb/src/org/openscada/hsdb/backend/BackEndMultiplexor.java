@@ -64,7 +64,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         // assure that no old data exists
         if ( backEndFactory.getExistingBackEnds ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getCalculationMethod () ).length > 0 )
         {
-            String message = String.format ( "data already exists for combination! (configuration id: '%s'; detail level: '%d'; calculation method: '%s')", storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), CalculationMethod.convertCalculationMethodToString ( storageChannelMetaData.getCalculationMethod () ) );
+            final String message = String.format ( "data already exists for combination! (configuration id: '%s'; detail level: '%d'; calculation method: '%s')", storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), CalculationMethod.convertCalculationMethodToString ( storageChannelMetaData.getCalculationMethod () ) );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -80,9 +80,9 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
     {
         deinitialize ();
         backEnds.clear ();
-        BackEnd[] backEndArray = backEndFactory.getExistingBackEnds ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getCalculationMethod () );
+        final BackEnd[] backEndArray = backEndFactory.getExistingBackEnds ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getCalculationMethod () );
         initialized = true;
-        for ( BackEnd backEnd : backEndArray )
+        for ( final BackEnd backEnd : backEndArray )
         {
             backEnd.initialize ( storageChannelMetaData );
         }
@@ -105,7 +105,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         final long proposedDataAge = System.currentTimeMillis () - metaData.getProposedDataAge () - REPRIEVE;
         for ( int i = backEnds.size () - 1; i >= 1; i-- )
         {
-            BackEnd backEnd = backEnds.get ( i );
+            final BackEnd backEnd = backEnds.get ( i );
             if ( backEnd != null )
             {
                 StorageChannelMetaData subMetaData = null;
@@ -118,7 +118,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                         {
                             backEnd.delete ();
                         }
-                        catch ( Exception e1 )
+                        catch ( final Exception e1 )
                         {
                             logger.warn ( String.format ( "relict data (%s) could not be deleted by BackEndMultiplexor (%s)! ", subMetaData, metaData ), e1 );
                         }
@@ -130,7 +130,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                         break;
                     }
                 }
-                catch ( Exception e )
+                catch ( final Exception e )
                 {
                     logger.warn ( String.format ( "metadata of sub backend could not be accessed! (%s)", metaData ), e );
                 }
@@ -142,7 +142,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         {
             updateMetaData ();
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             logger.error ( "could not update meta data", e );
         }
@@ -157,8 +157,8 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
     {
         if ( !backEnds.isEmpty () )
         {
-            StorageChannelMetaData first = backEnds.get ( 0 ).getMetaData ();
-            StorageChannelMetaData last = backEnds.get ( backEnds.size () - 1 ).getMetaData ();
+            final StorageChannelMetaData first = backEnds.get ( 0 ).getMetaData ();
+            final StorageChannelMetaData last = backEnds.get ( backEnds.size () - 1 ).getMetaData ();
             metaData.setStartTime ( Math.min ( metaData.getStartTime (), last.getStartTime () ) );
             metaData.setEndTime ( Math.max ( metaData.getEndTime (), first.getEndTime () ) );
         }
@@ -187,13 +187,13 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
     public synchronized void deinitialize () throws Exception
     {
         initialized = false;
-        for ( BackEnd backEnd : backEnds )
+        for ( final BackEnd backEnd : backEnds )
         {
             try
             {
                 backEnd.deinitialize ();
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 logger.warn ( String.format ( "sub back end of '%s' could not be deinitialized", metaData ), e );
             }
@@ -206,7 +206,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
      */
     public synchronized void delete () throws Exception
     {
-        for ( BackEnd backEnd : backEnds )
+        for ( final BackEnd backEnd : backEnds )
         {
             backEnd.delete ();
         }
@@ -281,7 +281,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                     endTime += this.newBackendTimespan;
                     if ( endTime > maxEndTime )
                     {
-                        String message = "logic error! end time cannot be before start time when creating a new storage channel backend fragment";
+                        final String message = "logic error! end time cannot be before start time when creating a new storage channel backend fragment";
                         logger.error ( message );
                         throw new Exception ( message );
                     }
@@ -304,14 +304,14 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
      */
     private void removeBackEnds ( final List<BackEnd> backEndsToRemove ) throws Exception
     {
-        for ( BackEnd backEnd : backEndsToRemove )
+        for ( final BackEnd backEnd : backEndsToRemove )
         {
             try
             {
                 backEnds.remove ( backEnd );
                 backEnd.deinitialize ();
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
             }
         }
@@ -333,7 +333,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
             {
                 getBackEnd ( longValue.getTime () ).updateLong ( longValue );
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 logger.error ( String.format ( "backend (%s): could not write to sub backend (startTime: %s)", metaData, longValue.getTime () ), e );
             }
@@ -350,14 +350,14 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         {
             // assign all long values to the backend that is responsible for their processing
             final Map<Long, List<LongValue>> backends = new HashMap<Long, List<LongValue>> ();
-            for ( LongValue longValue : longValues )
+            for ( final LongValue longValue : longValues )
             {
                 long startTime = 0L;
                 try
                 {
                     startTime = getBackEnd ( longValue.getTime () ).getMetaData ().getStartTime ();
                 }
-                catch ( Exception e )
+                catch ( final Exception e )
                 {
                     logger.error ( String.format ( "backend (%s): could not access sub backend (startTime: %s)", metaData, longValue.getTime () ), e );
                 }
@@ -371,13 +371,13 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
             }
 
             // process the ordered long values as bulk
-            for ( Map.Entry<Long, List<LongValue>> entry : backends.entrySet () )
+            for ( final Map.Entry<Long, List<LongValue>> entry : backends.entrySet () )
             {
                 try
                 {
                     getBackEnd ( entry.getKey () ).updateLongs ( entry.getValue ().toArray ( EMPTY_LONGVALUE_ARRAY ) );
                 }
-                catch ( Exception e )
+                catch ( final Exception e )
                 {
                     logger.error ( String.format ( "backend (%s): could not write to sub backend (startTime: %s)", metaData, entry.getKey () ), e );
                 }
@@ -398,7 +398,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
         final List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
         long earliestAvailableTime = Long.MAX_VALUE;
         int addedValueCount = 0;
-        for ( BackEnd backEnd : backEnds )
+        for ( final BackEnd backEnd : backEnds )
         {
             try
             {
@@ -436,10 +436,10 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                     break;
                 }
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 backEndsToRemove.add ( backEnd );
-                String message = String.format ( "backend (%s): could not read from sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
+                final String message = String.format ( "backend (%s): could not read from sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
                 if ( startTime < ( System.currentTimeMillis () - metaData.getProposedDataAge () ) )
                 {
                     logger.info ( message + " - backend is probably outdated", e );

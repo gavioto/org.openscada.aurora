@@ -2,8 +2,6 @@ package org.openscada.hsdb.backend;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.openscada.hsdb.backend.FileBackEndMultiplexorTest;
-import org.openscada.hsdb.backend.FileBackEndTest;
 
 /**
  * This class can be used as test entry point to perform all available tests for service classes.

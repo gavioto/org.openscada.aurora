@@ -99,7 +99,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
         final DoubleValue[] doubleValues = new DoubleValue[longValues.length];
         for ( int i = 0; i < longValues.length; i++ )
         {
-            LongValue longValue = longValues[i];
+            final LongValue longValue = longValues[i];
             doubleValues[i] = new DoubleValue ( longValue.getTime (), longValue.getQualityIndicator (), longValue.getBaseValueCount (), Double.longBitsToDouble ( longValue.getValue () ) );
         }
         return doubleValues;

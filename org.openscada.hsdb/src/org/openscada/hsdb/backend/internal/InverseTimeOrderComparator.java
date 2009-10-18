@@ -29,7 +29,7 @@ public class InverseTimeOrderComparator implements Comparator<BackEnd>
         {
             m1 = o1.getMetaData ();
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             return 1;
         }
@@ -38,7 +38,7 @@ public class InverseTimeOrderComparator implements Comparator<BackEnd>
         {
             m2 = o2.getMetaData ();
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             return -1;
         }

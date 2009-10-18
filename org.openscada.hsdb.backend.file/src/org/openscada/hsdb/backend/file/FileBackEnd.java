@@ -110,7 +110,7 @@ public class FileBackEnd implements BackEnd, Runnable
         // assure that a valid object has been passed
         if ( storageChannelMetaData == null )
         {
-            String message = String.format ( "invalid StorageChannelMetaData object passed for file '%s'!", fileName );
+            final String message = String.format ( "invalid StorageChannelMetaData object passed for file '%s'!", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -129,27 +129,27 @@ public class FileBackEnd implements BackEnd, Runnable
         // validate input data
         if ( configurationId == null )
         {
-            String message = String.format ( "invalid configuration id specified for file '%s'!", fileName );
+            final String message = String.format ( "invalid configuration id specified for file '%s'!", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
         if ( startTime >= endTime )
         {
-            String message = String.format ( "invalid timespan specified for file '%s'! (startTime >= endTime)", fileName );
+            final String message = String.format ( "invalid timespan specified for file '%s'! (startTime >= endTime)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
 
         // create new file including folder
-        File file = new File ( fileName );
-        File parent = file.getParentFile ();
+        final File file = new File ( fileName );
+        final File parent = file.getParentFile ();
         if ( parent != null )
         {
             parent.mkdirs ();
         }
         if ( !file.createNewFile () )
         {
-            String message = String.format ( "file '%s' could not be created. please verify the access rights and make sure that no file with the given name already exists.", fileName );
+            final String message = String.format ( "file '%s' could not be created. please verify the access rights and make sure that no file with the given name already exists.", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -284,7 +284,7 @@ public class FileBackEnd implements BackEnd, Runnable
     {
         if ( !initialized )
         {
-            String message = String.format ( "back end (%s) is not properly initialized!", metaData );
+            final String message = String.format ( "back end (%s) is not properly initialized!", metaData );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -302,28 +302,28 @@ public class FileBackEnd implements BackEnd, Runnable
         final long fileSize = randomAccessFile.length ();
         if ( fileSize < 16 )
         {
-            String message = String.format ( "file '%s' is of invalid format! (too small)", fileName );
+            final String message = String.format ( "file '%s' is of invalid format! (too small)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
         final long fileMarker = randomAccessFile.readLong ();
         if ( fileMarker != FILE_MARKER )
         {
-            String message = String.format ( "file '%s' is of invalid format! (invalid marker)", fileName );
+            final String message = String.format ( "file '%s' is of invalid format! (invalid marker)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
         dataOffset = randomAccessFile.readLong ();
         if ( fileSize < dataOffset )
         {
-            String message = String.format ( "file '%s' is of invalid format! (invalid header)", fileName );
+            final String message = String.format ( "file '%s' is of invalid format! (invalid header)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
         final long version = randomAccessFile.readLong ();
         if ( version != FILE_VERSION )
         {
-            String message = String.format ( "file '%s' is of invalid format! (wrong version)", fileName );
+            final String message = String.format ( "file '%s' is of invalid format! (wrong version)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -332,7 +332,7 @@ public class FileBackEnd implements BackEnd, Runnable
         final long endTime = randomAccessFile.readLong ();
         if ( startTime >= endTime )
         {
-            String message = String.format ( "file '%s' has invalid timespan specified! (startTime >= endTime)", fileName );
+            final String message = String.format ( "file '%s' has invalid timespan specified! (startTime >= endTime)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -343,7 +343,7 @@ public class FileBackEnd implements BackEnd, Runnable
         final long configurationIdSize = randomAccessFile.readLong ();
         if ( ( dataOffset - randomAccessFile.getFilePointer () - 2 - configurationIdSize ) != ( calculationMethodParameterCountSize * 8 ) )
         {
-            String message = String.format ( "file '%s' is of invalid format! (invalid count of calculation method parameters)", fileName );
+            final String message = String.format ( "file '%s' is of invalid format! (invalid count of calculation method parameters)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -354,7 +354,7 @@ public class FileBackEnd implements BackEnd, Runnable
         }
         if ( ( dataOffset - randomAccessFile.getFilePointer () - 2 ) != configurationIdSize )
         {
-            String message = String.format ( "file '%s' is of invalid format! (invalid configuration id)", fileName );
+            final String message = String.format ( "file '%s' is of invalid format! (invalid configuration id)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -378,7 +378,7 @@ public class FileBackEnd implements BackEnd, Runnable
         }
         if ( randomAccessFile.readShort () != parity )
         {
-            String message = String.format ( "file '%s' has a corrupt header!", fileName );
+            final String message = String.format ( "file '%s' has a corrupt header!", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -411,7 +411,7 @@ public class FileBackEnd implements BackEnd, Runnable
                 randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
                 openInWriteMode = allowWrite;
             }
-            catch ( IOException e )
+            catch ( final IOException e )
             {
                 // close connection in case of problems
                 final String message = String.format ( "file '%s' could not be opened", fileName );
@@ -433,7 +433,7 @@ public class FileBackEnd implements BackEnd, Runnable
             {
                 randomAccessFile.close ();
             }
-            catch ( IOException e )
+            catch ( final IOException e )
             {
                 logger.warn ( String.format ( "file '%s' could not be closed", fileName ) );
             }
@@ -466,7 +466,7 @@ public class FileBackEnd implements BackEnd, Runnable
         parity = ( parity + value ) % SHORT_BORDER;
         if ( randomAccessFile.readShort () != parity )
         {
-            String message = String.format ( "file '%s' is corrupt! invalid timestamp at %x", fileName, time );
+            final String message = String.format ( "file '%s' is corrupt! invalid timestamp at %x", fileName, time );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -486,8 +486,8 @@ public class FileBackEnd implements BackEnd, Runnable
         long endSearch = randomAccessFile.length () - RECORD_BLOCK_SIZE;
         while ( endSearch >= dataOffset )
         {
-            LongValue existingLongValue = readLongValue ( endSearch );
-            long existingTime = existingLongValue.getTime ();
+            final LongValue existingLongValue = readLongValue ( endSearch );
+            final long existingTime = existingLongValue.getTime ();
             if ( time > existingTime )
             {
                 return endSearch + RECORD_BLOCK_SIZE;
@@ -513,7 +513,7 @@ public class FileBackEnd implements BackEnd, Runnable
     {
         // ignore incomplete data at file end
         long fileSize = randomAccessFile.length ();
-        long incompleteData = ( fileSize - dataOffset ) % RECORD_BLOCK_SIZE;
+        final long incompleteData = ( fileSize - dataOffset ) % RECORD_BLOCK_SIZE;
         if ( incompleteData > 0 )
         {
             fileSize -= incompleteData;
@@ -536,9 +536,9 @@ public class FileBackEnd implements BackEnd, Runnable
         // perform real binary search
         while ( startSearch < endSearch )
         {
-            long midSearch = ( startSearch + endSearch ) / 2;
-            long filePointer = ( midSearch * RECORD_BLOCK_SIZE ) + dataOffset;
-            long midTime = readLongValue ( filePointer ).getTime ();
+            final long midSearch = ( startSearch + endSearch ) / 2;
+            final long filePointer = ( midSearch * RECORD_BLOCK_SIZE ) + dataOffset;
+            final long midTime = readLongValue ( filePointer ).getTime ();
             if ( midTime < startTime )
             {
                 startSearch = midSearch + 1;
@@ -573,18 +573,18 @@ public class FileBackEnd implements BackEnd, Runnable
         }
 
         // calculate insertion point of new data
-        long insertionPoint = getInsertionPoint ( longValue.getTime () );
+        final long insertionPoint = getInsertionPoint ( longValue.getTime () );
         long endCopy = randomAccessFile.length ();
 
         // make room for new data if data cannot be appended at the end or existing data has to be overwritten
         if ( ( insertionPoint != endCopy ) && ( readLongValue ( insertionPoint ).getTime () != time ) )
         {
             // move file content to create cap for new data
-            byte[] buffer = new byte[(int)Math.min ( MAX_COPY_BUFFER_FILL_SIZE, endCopy - insertionPoint )];
+            final byte[] buffer = new byte[(int)Math.min ( MAX_COPY_BUFFER_FILL_SIZE, endCopy - insertionPoint )];
             long startCopy = Math.max ( endCopy - buffer.length, insertionPoint );
             while ( startCopy < endCopy )
             {
-                int bufferFillSize = (int) ( endCopy - startCopy );
+                final int bufferFillSize = (int) ( endCopy - startCopy );
                 randomAccessFile.seek ( startCopy );
                 randomAccessFile.read ( buffer, 0, bufferFillSize );
                 randomAccessFile.seek ( startCopy + RECORD_BLOCK_SIZE );
@@ -687,10 +687,10 @@ public class FileBackEnd implements BackEnd, Runnable
             // get data from file
             final long fileSize = randomAccessFile.length ();
             long startingPosition = getFirstEntryPosition ( startTime );
-            List<LongValue> longValues = new ArrayList<LongValue> ();
+            final List<LongValue> longValues = new ArrayList<LongValue> ();
             while ( startingPosition + RECORD_BLOCK_SIZE <= fileSize )
             {
-                LongValue longValue = readLongValue ( startingPosition );
+                final LongValue longValue = readLongValue ( startingPosition );
                 if ( longValue.getTime () >= endTime )
                 {
                     break;

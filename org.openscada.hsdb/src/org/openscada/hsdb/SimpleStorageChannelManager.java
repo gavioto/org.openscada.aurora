@@ -53,13 +53,13 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
     {
         Exception innerException = null;
-        for ( ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : storageChannels )
         {
             try
             {
                 storageChannel.updateLong ( longValue );
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 if ( innerException == null )
                 {
@@ -81,13 +81,13 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
         Exception innerException = null;
-        for ( ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : storageChannels )
         {
             try
             {
                 storageChannel.updateLongs ( longValues );
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 if ( innerException == null )
                 {
@@ -116,7 +116,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
 
         // default method logic
         final List<LongValue> longValues = new ArrayList<LongValue> ();
-        for ( StorageChannel storageChannel : storageChannels )
+        for ( final StorageChannel storageChannel : storageChannels )
         {
             longValues.addAll ( Arrays.asList ( storageChannel.getLongValues ( startTime, endTime ) ) );
         }
@@ -129,13 +129,13 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateDouble ( final DoubleValue doubleValue ) throws Exception
     {
         Exception innerException = null;
-        for ( ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : storageChannels )
         {
             try
             {
                 storageChannel.updateDouble ( doubleValue );
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 if ( innerException == null )
                 {
@@ -157,13 +157,13 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateDoubles ( final DoubleValue[] doubleValues ) throws Exception
     {
         Exception innerException = null;
-        for ( ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : storageChannels )
         {
             try
             {
                 storageChannel.updateDoubles ( doubleValues );
             }
-            catch ( Exception e )
+            catch ( final Exception e )
             {
                 if ( innerException == null )
                 {
@@ -192,7 +192,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
 
         // default method logic
         final List<DoubleValue> doubleValues = new ArrayList<DoubleValue> ();
-        for ( ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : storageChannels )
         {
             doubleValues.addAll ( Arrays.asList ( storageChannel.getDoubleValues ( startTime, endTime ) ) );
         }
@@ -204,7 +204,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void cleanupRelicts () throws Exception
     {
-        for ( StorageChannel storageChannel : storageChannels )
+        for ( final StorageChannel storageChannel : storageChannels )
         {
             storageChannel.cleanupRelicts ();
         }

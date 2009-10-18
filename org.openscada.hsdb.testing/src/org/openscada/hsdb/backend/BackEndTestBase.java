@@ -92,7 +92,7 @@ public abstract class BackEndTestBase
     @Test
     public void testRapidLong1DataBulkInsert () throws Exception
     {
-        LongValue[] valuesToInsert = new LongValue[MAX_COUNT];
+        final LongValue[] valuesToInsert = new LongValue[MAX_COUNT];
         for ( int i = 0; i < MAX_COUNT; i++ )
         {
             valuesToInsert[i] = new LongValue ( i, 100, 1, i );

@@ -88,7 +88,7 @@ public class FileBackEndFactory implements BackEndFactory
      */
     private static String encodeFileNamePart ( final long time )
     {
-        Calendar calendar = Calendar.getInstance ();
+        final Calendar calendar = Calendar.getInstance ();
         calendar.setTimeInMillis ( time );
         return String.format ( TIME_FORMAT, calendar.get ( Calendar.YEAR ), calendar.get ( Calendar.MONTH ), calendar.get ( Calendar.DAY_OF_MONTH ), calendar.get ( Calendar.HOUR_OF_DAY ), calendar.get ( Calendar.MINUTE ), calendar.get ( Calendar.SECOND ), calendar.get ( Calendar.MILLISECOND ) );
     }
@@ -136,7 +136,7 @@ public class FileBackEndFactory implements BackEndFactory
         {
             return defaultValue;
         }
-        String result = matcher.group ( 1 );
+        final String result = matcher.group ( 1 );
         return result != null ? result : defaultValue;
     }
 
@@ -177,7 +177,7 @@ public class FileBackEndFactory implements BackEndFactory
                 logger.warn ( String.format ( "file content does not match expected content due to file name (%s). file will be ignored", file.getPath () ) );
             }
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             fileBackEnd = null;
             logger.warn ( String.format ( "file '%s' could not be evaluated and will be ignored", file.getPath () ), e );
@@ -198,31 +198,31 @@ public class FileBackEndFactory implements BackEndFactory
     private StorageChannelMetaData[] getExistingBackEndsMetaDataInDirectory ( final String directory )
     {
         // check if root folder exists
-        File root = new File ( fileRoot );
+        final File root = new File ( fileRoot );
         if ( !root.exists () || !root.isDirectory () )
         {
             return emptyMetaDataArray;
         }
 
         // get all directories
-        File[] directories = root.listFiles ( new DirectoryFileFilter ( directory ) );
-        List<StorageChannelMetaData> metaDatas = new LinkedList<StorageChannelMetaData> ();
-        for ( File configurationDirectory : directories )
+        final File[] directories = root.listFiles ( new DirectoryFileFilter ( directory ) );
+        final List<StorageChannelMetaData> metaDatas = new LinkedList<StorageChannelMetaData> ();
+        for ( final File configurationDirectory : directories )
         {
-            for ( File file : configurationDirectory.listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationDirectory.getName (), CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
+            for ( final File file : configurationDirectory.listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationDirectory.getName (), CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
             {
                 final BackEnd backEnd = getBackEnd ( file );
                 if ( backEnd != null )
                 {
                     try
                     {
-                        StorageChannelMetaData metaData = backEnd.getMetaData ();
+                        final StorageChannelMetaData metaData = backEnd.getMetaData ();
                         if ( metaData != null )
                         {
                             boolean addNew = true;
-                            for ( StorageChannelMetaData entry : metaDatas )
+                            for ( final StorageChannelMetaData entry : metaDatas )
                             {
-                                String storedConfigurationId = entry.getConfigurationId ();
+                                final String storedConfigurationId = entry.getConfigurationId ();
                                 if ( ( storedConfigurationId != null ) && !storedConfigurationId.equals ( metaData.getConfigurationId () ) )
                                 {
                                     // since the list is ordered by directory and therefore by configuration id, it can be assumed that no more suitable entry exists in the list
@@ -254,7 +254,7 @@ public class FileBackEndFactory implements BackEndFactory
                         }
                         backEnd.deinitialize ();
                     }
-                    catch ( Exception e )
+                    catch ( final Exception e )
                     {
                         logger.warn ( String.format ( "metadata of file '%s' could not be retrieved. file will be ignored", file.getPath () ), e );
                     }
@@ -292,7 +292,7 @@ public class FileBackEndFactory implements BackEndFactory
         }
 
         // check if root folder exists
-        File root = new File ( fileRoot );
+        final File root = new File ( fileRoot );
         if ( !root.exists () || !root.isDirectory () )
         {
             return EMTPY_BACKEND_ARRAY;
@@ -300,7 +300,7 @@ public class FileBackEndFactory implements BackEndFactory
 
         // get all directories within the root folder
         final String configurationIdFileName = encodeFileNamePart ( configurationId );
-        File[] directories = root.listFiles ( new DirectoryFileFilter ( configurationIdFileName ) );
+        final File[] directories = root.listFiles ( new DirectoryFileFilter ( configurationIdFileName ) );
 
         // check if sub directory exists
         if ( directories.length == 0 )
@@ -310,7 +310,7 @@ public class FileBackEndFactory implements BackEndFactory
 
         // evaluate the configuration id directory
         final List<BackEnd> backEnds = new ArrayList<BackEnd> ();
-        for ( File file : directories[0].listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationIdFileName, CalculationMethod.convertCalculationMethodToShortString ( calculationMethod ), detailLevelId, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
+        for ( final File file : directories[0].listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationIdFileName, CalculationMethod.convertCalculationMethodToShortString ( calculationMethod ), detailLevelId, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
         {
             final BackEnd backEnd = getBackEnd ( file );
             if ( backEnd != null )
@@ -330,14 +330,14 @@ public class FileBackEndFactory implements BackEndFactory
         // check input
         if ( storageChannelMetaData == null )
         {
-            String message = "invalid StorageChannelMetaData object passed to FileBackEndFactory!";
+            final String message = "invalid StorageChannelMetaData object passed to FileBackEndFactory!";
             logger.error ( message );
             throw new Exception ( message );
         }
         final String configurationId = encodeFileNamePart ( storageChannelMetaData.getConfigurationId () );
         if ( configurationId == null )
         {
-            String message = "invalid configurationId specified as metadata for FileBackEndFactory!";
+            final String message = "invalid configurationId specified as metadata for FileBackEndFactory!";
             logger.error ( message );
             throw new Exception ( message );
         }

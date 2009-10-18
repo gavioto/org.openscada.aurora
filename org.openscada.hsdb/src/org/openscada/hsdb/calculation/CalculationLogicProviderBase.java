@@ -127,7 +127,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         long baseValueCount = 0;
         long lastTimeStamp = Long.MAX_VALUE;
         boolean validValue = false;
-        for ( LongValue value : values )
+        for ( final LongValue value : values )
         {
             final long time = value.getTime ();
             baseValueCount += value.getBaseValueCount ();
@@ -157,7 +157,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         long baseValueCount = 0;
         long lastTimeStamp = Long.MAX_VALUE;
         boolean validValue = false;
-        for ( DoubleValue value : values )
+        for ( final DoubleValue value : values )
         {
             final long time = value.getTime ();
             baseValueCount += value.getBaseValueCount ();
@@ -187,7 +187,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         long baseValueCount = 0;
         long lastTimeStamp = Long.MAX_VALUE;
         boolean validValue = false;
-        for ( LongValue value : values )
+        for ( final LongValue value : values )
         {
             final long time = value.getTime ();
             baseValueCount += value.getBaseValueCount ();
@@ -217,7 +217,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         long baseValueCount = 0;
         long lastTimeStamp = Long.MAX_VALUE;
         boolean validValue = false;
-        for ( DoubleValue value : values )
+        for ( final DoubleValue value : values )
         {
             final long time = value.getTime ();
             baseValueCount += value.getBaseValueCount ();

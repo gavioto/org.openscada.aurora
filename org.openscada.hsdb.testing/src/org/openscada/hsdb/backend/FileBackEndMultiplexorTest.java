@@ -26,7 +26,7 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
     @Override
     protected BackEnd createBackEnd ( StorageChannelMetaData metaData ) throws Exception
     {
-        BackEnd backEnd = new BackEndMultiplexor ( new FileBackEndFactory ( ROOT ), 50 );
+        final BackEnd backEnd = new BackEndMultiplexor ( new FileBackEndFactory ( ROOT ), 50 );
         backEnd.initialize ( metaData );
         backEnd.delete ();
         backEnd.create ( metaData );
@@ -58,7 +58,7 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
         {
             if ( file.isDirectory () )
             {
-                for ( File subDir : file.listFiles () )
+                for ( final File subDir : file.listFiles () )
                 {
                     deleteDirectory ( subDir );
                 }
