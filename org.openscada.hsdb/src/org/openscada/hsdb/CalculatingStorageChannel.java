@@ -253,7 +253,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             while ( blockStart < maxEndTime )
             {
                 final long blockEnd = blockStart + blockTimeSpan;
-                final BaseValue[] valueBlock = ValueArrayNormalizer.extractSubArray ( values, blockStart, blockEnd, emptyArray );
+                final BaseValue[] valueBlock = ValueArrayNormalizer.extractSubArray ( values, blockStart, blockEnd, 0, emptyArray );
                 if ( valueBlock.length == 0 )
                 {
                     break;

@@ -26,17 +26,18 @@ public class ValueArrayNormalizer
      * @param values values to be processed
      * @param startTime start time for extracting
      * @param endTime end time for extracting
+     * @param startIndex index where to start the search for valid array entries. the index has to be set before the first value that lies within the requested time span or it has to be set to 0, if the search should start at the beginning of the array
      * @param emptyResultArray empty array that can be used as template for the result
      * @return normalized array
      */
-    public static BaseValue[] extractSubArray ( final BaseValue[] values, final long startTime, final long endTime, BaseValue[] emptyResultArray )
+    public static BaseValue[] extractSubArray ( final BaseValue[] values, final long startTime, final long endTime, final int startIndex, BaseValue[] emptyResultArray )
     {
-        if ( ( values == null ) || ( values.length == 0 ) || ( startTime >= endTime ) )
+        if ( ( values == null ) || ( values.length == 0 ) || ( startTime >= endTime ) || ( startIndex >= values.length ) )
         {
             return emptyResultArray;
         }
         final List<BaseValue> blockValues = new ArrayList<BaseValue> ();
-        int firstRelevantEntryIndex = 0;
+        int firstRelevantEntryIndex = startIndex;
         int lastRelevantEntryIndex = values.length;
         for ( int i = firstRelevantEntryIndex; i < values.length; i++ )
         {
