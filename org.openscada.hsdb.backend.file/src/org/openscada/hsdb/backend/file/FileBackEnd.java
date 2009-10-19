@@ -407,6 +407,7 @@ public class FileBackEnd implements BackEnd, Runnable
             try
             {
                 // open new connection
+                logger.debug ( String.format ( "OPENING file '%s' successful", fileName ) );
                 final File file = new File ( fileName );
                 randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
                 openInWriteMode = allowWrite;
@@ -431,6 +432,7 @@ public class FileBackEnd implements BackEnd, Runnable
         {
             try
             {
+                logger.debug ( String.format ( "closing file '%s' successful", fileName ) );
                 randomAccessFile.close ();
             }
             catch ( final IOException e )
