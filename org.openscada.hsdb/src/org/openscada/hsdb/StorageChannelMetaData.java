@@ -37,7 +37,7 @@ public class StorageChannelMetaData
      * Copy constructor
      * @param storageChannelMetaData instance to copy data from
      */
-    public StorageChannelMetaData ( StorageChannelMetaData storageChannelMetaData )
+    public StorageChannelMetaData ( final StorageChannelMetaData storageChannelMetaData )
     {
         this ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getCalculationMethod (), storageChannelMetaData.getCalculationMethodParameters (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getStartTime (), storageChannelMetaData.getEndTime (), storageChannelMetaData.getProposedDataAge (), storageChannelMetaData.getDataType () );
     }
@@ -78,7 +78,7 @@ public class StorageChannelMetaData
      * This method sets the unique id specifying the combination of the meta data information.
      * @param configurationId unique id specifying the combination of the meta data information
      */
-    public void setConfigurationId ( String configurationId )
+    public void setConfigurationId ( final String configurationId )
     {
         this.configurationId = configurationId;
     }
@@ -96,7 +96,7 @@ public class StorageChannelMetaData
      * This method sets the method that is used to calculate the data that is stored in the channel.
      * @param calculationMethod method that is used to calculate the data that is stored in the channel
      */
-    public void setCalculationMethod ( CalculationMethod calculationMethod )
+    public void setCalculationMethod ( final CalculationMethod calculationMethod )
     {
         this.calculationMethod = calculationMethod;
     }
@@ -114,7 +114,7 @@ public class StorageChannelMetaData
      * This method sets the parameters that are used in combination with the calculation method to specify the algorithm that has to be applied.
      * @param calculationMethodParameters parameters that are used in combination with the calculation method to specify the algorithm that has to be applied
      */
-    public void setCalculationMethodParameters ( long[] calculationMethodParameters )
+    public void setCalculationMethodParameters ( final long[] calculationMethodParameters )
     {
         this.calculationMethodParameters = calculationMethodParameters != null ? calculationMethodParameters : new long[0];
     }
@@ -132,7 +132,7 @@ public class StorageChannelMetaData
      * This method sets the detail level of the stored data.
      * @param detailLevelId detail level of the stored data
      */
-    public void setDetailLevelId ( long detailLevelId )
+    public void setDetailLevelId ( final long detailLevelId )
     {
         this.detailLevelId = detailLevelId;
     }
@@ -150,7 +150,7 @@ public class StorageChannelMetaData
      * This method sets the time stamp of first possible entry of the channel.
      * @param startTime time stamp of first possible entry of the channel
      */
-    public void setStartTime ( long startTime )
+    public void setStartTime ( final long startTime )
     {
         this.startTime = startTime;
     }
@@ -168,7 +168,7 @@ public class StorageChannelMetaData
      * This method sets the time stamp of first entry that will not be stored in the channel.
      * @param endTime time stamp of first entry that will not be stored in the channel
      */
-    public void setEndTime ( long endTime )
+    public void setEndTime ( final long endTime )
     {
         this.endTime = endTime;
     }
@@ -186,7 +186,7 @@ public class StorageChannelMetaData
      * This method sets the age of the data in milliseconds a stored data should be kept available.
      * @param proposedDataAge age of the data in milliseconds a stored data should be kept available
      */
-    public void setProposedDataAge ( long proposedDataAge )
+    public void setProposedDataAge ( final long proposedDataAge )
     {
         this.proposedDataAge = proposedDataAge;
     }
@@ -204,7 +204,7 @@ public class StorageChannelMetaData
      * This method sets the data type of the stored values.
      * @param dataType data type of the stored values
      */
-    public void setDataType ( DataType dataType )
+    public void setDataType ( final DataType dataType )
     {
         this.dataType = dataType;
     }

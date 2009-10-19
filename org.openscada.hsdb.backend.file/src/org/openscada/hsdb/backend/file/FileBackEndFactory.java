@@ -275,7 +275,7 @@ public class FileBackEndFactory implements BackEndFactory
     /**
      * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData(String)
      */
-    public StorageChannelMetaData[] getExistingBackEndsMetaData ( String configurationId ) throws Exception
+    public StorageChannelMetaData[] getExistingBackEndsMetaData ( final String configurationId ) throws Exception
     {
         return getExistingBackEndsMetaDataInDirectory ( configurationId );
     }

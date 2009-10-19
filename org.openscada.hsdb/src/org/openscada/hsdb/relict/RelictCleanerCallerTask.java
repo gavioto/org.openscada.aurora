@@ -19,7 +19,7 @@ public class RelictCleanerCallerTask implements Runnable
      * Constructor.
      * @param relictCleaner Object of which old data has to be deleted
      */
-    public RelictCleanerCallerTask ( RelictCleaner relictCleaner )
+    public RelictCleanerCallerTask ( final RelictCleaner relictCleaner )
     {
         this.relictCleaner = relictCleaner;
     }

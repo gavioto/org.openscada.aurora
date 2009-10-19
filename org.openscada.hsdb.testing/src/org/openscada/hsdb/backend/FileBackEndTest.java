@@ -24,7 +24,7 @@ public class FileBackEndTest extends BackEndTestBase
      * @throws Exception in case of problems
      */
     @Override
-    protected BackEnd createBackEnd ( StorageChannelMetaData metaData ) throws Exception
+    protected BackEnd createBackEnd ( final StorageChannelMetaData metaData ) throws Exception
     {
         final BackEnd backEnd = new FileBackEnd ( URLEncoder.encode ( metaData.getConfigurationId (), "utf-8" ) + ".va" );
         backEnd.delete ();

@@ -30,7 +30,7 @@ public class ValueArrayNormalizer
      * @param emptyResultArray empty array that can be used as template for the result
      * @return normalized array
      */
-    public static BaseValue[] extractSubArray ( final BaseValue[] values, final long startTime, final long endTime, final int startIndex, BaseValue[] emptyResultArray )
+    public static BaseValue[] extractSubArray ( final BaseValue[] values, final long startTime, final long endTime, final int startIndex, final BaseValue[] emptyResultArray )
     {
         if ( ( values == null ) || ( values.length == 0 ) || ( startTime >= endTime ) || ( startIndex >= values.length ) )
         {
