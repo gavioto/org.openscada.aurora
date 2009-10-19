@@ -142,6 +142,12 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             }
             lastTimeStamp = time;
         }
+        double q = new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 ).getQualityIndicator ();
+        if ( q == 0 )
+        {
+            logger.debug ( String.format ( "q=0 bei %s", values[0].getTime () ) );
+            q++;
+        }
         return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 );
     }
 
@@ -171,6 +177,12 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
                 quality += qualityIndicator * ( time - lastTimeStamp );
             }
             lastTimeStamp = time;
+        }
+        double q = new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 ).getQualityIndicator ();
+        if ( q == 0 )
+        {
+            logger.debug ( String.format ( "q=0 bei %s", values[0].getTime () ) );
+            q++;
         }
         return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 );
     }
@@ -202,6 +214,12 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             }
             lastTimeStamp = time;
         }
+        double q = new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN ).getQualityIndicator ();
+        if ( q == 0 )
+        {
+            logger.error ( String.format ( "q=0 bei %s", values[0].getTime () ) );
+            q++;
+        }
         return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN );
     }
 
@@ -231,6 +249,12 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
                 quality += qualityIndicator * ( time - lastTimeStamp );
             }
             lastTimeStamp = time;
+        }
+        double q = new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN ).getQualityIndicator ();
+        if ( q == 0 )
+        {
+            logger.debug ( String.format ( "q=0 bei %s", values[0].getTime () ) );
+            q++;
         }
         return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN );
     }
