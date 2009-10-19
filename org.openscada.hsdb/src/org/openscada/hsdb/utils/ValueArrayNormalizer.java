@@ -55,11 +55,11 @@ public class ValueArrayNormalizer
         final long firstStartTime = firstValue.getTime ();
         if ( firstStartTime != startTime )
         {
-            if ( firstValue instanceof LongValue )
+            if ( emptyResultArray instanceof LongValue[] )
             {
                 if ( firstStartTime < startTime )
                 {
-                    blockValues.add ( new LongValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), ( (LongValue)firstValue ).getValue () ) );
+                    blockValues.add ( new LongValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), firstValue instanceof LongValue ? ( (LongValue)firstValue ).getValue () : (long) ( (DoubleValue)firstValue ).getValue () ) );
                 }
                 else
                 {
@@ -70,7 +70,7 @@ public class ValueArrayNormalizer
             {
                 if ( firstStartTime < startTime )
                 {
-                    blockValues.add ( new DoubleValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), ( (DoubleValue)firstValue ).getValue () ) );
+                    blockValues.add ( new DoubleValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), firstValue instanceof LongValue ? ( (LongValue)firstValue ).getValue () : ( (DoubleValue)firstValue ).getValue () ) );
                 }
                 else
                 {
@@ -78,25 +78,25 @@ public class ValueArrayNormalizer
                 }
             }
         }
-        for ( int i = firstRelevantEntryIndex + 1; i < lastRelevantEntryIndex; i++ )
+        for ( int i = firstRelevantEntryIndex + ( firstStartTime == startTime ? 0 : 1 ); i < lastRelevantEntryIndex; i++ )
         {
             blockValues.add ( values[i] );
         }
         if ( blockValues.isEmpty () )
         {
-            logger.error ( String.format ( "no block block values could have been calculated (start:%s;end:%s;values:%s)", startTime, endTime, values ) );
+            logger.error ( String.format ( "no block block values have been calculated (start:%s;end:%s;values:%s)", startTime, endTime, values ) );
             return emptyResultArray;
         }
         final BaseValue lastValue = blockValues.get ( blockValues.size () - 1 );
         if ( lastValue.getTime () != endTime )
         {
-            if ( firstValue instanceof LongValue )
+            if ( emptyResultArray instanceof LongValue[] )
             {
-                blockValues.add ( new LongValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), ( (LongValue)lastValue ).getValue () ) );
+                blockValues.add ( new LongValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : (long) ( (DoubleValue)lastValue ).getValue () ) );
             }
             else
             {
-                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), ( (DoubleValue)lastValue ).getValue () ) );
+                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : (long) ( (DoubleValue)lastValue ).getValue () ) );
             }
         }
         return blockValues.toArray ( emptyResultArray );

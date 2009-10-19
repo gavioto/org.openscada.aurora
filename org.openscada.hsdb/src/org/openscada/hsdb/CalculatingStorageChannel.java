@@ -260,7 +260,8 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                 }
                 try
                 {
-                    switch ( calculationLogicProvider.getOutputType () )
+                    final DataType dt = calculationLogicProvider.getOutputType ();
+                    switch ( dt )
                     {
                     case LONG_VALUE:
                     {
@@ -274,6 +275,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                             lastValue = longValue;
                         }
                         super.updateLong ( longValue );
+                        break;
                     }
                     case DOUBLE_VALUE:
                     {
@@ -287,6 +289,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                             lastValue = doubleValue;
                         }
                         super.updateDouble ( doubleValue );
+                        break;
                     }
                     }
                 }
