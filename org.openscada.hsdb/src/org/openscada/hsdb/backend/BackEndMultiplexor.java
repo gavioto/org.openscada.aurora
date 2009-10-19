@@ -113,6 +113,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
                     {
                         try
                         {
+                            logger.info ( String.format ( "deleting relict data (%s) by BackEndMultiplexor (%s)! ", subMetaData, metaData ) );
                             backEnd.delete ();
                         }
                         catch ( final Exception e1 )
