@@ -11,13 +11,12 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
 
 import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.backend.BackEnd;
 import org.openscada.hsdb.calculation.CalculationMethod;
-import org.openscada.hsdb.concurrent.HsdbThreadFactory;
+import org.openscada.hsdb.concurrent.RunnableTimerTask;
 import org.openscada.hsdb.datatypes.DataType;
 import org.openscada.hsdb.datatypes.LongValue;
 import org.slf4j.Logger;
@@ -81,7 +80,7 @@ public class FileBackEnd implements BackEnd, Runnable
     private boolean initialized;
 
     /** Task closing the connection if no access has beed performed for a period of time. */
-    private ScheduledThreadPoolExecutor closeConnectionTask;
+    private Timer closeConnectionTask;
 
     /** Time when the file was last accessed. */
     private long lastAccessTime;
@@ -202,9 +201,8 @@ public class FileBackEnd implements BackEnd, Runnable
         initialized = true;
         getMetaData ();
         updateLastAccessTime ();
-        closeConnectionTask = new ScheduledThreadPoolExecutor ( 0, HsdbThreadFactory.createFactory ( String.format ( "FileCloserThread(%s)", fileName ) ) );
-        closeConnectionTask.setMaximumPoolSize ( 1 );
-        closeConnectionTask.scheduleWithFixedDelay ( this, 0, CHECK_PERIOD, TimeUnit.MILLISECONDS );
+        closeConnectionTask = new Timer ( String.format ( "FileCloserThread(%s)", fileName ) );
+        closeConnectionTask.schedule ( new RunnableTimerTask ( this ), CHECK_PERIOD );
     }
 
     /**
@@ -246,8 +244,7 @@ public class FileBackEnd implements BackEnd, Runnable
         closeConnection ();
         if ( closeConnectionTask != null )
         {
-            closeConnectionTask.remove ( this );
-            closeConnectionTask.shutdown ();
+            closeConnectionTask.cancel ();
             closeConnectionTask = null;
         }
         initialized = false;
@@ -619,7 +616,7 @@ public class FileBackEnd implements BackEnd, Runnable
         randomAccessFile.writeShort ( (short)parity );
         if ( metaData.getCalculationMethod () == CalculationMethod.NATIVE && !metaData.getConfigurationId ().contains ( "HEART" ) )
         {
-            logger.error ( "writing" + time + " valid=" + longValue.getQualityIndicator () );
+            logger.debug ( "writing " + time + " valid=" + longValue.getQualityIndicator () );
         }
     }
 
@@ -701,7 +698,7 @@ public class FileBackEnd implements BackEnd, Runnable
                 final LongValue longValue = readLongValue ( startingPosition );
                 if ( metaData.getCalculationMethod () == CalculationMethod.NATIVE && !metaData.getConfigurationId ().contains ( "HEART" ) )
                 {
-                    logger.error ( "READING" + longValue.getTime () + " valid=" + longValue.getQualityIndicator () );
+                    logger.debug ( "READING " + longValue.getTime () + " valid=" + longValue.getQualityIndicator () );
                 }
                 if ( longValue.getTime () >= endTime )
                 {
