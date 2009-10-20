@@ -20,10 +20,10 @@ import org.slf4j.LoggerFactory;
  * It is arranged that each such backend object is responsible for its own exclusive time span.
  * @author Ludwig Straub
  */
-public class BackEndMultiplexor implements BackEnd, RelictCleaner
+public class BackEndMultiplexer implements BackEnd, RelictCleaner
 {
     /** The default logger. */
-    private final static Logger logger = LoggerFactory.getLogger ( BackEndMultiplexor.class );
+    private final static Logger logger = LoggerFactory.getLogger ( BackEndMultiplexer.class );
 
     /** Metadata of the storage channel. */
     private StorageChannelMetaData metaData;
@@ -45,7 +45,7 @@ public class BackEndMultiplexor implements BackEnd, RelictCleaner
      * @param backEndFactory factory that is used to create new fractal backend objects
      * @param newBackendTimespan timespan that is used when a new backend fragment has to be created
      */
-    public BackEndMultiplexor ( final BackEndFactory backEndFactory, final long newBackendTimespan )
+    public BackEndMultiplexer ( final BackEndFactory backEndFactory, final long newBackendTimespan )
     {
         this.backEndFactory = backEndFactory;
         this.newBackendTimespan = newBackendTimespan < 1 ? 1 : newBackendTimespan;
