@@ -78,12 +78,13 @@ public class ValueArrayNormalizer
                 }
             }
         }
-        for ( int i = firstRelevantEntryIndex + ( firstStartTime == startTime ? 0 : 1 ); i < lastRelevantEntryIndex; i++ )
+        for ( int i = firstRelevantEntryIndex; i < lastRelevantEntryIndex; i++ )
         {
             blockValues.add ( values[i] );
         }
         if ( blockValues.isEmpty () )
         {
+            // this is not reachable if the logic is implemented correctly
             logger.error ( String.format ( "no block block values have been calculated (start:%s;end:%s;values:%s)", startTime, endTime, values ) );
             return emptyResultArray;
         }
