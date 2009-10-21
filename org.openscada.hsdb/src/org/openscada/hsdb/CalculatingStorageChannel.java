@@ -56,23 +56,6 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // calculate values of the past
         this.latestProcessedTime = getLatestProcessedValueTime ();
-        final long now = System.currentTimeMillis ();
-        final long currentTimeSpan = getTimeSpanStart ( now );
-        if ( latestProcessedTime != Long.MIN_VALUE )
-        {
-            try
-            {
-                calculateOldValues ( latestProcessedTime, currentTimeSpan );
-                this.latestProcessedTime = currentTimeSpan;
-            }
-            catch ( final Exception e )
-            {
-                // ignore exception
-                // nothing more can be done here.
-                // the system will continue to function
-                logger.warn ( "could not retrieve old value while constructing instance!", e );
-            }
-        }
     }
 
     /**
@@ -184,19 +167,22 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     private void notifyNewValues ( final BaseValue[] values ) throws Exception
     {
+        // return if no values have been passed to method
+        if ( ( values == null ) || ( values.length == 0 ) )
+        {
+            return;
+        }
+        final long latestNewTime = values[values.length - 1].getTime ();
+
         // assure that at least one value exists
         if ( latestProcessedTime == Long.MIN_VALUE )
         {
-            if ( ( values == null ) || ( values.length == 0 ) )
-            {
-                return;
-            }
             latestProcessedTime = getTimeSpanStart ( values[0].getTime () );
         }
 
         // collect all timespan blocks that have to be updated
         final Set<Long> startTimes = new HashSet<Long> ();
-        final long currentlyAvailableData = getTimeSpanStart ( System.currentTimeMillis () );
+        final long currentlyAvailableData = getTimeSpanStart ( latestNewTime );
 
         // add blocks for which real values are available
         long maxStartTime = latestProcessedTime;
@@ -408,7 +394,6 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized void cleanupRelicts () throws Exception
     {
-        notifyNewValues ( null );
         super.cleanupRelicts ();
         baseStorageChannel.cleanupRelicts ();
     }

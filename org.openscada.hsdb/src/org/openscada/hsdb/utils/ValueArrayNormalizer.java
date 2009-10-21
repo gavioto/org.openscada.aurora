@@ -78,7 +78,7 @@ public class ValueArrayNormalizer
                 }
             }
         }
-        for ( int i = firstRelevantEntryIndex; i < lastRelevantEntryIndex; i++ )
+        for ( int i = firstRelevantEntryIndex + ( firstStartTime < startTime ? 1 : 0 ); i < lastRelevantEntryIndex; i++ )
         {
             blockValues.add ( values[i] );
         }
@@ -97,7 +97,7 @@ public class ValueArrayNormalizer
             }
             else
             {
-                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : (long) ( (DoubleValue)lastValue ).getValue () ) );
+                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : ( (DoubleValue)lastValue ).getValue () ) );
             }
         }
         return blockValues.toArray ( emptyResultArray );

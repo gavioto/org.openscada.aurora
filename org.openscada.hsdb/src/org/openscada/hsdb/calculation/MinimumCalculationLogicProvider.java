@@ -58,7 +58,7 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
                 minValue = Math.min ( minValue, value.getValue () );
             }
         }
-        return (long)minValue;
+        return Math.round ( minValue );
     }
 
     /**
@@ -66,7 +66,7 @@ public class MinimumCalculationLogicProvider extends CalculationLogicProviderBas
      */
     protected double calculateDouble ( final LongValue[] values )
     {
-        long minValue = Long.MAX_VALUE;
+        double minValue = Long.MAX_VALUE;
         for ( final LongValue value : values )
         {
             if ( value.getQualityIndicator () > 0 )

@@ -99,40 +99,52 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         {
             return;
         }
-        final long proposedDataAge = System.currentTimeMillis () - metaData.getProposedDataAge ();
-        for ( int i = backEnds.size () - 1; i >= 1; i-- )
+        try
         {
-            final BackEnd backEnd = backEnds.get ( i );
-            if ( backEnd != null )
+            final LongValue[] lastValues = getLongValues ( Long.MAX_VALUE - 1, Long.MAX_VALUE );
+            if ( ( lastValues == null ) || ( lastValues.length == 0 ) )
             {
-                StorageChannelMetaData subMetaData = null;
-                try
+                return;
+            }
+            final long proposedDataAge = lastValues[0].getTime () - metaData.getProposedDataAge ();
+            for ( int i = backEnds.size () - 1; i >= 1; i-- )
+            {
+                final BackEnd backEnd = backEnds.get ( i );
+                if ( backEnd != null )
                 {
-                    subMetaData = backEnd.getMetaData ();
-                    if ( ( subMetaData == null ) || ( subMetaData.getEndTime () <= proposedDataAge ) )
+                    StorageChannelMetaData subMetaData = null;
+                    try
                     {
-                        try
+                        subMetaData = backEnd.getMetaData ();
+                        if ( ( subMetaData == null ) || ( subMetaData.getEndTime () <= proposedDataAge ) )
                         {
-                            logger.info ( String.format ( "deleting relict data (%s) by BackEndMultiplexor (%s)! ", subMetaData, metaData ) );
-                            backEnd.delete ();
+                            try
+                            {
+                                logger.info ( String.format ( "deleting relict data (%s) by BackEndMultiplexor (%s)! ", subMetaData, metaData ) );
+                                backEnd.delete ();
+                            }
+                            catch ( final Exception e1 )
+                            {
+                                logger.warn ( String.format ( "relict data (%s) could not be deleted by BackEndMultiplexor (%s)! ", subMetaData, metaData ), e1 );
+                            }
+                            backEnds.remove ( i );
                         }
-                        catch ( final Exception e1 )
+                        else
                         {
-                            logger.warn ( String.format ( "relict data (%s) could not be deleted by BackEndMultiplexor (%s)! ", subMetaData, metaData ), e1 );
+                            // since the array of back ends is sorted, no older entries will be found during further iteration steps
+                            break;
                         }
-                        backEnds.remove ( i );
                     }
-                    else
+                    catch ( final Exception e )
                     {
-                        // since the array of back ends is sorted, no older entries will be found during further iteration steps
-                        break;
+                        logger.warn ( String.format ( "metadata of sub backend could not be accessed! (%s)", metaData ), e );
                     }
-                }
-                catch ( final Exception e )
-                {
-                    logger.warn ( String.format ( "metadata of sub backend could not be accessed! (%s)", metaData ), e );
                 }
             }
+        }
+        catch ( final Exception e )
+        {
+            logger.error ( "unable to retrieve latest value", e );
         }
 
         // update meta data information
@@ -427,7 +439,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                     longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
                 }
                 earliestAvailableTime = metaDataStartTime;
-                if ( earliestAvailableTime <= startTime )
+                if ( !longValues.isEmpty () && ( earliestAvailableTime <= startTime ) )
                 {
                     break;
                 }
