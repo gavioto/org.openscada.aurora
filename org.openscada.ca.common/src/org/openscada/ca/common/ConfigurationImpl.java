@@ -1,5 +1,6 @@
 package org.openscada.ca.common;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.openscada.ca.Configuration;
@@ -22,7 +23,7 @@ public class ConfigurationImpl implements Configuration
     {
         this.id = id;
         this.factoryId = factoryId;
-        this.data = data;
+        this.data = new HashMap<String, String> ( data );
     }
 
     public String getFactoryId ()

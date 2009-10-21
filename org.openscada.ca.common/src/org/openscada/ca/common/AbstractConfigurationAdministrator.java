@@ -340,7 +340,10 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             final ConfigurationImpl applyConfiguration = configuration;
 
             // quick fix the "id" property
-            applyConfiguration.getData ().put ( "id", configurationId );
+            if ( applyConfiguration.getData () != null )
+            {
+                applyConfiguration.getData ().put ( "id", configurationId );
+            }
             setConfigurationStatus ( configuration, ConfigurationState.APPLYING, null );
 
             this.executor.execute ( new Runnable () {
