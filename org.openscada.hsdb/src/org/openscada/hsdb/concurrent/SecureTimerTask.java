@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
  * This task is used to call a runnable within a timer task.
  * @author Ludwig Straub
  */
-public class RunnableTimerTask extends TimerTask
+public class SecureTimerTask extends TimerTask
 {
     /** The default logger. */
-    private final static Logger logger = LoggerFactory.getLogger ( RunnableTimerTask.class );
+    private final static Logger logger = LoggerFactory.getLogger ( SecureTimerTask.class );
 
     /** Runnable that has to be executed. */
     private final Runnable runnable;
@@ -21,7 +21,7 @@ public class RunnableTimerTask extends TimerTask
      * Constructor.
      * @param runnable runnable that has to be executed
      */
-    public RunnableTimerTask ( final Runnable runnable )
+    public SecureTimerTask ( final Runnable runnable )
     {
         this.runnable = runnable;
     }
