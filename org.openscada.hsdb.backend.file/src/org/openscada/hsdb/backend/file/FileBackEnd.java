@@ -11,12 +11,10 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
 import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.backend.BackEnd;
 import org.openscada.hsdb.calculation.CalculationMethod;
-import org.openscada.hsdb.concurrent.RunnableTimerTask;
 import org.openscada.hsdb.datatypes.DataType;
 import org.openscada.hsdb.datatypes.LongValue;
 import org.slf4j.Logger;
@@ -26,16 +24,10 @@ import org.slf4j.LoggerFactory;
  * This class provides methods for storing and retrieving data in a file using java.io.RandomAccessFile.
  * @author Ludwig Straub
  */
-public class FileBackEnd implements BackEnd, Runnable
+public class FileBackEnd implements BackEnd
 {
     /** The default logger. */
     private final static Logger logger = LoggerFactory.getLogger ( FileBackEnd.class );
-
-    /** Period in milliseconds after which should be checked whether a connection is open but not used for the configured period of time. */
-    private final static long CHECK_PERIOD = 1000;
-
-    /** Period in milliseconds after which a open connection can be closed if it has not been used in the meantime. */
-    private final static long OPEN_CONNECTION_TIMEOUT = 3000;
 
     /** Empty byte array. */
     private final static byte[] emptyByteArray = new byte[0];
@@ -64,6 +56,9 @@ public class FileBackEnd implements BackEnd, Runnable
     /** Name of the file that is used to store data. */
     private final String fileName;
 
+    /** Flag indicating whether the file connection should be kept open while the state of the instance is initialized or not. */
+    private final boolean keepUpenWhileInitialized;
+
     /** Metadata of the storage channel. */
     private StorageChannelMetaData metaData;
 
@@ -79,19 +74,15 @@ public class FileBackEnd implements BackEnd, Runnable
     /** Flag indicating whether the instance has been initialized or not. */
     private boolean initialized;
 
-    /** Task closing the connection if no access has beed performed for a period of time. */
-    private Timer closeConnectionTask;
-
-    /** Time when the file was last accessed. */
-    private long lastAccessTime;
-
     /**
      * Constructor expecting the configuration of the file backend.
      * @param fileName name of the existing file that is used to store data
+     * @param keepUpenWhileInitialized true, if the file connection should be kept open while the state of the instance is initialized, otherwise false
      */
-    public FileBackEnd ( final String fileName )
+    public FileBackEnd ( final String fileName, final boolean keepUpenWhileInitialized )
     {
         this.fileName = fileName;
+        this.keepUpenWhileInitialized = keepUpenWhileInitialized;
         metaData = null;
         openInWriteMode = false;
         initialized = false;
@@ -189,7 +180,7 @@ public class FileBackEnd implements BackEnd, Runnable
             parity = ( parity + calculationMethodParameters[i] ) % SHORT_BORDER;
         }
         randomAccessFile.writeShort ( (short)parity );
-        updateLastAccessTime ();
+        closeIfRequired ();
     }
 
     /**
@@ -200,9 +191,7 @@ public class FileBackEnd implements BackEnd, Runnable
         metaData = null;
         initialized = true;
         getMetaData ();
-        updateLastAccessTime ();
-        closeConnectionTask = new Timer ( String.format ( "FileCloserThread(%s)", fileName ) );
-        closeConnectionTask.schedule ( new RunnableTimerTask ( this ), CHECK_PERIOD );
+        closeIfRequired ();
     }
 
     /**
@@ -223,7 +212,7 @@ public class FileBackEnd implements BackEnd, Runnable
         {
             openConnection ( false );
             metaData = extractMetaData ();
-            updateLastAccessTime ();
+            closeIfRequired ();
         }
         return metaData;
     }
@@ -242,11 +231,6 @@ public class FileBackEnd implements BackEnd, Runnable
     public synchronized void deinitialize () throws Exception
     {
         closeConnection ();
-        if ( closeConnectionTask != null )
-        {
-            closeConnectionTask.cancel ();
-            closeConnectionTask = null;
-        }
         initialized = false;
         metaData = null;
     }
@@ -638,7 +622,7 @@ public class FileBackEnd implements BackEnd, Runnable
             }
             finally
             {
-                updateLastAccessTime ();
+                closeIfRequired ();
             }
         }
     }
@@ -664,7 +648,7 @@ public class FileBackEnd implements BackEnd, Runnable
             }
             finally
             {
-                updateLastAccessTime ();
+                closeIfRequired ();
             }
         }
     }
@@ -711,7 +695,7 @@ public class FileBackEnd implements BackEnd, Runnable
         }
         finally
         {
-            updateLastAccessTime ();
+            closeIfRequired ();
         }
     }
 
@@ -762,20 +746,11 @@ public class FileBackEnd implements BackEnd, Runnable
     }
 
     /**
-     * This method updates the last access time information to the current time.
+     * This method closes the connection to the file if the connection should not be kept open until the instance is deinitialized.
      */
-    private void updateLastAccessTime ()
+    private void closeIfRequired ()
     {
-        lastAccessTime = System.currentTimeMillis ();
-    }
-
-    /**
-     * This method closed an open file connection if it was not used for at least the configured time span.
-     */
-    public synchronized void run ()
-    {
-        final long now = System.currentTimeMillis ();
-        if ( ( now - OPEN_CONNECTION_TIMEOUT ) > lastAccessTime )
+        if ( !keepUpenWhileInitialized )
         {
             closeConnection ();
         }

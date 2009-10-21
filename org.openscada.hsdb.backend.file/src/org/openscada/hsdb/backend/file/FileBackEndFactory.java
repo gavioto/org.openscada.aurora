@@ -60,6 +60,9 @@ public class FileBackEndFactory implements BackEndFactory
     /** Root folder within the storage files are located and new ones have to be created. */
     private final String fileRoot;
 
+    /** Maximum detail level when the file connection should be keppt open to gain performance as long as the file back end instance stays initialized. */
+    private final long maximumDetailLevelToKeepFileConnectionsOpen;
+
     /** Precompiled regular expression pattern for extracting the configuration id from a filename. */
     private final Pattern configurationIdPattern;
 
@@ -72,10 +75,12 @@ public class FileBackEndFactory implements BackEndFactory
     /**
      * Constructor
      * @param fileRoot root folder within the storage files are located and new ones have to be created
+     * @param maximumDetailLevelToKeepFileConnectionsOpen maximum detail level when the file connection should be keppt open to gain performance as long as the file back end instance stays initialized
      */
-    public FileBackEndFactory ( final String fileRoot )
+    public FileBackEndFactory ( final String fileRoot, final long maximumDetailLevelToKeepFileConnectionsOpen )
     {
         this.fileRoot = fileRoot;
+        this.maximumDetailLevelToKeepFileConnectionsOpen = maximumDetailLevelToKeepFileConnectionsOpen;
         this.configurationIdPattern = Pattern.compile ( String.format ( FILE_MASK, "(" + CONFIGURATION_ID_REGEX_PATTERN + ")", CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
         this.calculationMethodPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, "(" + CALCULATION_METHOD_REGEX_PATTERN + ")", DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
         this.detailLevelIdPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, CALCULATION_METHOD_REGEX_PATTERN, "(" + DETAIL_LEVEL_ID_REGEX_PATTERN + ")", START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
@@ -153,18 +158,24 @@ public class FileBackEndFactory implements BackEndFactory
         return Long.parseLong ( extractDataFromFileName ( pattern, fileName, "" + defaultValue ) );
     }
 
+    private boolean getKeepFileConnectionOpen ( final long detailLevelId )
+    {
+        return detailLevelId <= maximumDetailLevelToKeepFileConnectionsOpen;
+    }
+
     /**
      * This method creates and initializes a back end object for the passed file object.
      * If the object is not used internally within this class, then the object should be deinitialized before passing the argument outside this class.
      * @param file file that is used to create a back end object
+     * @param keepUpenWhileInitialized true, if the file connection should be kept open while the state of the instance is initialized, otherwise false
      * @return initialized back end object
      */
-    private BackEnd getBackEnd ( final File file )
+    private BackEnd getBackEnd ( final File file, final boolean keepUpenWhileInitialized )
     {
         FileBackEnd fileBackEnd = null;
         try
         {
-            fileBackEnd = new FileBackEnd ( file.getPath () );
+            fileBackEnd = new FileBackEnd ( file.getPath (), keepUpenWhileInitialized );
             fileBackEnd.initialize ( null );
             final StorageChannelMetaData metaData = fileBackEnd.getMetaData ();
             final String fileName = file.getName ();
@@ -211,7 +222,7 @@ public class FileBackEndFactory implements BackEndFactory
         {
             for ( final File file : configurationDirectory.listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationDirectory.getName (), CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
             {
-                final BackEnd backEnd = getBackEnd ( file );
+                final BackEnd backEnd = getBackEnd ( file, true );
                 if ( backEnd != null )
                 {
                     try
@@ -310,9 +321,10 @@ public class FileBackEndFactory implements BackEndFactory
 
         // evaluate the configuration id directory
         final List<BackEnd> backEnds = new ArrayList<BackEnd> ();
+        final boolean keepUpenWhileInitialized = getKeepFileConnectionOpen ( detailLevelId );
         for ( final File file : directories[0].listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationIdFileName, CalculationMethod.convertCalculationMethodToShortString ( calculationMethod ), detailLevelId, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
         {
-            final BackEnd backEnd = getBackEnd ( file );
+            final BackEnd backEnd = getBackEnd ( file, keepUpenWhileInitialized );
             if ( backEnd != null )
             {
                 backEnd.deinitialize ();
@@ -343,6 +355,6 @@ public class FileBackEndFactory implements BackEndFactory
         }
 
         // assure that root folder exists
-        return new FileBackEnd ( new File ( new File ( fileRoot, configurationId ), String.format ( FILE_MASK, configurationId, CalculationMethod.convertCalculationMethodToShortString ( storageChannelMetaData.getCalculationMethod () ), storageChannelMetaData.getDetailLevelId (), encodeFileNamePart ( storageChannelMetaData.getStartTime () ), encodeFileNamePart ( storageChannelMetaData.getEndTime () ) ) ).getPath () );
+        return new FileBackEnd ( new File ( new File ( fileRoot, configurationId ), String.format ( FILE_MASK, configurationId, CalculationMethod.convertCalculationMethodToShortString ( storageChannelMetaData.getCalculationMethod () ), storageChannelMetaData.getDetailLevelId (), encodeFileNamePart ( storageChannelMetaData.getStartTime () ), encodeFileNamePart ( storageChannelMetaData.getEndTime () ) ) ).getPath (), getKeepFileConnectionOpen ( storageChannelMetaData.getDetailLevelId () ) );
     }
 }

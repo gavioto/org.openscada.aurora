@@ -26,7 +26,7 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
     @Override
     protected BackEnd createBackEnd ( final StorageChannelMetaData metaData ) throws Exception
     {
-        final BackEnd backEnd = new BackEndMultiplexer ( new FileBackEndFactory ( ROOT ), 50 );
+        final BackEnd backEnd = new BackEndMultiplexer ( new FileBackEndFactory ( ROOT, 0 ), 50 );
         backEnd.initialize ( metaData );
         backEnd.delete ();
         backEnd.create ( metaData );
