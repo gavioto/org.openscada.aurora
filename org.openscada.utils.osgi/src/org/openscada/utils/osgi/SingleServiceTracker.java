@@ -121,4 +121,9 @@ public class SingleServiceTracker
         this.listener.serviceChange ( reference, service );
     }
 
+    public Object waitForService ( final long timeout ) throws InterruptedException
+    {
+        return this.tracker.waitForService ( timeout );
+    }
+
 }
