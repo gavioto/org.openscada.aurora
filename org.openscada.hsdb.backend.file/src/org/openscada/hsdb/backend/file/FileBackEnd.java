@@ -521,7 +521,7 @@ public class FileBackEnd implements BackEnd
 
         // perform real binary search
         long midTime = startSearch;
-        while ( startSearch <= endSearch )
+        while ( startSearch < endSearch )
         {
             final long midSearch = ( startSearch + endSearch ) / 2;
             final long filePointer = ( midSearch * RECORD_BLOCK_SIZE ) + dataOffset;
