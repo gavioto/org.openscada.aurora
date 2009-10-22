@@ -435,7 +435,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                         longValues.addAll ( 0, Arrays.asList ( olderValues ) );
                     }
                 }
-                if ( !longValues.isEmpty () && longValues.get ( 0 ).getTime () < startTime )
+                if ( !longValues.isEmpty () && longValues.get ( 0 ).getTime () <= startTime )
                 {
                     break;
                 }
