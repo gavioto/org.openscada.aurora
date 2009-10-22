@@ -415,7 +415,6 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         // collect result data
         final List<LongValue> longValues = new LinkedList<LongValue> ();
         final List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
-        long earliestAvailableTime = Long.MAX_VALUE;
         for ( final BackEnd backEnd : backEnds )
         {
             try
@@ -423,32 +422,20 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                 final StorageChannelMetaData metaData = backEnd.getMetaData ();
                 final long metaDataStartTime = metaData.getStartTime ();
                 final long metaDataEndTime = metaData.getEndTime ();
-                if ( earliestAvailableTime == Long.MAX_VALUE )
-                {
-                    earliestAvailableTime = metaDataStartTime;
-                }
-                if ( ( earliestAvailableTime > metaDataEndTime ) && ( metaDataEndTime <= endTime ) )
-                {
-                    longValues.add ( 0, new LongValue ( metaDataEndTime, 0, 0, 0 ) );
-                }
-                if ( startTime >= metaDataEndTime )
-                {
-                    if ( longValues.isEmpty () )
-                    {
-                        longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
-                    }
-                    if ( !longValues.isEmpty () )
-                    {
-                        break;
-                    }
-                }
                 if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
                 {
                     // process values that match the time span
                     longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
                 }
-                earliestAvailableTime = metaDataStartTime;
-                if ( !longValues.isEmpty () && ( earliestAvailableTime <= startTime ) )
+                if ( startTime >= metaDataEndTime )
+                {
+                    final LongValue[] olderValues = backEnd.getLongValues ( startTime, endTime );
+                    if ( olderValues.length > 0 )
+                    {
+                        longValues.addAll ( 0, Arrays.asList ( olderValues ) );
+                    }
+                }
+                if ( !longValues.isEmpty () && longValues.get ( 0 ).getTime () < startTime )
                 {
                     break;
                 }
