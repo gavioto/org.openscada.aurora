@@ -158,6 +158,11 @@ public class FileBackEndFactory implements BackEndFactory
         return Long.parseLong ( extractDataFromFileName ( pattern, fileName, "" + defaultValue ) );
     }
 
+    /**
+     * This method returns whether the file connection should be kept open for the specified detail level or not.
+     * @param detailLevelId detail level for which the information should be provided
+     * @return true, if the file connection should be kept open for the specified detail level, otherwise false
+     */
     private boolean getKeepFileConnectionOpen ( final long detailLevelId )
     {
         return detailLevelId <= maximumDetailLevelToKeepFileConnectionsOpen;
@@ -222,7 +227,7 @@ public class FileBackEndFactory implements BackEndFactory
         {
             for ( final File file : configurationDirectory.listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationDirectory.getName (), CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
             {
-                final BackEnd backEnd = getBackEnd ( file, true );
+                final BackEnd backEnd = getBackEnd ( file, false );
                 if ( backEnd != null )
                 {
                     try
