@@ -101,12 +101,21 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         }
         try
         {
-            final LongValue[] lastValues = getLongValues ( Long.MAX_VALUE - 1, Long.MAX_VALUE );
+            // assure that at least the last two values remain
+            LongValue[] lastValues = getLongValues ( Long.MAX_VALUE - 1, Long.MAX_VALUE );
             if ( ( lastValues == null ) || ( lastValues.length == 0 ) )
             {
                 return;
             }
-            final long proposedDataAge = lastValues[0].getTime () - metaData.getProposedDataAge ();
+            final long time = lastValues[0].getTime ();
+            lastValues = getLongValues ( time - 1, time );
+            if ( ( lastValues == null ) || ( lastValues.length == 0 ) )
+            {
+                return;
+            }
+
+            // delete all sub back ends that are older than the second latest available value and older than the proposed data age concerning the latest value
+            final long proposedDataAge = Math.min ( lastValues[0].getTime (), time - metaData.getProposedDataAge () );
             for ( int i = backEnds.size () - 1; i >= 1; i-- )
             {
                 final BackEnd backEnd = backEnds.get ( i );
