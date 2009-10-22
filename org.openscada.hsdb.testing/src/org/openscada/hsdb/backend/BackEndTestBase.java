@@ -99,7 +99,7 @@ public abstract class BackEndTestBase
         }
         backEnd.updateLongs ( valuesToInsert );
         Assert.assertEquals ( 4, backEnd.getLongValues ( 201, 205 ).length );
-        Assert.assertEquals ( MAX_COUNT, backEnd.getLongValues ( 0, MAX_COUNT ).length );
+        Assert.assertEquals ( MAX_COUNT, backEnd.getLongValues ( 0, MAX_COUNT + 1 ).length );
     }
 
     /**
