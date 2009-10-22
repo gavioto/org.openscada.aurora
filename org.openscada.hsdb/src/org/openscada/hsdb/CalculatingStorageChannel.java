@@ -172,7 +172,6 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         {
             return;
         }
-        final long latestNewTime = values[values.length - 1].getTime ();
 
         // assure that at least one value exists
         if ( latestProcessedTime == Long.MIN_VALUE )
@@ -182,7 +181,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // collect all timespan blocks that have to be updated
         final Set<Long> startTimes = new HashSet<Long> ();
-        final long currentlyAvailableData = getTimeSpanStart ( latestNewTime );
+        final long currentlyAvailableData = getTimeSpanStart ( System.currentTimeMillis () );
 
         // add blocks for which real values are available
         long maxStartTime = latestProcessedTime;
@@ -205,10 +204,9 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // add blocks that have not yet been processed
         final long requiredTimespanForCalculation = calculationLogicProvider.getRequiredTimespanForCalculation ();
-        while ( latestProcessedTime < currentlyAvailableData )
+        if ( latestProcessedTime < currentlyAvailableData )
         {
             startTimes.add ( latestProcessedTime );
-            latestProcessedTime += requiredTimespanForCalculation;
         }
 
         // process time spans
