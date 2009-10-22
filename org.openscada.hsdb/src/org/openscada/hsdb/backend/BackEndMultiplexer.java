@@ -259,6 +259,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         final StorageChannelMetaData storageChannelMetaData = new StorageChannelMetaData ( metaData );
         storageChannelMetaData.setStartTime ( startTime );
         storageChannelMetaData.setEndTime ( endTime );
+        logger.debug ( String.format ( "creating new backend: config=%s start=%s stop=%s", metaData.getConfigurationId (), startTime, endTime ) );
         final BackEnd backEnd = backEndFactory.createNewBackEnd ( storageChannelMetaData );
         backEnd.create ( storageChannelMetaData );
         backEnd.initialize ( storageChannelMetaData );
