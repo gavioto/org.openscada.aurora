@@ -518,13 +518,19 @@ public class FileBackEnd implements BackEnd
         // prepare data for real binary search
         long startSearch = 0;
         long endSearch = ( fileSize - dataOffset ) / RECORD_BLOCK_SIZE;
+        if ( startSearch == endSearch )
+        {
+            return dataOffset;
+        }
 
         // perform real binary search
         long midTime = startSearch;
+        long midSearch = startSearch;
+        long filePointer = dataOffset;
         while ( startSearch < endSearch )
         {
-            final long midSearch = ( startSearch + endSearch ) / 2;
-            final long filePointer = ( midSearch * RECORD_BLOCK_SIZE ) + dataOffset;
+            midSearch = ( startSearch + endSearch ) / 2;
+            filePointer = ( midSearch * RECORD_BLOCK_SIZE ) + dataOffset;
             midTime = readLongValue ( filePointer ).getTime ();
             if ( midTime < startTime )
             {
@@ -540,6 +546,8 @@ public class FileBackEnd implements BackEnd
             }
         }
         long resultIndex = Math.min ( startSearch, endSearch );
+        filePointer = ( resultIndex * RECORD_BLOCK_SIZE ) + dataOffset;
+        midTime = readLongValue ( filePointer ).getTime ();
         if ( midTime > startTime )
         {
             resultIndex--;
