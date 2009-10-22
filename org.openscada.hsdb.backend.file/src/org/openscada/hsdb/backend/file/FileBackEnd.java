@@ -487,7 +487,8 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * This method returns the offset within the file where the new data should be stored.
+     * This method returns the offset within the file where data can be read.
+     * The first data that is read will be the data with exactly the specified time or the last data before if no exactly matching data can be found.
      * It is assumed that an open connection exists.
      * A binary search is applied in order to find the correct position within the file.
      * @param startTime time for which the perfect storing position has to be retrieved
@@ -519,11 +520,12 @@ public class FileBackEnd implements BackEnd
         long endSearch = ( fileSize - dataOffset ) / RECORD_BLOCK_SIZE;
 
         // perform real binary search
-        while ( startSearch < endSearch )
+        long midTime = startSearch;
+        while ( startSearch <= endSearch )
         {
             final long midSearch = ( startSearch + endSearch ) / 2;
             final long filePointer = ( midSearch * RECORD_BLOCK_SIZE ) + dataOffset;
-            final long midTime = readLongValue ( filePointer ).getTime ();
+            midTime = readLongValue ( filePointer ).getTime ();
             if ( midTime < startTime )
             {
                 startSearch = midSearch + 1;
@@ -537,7 +539,12 @@ public class FileBackEnd implements BackEnd
                 return filePointer;
             }
         }
-        final long result = ( Math.max ( 0, Math.min ( startSearch, endSearch ) ) * RECORD_BLOCK_SIZE ) + dataOffset;
+        long resultIndex = Math.min ( startSearch, endSearch );
+        if ( midTime > startTime )
+        {
+            resultIndex--;
+        }
+        final long result = ( Math.max ( 0, resultIndex ) * RECORD_BLOCK_SIZE ) + dataOffset;
         return ( result > dataOffset ) && ( result == fileSize ) ? result - RECORD_BLOCK_SIZE : result;
     }
 
@@ -598,10 +605,6 @@ public class FileBackEnd implements BackEnd
         randomAccessFile.writeLong ( baseValueCount );
         randomAccessFile.writeLong ( value );
         randomAccessFile.writeShort ( (short)parity );
-        if ( metaData.getCalculationMethod () == CalculationMethod.NATIVE && !metaData.getConfigurationId ().contains ( "HEART" ) )
-        {
-            logger.debug ( "writing " + time + " valid=" + longValue.getQualityIndicator () );
-        }
     }
 
     /**
@@ -680,10 +683,6 @@ public class FileBackEnd implements BackEnd
             while ( startingPosition + RECORD_BLOCK_SIZE <= fileSize )
             {
                 final LongValue longValue = readLongValue ( startingPosition );
-                if ( metaData.getCalculationMethod () == CalculationMethod.NATIVE && !metaData.getConfigurationId ().contains ( "HEART" ) )
-                {
-                    logger.debug ( "READING " + longValue.getTime () + " valid=" + longValue.getQualityIndicator () );
-                }
                 if ( longValue.getTime () >= endTime )
                 {
                     break;
