@@ -362,4 +362,49 @@ public class FileBackEndFactory implements BackEndFactory
         // assure that root folder exists
         return new FileBackEnd ( new File ( new File ( fileRoot, configurationId ), String.format ( FILE_MASK, configurationId, CalculationMethod.convertCalculationMethodToShortString ( storageChannelMetaData.getCalculationMethod () ), storageChannelMetaData.getDetailLevelId (), encodeFileNamePart ( storageChannelMetaData.getStartTime () ), encodeFileNamePart ( storageChannelMetaData.getEndTime () ) ) ).getPath (), getKeepFileConnectionOpen ( storageChannelMetaData.getDetailLevelId () ) );
     }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndFactory#createNewBackEnd
+     */
+    public void deleteBackEnds ( final String configurationId )
+    {
+        // check input
+        if ( configurationId == null )
+        {
+            return;
+        }
+
+        // check if root folder exists
+        final File root = new File ( fileRoot );
+        if ( !root.exists () || !root.isDirectory () )
+        {
+            return;
+        }
+
+        // get all directories within the root folder
+        final String configurationIdFileName = encodeFileNamePart ( configurationId );
+        final File[] directories = root.listFiles ( new DirectoryFileFilter ( configurationIdFileName ) );
+
+        // check if sub directory exists
+        if ( directories.length == 0 )
+        {
+            return;
+        }
+
+        // delete directories
+        for ( final File directory : directories )
+        {
+            // delete existing back end files
+            for ( final File file : directory.listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationIdFileName, CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
+            {
+                file.delete ();
+            }
+
+            // delete directory itself
+            if ( !directory.delete () )
+            {
+                logger.warn ( String.format ( "could not delete directory '%s'", directory.getPath () ) );
+            }
+        }
+    }
 }

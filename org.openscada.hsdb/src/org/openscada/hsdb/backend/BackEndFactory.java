@@ -51,4 +51,10 @@ public interface BackEndFactory
      * @throws Exception in case of any problems
      */
     public BackEnd createNewBackEnd ( final StorageChannelMetaData storageChannelMetaData ) throws Exception;
+
+    /**
+     * This method deletes all back ends with configuration id.
+     * @param configurationId id of configuration of back end objects that have to be deleted
+     */
+    public abstract void deleteBackEnds ( final String configurationId );
 }
