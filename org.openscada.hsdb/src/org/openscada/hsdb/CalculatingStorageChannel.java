@@ -207,6 +207,11 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         if ( latestProcessedTime < currentlyAvailableData )
         {
             startTimes.add ( latestProcessedTime );
+            final long nextTime = latestProcessedTime + requiredTimespanForCalculation;
+            if ( nextTime < currentlyAvailableData )
+            {
+                startTimes.add ( nextTime );
+            }
         }
 
         // process time spans
