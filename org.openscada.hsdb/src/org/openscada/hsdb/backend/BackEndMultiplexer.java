@@ -94,7 +94,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
     public synchronized void cleanupRelicts ()
     {
         // if only one back end remains, then no more data is deleted
-        logger.info ( "deleting old data... start" );
+        logger.debug ( "deleting old data... start" );
         if ( metaData == null )
         {
             return;
@@ -167,7 +167,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         {
             logger.error ( "could not update meta data", e );
         }
-        logger.info ( "deleting old data... end" );
+        logger.debug ( "deleting old data... end" );
     }
 
     /**
