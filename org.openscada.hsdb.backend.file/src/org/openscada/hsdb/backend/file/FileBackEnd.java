@@ -137,6 +137,7 @@ public class FileBackEnd implements BackEnd
         {
             parent.mkdirs ();
         }
+        logger.info ( String.format ( "creating file '%s'", fileName ) );
         if ( !file.createNewFile () )
         {
             final String message = String.format ( "file '%s' could not be created. please verify the access rights and make sure that no file with the given name already exists.", fileName );
