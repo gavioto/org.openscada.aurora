@@ -113,8 +113,8 @@ public abstract class BackEndTestBase
         {
             if ( backEnd != null )
             {
-                backEnd.deinitialize ();
                 backEnd.delete ();
+                backEnd.deinitialize ();
             }
         }
     }
