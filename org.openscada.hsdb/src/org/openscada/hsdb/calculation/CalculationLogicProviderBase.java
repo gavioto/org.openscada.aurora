@@ -151,18 +151,16 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             {
                 final BaseValue value = values[i];
                 baseValueCount += value.getBaseValueCount ();
-                final long timeSpan = value.getTime () - lastTimeStamp;
+                final long currentTime = value.getTime ();
+                final long timeSpan = currentTime - lastTimeStamp;
                 final double qualityIndicator = value.getQualityIndicator ();
                 validValue |= qualityIndicator > 0;
-                if ( timeSpan > 0 )
-                {
-                    final double manualIndicator = value.getManualIndicator ();
-                    quality += lastQuality * timeSpan;
-                    manual += lastManual * timeSpan;
-                    lastTimeStamp = time;
-                    lastQuality = qualityIndicator;
-                    lastManual = manualIndicator;
-                }
+                final double manualIndicator = value.getManualIndicator ();
+                quality += lastQuality * timeSpan;
+                manual += lastManual * timeSpan;
+                lastTimeStamp = currentTime;
+                lastQuality = qualityIndicator;
+                lastManual = manualIndicator;
             }
             final long timeSpanSize = values[values.length - 1].getTime () - time;
             quality /= timeSpanSize;
