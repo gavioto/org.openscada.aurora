@@ -102,8 +102,13 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         try
         {
             // assure that at least the last two values remain
-            final long now = System.currentTimeMillis ();
             final long proposedDataAge = metaData.getProposedDataAge ();
+            final LongValue[] firstValues = getLongValues ( Long.MAX_VALUE - 1, Long.MAX_VALUE );
+            if ( ( firstValues == null ) || ( firstValues.length == 0 ) )
+            {
+                return;
+            }
+            final long now = firstValues[0].getTime ();
             final LongValue[] lastValues = getLongValues ( now - proposedDataAge - 1, now - proposedDataAge );
             if ( ( lastValues == null ) || ( lastValues.length == 0 ) )
             {

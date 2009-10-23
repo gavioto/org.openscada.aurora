@@ -241,7 +241,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         {
             final BaseValue[] emptyArray = getEmptyArray ( calculationLogicProvider.getInputType () );
             final long blockMid = Math.max ( minStartTime, values[0].getTime () );
-            if ( blockMid >= latestProcessedTime )
+            if ( blockMid >= getTimeSpanStart ( System.currentTimeMillis () ) )
             {
                 return;
             }
