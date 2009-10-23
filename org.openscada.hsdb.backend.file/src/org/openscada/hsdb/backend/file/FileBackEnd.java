@@ -547,10 +547,13 @@ public class FileBackEnd implements BackEnd
         }
         long resultIndex = Math.min ( startSearch, endSearch );
         filePointer = ( resultIndex * RECORD_BLOCK_SIZE ) + dataOffset;
-        midTime = readLongValue ( filePointer ).getTime ();
-        if ( midTime > startTime )
+        if ( filePointer < fileSize )
         {
-            resultIndex--;
+            midTime = readLongValue ( filePointer ).getTime ();
+            if ( midTime > startTime )
+            {
+                resultIndex--;
+            }
         }
         final long result = ( Math.max ( 0, resultIndex ) * RECORD_BLOCK_SIZE ) + dataOffset;
         return ( result > dataOffset ) && ( result == fileSize ) ? result - RECORD_BLOCK_SIZE : result;
