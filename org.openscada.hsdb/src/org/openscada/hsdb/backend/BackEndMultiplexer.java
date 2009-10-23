@@ -117,7 +117,8 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
 
             // delete all sub back ends that are older than the newest value that is older than the proposed data age
             final long timeToDelete = lastValues[0].getTime () - 1;
-            for ( int i = backEnds.size () - 1; i >= 1; i-- )
+            final int startIndex = backEnds.size () - 1;
+            for ( int i = startIndex; i >= 1; i-- )
             {
                 final BackEnd backEnd = backEnds.get ( i );
                 if ( backEnd != null )
@@ -226,6 +227,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
      */
     public synchronized void delete () throws Exception
     {
+        assureInitialized ();
         for ( final BackEnd backEnd : backEnds )
         {
             backEnd.delete ();
