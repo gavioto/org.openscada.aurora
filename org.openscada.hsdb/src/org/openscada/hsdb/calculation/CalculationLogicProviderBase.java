@@ -116,126 +116,6 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     protected abstract double calculateDouble ( final DoubleValue[] values );
 
     /**
-     * This method generates long values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
-     * @param values long values that were processed during the time span
-     * @return calculated long values
-     */
-    private LongValue generateLongValue ( final LongValue[] values )
-    {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        boolean validValue = false;
-        for ( final LongValue value : values )
-        {
-            final long time = value.getTime ();
-            baseValueCount += value.getBaseValueCount ();
-            final double qualityIndicator = value.getQualityIndicator ();
-            if ( qualityIndicator > 0 )
-            {
-                validValue = true;
-            }
-            if ( lastTimeStamp < time )
-            {
-                quality += qualityIndicator * ( time - lastTimeStamp );
-            }
-            lastTimeStamp = time;
-        }
-        return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 );
-    }
-
-    /**
-     * This method generates long values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
-     * @param values double values that were processed during the time span
-     * @return calculated long values
-     */
-    private LongValue generateLongValue ( final DoubleValue[] values )
-    {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        boolean validValue = false;
-        for ( final DoubleValue value : values )
-        {
-            final long time = value.getTime ();
-            baseValueCount += value.getBaseValueCount ();
-            final double qualityIndicator = value.getQualityIndicator ();
-            if ( qualityIndicator > 0 )
-            {
-                validValue = true;
-            }
-            if ( lastTimeStamp < time )
-            {
-                quality += qualityIndicator * ( time - lastTimeStamp );
-            }
-            lastTimeStamp = time;
-        }
-        return new LongValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateLong ( values ) : 0 );
-    }
-
-    /**
-     * This method generates double values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
-     * @param values long values that were processed during the time span
-     * @return calculated double values
-     */
-    private DoubleValue generateDoubleValue ( final LongValue[] values )
-    {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        boolean validValue = false;
-        for ( final LongValue value : values )
-        {
-            final long time = value.getTime ();
-            baseValueCount += value.getBaseValueCount ();
-            final double qualityIndicator = value.getQualityIndicator ();
-            if ( qualityIndicator > 0 )
-            {
-                validValue = true;
-            }
-            if ( lastTimeStamp < time )
-            {
-                quality += qualityIndicator * ( time - lastTimeStamp );
-            }
-            lastTimeStamp = time;
-        }
-        return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN );
-    }
-
-    /**
-     * This method generates double values for the time span starting with the first element in the array and ending after {@link #getRequiredTimespanForCalculation()}.
-     * @param values double values that were processed during the time span
-     * @return calculated double values
-     */
-    private DoubleValue generateDoubleValue ( final DoubleValue[] values )
-    {
-        final long timeSpanSize = values[values.length - 1].getTime () - values[0].getTime ();
-        double quality = 0;
-        long baseValueCount = 0;
-        long lastTimeStamp = Long.MAX_VALUE;
-        boolean validValue = false;
-        for ( final DoubleValue value : values )
-        {
-            final long time = value.getTime ();
-            baseValueCount += value.getBaseValueCount ();
-            final double qualityIndicator = value.getQualityIndicator ();
-            if ( qualityIndicator > 0 )
-            {
-                validValue = true;
-            }
-            if ( lastTimeStamp < time )
-            {
-                quality += qualityIndicator * ( time - lastTimeStamp );
-            }
-            lastTimeStamp = time;
-        }
-        return new DoubleValue ( values[0].getTime (), timeSpanSize == 0 ? values[0].getQualityIndicator () : quality / timeSpanSize, baseValueCount, validValue ? calculateDouble ( values ) : Double.NaN );
-    }
-
-    /**
      * @see org.openscada.hsdb.calculation.CalculationLogicProvider#generateValues
      */
     public BaseValue generateValues ( final BaseValue[] values )
@@ -246,21 +126,63 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             return null;
         }
 
+        // calculate base values
+        final BaseValue firstValue = values[0];
+        final long time = firstValue.getTime ();
+        double quality = 0;
+        double manual = 0;
+        long baseValueCount = 0;
+        boolean validValue = false;
+        if ( values.length == 1 )
+        {
+            quality = firstValue.getQualityIndicator ();
+            manual = firstValue.getManualIndicator ();
+            baseValueCount = firstValue.getBaseValueCount ();
+            validValue = quality > 0;
+        }
+        else
+        {
+            long lastTimeStamp = firstValue.getTime ();
+            double lastQuality = firstValue.getQualityIndicator ();
+            double lastManual = firstValue.getManualIndicator ();
+            baseValueCount = firstValue.getBaseValueCount ();
+            validValue = lastQuality > 0.0;
+            for ( int i = 1; i < values.length; i++ )
+            {
+                final BaseValue value = values[i];
+                baseValueCount += value.getBaseValueCount ();
+                final long timeSpan = value.getTime () - lastTimeStamp;
+                final double qualityIndicator = value.getQualityIndicator ();
+                validValue |= qualityIndicator > 0;
+                if ( timeSpan > 0 )
+                {
+                    final double manualIndicator = value.getManualIndicator ();
+                    quality += lastQuality * timeSpan;
+                    manual += lastManual * timeSpan;
+                    lastTimeStamp = time;
+                    lastQuality = qualityIndicator;
+                    lastManual = manualIndicator;
+                }
+            }
+            final long timeSpanSize = values[values.length - 1].getTime () - time;
+            quality /= timeSpanSize;
+            manual /= timeSpanSize;
+        }
+
         // process values
         switch ( getInputType () )
         {
         case LONG_VALUE:
         {
-            final LongValue[] longValues = (LongValue[])values;
             switch ( getOutputType () )
             {
             case LONG_VALUE:
             {
-                return generateLongValue ( longValues );
+                return new LongValue ( time, quality, manual, baseValueCount, validValue ? calculateLong ( (LongValue[])values ) : 0 );
             }
             case DOUBLE_VALUE:
             {
-                return generateDoubleValue ( longValues );
+                return new DoubleValue ( time, quality, manual, baseValueCount, validValue ? calculateDouble ( (LongValue[])values ) : 0 );
             }
             default:
             {
@@ -271,16 +193,15 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         }
         case DOUBLE_VALUE:
         {
-            final DoubleValue[] doubleValues = (DoubleValue[])values;
             switch ( getOutputType () )
             {
             case LONG_VALUE:
             {
-                return generateLongValue ( doubleValues );
+                return new LongValue ( time, quality, manual, baseValueCount, validValue ? calculateLong ( (DoubleValue[])values ) : 0 );
             }
             case DOUBLE_VALUE:
             {
-                return generateDoubleValue ( doubleValues );
+                return new DoubleValue ( time, quality, manual, baseValueCount, validValue ? calculateDouble ( (DoubleValue[])values ) : 0 );
             }
             default:
             {

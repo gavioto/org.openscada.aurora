@@ -13,6 +13,9 @@ public abstract class BaseValue implements Comparable<BaseValue>
     /** Quality information of the data. The value lies within the interval 0..100. */
     private double qualityIndicator;
 
+    /** Percentage of manually set values during the value time. */
+    private double manualIndicator;
+
     /** Count of values that have been combined to get the current value. */
     private long baseValueCount;
 
@@ -20,12 +23,14 @@ public abstract class BaseValue implements Comparable<BaseValue>
      * Fully initializing constructor.
      * @param time time stamp of the data
      * @param qualityIndicator quality information of the data
+     * @param manualIndicator percentage of manually set values during the value time
      * @param baseValueCount count of values that have been combined to get the current value
      */
-    public BaseValue ( final long time, final double qualityIndicator, final long baseValueCount )
+    public BaseValue ( final long time, final double qualityIndicator, final double manualIndicator, final long baseValueCount )
     {
         this.time = time;
         this.qualityIndicator = qualityIndicator;
+        this.manualIndicator = manualIndicator;
         this.baseValueCount = baseValueCount;
     }
 
@@ -63,6 +68,24 @@ public abstract class BaseValue implements Comparable<BaseValue>
     public void setQualityIndicator ( final double qualityIndicator )
     {
         this.qualityIndicator = qualityIndicator;
+    }
+
+    /**
+     * This method returns the percentage of manually set values during the value time.
+     * @return percentage of manually set values during the value time
+     */
+    public double getManualIndicator ()
+    {
+        return manualIndicator;
+    }
+
+    /**
+     * This method sets the percentage of manually set values during the value time.
+     * @param manualIndicator percentage of manually set values during the value time
+     */
+    public void setManualIndicator ( final double manualIndicator )
+    {
+        this.manualIndicator = manualIndicator;
     }
 
     /**

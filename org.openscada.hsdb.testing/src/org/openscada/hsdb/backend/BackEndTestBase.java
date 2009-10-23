@@ -43,7 +43,7 @@ public abstract class BackEndTestBase
     @Before
     public void testFileCreate () throws Exception
     {
-        backEnd = createBackEnd ( new StorageChannelMetaData ( CONFIGURATION_ID, CalculationMethod.NATIVE, new long[0], 0, 0, MAX_COUNT, Long.MAX_VALUE, DataType.LONG_VALUE ) );
+        backEnd = createBackEnd ( new StorageChannelMetaData ( CONFIGURATION_ID, CalculationMethod.NATIVE, new long[0], 0, 0, MAX_COUNT, Long.MAX_VALUE, 0, DataType.LONG_VALUE ) );
     }
 
     /**
@@ -53,8 +53,8 @@ public abstract class BackEndTestBase
     @Test
     public void testAddLong1Data () throws Exception
     {
-        backEnd.updateLong ( new LongValue ( 200, 100, 1, 42 ) );
-        backEnd.updateLongs ( new LongValue[] { new LongValue ( 204, 100, 1, 46 ), new LongValue ( 202, 100, 1, 44 ), new LongValue ( 203, 100, 1, 45 ), new LongValue ( 201, 100, 1, 43 ) } );
+        backEnd.updateLong ( new LongValue ( 200, 100, 0, 1, 42 ) );
+        backEnd.updateLongs ( new LongValue[] { new LongValue ( 204, 100, 0, 1, 46 ), new LongValue ( 202, 100, 0, 1, 44 ), new LongValue ( 203, 100, 0, 1, 45 ), new LongValue ( 201, 100, 0, 1, 43 ) } );
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class BackEndTestBase
     {
         for ( long i = 0; i < MAX_COUNT; i++ )
         {
-            backEnd.updateLong ( new LongValue ( i, 100, 1, i ) );
+            backEnd.updateLong ( new LongValue ( i, 100, 0, 1, i ) );
         }
         Assert.assertEquals ( MAX_COUNT, backEnd.getLongValues ( 0, MAX_COUNT ).length );
     }
@@ -95,7 +95,7 @@ public abstract class BackEndTestBase
         final LongValue[] valuesToInsert = new LongValue[MAX_COUNT];
         for ( int i = 0; i < MAX_COUNT; i++ )
         {
-            valuesToInsert[i] = new LongValue ( i, 100, 1, i );
+            valuesToInsert[i] = new LongValue ( i, 100, 0, 1, i );
         }
         backEnd.updateLongs ( valuesToInsert );
         Assert.assertEquals ( 4, backEnd.getLongValues ( 201, 205 ).length );

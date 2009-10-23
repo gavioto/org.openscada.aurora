@@ -30,6 +30,9 @@ public class StorageChannelMetaData
     /** Age of the data in milliseconds a stored data should be kept available. */
     private long proposedDataAge;
 
+    /** Maximum time in the future in milliseconds that will be accepted. */
+    private long acceptedFutureTime;
+
     /** Data type of the stored values. */
     private DataType dataType;
 
@@ -39,7 +42,7 @@ public class StorageChannelMetaData
      */
     public StorageChannelMetaData ( final StorageChannelMetaData storageChannelMetaData )
     {
-        this ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getCalculationMethod (), storageChannelMetaData.getCalculationMethodParameters (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getStartTime (), storageChannelMetaData.getEndTime (), storageChannelMetaData.getProposedDataAge (), storageChannelMetaData.getDataType () );
+        this ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getCalculationMethod (), storageChannelMetaData.getCalculationMethodParameters (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getStartTime (), storageChannelMetaData.getEndTime (), storageChannelMetaData.getProposedDataAge (), storageChannelMetaData.getAcceptedFutureTime (), storageChannelMetaData.getDataType () );
     }
 
     /**
@@ -51,9 +54,10 @@ public class StorageChannelMetaData
      * @param startTime time stamp of first possible entry of the channel
      * @param endTime time stamp of first entry that will not be stored in the channel
      * @param proposedDataAge age of the data in milliseconds a stored data should be kept available
+     * @param acceptedFutureTime maximum time in the future in milliseconds that will be accepted
      * @param dataType data type of the stored values
      */
-    public StorageChannelMetaData ( final String configurationId, final CalculationMethod calculationMethod, final long[] calculationMethodParameters, final long detailLevelId, final long startTime, final long endTime, final long proposedDataAge, final DataType dataType )
+    public StorageChannelMetaData ( final String configurationId, final CalculationMethod calculationMethod, final long[] calculationMethodParameters, final long detailLevelId, final long startTime, final long endTime, final long proposedDataAge, final long acceptedFutureTime, final DataType dataType )
     {
         this.configurationId = configurationId;
         this.calculationMethod = calculationMethod;
@@ -62,6 +66,7 @@ public class StorageChannelMetaData
         this.startTime = startTime;
         this.endTime = endTime;
         this.proposedDataAge = proposedDataAge;
+        this.acceptedFutureTime = acceptedFutureTime;
         this.dataType = dataType;
     }
 
@@ -189,6 +194,24 @@ public class StorageChannelMetaData
     public void setProposedDataAge ( final long proposedDataAge )
     {
         this.proposedDataAge = proposedDataAge;
+    }
+
+    /**
+     * This method returns the maximum time in the future in milliseconds that will be accepted.
+     * @return maximum time in the future in milliseconds that will be accepted
+     */
+    public long getAcceptedFutureTime ()
+    {
+        return acceptedFutureTime;
+    }
+
+    /**
+     * This method sets the maximum time in the future in milliseconds that will be accepted.
+     * @param acceptedFutureTime maximum time in the future in milliseconds that will be accepted
+     */
+    public void setAcceptedFutureTime ( final long acceptedFutureTime )
+    {
+        this.acceptedFutureTime = acceptedFutureTime;
     }
 
     /**

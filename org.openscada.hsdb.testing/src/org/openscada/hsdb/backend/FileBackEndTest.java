@@ -61,11 +61,11 @@ public class FileBackEndTest extends BackEndTestBase
     @Test
     public void testLongBounds () throws Exception
     {
-        backEnd.updateLong ( new LongValue ( -1, 100, 1, 0 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT - 2, 100, 1, 1 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT - 1, 100, 1, 2 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT, 100, 1, 3 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT + 1, 100, 1, 4 ) );
+        backEnd.updateLong ( new LongValue ( -1, 100, 0, 1, 0 ) );
+        backEnd.updateLong ( new LongValue ( MAX_COUNT - 2, 100, 0, 1, 1 ) );
+        backEnd.updateLong ( new LongValue ( MAX_COUNT - 1, 100, 0, 1, 2 ) );
+        backEnd.updateLong ( new LongValue ( MAX_COUNT, 100, 0, 1, 3 ) );
+        backEnd.updateLong ( new LongValue ( MAX_COUNT + 1, 100, 0, 1, 4 ) );
         final LongValue[] result = backEnd.getLongValues ( -10, MAX_COUNT + 10 );
         Assert.assertEquals ( 2, result.length );
         Assert.assertEquals ( 1, result[0].getValue () );

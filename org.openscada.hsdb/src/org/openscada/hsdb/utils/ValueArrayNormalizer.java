@@ -59,22 +59,22 @@ public class ValueArrayNormalizer
             {
                 if ( firstStartTime < startTime )
                 {
-                    blockValues.add ( new LongValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), firstValue instanceof LongValue ? ( (LongValue)firstValue ).getValue () : (long) ( (DoubleValue)firstValue ).getValue () ) );
+                    blockValues.add ( new LongValue ( startTime, firstValue.getQualityIndicator (), firstValue.getManualIndicator (), firstValue.getBaseValueCount (), firstValue instanceof LongValue ? ( (LongValue)firstValue ).getValue () : (long) ( (DoubleValue)firstValue ).getValue () ) );
                 }
                 else
                 {
-                    blockValues.add ( new LongValue ( startTime, 0, 0, 0 ) );
+                    blockValues.add ( new LongValue ( startTime, 0, 0, 0, 0 ) );
                 }
             }
             else
             {
                 if ( firstStartTime < startTime )
                 {
-                    blockValues.add ( new DoubleValue ( startTime, firstValue.getQualityIndicator (), firstValue.getBaseValueCount (), firstValue instanceof LongValue ? ( (LongValue)firstValue ).getValue () : ( (DoubleValue)firstValue ).getValue () ) );
+                    blockValues.add ( new DoubleValue ( startTime, firstValue.getQualityIndicator (), firstValue.getManualIndicator (), firstValue.getBaseValueCount (), firstValue instanceof LongValue ? ( (LongValue)firstValue ).getValue () : ( (DoubleValue)firstValue ).getValue () ) );
                 }
                 else
                 {
-                    blockValues.add ( new DoubleValue ( startTime, 0, 0, 0 ) );
+                    blockValues.add ( new DoubleValue ( startTime, 0, 0, 0, 0 ) );
                 }
             }
         }
@@ -93,11 +93,11 @@ public class ValueArrayNormalizer
         {
             if ( emptyResultArray instanceof LongValue[] )
             {
-                blockValues.add ( new LongValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : (long) ( (DoubleValue)lastValue ).getValue () ) );
+                blockValues.add ( new LongValue ( endTime, lastValue.getQualityIndicator (), lastValue.getManualIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : (long) ( (DoubleValue)lastValue ).getValue () ) );
             }
             else
             {
-                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : ( (DoubleValue)lastValue ).getValue () ) );
+                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getManualIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : ( (DoubleValue)lastValue ).getValue () ) );
             }
         }
         return blockValues.toArray ( emptyResultArray );

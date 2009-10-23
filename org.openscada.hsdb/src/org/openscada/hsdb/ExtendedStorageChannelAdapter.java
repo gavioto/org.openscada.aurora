@@ -69,7 +69,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     {
         if ( ( storageChannel != null ) && ( doubleValue != null ) )
         {
-            storageChannel.updateLong ( new LongValue ( doubleValue.getTime (), doubleValue.getQualityIndicator (), doubleValue.getBaseValueCount (), Double.doubleToLongBits ( doubleValue.getValue () ) ) );
+            storageChannel.updateLong ( new LongValue ( doubleValue.getTime (), doubleValue.getQualityIndicator (), doubleValue.getManualIndicator (), doubleValue.getBaseValueCount (), Double.doubleToLongBits ( doubleValue.getValue () ) ) );
         }
     }
 
@@ -84,7 +84,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
             for ( int i = 0; i < doubleValues.length; i++ )
             {
                 final DoubleValue doubleValue = doubleValues[i];
-                longValues[i] = new LongValue ( doubleValue.getTime (), doubleValue.getQualityIndicator (), doubleValue.getBaseValueCount (), Double.doubleToLongBits ( doubleValue.getValue () ) );
+                longValues[i] = new LongValue ( doubleValue.getTime (), doubleValue.getQualityIndicator (), doubleValue.getManualIndicator (), doubleValue.getBaseValueCount (), Double.doubleToLongBits ( doubleValue.getValue () ) );
             }
             storageChannel.updateLongs ( longValues );
         }
@@ -100,7 +100,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
         for ( int i = 0; i < longValues.length; i++ )
         {
             final LongValue longValue = longValues[i];
-            doubleValues[i] = new DoubleValue ( longValue.getTime (), longValue.getQualityIndicator (), longValue.getBaseValueCount (), Double.longBitsToDouble ( longValue.getValue () ) );
+            doubleValues[i] = new DoubleValue ( longValue.getTime (), longValue.getQualityIndicator (), longValue.getManualIndicator (), longValue.getBaseValueCount (), Double.longBitsToDouble ( longValue.getValue () ) );
         }
         return doubleValues;
     }

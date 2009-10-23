@@ -39,7 +39,7 @@ public class FileBackEnd implements BackEnd
     private final static long SHORT_BORDER = Short.MAX_VALUE + 1;
 
     /** Size of one data record in the file. */
-    private final static long RECORD_BLOCK_SIZE = 8 + 8 + 8 + 8 + 2;
+    private final static long RECORD_BLOCK_SIZE = 8 + 8 + 8 + 8 + 8 + 2;
 
     /** Maximum size of buffer when copying data within a file. */
     private final static int MAX_COPY_BUFFER_FILL_SIZE = 1024 * 1024;
@@ -114,6 +114,7 @@ public class FileBackEnd implements BackEnd
         final long startTime = storageChannelMetaData.getStartTime ();
         final long endTime = storageChannelMetaData.getEndTime ();
         final long proposedDataAge = storageChannelMetaData.getProposedDataAge ();
+        final long acceptedFutureTime = storageChannelMetaData.getAcceptedFutureTime ();
         final long dataType = DataType.convertDataTypeToLong ( storageChannelMetaData.getDataType () );
 
         // validate input data
@@ -148,7 +149,7 @@ public class FileBackEnd implements BackEnd
         // write standardized file header to file
         openConnection ( true );
         randomAccessFile.seek ( 0L );
-        final long dataOffset = ( 11 + calculationMethodParameters.length ) * 8 + configurationIdBytes.length + 2;
+        final long dataOffset = ( 12 + calculationMethodParameters.length ) * 8 + configurationIdBytes.length + 2;
         randomAccessFile.writeLong ( FILE_MARKER );
         randomAccessFile.writeLong ( dataOffset );
         randomAccessFile.writeLong ( FILE_VERSION );
@@ -156,6 +157,7 @@ public class FileBackEnd implements BackEnd
         randomAccessFile.writeLong ( startTime );
         randomAccessFile.writeLong ( endTime );
         randomAccessFile.writeLong ( proposedDataAge );
+        randomAccessFile.writeLong ( acceptedFutureTime );
         randomAccessFile.writeLong ( dataType );
         randomAccessFile.writeLong ( calculationMethodId );
         randomAccessFile.writeLong ( calculationMethodParameters.length );
@@ -173,6 +175,7 @@ public class FileBackEnd implements BackEnd
         parity = ( parity + startTime ) % SHORT_BORDER;
         parity = ( parity + endTime ) % SHORT_BORDER;
         parity = ( parity + proposedDataAge ) % SHORT_BORDER;
+        parity = ( parity + acceptedFutureTime ) % SHORT_BORDER;
         parity = ( parity + dataType ) % SHORT_BORDER;
         parity = ( parity + calculationMethodId ) % SHORT_BORDER;
         parity = ( parity + calculationMethodParameters.length ) % SHORT_BORDER;
@@ -321,6 +324,7 @@ public class FileBackEnd implements BackEnd
             throw new Exception ( message );
         }
         final long proposedDataAge = randomAccessFile.readLong ();
+        final long acceptedFutureTime = randomAccessFile.readLong ();
         final long dataType = randomAccessFile.readLong ();
         final long calculationMethodId = randomAccessFile.readLong ();
         final long calculationMethodParameterCountSize = randomAccessFile.readLong ();
@@ -353,6 +357,7 @@ public class FileBackEnd implements BackEnd
         parity = ( parity + startTime ) % SHORT_BORDER;
         parity = ( parity + endTime ) % SHORT_BORDER;
         parity = ( parity + proposedDataAge ) % SHORT_BORDER;
+        parity = ( parity + acceptedFutureTime ) % SHORT_BORDER;
         parity = ( parity + dataType ) % SHORT_BORDER;
         parity = ( parity + calculationMethodId ) % SHORT_BORDER;
         parity = ( parity + calculationMethodParameters.length ) % SHORT_BORDER;
@@ -368,7 +373,7 @@ public class FileBackEnd implements BackEnd
         }
 
         // create a wrapper object for returning the retrieved data
-        return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, DataType.convertLongToDataType ( dataType ) );
+        return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedFutureTime, DataType.convertLongToDataType ( dataType ) );
     }
 
     /**
@@ -442,12 +447,15 @@ public class FileBackEnd implements BackEnd
         }
         final long time = randomAccessFile.readLong ();
         final long qualityIndicatorAsLong = randomAccessFile.readLong ();
+        final long manualIndicatorAsLong = randomAccessFile.readLong ();
         final double qualityIndicator = Double.longBitsToDouble ( qualityIndicatorAsLong );
+        final double manualIndicator = Double.longBitsToDouble ( manualIndicatorAsLong );
         final long baseValueCount = randomAccessFile.readLong ();
         final long value = randomAccessFile.readLong ();
         long parity = 0;
         parity = ( parity + time ) % SHORT_BORDER;
         parity = ( parity + qualityIndicatorAsLong ) % SHORT_BORDER;
+        parity = ( parity + manualIndicatorAsLong ) % SHORT_BORDER;
         parity = ( parity + baseValueCount ) % SHORT_BORDER;
         parity = ( parity + value ) % SHORT_BORDER;
         if ( randomAccessFile.readShort () != parity )
@@ -456,7 +464,7 @@ public class FileBackEnd implements BackEnd
             logger.error ( message );
             throw new Exception ( message );
         }
-        return new LongValue ( time, qualityIndicator, baseValueCount, value );
+        return new LongValue ( time, qualityIndicator, manualIndicator, baseValueCount, value );
     }
 
     /**
@@ -603,17 +611,20 @@ public class FileBackEnd implements BackEnd
 
         // prepare values to write
         final long qualityIndicator = Double.doubleToLongBits ( longValue.getQualityIndicator () );
+        final long manualIndicator = Double.doubleToLongBits ( longValue.getManualIndicator () );
         final long baseValueCount = longValue.getBaseValueCount ();
         final long value = longValue.getValue ();
         long parity = 0;
         parity = ( parity + time ) % SHORT_BORDER;
         parity = ( parity + qualityIndicator ) % SHORT_BORDER;
+        parity = ( parity + manualIndicator ) % SHORT_BORDER;
         parity = ( parity + baseValueCount ) % SHORT_BORDER;
         parity = ( parity + value ) % SHORT_BORDER;
 
         // write values
         randomAccessFile.writeLong ( time );
         randomAccessFile.writeLong ( qualityIndicator );
+        randomAccessFile.writeLong ( manualIndicator );
         randomAccessFile.writeLong ( baseValueCount );
         randomAccessFile.writeLong ( value );
         randomAccessFile.writeShort ( (short)parity );

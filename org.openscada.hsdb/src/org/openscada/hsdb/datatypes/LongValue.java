@@ -13,12 +13,13 @@ public class LongValue extends BaseValue
      * Fully initializing constructor.
      * @param time time stamp of the data
      * @param qualityIndicator quality information of the data
+     * @param manualIndicator percentage of manually set values during the value time
      * @param baseValueCount count of values that have been combined to get the current value
      * @param value value to be handled
      */
-    public LongValue ( final long time, final double qualityIndicator, final long baseValueCount, final long value )
+    public LongValue ( final long time, final double qualityIndicator, final double manualIndicator, final long baseValueCount, final long value )
     {
-        super ( time, qualityIndicator, baseValueCount );
+        super ( time, qualityIndicator, manualIndicator, baseValueCount );
         this.value = value;
     }
 
