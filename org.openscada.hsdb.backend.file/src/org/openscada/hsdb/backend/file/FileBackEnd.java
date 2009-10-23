@@ -140,7 +140,7 @@ public class FileBackEnd implements BackEnd
         logger.info ( String.format ( "creating file '%s'", fileName ) );
         if ( !file.createNewFile () )
         {
-            final String message = String.format ( "file '%s' could not be created. please verify the access rights and make sure that no file with the given name already exists.", fileName );
+            final String message = String.format ( "file '%s' could not be created. please verify the access rights and make sure that no file with the given name already exists. (file exists=%s)", fileName, file.exists () );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -546,7 +546,7 @@ public class FileBackEnd implements BackEnd
                 return filePointer;
             }
         }
-        long resultIndex = Math.min ( startSearch, endSearch );
+        long resultIndex = Math.max ( 0, Math.min ( startSearch, endSearch ) );
         filePointer = ( resultIndex * RECORD_BLOCK_SIZE ) + dataOffset;
         if ( filePointer < fileSize )
         {
