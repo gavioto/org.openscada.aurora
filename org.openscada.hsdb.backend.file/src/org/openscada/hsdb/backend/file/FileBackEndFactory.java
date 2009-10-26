@@ -34,7 +34,7 @@ public class FileBackEndFactory implements BackEndFactory
     public final static String FILE_MASK = "%1$s" + FILENAME_PART_SEPERATOR + "%3$s" + FILENAME_PART_SEPERATOR + "%2$s" + FILENAME_PART_SEPERATOR + "%4$s" + FILENAME_PART_SEPERATOR + "%5$s.va";
 
     /** Format string used to format time information. */
-    private final static String TIME_FORMAT = "%1$04d%2$02d%3$02d.%4$02d%5$02d%6$02d.%7$03d";
+    private final static String TIME_FORMAT = "%1$04d%2$02d%3$02d.%4$02d%5$02d%6$02d.%7$03d.%8$d";
 
     /** Regular expression for configuration id fragments. */
     private final static String CONFIGURATION_ID_REGEX_PATTERN = ".*";
@@ -95,7 +95,7 @@ public class FileBackEndFactory implements BackEndFactory
     {
         final Calendar calendar = Calendar.getInstance ();
         calendar.setTimeInMillis ( time );
-        return String.format ( TIME_FORMAT, calendar.get ( Calendar.YEAR ), calendar.get ( Calendar.MONTH ), calendar.get ( Calendar.DAY_OF_MONTH ), calendar.get ( Calendar.HOUR_OF_DAY ), calendar.get ( Calendar.MINUTE ), calendar.get ( Calendar.SECOND ), calendar.get ( Calendar.MILLISECOND ) );
+        return String.format ( TIME_FORMAT, calendar.get ( Calendar.YEAR ), calendar.get ( Calendar.MONTH ), calendar.get ( Calendar.DAY_OF_MONTH ), calendar.get ( Calendar.HOUR_OF_DAY ), calendar.get ( Calendar.MINUTE ), calendar.get ( Calendar.SECOND ), calendar.get ( Calendar.MILLISECOND ), calendar.get ( Calendar.DST_OFFSET ) );
     }
 
     /**
