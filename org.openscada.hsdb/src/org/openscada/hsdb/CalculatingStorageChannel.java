@@ -59,6 +59,15 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     }
 
     /**
+     * This method returns the logic provider for calculation of values for storage channel.
+     * @return logic provider for calculation of values for storage channel
+     */
+    public CalculationLogicProvider getCalculationLogicProvider ()
+    {
+        return calculationLogicProvider;
+    }
+
+    /**
      * This method returns an empty array of the data type that is requested.
      * @param dataType data type of the requested array
      * @return array of the data type that is requested

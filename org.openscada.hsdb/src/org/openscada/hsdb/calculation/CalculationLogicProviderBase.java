@@ -170,9 +170,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
         manual = Math.min ( manual, 1.0 );
 
         // process values
-        switch ( getInputType () )
-        {
-        case LONG_VALUE:
+        if ( values instanceof LongValue[] )
         {
             switch ( getOutputType () )
             {
@@ -189,9 +187,8 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
                 logger.error ( "invalid output data type specified within CalculationLogicProvider!" );
             }
             }
-            break;
         }
-        case DOUBLE_VALUE:
+        else
         {
             switch ( getOutputType () )
             {
@@ -208,12 +205,6 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
                 logger.error ( "invalid output data type specified within CalculationLogicProvider!" );
             }
             }
-            break;
-        }
-        default:
-        {
-            logger.error ( "invalid input data type specified within CalculationLogicProvider!" );
-        }
         }
         return null;
     }

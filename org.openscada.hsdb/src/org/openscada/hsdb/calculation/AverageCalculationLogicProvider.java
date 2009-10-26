@@ -61,7 +61,7 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
     {
         if ( values.length == 1 )
         {
-            return (long)values[0].getValue ();
+            return Math.round ( values[0].getValue () );
         }
         double timespan = 0;
         double avgValue = 0;
