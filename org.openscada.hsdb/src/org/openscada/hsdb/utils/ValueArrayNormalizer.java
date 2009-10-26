@@ -93,11 +93,11 @@ public class ValueArrayNormalizer
         {
             if ( emptyResultArray instanceof LongValue[] )
             {
-                blockValues.add ( new LongValue ( endTime, lastValue.getQualityIndicator (), lastValue.getManualIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : Math.round ( ( (DoubleValue)lastValue ).getValue () ) ) );
+                blockValues.add ( new LongValue ( endTime, lastValue.getQualityIndicator (), lastValue.getManualIndicator (), 0, lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : Math.round ( ( (DoubleValue)lastValue ).getValue () ) ) );
             }
             else
             {
-                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getManualIndicator (), lastValue.getBaseValueCount (), lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : ( (DoubleValue)lastValue ).getValue () ) );
+                blockValues.add ( new DoubleValue ( endTime, lastValue.getQualityIndicator (), lastValue.getManualIndicator (), 0, lastValue instanceof LongValue ? ( (LongValue)lastValue ).getValue () : ( (DoubleValue)lastValue ).getValue () ) );
             }
         }
         return blockValues.toArray ( emptyResultArray );
