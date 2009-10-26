@@ -185,19 +185,16 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // add blocks for which real values are available
         long maxStartTime = latestProcessedTime;
-        if ( ( values != null ) && ( values.length > 0 ) )
+        for ( final BaseValue value : values )
         {
-            for ( final BaseValue value : values )
+            final long time = value.getTime ();
+            if ( time < currentlyAvailableData )
             {
-                final long time = value.getTime ();
-                if ( time < currentlyAvailableData )
+                final long startTime = getTimeSpanStart ( time );
+                startTimes.add ( startTime );
+                if ( startTime > maxStartTime )
                 {
-                    final long startTime = getTimeSpanStart ( time );
-                    startTimes.add ( startTime );
-                    if ( startTime > maxStartTime )
-                    {
-                        maxStartTime = startTime;
-                    }
+                    maxStartTime = startTime;
                 }
             }
         }

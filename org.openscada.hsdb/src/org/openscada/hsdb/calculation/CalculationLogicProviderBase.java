@@ -166,6 +166,8 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
             quality /= timeSpanSize;
             manual /= timeSpanSize;
         }
+        quality = Math.min ( quality, 1.0 );
+        manual = Math.min ( manual, 1.0 );
 
         // process values
         switch ( getInputType () )

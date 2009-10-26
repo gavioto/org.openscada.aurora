@@ -38,20 +38,20 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             return values[0].getValue ();
         }
-        long timespan = 0;
+        double timespan = 0;
         double avgValue = 0;
         LongValue lastValidValue = null;
         for ( final LongValue value : values )
         {
             if ( lastValidValue != null )
             {
-                final long weight = value.getTime () - lastValidValue.getTime ();
+                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
             lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return (long) ( avgValue / timespan );
+        return Math.round ( avgValue / timespan );
     }
 
     /**
@@ -63,20 +63,20 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             return (long)values[0].getValue ();
         }
-        long timespan = 0;
+        double timespan = 0;
         double avgValue = 0;
         DoubleValue lastValidValue = null;
         for ( final DoubleValue value : values )
         {
             if ( lastValidValue != null )
             {
-                final long weight = value.getTime () - lastValidValue.getTime ();
+                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
             lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return (long) ( avgValue / timespan );
+        return Math.round ( avgValue / timespan );
     }
 
     /**
@@ -88,14 +88,14 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             return values[0].getValue ();
         }
-        long timespan = 0;
+        double timespan = 0;
         double avgValue = 0;
         LongValue lastValidValue = null;
         for ( final LongValue value : values )
         {
             if ( lastValidValue != null )
             {
-                final long weight = value.getTime () - lastValidValue.getTime ();
+                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
@@ -113,14 +113,14 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             return values[0].getValue ();
         }
-        long timespan = 0;
+        double timespan = 0;
         double avgValue = 0;
         DoubleValue lastValidValue = null;
         for ( final DoubleValue value : values )
         {
             if ( lastValidValue != null )
             {
-                final long weight = value.getTime () - lastValidValue.getTime ();
+                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
