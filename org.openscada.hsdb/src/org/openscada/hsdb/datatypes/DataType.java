@@ -27,11 +27,11 @@ public enum DataType
         {
         case LONG_VALUE:
         {
-            return "LV";
+            return "INT64";
         }
         case DOUBLE_VALUE:
         {
-            return "DV";
+            return "DOUBLE";
         }
         default:
         {
@@ -49,11 +49,11 @@ public enum DataType
     public static DataType convertShortStringToDataType ( final String dataType )
     {
         final String trimmedDataType = dataType == null ? "" : dataType.trim ();
-        if ( "LV".equals ( trimmedDataType ) )
+        if ( "INT64".equals ( trimmedDataType ) )
         {
             return LONG_VALUE;
         }
-        if ( "DV".equals ( trimmedDataType ) )
+        if ( "DOUBLE".equals ( trimmedDataType ) )
         {
             return DOUBLE_VALUE;
         }
