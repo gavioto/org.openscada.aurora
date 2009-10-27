@@ -7,8 +7,12 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -225,7 +229,17 @@ public class ListServlet extends HttpServlet
         stream.print ( "<table class='factories'>" );
         stream.print ( "<tr><th>ID</th><th>Description</th><th>#</th><th>State</th></tr>" );
 
-        for ( final Factory factory : admin.getKnownFactories () )
+        final List<Factory> factories = new ArrayList<Factory> ( Arrays.asList ( admin.getKnownFactories () ) );
+
+        Collections.sort ( factories, new Comparator<Factory> () {
+
+            public int compare ( final Factory o1, final Factory o2 )
+            {
+                return o1.getId ().compareTo ( o2.getId () );
+            }
+        } );
+
+        for ( final Factory factory : factories )
         {
             stream.print ( "<tr>" );
             stream.print ( String.format ( "<td><a href=\"javascript:selectFactory('%1$s')\">%1$s</a></td>", factory.getId () ) );
