@@ -601,6 +601,11 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
     {
         final String factoryId = checkAndGetFactoryId ( reference );
 
+        if ( factoryId == null )
+        {
+            return null;
+        }
+
         final String description = getDescription ( reference );
 
         Object service = null;
