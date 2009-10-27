@@ -176,8 +176,31 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     private void notifyNewValues ( final BaseValue[] values ) throws Exception
     {
-        // return if no values have been passed to method
-        if ( ( values == null ) || ( values.length == 0 ) )
+        // return if no times have been passed to method
+        if ( values == null )
+        {
+            return;
+        }
+
+        // extract and process times
+        final long[] times = new long[values.length];
+        for ( int i = 0; i < values.length; i++ )
+        {
+            times[i] = values[i].getTime ();
+        }
+        notifyNewValues ( times );
+    }
+
+    /**
+     * This method triggers the functionality that retrieves old values from the input storage channel and calculates values for the base storage channel.
+     * The method should not be called outside of this package.
+     * @param times times that have to be processed
+     * @throws Exception in case of any problems
+     */
+    private void notifyNewValues ( final long[] times ) throws Exception
+    {
+        // return if no times have been passed to method
+        if ( ( times == null ) || ( times.length == 0 ) )
         {
             return;
         }
@@ -185,7 +208,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         // assure that at least one value exists
         if ( latestProcessedTime == Long.MIN_VALUE )
         {
-            latestProcessedTime = getTimeSpanStart ( values[0].getTime () );
+            latestProcessedTime = getTimeSpanStart ( times[0] );
         }
 
         // collect all timespan blocks that have to be updated
@@ -194,9 +217,8 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // add blocks for which real values are available
         long maxStartTime = latestProcessedTime;
-        for ( final BaseValue value : values )
+        for ( final long time : times )
         {
-            final long time = value.getTime ();
             if ( time < timeOfInterest )
             {
                 final long startTime = getTimeSpanStart ( time );
@@ -403,6 +425,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized void cleanupRelicts () throws Exception
     {
+        notifyNewValues ( new long[] { System.currentTimeMillis () - 1 } );
         super.cleanupRelicts ();
         baseStorageChannel.cleanupRelicts ();
     }
