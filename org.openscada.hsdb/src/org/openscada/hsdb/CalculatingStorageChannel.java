@@ -213,7 +213,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // collect all timespan blocks that have to be updated
         final Set<Long> startTimes = new HashSet<Long> ();
-        final long timeOfInterest = getTimeSpanStart ( System.currentTimeMillis () );
+        final long timeOfInterest = getTimeSpanStart ( times[times.length - 1] );
 
         // add blocks for which real values are available
         long maxStartTime = latestProcessedTime;
