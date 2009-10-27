@@ -395,7 +395,9 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
         catch ( final Throwable e )
         {
-            logger.info ( "Apply failed configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () }, e );
+            logger.info ( "Apply failed configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () } );
+            logger.info ( "Apply failed configuration:", e );
+
             synchronized ( this )
             {
                 setConfigurationStatus ( configuration, ConfigurationState.ERROR, e );
