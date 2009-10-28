@@ -11,6 +11,7 @@ Export-Package: org.openscada.utils;version="0.14.0",
  org.openscada.utils.factory;version="0.14.0";uses:="org.openscada.utils.statuscodes",
  org.openscada.utils.lang;version="0.14.0",
  org.openscada.utils.lifecycle;version="0.14.0",
+ org.openscada.utils.propertyeditors,
  org.openscada.utils.statuscodes;version="0.14.0",
  org.openscada.utils.str;version="0.14.0",
  org.openscada.utils.timing;version="0.14.0";uses:="org.openscada.utils.statuscodes,org.slf4j"
