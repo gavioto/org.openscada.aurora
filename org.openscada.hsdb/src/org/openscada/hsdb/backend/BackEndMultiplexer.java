@@ -289,7 +289,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         {
             backEnd = backEnds.get ( i );
             final StorageChannelMetaData metaData = backEnd.getMetaData ();
-            final long startTime = metaData.getStartTime ();
+            long startTime = metaData.getStartTime ();
             if ( startTime <= timestamp )
             {
                 // check if an existing backend can be used
@@ -299,27 +299,30 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                     return backEnd;
                 }
 
-                // calculate start time for the new storage channel backend fragment
-                while ( ( endTime + this.newBackendTimespan ) <= timestamp )
+                // calculate new start time and end time for new backend fragment
+                startTime = endTime;
+                final long index = ( timestamp - startTime ) / newBackendTimespan;
+                if ( index > 0 )
                 {
-                    endTime += this.newBackendTimespan;
-                    if ( endTime > maxEndTime )
-                    {
-                        final String message = "logic error! end time cannot be before start time when creating a new storage channel backend fragment";
-                        logger.error ( message );
-                        throw new Exception ( message );
-                    }
+                    startTime += index * newBackendTimespan;
+                }
+                endTime = Math.min ( startTime + newBackendTimespan, maxEndTime );
+                if ( endTime <= startTime )
+                {
+                    final String message = "end time cannot be before start time when creating a new storage channel backend fragment";
+                    logger.error ( message );
+                    throw new Exception ( message );
                 }
 
                 // a new backend has to be created
-                return createAndAddNewBackEnd ( endTime, Math.min ( endTime + this.newBackendTimespan, maxEndTime ), i );
+                return createAndAddNewBackEnd ( startTime, endTime, i );
             }
             maxEndTime = startTime;
         }
 
         // create a new backend channel with a completely independent timespan, since no channel exists
-        final long startTime = timestamp - this.newBackendTimespan;
-        return createAndAddNewBackEnd ( startTime, startTime + this.newBackendTimespan, backEnds.size () );
+        final long startTime = timestamp;
+        return createAndAddNewBackEnd ( startTime, Math.min ( maxEndTime, startTime + this.newBackendTimespan ), backEnds.size () );
     }
 
     /**
