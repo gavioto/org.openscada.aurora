@@ -169,7 +169,7 @@ public class FileBackEnd implements BackEnd
         }
         randomAccessFile.write ( configurationIdBytes );
         final CRC32 crc32 = new CRC32 ();
-        final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset );
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset - 12 );
         byteBuffer.putLong ( dataOffset );
         byteBuffer.putLong ( FILE_VERSION );
         byteBuffer.putLong ( detailLevelId );
@@ -187,7 +187,9 @@ public class FileBackEnd implements BackEnd
         }
         byteBuffer.put ( configurationIdBytes );
         crc32.update ( byteBuffer.array () );
-        randomAccessFile.writeInt ( (int)crc32.getValue () );
+        final int checksum = (int)crc32.getValue ();
+        randomAccessFile.writeInt ( checksum );
+        logger.debug ( "checksum (write header): " + checksum );
         closeIfRequired ();
     }
 
@@ -354,7 +356,7 @@ public class FileBackEnd implements BackEnd
         randomAccessFile.readFully ( configurationIdBytes );
         final String configurationId = decodeStringFromBytes ( configurationIdBytes );
         final CRC32 crc32 = new CRC32 ();
-        final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset );
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset - 12 );
         byteBuffer.putLong ( dataOffset );
         byteBuffer.putLong ( version );
         byteBuffer.putLong ( detailLevelId );
@@ -372,12 +374,14 @@ public class FileBackEnd implements BackEnd
         }
         byteBuffer.put ( configurationIdBytes );
         crc32.update ( byteBuffer.array () );
-        if ( randomAccessFile.readInt () != (int)crc32.getValue () )
+        final int checksum = (int)crc32.getValue ();
+        if ( randomAccessFile.readInt () != checksum )
         {
             final String message = String.format ( "file '%s' has a corrupt header!", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
+        logger.debug ( "checksum (read header): " + checksum );
 
         // create a wrapper object for returning the retrieved data
         return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedFutureTime, DataType.convertLongToDataType ( dataType ) );
@@ -459,18 +463,20 @@ public class FileBackEnd implements BackEnd
         final double manualIndicator = Double.longBitsToDouble ( manualIndicatorAsLong );
         final long baseValueCount = randomAccessFile.readLong ();
         final long value = randomAccessFile.readLong ();
-        final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE );
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE - 1 );
         byteBuffer.putLong ( time );
         byteBuffer.putLong ( qualityIndicatorAsLong );
         byteBuffer.putLong ( manualIndicatorAsLong );
         byteBuffer.putLong ( baseValueCount );
         byteBuffer.putLong ( value );
-        if ( randomAccessFile.readByte () != calculateLrcParity ( byteBuffer.array () ) )
+        final byte checksum = calculateLrcParity ( byteBuffer.array () );
+        if ( randomAccessFile.readByte () != checksum )
         {
             final String message = String.format ( "file '%s' is corrupt! invalid timestamp at %x", fileName, time );
             logger.error ( message );
             throw new Exception ( message );
         }
+        logger.debug ( "checksum (read data): " + checksum );
         return new LongValue ( time, qualityIndicator, manualIndicator, baseValueCount, value );
     }
 
@@ -621,12 +627,13 @@ public class FileBackEnd implements BackEnd
         final long manualIndicator = Double.doubleToLongBits ( longValue.getManualIndicator () );
         final long baseValueCount = longValue.getBaseValueCount ();
         final long value = longValue.getValue ();
-        final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE );
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE - 1 );
         byteBuffer.putLong ( time );
         byteBuffer.putLong ( qualityIndicator );
         byteBuffer.putLong ( manualIndicator );
         byteBuffer.putLong ( baseValueCount );
         byteBuffer.putLong ( value );
+        final byte checksum = calculateLrcParity ( byteBuffer.array () );
 
         // write values
         randomAccessFile.writeLong ( time );
@@ -634,7 +641,8 @@ public class FileBackEnd implements BackEnd
         randomAccessFile.writeLong ( manualIndicator );
         randomAccessFile.writeLong ( baseValueCount );
         randomAccessFile.writeLong ( value );
-        randomAccessFile.writeByte ( calculateLrcParity ( byteBuffer.array () ) );
+        randomAccessFile.writeByte ( checksum );
+        logger.debug ( "checksum (write data): " + checksum );
     }
 
     /**
