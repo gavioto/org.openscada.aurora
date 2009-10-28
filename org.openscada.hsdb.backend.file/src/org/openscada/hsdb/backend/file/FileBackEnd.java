@@ -187,9 +187,7 @@ public class FileBackEnd implements BackEnd
         }
         byteBuffer.put ( configurationIdBytes );
         crc32.update ( byteBuffer.array () );
-        final int checksum = (int)crc32.getValue ();
-        this.randomAccessFile.writeInt ( checksum );
-        logger.debug ( "checksum (write header): " + checksum );
+        this.randomAccessFile.writeInt ( (int)crc32.getValue () );
         closeIfRequired ();
     }
 
@@ -470,13 +468,13 @@ public class FileBackEnd implements BackEnd
         byteBuffer.putLong ( baseValueCount );
         byteBuffer.putLong ( value );
         final byte checksum = calculateLrcParity ( byteBuffer.array () );
-        if ( this.randomAccessFile.readByte () != checksum )
+        final int fileChecksum = this.randomAccessFile.readByte ();
+        if ( fileChecksum != checksum )
         {
-            final String message = String.format ( "file '%s' is corrupt! invalid timestamp at %x", this.fileName, time );
+            final String message = String.format ( "file '%s' is corrupt! invalid checksum (expected: %s, actual: %s)", this.fileName, checksum, fileChecksum );
             logger.error ( message );
             throw new Exception ( message );
         }
-        logger.debug ( "checksum (read data): " + checksum );
         return new LongValue ( time, qualityIndicator, manualIndicator, baseValueCount, value );
     }
 
@@ -633,7 +631,6 @@ public class FileBackEnd implements BackEnd
         byteBuffer.putLong ( manualIndicator );
         byteBuffer.putLong ( baseValueCount );
         byteBuffer.putLong ( value );
-        final byte checksum = calculateLrcParity ( byteBuffer.array () );
 
         // write values
         this.randomAccessFile.writeLong ( time );
@@ -641,8 +638,7 @@ public class FileBackEnd implements BackEnd
         this.randomAccessFile.writeLong ( manualIndicator );
         this.randomAccessFile.writeLong ( baseValueCount );
         this.randomAccessFile.writeLong ( value );
-        this.randomAccessFile.writeByte ( checksum );
-        logger.debug ( "checksum (write data): " + checksum );
+        this.randomAccessFile.writeByte ( calculateLrcParity ( byteBuffer.array () ) );
     }
 
     /**
