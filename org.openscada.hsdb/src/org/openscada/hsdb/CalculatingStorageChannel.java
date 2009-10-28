@@ -213,35 +213,31 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // collect all timespan blocks that have to be updated
         final Set<Long> startTimes = new HashSet<Long> ();
-        final long timeOfInterest = getTimeSpanStart ( times[times.length - 1] );
+        final long timeOfInterest = getTimeSpanStart ( times[times.length - 1] - 1 );
+        final long futureLatestProcessedTime = Math.max ( latestProcessedTime, timeOfInterest );
 
         // add blocks for which real values are available
         final long requiredTimespanForCalculation = calculationLogicProvider.getRequiredTimespanForCalculation ();
-        long maxStartTime = latestProcessedTime;
         for ( final long time : times )
         {
-            if ( time < timeOfInterest )
+            if ( time < futureLatestProcessedTime )
             {
                 final long startTime = getTimeSpanStart ( time );
                 startTimes.add ( startTime );
                 final long nextTime = latestProcessedTime + requiredTimespanForCalculation;
-                if ( nextTime <= latestProcessedTime )
+                if ( nextTime < futureLatestProcessedTime )
                 {
                     startTimes.add ( nextTime );
-                }
-                if ( startTime > maxStartTime )
-                {
-                    maxStartTime = startTime;
                 }
             }
         }
 
         // add blocks that have not yet been processed
-        if ( latestProcessedTime < timeOfInterest )
+        if ( latestProcessedTime < futureLatestProcessedTime )
         {
             startTimes.add ( latestProcessedTime );
             final long nextTime = latestProcessedTime + requiredTimespanForCalculation;
-            if ( nextTime < timeOfInterest )
+            if ( nextTime < futureLatestProcessedTime )
             {
                 startTimes.add ( nextTime );
             }
