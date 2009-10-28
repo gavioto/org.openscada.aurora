@@ -55,7 +55,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     {
         final String rootDir = System.getProperty ( "org.openscada.ca.file.root", null );
 
-        if ( rootDir == null )
+        if ( rootDir == null || rootDir.length () == 0 )
         {
             return this.context.getDataFile ( STORE );
         }
