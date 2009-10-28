@@ -11,6 +11,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.CRC32;
 
 import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.backend.BackEnd;
@@ -32,14 +33,14 @@ public class FileBackEnd implements BackEnd
     /** Empty byte array. */
     private final static byte[] emptyByteArray = new byte[0];
 
+    /** Seed value for the parity calculation logic of data records. */
+    private final static byte LRC_SEED = 0x5a;
+
     /** Unique marker identifying file types that can be handled via this class. */
     private final static long FILE_MARKER = 0x0a2d04b20b580ca9L;
 
     /** Size of one data record in the file. */
-    private final static long SHORT_BORDER = Short.MAX_VALUE + 1;
-
-    /** Size of one data record in the file. */
-    private final static long RECORD_BLOCK_SIZE = 8 + 8 + 8 + 8 + 8 + 2;
+    private final static int RECORD_BLOCK_SIZE = 8 + 8 + 8 + 8 + 8 + 1;
 
     /** Maximum size of buffer when copying data within a file. */
     private final static int MAX_COPY_BUFFER_FILL_SIZE = 1024 * 1024;
@@ -149,7 +150,7 @@ public class FileBackEnd implements BackEnd
         // write standardized file header to file
         openConnection ( true );
         randomAccessFile.seek ( 0L );
-        final long dataOffset = ( 12 + calculationMethodParameters.length ) * 8 + configurationIdBytes.length + 2;
+        final long dataOffset = ( 11 + calculationMethodParameters.length ) * 8 + configurationIdBytes.length + 4;
         randomAccessFile.writeLong ( FILE_MARKER );
         randomAccessFile.writeLong ( dataOffset );
         randomAccessFile.writeLong ( FILE_VERSION );
@@ -160,30 +161,33 @@ public class FileBackEnd implements BackEnd
         randomAccessFile.writeLong ( acceptedFutureTime );
         randomAccessFile.writeLong ( dataType );
         randomAccessFile.writeLong ( calculationMethodId );
-        randomAccessFile.writeLong ( calculationMethodParameters.length );
-        randomAccessFile.writeLong ( configurationIdBytes.length );
+        randomAccessFile.writeInt ( calculationMethodParameters.length );
+        randomAccessFile.writeInt ( configurationIdBytes.length );
         for ( int i = 0; i < calculationMethodParameters.length; i++ )
         {
             randomAccessFile.writeLong ( calculationMethodParameters[i] );
         }
         randomAccessFile.write ( configurationIdBytes );
-        long parity = 0;
-        parity = ( parity + FILE_VERSION ) % SHORT_BORDER;
-        parity = ( parity + dataOffset ) % SHORT_BORDER;
-        parity = ( parity + ( configurationId == null ? 0 : configurationId.hashCode () ) ) % SHORT_BORDER;
-        parity = ( parity + detailLevelId ) % SHORT_BORDER;
-        parity = ( parity + startTime ) % SHORT_BORDER;
-        parity = ( parity + endTime ) % SHORT_BORDER;
-        parity = ( parity + proposedDataAge ) % SHORT_BORDER;
-        parity = ( parity + acceptedFutureTime ) % SHORT_BORDER;
-        parity = ( parity + dataType ) % SHORT_BORDER;
-        parity = ( parity + calculationMethodId ) % SHORT_BORDER;
-        parity = ( parity + calculationMethodParameters.length ) % SHORT_BORDER;
+        final CRC32 crc32 = new CRC32 ();
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset );
+        byteBuffer.putLong ( dataOffset );
+        byteBuffer.putLong ( FILE_VERSION );
+        byteBuffer.putLong ( detailLevelId );
+        byteBuffer.putLong ( startTime );
+        byteBuffer.putLong ( endTime );
+        byteBuffer.putLong ( proposedDataAge );
+        byteBuffer.putLong ( acceptedFutureTime );
+        byteBuffer.putLong ( dataType );
+        byteBuffer.putLong ( calculationMethodId );
+        byteBuffer.putInt ( calculationMethodParameters.length );
+        byteBuffer.putInt ( configurationIdBytes.length );
         for ( int i = 0; i < calculationMethodParameters.length; i++ )
         {
-            parity = ( parity + calculationMethodParameters[i] ) % SHORT_BORDER;
+            byteBuffer.putLong ( calculationMethodParameters[i] );
         }
-        randomAccessFile.writeShort ( (short)parity );
+        byteBuffer.put ( configurationIdBytes );
+        crc32.update ( byteBuffer.array () );
+        randomAccessFile.writeInt ( (int)crc32.getValue () );
         closeIfRequired ();
     }
 
@@ -327,45 +331,48 @@ public class FileBackEnd implements BackEnd
         final long acceptedFutureTime = randomAccessFile.readLong ();
         final long dataType = randomAccessFile.readLong ();
         final long calculationMethodId = randomAccessFile.readLong ();
-        final long calculationMethodParameterCountSize = randomAccessFile.readLong ();
-        final long configurationIdSize = randomAccessFile.readLong ();
-        if ( ( dataOffset - randomAccessFile.getFilePointer () - 2 - configurationIdSize ) != ( calculationMethodParameterCountSize * 8 ) )
+        final int calculationMethodParameterCountSize = randomAccessFile.readInt ();
+        final int configurationIdSize = randomAccessFile.readInt ();
+        if ( ( dataOffset - randomAccessFile.getFilePointer () - 4 - configurationIdSize ) != ( calculationMethodParameterCountSize * 8 ) )
         {
             final String message = String.format ( "file '%s' is of invalid format! (invalid count of calculation method parameters)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
-        final long[] calculationMethodParameters = new long[(int)calculationMethodParameterCountSize];
+        final long[] calculationMethodParameters = new long[calculationMethodParameterCountSize];
         for ( int i = 0; i < calculationMethodParameters.length; i++ )
         {
             calculationMethodParameters[i] = randomAccessFile.readLong ();
         }
-        if ( ( dataOffset - randomAccessFile.getFilePointer () - 2 ) != configurationIdSize )
+        if ( ( dataOffset - randomAccessFile.getFilePointer () - 4 ) != configurationIdSize )
         {
             final String message = String.format ( "file '%s' is of invalid format! (invalid configuration id)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
-        final byte[] configurationIdBytes = new byte[(int)configurationIdSize];
+        final byte[] configurationIdBytes = new byte[configurationIdSize];
         randomAccessFile.readFully ( configurationIdBytes );
         final String configurationId = decodeStringFromBytes ( configurationIdBytes );
-        long parity = 0;
-        parity = ( parity + version ) % SHORT_BORDER;
-        parity = ( parity + dataOffset ) % SHORT_BORDER;
-        parity = ( parity + configurationId.hashCode () ) % SHORT_BORDER;
-        parity = ( parity + detailLevelId ) % SHORT_BORDER;
-        parity = ( parity + startTime ) % SHORT_BORDER;
-        parity = ( parity + endTime ) % SHORT_BORDER;
-        parity = ( parity + proposedDataAge ) % SHORT_BORDER;
-        parity = ( parity + acceptedFutureTime ) % SHORT_BORDER;
-        parity = ( parity + dataType ) % SHORT_BORDER;
-        parity = ( parity + calculationMethodId ) % SHORT_BORDER;
-        parity = ( parity + calculationMethodParameters.length ) % SHORT_BORDER;
+        final CRC32 crc32 = new CRC32 ();
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset );
+        byteBuffer.putLong ( dataOffset );
+        byteBuffer.putLong ( version );
+        byteBuffer.putLong ( detailLevelId );
+        byteBuffer.putLong ( startTime );
+        byteBuffer.putLong ( endTime );
+        byteBuffer.putLong ( proposedDataAge );
+        byteBuffer.putLong ( acceptedFutureTime );
+        byteBuffer.putLong ( dataType );
+        byteBuffer.putLong ( calculationMethodId );
+        byteBuffer.putInt ( calculationMethodParameters.length );
+        byteBuffer.putInt ( configurationIdSize );
         for ( int i = 0; i < calculationMethodParameters.length; i++ )
         {
-            parity = ( parity + calculationMethodParameters[i] ) % SHORT_BORDER;
+            byteBuffer.putLong ( calculationMethodParameters[i] );
         }
-        if ( randomAccessFile.readShort () != parity )
+        byteBuffer.put ( configurationIdBytes );
+        crc32.update ( byteBuffer.array () );
+        if ( randomAccessFile.readInt () != (int)crc32.getValue () )
         {
             final String message = String.format ( "file '%s' has a corrupt header!", fileName );
             logger.error ( message );
@@ -452,13 +459,13 @@ public class FileBackEnd implements BackEnd
         final double manualIndicator = Double.longBitsToDouble ( manualIndicatorAsLong );
         final long baseValueCount = randomAccessFile.readLong ();
         final long value = randomAccessFile.readLong ();
-        long parity = 0;
-        parity = ( parity + time ) % SHORT_BORDER;
-        parity = ( parity + qualityIndicatorAsLong ) % SHORT_BORDER;
-        parity = ( parity + manualIndicatorAsLong ) % SHORT_BORDER;
-        parity = ( parity + baseValueCount ) % SHORT_BORDER;
-        parity = ( parity + value ) % SHORT_BORDER;
-        if ( randomAccessFile.readShort () != parity )
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE );
+        byteBuffer.putLong ( time );
+        byteBuffer.putLong ( qualityIndicatorAsLong );
+        byteBuffer.putLong ( manualIndicatorAsLong );
+        byteBuffer.putLong ( baseValueCount );
+        byteBuffer.putLong ( value );
+        if ( randomAccessFile.readByte () != calculateLrcParity ( byteBuffer.array () ) )
         {
             final String message = String.format ( "file '%s' is corrupt! invalid timestamp at %x", fileName, time );
             logger.error ( message );
@@ -614,12 +621,12 @@ public class FileBackEnd implements BackEnd
         final long manualIndicator = Double.doubleToLongBits ( longValue.getManualIndicator () );
         final long baseValueCount = longValue.getBaseValueCount ();
         final long value = longValue.getValue ();
-        long parity = 0;
-        parity = ( parity + time ) % SHORT_BORDER;
-        parity = ( parity + qualityIndicator ) % SHORT_BORDER;
-        parity = ( parity + manualIndicator ) % SHORT_BORDER;
-        parity = ( parity + baseValueCount ) % SHORT_BORDER;
-        parity = ( parity + value ) % SHORT_BORDER;
+        final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE );
+        byteBuffer.putLong ( time );
+        byteBuffer.putLong ( qualityIndicator );
+        byteBuffer.putLong ( manualIndicator );
+        byteBuffer.putLong ( baseValueCount );
+        byteBuffer.putLong ( value );
 
         // write values
         randomAccessFile.writeLong ( time );
@@ -627,7 +634,7 @@ public class FileBackEnd implements BackEnd
         randomAccessFile.writeLong ( manualIndicator );
         randomAccessFile.writeLong ( baseValueCount );
         randomAccessFile.writeLong ( value );
-        randomAccessFile.writeShort ( (short)parity );
+        randomAccessFile.writeByte ( calculateLrcParity ( byteBuffer.array () ) );
     }
 
     /**
@@ -776,5 +783,21 @@ public class FileBackEnd implements BackEnd
         {
             closeConnection ();
         }
+    }
+
+    /**
+     * This method calculates a parity value for the passed bytes.
+     * @param bytes array of bytes for which a parity value has to be calculated
+     * @return calculated parity value
+     */
+    private static Byte calculateLrcParity ( final byte[] bytes )
+    {
+        byte result = LRC_SEED;
+        final int size = bytes.length;
+        for ( int i = 0; i < size; i++ )
+        {
+            result ^= bytes[i];
+        }
+        return result;
     }
 }
