@@ -239,6 +239,6 @@ public class StorageChannelMetaData
     @Override
     public String toString ()
     {
-        return String.format ( "configurationId: %s; calculationMethod: %s; detailLevel: %s; startTime: %s; endTime: %s; proposedDataAge: %s; datatype: %s", configurationId, CalculationMethod.convertCalculationMethodToString ( calculationMethod ), detailLevelId, startTime, endTime, proposedDataAge, dataType );
+        return String.format ( "configurationId: %s; calculationMethod: %s; detailLevel: %s; startTime: %s; endTime: %s; proposedDataAge: %s; acceptedFutureTime: %s; datatype: %s", configurationId, CalculationMethod.convertCalculationMethodToString ( calculationMethod ), detailLevelId, startTime, endTime, proposedDataAge, acceptedFutureTime, dataType );
     }
 }
