@@ -51,9 +51,23 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         this.root = initRoot ();
     }
 
+    protected File getRootFile ()
+    {
+        final String rootDir = System.getProperty ( "org.openscada.ca.file.root", null );
+
+        if ( rootDir == null )
+        {
+            return this.context.getDataFile ( STORE );
+        }
+        else
+        {
+            return new File ( rootDir );
+        }
+    }
+
     private File initRoot ()
     {
-        final File file = this.context.getDataFile ( STORE );
+        final File file = getRootFile ();
         if ( file != null )
         {
             if ( !file.exists () )
