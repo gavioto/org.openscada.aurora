@@ -430,35 +430,55 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                 final StorageChannelMetaData metaData = backEnd.getMetaData ();
                 final long metaDataStartTime = metaData.getStartTime ();
                 final long metaDataEndTime = metaData.getEndTime ();
-                if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
+                try
                 {
-                    // process values that match the time span
-                    longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
-                }
-                if ( startTime >= metaDataEndTime )
-                {
-                    final LongValue[] olderValues = backEnd.getLongValues ( startTime, endTime );
-                    if ( olderValues.length > 0 )
+                    if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
                     {
-                        longValues.addAll ( 0, Arrays.asList ( olderValues ) );
+                        // process values that match the time span
+                        longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
+                    }
+                    if ( startTime >= metaDataEndTime )
+                    {
+                        final LongValue[] olderValues = backEnd.getLongValues ( startTime, endTime );
+                        if ( olderValues.length > 0 )
+                        {
+                            longValues.addAll ( 0, Arrays.asList ( olderValues ) );
+                        }
+                    }
+                    if ( !longValues.isEmpty () && longValues.get ( 0 ).getTime () <= startTime )
+                    {
+                        break;
                     }
                 }
-                if ( !longValues.isEmpty () && longValues.get ( 0 ).getTime () <= startTime )
+                catch ( final Exception e )
                 {
-                    break;
+                    final String message = String.format ( "backend (%s): could not read from sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
+                    if ( startTime < ( System.currentTimeMillis () - metaData.getProposedDataAge () ) )
+                    {
+                        logger.info ( message + " - backend is probably outdated", e );
+                    }
+                    else
+                    {
+                        logger.error ( message, e );
+                    }
+                    longValues.add ( 0, new LongValue ( metaDataStartTime, 0, 0, 0, 0 ) );
+                    if ( metaDataStartTime <= startTime )
+                    {
+                        break;
+                    }
                 }
             }
-            catch ( final Exception e )
+            catch ( final Exception e1 )
             {
                 backEndsToRemove.add ( backEnd );
-                final String message = String.format ( "backend (%s): could not read from sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
+                final String message = String.format ( "backend (%s): could not access sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
                 if ( startTime < ( System.currentTimeMillis () - metaData.getProposedDataAge () ) )
                 {
-                    logger.info ( message + " - backend is probably outdated", e );
+                    logger.info ( message + " - backend is probably outdated", e1 );
                 }
                 else
                 {
-                    logger.error ( message, e );
+                    logger.error ( message, e1 );
                 }
             }
         }
