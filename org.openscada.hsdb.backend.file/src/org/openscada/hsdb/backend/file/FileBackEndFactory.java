@@ -190,7 +190,7 @@ public class FileBackEndFactory implements BackEndFactory
             if ( ( configurationId == null ) || !extractDataFromFileName ( configurationIdPattern, fileName, configurationId ).equals ( configurationId ) || ( !extractDataFromFileName ( calculationMethodPattern, fileName, calculationMethod ).equals ( calculationMethod ) ) || ( extractDataFromFileName ( detailLevelIdPattern, fileName, detailLevelId ) != detailLevelId ) )
             {
                 fileBackEnd = null;
-                logger.warn ( String.format ( "file content does not match expected content due to file name (%s). file will be ignored", file.getPath () ) );
+                logger.warn ( String.format ( "file content does not match expected content due to file name (%s) (expected data: %s). file will be ignored", file.getPath (), metaData ) );
             }
         }
         catch ( final Exception e )
