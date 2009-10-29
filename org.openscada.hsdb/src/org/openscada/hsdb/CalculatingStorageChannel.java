@@ -255,7 +255,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             calculateOldValues ( startTime, endTime );
             if ( latestProcessedTime < endTime )
             {
-                latestProcessedTime = endTime;
+                latestProcessedTime = startTime;
             }
         }
     }
