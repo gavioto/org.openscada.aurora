@@ -57,6 +57,9 @@ public class FileBackEnd implements BackEnd
     /** Name of the file that is used to store data. */
     private final String fileName;
 
+    /** File that is used to store data. */
+    private final File file;
+
     /** Flag indicating whether the file connection should be kept open while the state of the instance is initialized or not. */
     private final boolean keepUpenWhileInitialized;
 
@@ -83,6 +86,7 @@ public class FileBackEnd implements BackEnd
     public FileBackEnd ( final String fileName, final boolean keepUpenWhileInitialized )
     {
         this.fileName = fileName;
+        this.file = new File ( fileName );
         this.keepUpenWhileInitialized = keepUpenWhileInitialized;
         this.metaData = null;
         this.openInWriteMode = false;
@@ -133,7 +137,6 @@ public class FileBackEnd implements BackEnd
         }
 
         // create new file including folder
-        final File file = new File ( this.fileName );
         final File parent = file.getParentFile ();
         if ( parent != null )
         {
@@ -216,7 +219,7 @@ public class FileBackEnd implements BackEnd
     public synchronized StorageChannelMetaData getMetaData () throws Exception
     {
         assureInitialized ();
-        if ( !new File ( fileName ).exists () )
+        if ( !file.exists () )
         {
             final String message = String.format ( "file '%s' does not exist!", fileName );
             logger.error ( message );
@@ -258,7 +261,6 @@ public class FileBackEnd implements BackEnd
         closeConnection ();
 
         // delete old file if any exists
-        final File file = new File ( this.fileName );
         if ( file.exists () )
         {
             logger.info ( String.format ( "deleting existing file '%s'...", this.fileName ) );
@@ -412,7 +414,6 @@ public class FileBackEnd implements BackEnd
             {
                 // open new connection
                 logger.debug ( String.format ( "OPENING file '%s' successful", this.fileName ) );
-                final File file = new File ( this.fileName );
                 this.randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
                 this.openInWriteMode = allowWrite;
             }
