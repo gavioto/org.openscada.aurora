@@ -216,6 +216,12 @@ public class FileBackEnd implements BackEnd
     public synchronized StorageChannelMetaData getMetaData () throws Exception
     {
         assureInitialized ();
+        if ( !new File ( fileName ).exists () )
+        {
+            final String message = String.format ( "file '%s' does not exist!", fileName );
+            logger.error ( message );
+            throw new Exception ( message );
+        }
         if ( this.metaData == null )
         {
             openConnection ( false );
