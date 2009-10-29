@@ -22,7 +22,7 @@ public abstract class BackEndTestBase
     protected final static int MAX_COUNT = 500;
 
     /** Configuration id that is used for the tests. */
-    private final static String CONFIGURATION_ID = "Confügura<tio\\n?:#\"'";
+    private final static String CONFIGURATION_ID = "Confüg_ura<tio\\n?:#\"'";
 
     /** Instance that is tested. */
     protected BackEnd backEnd;
