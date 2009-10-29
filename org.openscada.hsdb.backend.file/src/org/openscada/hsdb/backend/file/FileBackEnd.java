@@ -607,7 +607,7 @@ public class FileBackEnd implements BackEnd
         long endCopy = this.randomAccessFile.length ();
 
         // make room for new data if data cannot be appended at the end or existing data has to be overwritten
-        if ( insertionPoint != endCopy && readLongValue ( insertionPoint ).getTime () != time )
+        if ( ( insertionPoint != endCopy ) && ( readLongValue ( insertionPoint ).getTime () != time ) )
         {
             // move file content to create cap for new data
             final byte[] buffer = new byte[(int)Math.min ( MAX_COPY_BUFFER_FILL_SIZE, endCopy - insertionPoint )];

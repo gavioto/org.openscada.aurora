@@ -197,7 +197,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      * @param times times that have to be processed
      * @throws Exception in case of any problems
      */
-    private void notifyNewValues ( final long[] times ) throws Exception
+    public synchronized void notifyNewValues ( final long[] times ) throws Exception
     {
         // return if no times have been passed to method
         if ( ( times == null ) || ( times.length == 0 ) )
@@ -255,7 +255,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             calculateOldValues ( startTime, endTime );
             if ( latestProcessedTime < endTime )
             {
-                latestProcessedTime = startTime;
+                latestProcessedTime = endTime;
             }
         }
     }
@@ -266,7 +266,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      * @param minStartTime mimimum start time of the time spans that will be processed
      * @param maxEndTime maximum end of the time spans that will be processed
      */
-    private void processValues ( final BaseValue[] values, final long minStartTime, final long maxEndTime ) throws Exception
+    public synchronized void processValues ( final BaseValue[] values, final long minStartTime, final long maxEndTime ) throws Exception
     {
         if ( ( values != null ) && ( values.length > 0 ) )
         {
