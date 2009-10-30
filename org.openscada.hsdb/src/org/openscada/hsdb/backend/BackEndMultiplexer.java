@@ -321,7 +321,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         }
 
         // create a new backend channel with a completely independent timespan, since no channel exists
-        final long startTime = timestamp;
+        final long startTime = timestamp - ( timestamp % newBackendTimespan );
         return createAndAddNewBackEnd ( startTime, Math.min ( maxEndTime, startTime + this.newBackendTimespan ), backEnds.size () );
     }
 
