@@ -10,12 +10,6 @@ import org.openscada.hsdb.datatypes.LongValue;
  */
 public class AverageCalculationLogicProvider extends CalculationLogicProviderBase
 {
-    /** Logic provide rthat is used to avoid rounding problems. */
-    private final MinimumCalculationLogicProvider minimumLogicProvider;
-
-    /** Logic provide rthat is used to avoid rounding problems. */
-    private final MaximumCalculationLogicProvider maximumLogicProvider;
-
     /**
      * Constructor.
      * @param inputDataType data type of the input values
@@ -25,8 +19,6 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
     public AverageCalculationLogicProvider ( final DataType inputDataType, final DataType outputDataType, final long[] parameters )
     {
         super ( inputDataType, outputDataType, parameters );
-        minimumLogicProvider = new MinimumCalculationLogicProvider ( inputDataType, outputDataType, parameters );
-        maximumLogicProvider = new MaximumCalculationLogicProvider ( inputDataType, outputDataType, parameters );
     }
 
     /**
@@ -53,13 +45,13 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             if ( lastValidValue != null )
             {
-                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
             lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return Math.min ( Math.max ( Math.round ( avgValue / timespan ), minimumLogicProvider.calculateLong ( values ) ), maximumLogicProvider.calculateLong ( values ) );
+        return Math.round ( avgValue / timespan );
     }
 
     /**
@@ -78,13 +70,13 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             if ( lastValidValue != null )
             {
-                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
             lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return Math.min ( Math.max ( Math.round ( avgValue / timespan ), minimumLogicProvider.calculateLong ( values ) ), maximumLogicProvider.calculateLong ( values ) );
+        return Math.round ( avgValue / timespan );
     }
 
     /**
@@ -103,13 +95,13 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             if ( lastValidValue != null )
             {
-                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
             lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return Math.min ( Math.max ( avgValue / timespan, minimumLogicProvider.calculateDouble ( values ) ), maximumLogicProvider.calculateDouble ( values ) );
+        return avgValue / timespan;
     }
 
     /**
@@ -128,12 +120,12 @@ public class AverageCalculationLogicProvider extends CalculationLogicProviderBas
         {
             if ( lastValidValue != null )
             {
-                final double weight = ( value.getTime () - lastValidValue.getTime () ) * lastValidValue.getQualityIndicator ();
+                final long weight = value.getTime () - lastValidValue.getTime ();
                 avgValue += lastValidValue.getValue () * weight;
                 timespan += weight;
             }
             lastValidValue = value.getQualityIndicator () > 0 ? value : null;
         }
-        return Math.min ( Math.max ( avgValue / timespan, minimumLogicProvider.calculateDouble ( values ) ), maximumLogicProvider.calculateDouble ( values ) );
+        return avgValue / timespan;
     }
 }
