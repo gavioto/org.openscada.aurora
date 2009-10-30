@@ -25,7 +25,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     /** Storage channel that is used as main channel when writing results of calculations. */
     private final ExtendedStorageChannel baseStorageChannel;
 
-    /** Storage channel that is used to request data if data is missing for instance after startup. */
+    /** Storage channel that is used to request input data. */
     private final ExtendedStorageChannel inputStorageChannel;
 
     /** Logic provider for calculation of values for storage channel. */
@@ -43,7 +43,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     /**
      * Fully initializing constructor.
      * @param baseStorageChannel storage channel that is used as main channel when writing results of calculations
-     * @param inputStorageChannel storage channel that is used to request data if data is missing for instance after startup
+     * @param inputStorageChannel storage channel that is used to request input data
      * @param calculationLogicProvider logic provider for calculation of values for storage channel
      */
     public CalculatingStorageChannel ( final ExtendedStorageChannel baseStorageChannel, final ExtendedStorageChannel inputStorageChannel, final CalculationLogicProvider calculationLogicProvider )
@@ -56,6 +56,24 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
 
         // calculate values of the past
         this.latestProcessedTime = getLatestProcessedValueTime ();
+    }
+
+    /**
+     * This method returns the storage channel that is used as main channel when writing results of calculations.
+     * @return storage channel that is used as main channel when writing results of calculations
+     */
+    public ExtendedStorageChannel getBaseStorageChannel ()
+    {
+        return baseStorageChannel;
+    }
+
+    /**
+     * This method returns the storage channel that is used to request input data.
+     * @return storage channel that is used to request input data
+     */
+    public ExtendedStorageChannel getInputStorageChannel ()
+    {
+        return inputStorageChannel;
     }
 
     /**
@@ -265,6 +283,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      * @param values values that have to be processed
      * @param minStartTime mimimum start time of the time spans that will be processed
      * @param maxEndTime maximum end of the time spans that will be processed
+     * @throws Exception if values could not be processed
      */
     public synchronized void processValues ( final BaseValue[] values, final long minStartTime, final long maxEndTime ) throws Exception
     {
