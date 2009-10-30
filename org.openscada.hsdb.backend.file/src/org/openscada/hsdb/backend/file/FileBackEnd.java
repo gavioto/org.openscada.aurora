@@ -119,7 +119,7 @@ public class FileBackEnd implements BackEnd
         final long startTime = storageChannelMetaData.getStartTime ();
         final long endTime = storageChannelMetaData.getEndTime ();
         final long proposedDataAge = storageChannelMetaData.getProposedDataAge ();
-        final long acceptedFutureTime = storageChannelMetaData.getAcceptedFutureTime ();
+        final long acceptedTimeDelta = storageChannelMetaData.getAcceptedTimeDelta ();
         final long dataType = DataType.convertDataTypeToLong ( storageChannelMetaData.getDataType () );
 
         // validate input data
@@ -161,7 +161,7 @@ public class FileBackEnd implements BackEnd
         this.randomAccessFile.writeLong ( startTime );
         this.randomAccessFile.writeLong ( endTime );
         this.randomAccessFile.writeLong ( proposedDataAge );
-        this.randomAccessFile.writeLong ( acceptedFutureTime );
+        this.randomAccessFile.writeLong ( acceptedTimeDelta );
         this.randomAccessFile.writeLong ( dataType );
         this.randomAccessFile.writeLong ( calculationMethodId );
         this.randomAccessFile.writeInt ( calculationMethodParameters.length );
@@ -179,7 +179,7 @@ public class FileBackEnd implements BackEnd
         byteBuffer.putLong ( startTime );
         byteBuffer.putLong ( endTime );
         byteBuffer.putLong ( proposedDataAge );
-        byteBuffer.putLong ( acceptedFutureTime );
+        byteBuffer.putLong ( acceptedTimeDelta );
         byteBuffer.putLong ( dataType );
         byteBuffer.putLong ( calculationMethodId );
         byteBuffer.putInt ( calculationMethodParameters.length );
@@ -336,7 +336,7 @@ public class FileBackEnd implements BackEnd
             throw new Exception ( message );
         }
         final long proposedDataAge = this.randomAccessFile.readLong ();
-        final long acceptedFutureTime = this.randomAccessFile.readLong ();
+        final long acceptedTimeDelta = this.randomAccessFile.readLong ();
         final long dataType = this.randomAccessFile.readLong ();
         final long calculationMethodId = this.randomAccessFile.readLong ();
         final int calculationMethodParameterCountSize = this.randomAccessFile.readInt ();
@@ -369,7 +369,7 @@ public class FileBackEnd implements BackEnd
         byteBuffer.putLong ( startTime );
         byteBuffer.putLong ( endTime );
         byteBuffer.putLong ( proposedDataAge );
-        byteBuffer.putLong ( acceptedFutureTime );
+        byteBuffer.putLong ( acceptedTimeDelta );
         byteBuffer.putLong ( dataType );
         byteBuffer.putLong ( calculationMethodId );
         byteBuffer.putInt ( calculationMethodParameters.length );
@@ -390,7 +390,7 @@ public class FileBackEnd implements BackEnd
         }
 
         // create a wrapper object for returning the retrieved data
-        return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedFutureTime, DataType.convertLongToDataType ( dataType ) );
+        return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, DataType.convertLongToDataType ( dataType ) );
     }
 
     /**

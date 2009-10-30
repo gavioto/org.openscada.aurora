@@ -30,8 +30,8 @@ public class StorageChannelMetaData
     /** Age of the data in milliseconds a stored data should be kept available. */
     private long proposedDataAge;
 
-    /** Maximum time in the future in milliseconds that will be accepted. */
-    private long acceptedFutureTime;
+    /** Maximum time in milliseconds the new value can differ from the current time in order to be processed. */
+    private long acceptedTimeDelta;
 
     /** Data type of the stored values. */
     private DataType dataType;
@@ -42,7 +42,7 @@ public class StorageChannelMetaData
      */
     public StorageChannelMetaData ( final StorageChannelMetaData storageChannelMetaData )
     {
-        this ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getCalculationMethod (), storageChannelMetaData.getCalculationMethodParameters (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getStartTime (), storageChannelMetaData.getEndTime (), storageChannelMetaData.getProposedDataAge (), storageChannelMetaData.getAcceptedFutureTime (), storageChannelMetaData.getDataType () );
+        this ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getCalculationMethod (), storageChannelMetaData.getCalculationMethodParameters (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getStartTime (), storageChannelMetaData.getEndTime (), storageChannelMetaData.getProposedDataAge (), storageChannelMetaData.getAcceptedTimeDelta (), storageChannelMetaData.getDataType () );
     }
 
     /**
@@ -54,7 +54,7 @@ public class StorageChannelMetaData
      * @param startTime time stamp of first possible entry of the channel
      * @param endTime time stamp of first entry that will not be stored in the channel
      * @param proposedDataAge age of the data in milliseconds a stored data should be kept available
-     * @param acceptedFutureTime maximum time in the future in milliseconds that will be accepted
+     * @param acceptedFutureTime maximum time in milliseconds the new value can differ from the current time in order to be processed
      * @param dataType data type of the stored values
      */
     public StorageChannelMetaData ( final String configurationId, final CalculationMethod calculationMethod, final long[] calculationMethodParameters, final long detailLevelId, final long startTime, final long endTime, final long proposedDataAge, final long acceptedFutureTime, final DataType dataType )
@@ -66,7 +66,7 @@ public class StorageChannelMetaData
         this.startTime = startTime;
         this.endTime = endTime;
         this.proposedDataAge = proposedDataAge;
-        this.acceptedFutureTime = acceptedFutureTime;
+        this.acceptedTimeDelta = acceptedFutureTime;
         this.dataType = dataType;
     }
 
@@ -197,21 +197,21 @@ public class StorageChannelMetaData
     }
 
     /**
-     * This method returns the maximum time in the future in milliseconds that will be accepted.
-     * @return maximum time in the future in milliseconds that will be accepted
+     * This method returns the maximum time in milliseconds the new value can differ from the current time in order to be processed.
+     * @return maximum time in milliseconds the new value can differ from the current time in order to be processed
      */
-    public long getAcceptedFutureTime ()
+    public long getAcceptedTimeDelta ()
     {
-        return acceptedFutureTime;
+        return acceptedTimeDelta;
     }
 
     /**
-     * This method sets the maximum time in the future in milliseconds that will be accepted.
-     * @param acceptedFutureTime maximum time in the future in milliseconds that will be accepted
+     * This method sets the maximum time in milliseconds the new value can differ from the current time in order to be processed.
+     * @param acceptedTimeDelta maximum time in milliseconds the new value can differ from the current time in order to be processed
      */
-    public void setAcceptedFutureTime ( final long acceptedFutureTime )
+    public void setAcceptedTimeDelta ( final long acceptedTimeDelta )
     {
-        this.acceptedFutureTime = acceptedFutureTime;
+        this.acceptedTimeDelta = acceptedTimeDelta;
     }
 
     /**
@@ -239,6 +239,6 @@ public class StorageChannelMetaData
     @Override
     public String toString ()
     {
-        return String.format ( "configurationId: %s; calculationMethod: %s; detailLevel: %s; startTime: %s; endTime: %s; proposedDataAge: %s; acceptedFutureTime: %s; datatype: %s", configurationId, CalculationMethod.convertCalculationMethodToString ( calculationMethod ), detailLevelId, startTime, endTime, proposedDataAge, acceptedFutureTime, dataType );
+        return String.format ( "configurationId: %s; calculationMethod: %s; detailLevel: %s; startTime: %s; endTime: %s; proposedDataAge: %s; acceptedFutureTime: %s; datatype: %s", configurationId, CalculationMethod.convertCalculationMethodToString ( calculationMethod ), detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, dataType );
     }
 }
