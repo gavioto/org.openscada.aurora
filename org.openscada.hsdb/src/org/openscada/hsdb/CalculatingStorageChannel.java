@@ -9,7 +9,7 @@ import org.openscada.hsdb.datatypes.BaseValue;
 import org.openscada.hsdb.datatypes.DataType;
 import org.openscada.hsdb.datatypes.DoubleValue;
 import org.openscada.hsdb.datatypes.LongValue;
-import org.openscada.hsdb.utils.ValueArrayNormalizer;
+import org.openscada.hsdb.utils.HsdbHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,7 +244,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             {
                 final long startTime = getTimeSpanStart ( time );
                 startTimes.add ( startTime );
-                final long nextTime = latestProcessedTime + requiredTimespanForCalculation;
+                final long nextTime = startTime + requiredTimespanForCalculation;
                 if ( nextTime < futureLatestProcessedTime )
                 {
                     startTimes.add ( nextTime );
@@ -299,7 +299,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             while ( blockStart < maxEndTime )
             {
                 final long blockEnd = blockStart + blockTimeSpan;
-                final BaseValue[] valueBlock = ValueArrayNormalizer.extractSubArray ( values, blockStart, blockEnd, 0, emptyArray );
+                final BaseValue[] valueBlock = HsdbHelper.extractSubArray ( values, blockStart, blockEnd, 0, emptyArray );
                 if ( valueBlock.length == 0 )
                 {
                     break;

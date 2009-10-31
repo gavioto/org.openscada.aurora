@@ -20,7 +20,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     protected final static int TIMESPAN_FOR_CALCULATION_INDEX = 0;
 
     /** Default value of the calculation time span. */
-    protected final static long TIMESPAN_FOR_CALCULATION_DEFAULT = 1000;
+    protected final static long TIMESPAN_FOR_CALCULATION_DEFAULT = 1;
 
     /** Data type of the input values. */
     private final DataType inputDataType;
