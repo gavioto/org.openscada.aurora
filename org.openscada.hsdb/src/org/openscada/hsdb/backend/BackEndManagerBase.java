@@ -15,7 +15,6 @@ import org.openscada.hsdb.calculation.CalculationLogicProviderFactoryImpl;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.configuration.Configuration;
 import org.openscada.hsdb.configuration.Conversions;
-import org.openscada.hsdb.datatypes.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,6 +170,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         final long fragmentCount = Conversions.parseLong ( data.get ( Configuration.MANAGER_KNOWN_FRAGMENTS_COUNT ), 0 );
         final String configurationId = configuration.getId ();
+        boolean updateConfiguration = false;
         for ( long i = 0; i < fragmentCount; i++ )
         {
             try
@@ -197,7 +197,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 {
                     throw new Exception ( String.format ( "invalid file name specified for file with index %s", i ) );
                 }
-
                 final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
                 backEndFragmentInformation.setConfigurationId ( configurationId );
                 backEndFragmentInformation.setCalculationMethod ( calculationMethod );
@@ -205,14 +204,23 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 backEndFragmentInformation.setStartTime ( startTime );
                 backEndFragmentInformation.setEndTime ( endTime );
                 backEndFragmentInformation.setFragmentName ( fragmentName );
-                backEndFragmentInformation.setIsCorrupt ( isCorrupt );
-
+                final boolean mergedCorruptFlag = isCorrupt || checkIsBackEndCorrupt ( backEndFragmentInformation );
+                backEndFragmentInformation.setIsCorrupt ( mergedCorruptFlag );
                 addBackEndFragmentInformation ( backEndFragmentInformation, i == fragmentCount - 1 );
+                if ( !isCorrupt && mergedCorruptFlag )
+                {
+                    logger.error ( String.format ( "back end fragment '%s' for configuration '%s' has been marked as corrupt", fragmentName, configurationId ) );
+                    updateConfiguration = true;
+                }
             }
             catch ( final Exception e )
             {
                 logger.error ( String.format ( "invalid configuration set detected - will be ignored (%s)", configurationId ) );
             }
+        }
+        if ( updateConfiguration )
+        {
+            flushConfiguration ();
         }
     }
 
@@ -282,27 +290,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     public CalculationMethod[] getCalculationMethods ()
     {
         return calculationMethods.clone ();
-    }
-
-    /**
-     * This method returns the default meta data information object for the specified input data.
-     * @param detailLevelId id of the detail level
-     * @param calculationMethod calculation method
-     * @return meta data information object for the specified input data
-     */
-    protected StorageChannelMetaData getDefaultStorageChannelMetaData ( final long detailLevelId, final CalculationMethod calculationMethod )
-    {
-        final String configurationId = configuration.getId ();
-        Map<String, String> data = configuration.getData ();
-        if ( data == null )
-        {
-            data = new HashMap<String, String> ();
-        }
-        final long[] calculationMethodParameters = detailLevelId == 0 ? new long[0] : new long[] { Conversions.decodeTimeSpan ( configuration.getData ().get ( Configuration.COMPRESSION_TIMESPAN_KEY_PREFIX + detailLevelId ) ) };
-        final long proposedDataAge = Conversions.decodeTimeSpan ( data.get ( Configuration.PROPOSED_DATA_AGE_KEY_PREFIX + detailLevelId ) );
-        final long acceptedTimeDelta = Conversions.decodeTimeSpan ( data.get ( Configuration.ACCEPTED_TIME_DELTA_KEY + detailLevelId ) );
-        final DataType dataType = DataType.convertShortStringToDataType ( data.get ( Configuration.DATA_TYPE_KEY ) );
-        return new StorageChannelMetaData ( configurationId, calculationMethod, calculationMethodParameters, detailLevelId, Long.MIN_VALUE, Long.MAX_VALUE, proposedDataAge, acceptedTimeDelta, dataType );
     }
 
     /**
@@ -651,6 +638,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @throws Exception in case of problems
      */
     protected abstract B createBackEnd ( final BackEndFragmentInformation<B> backEndInformation, final boolean initialize ) throws Exception;
+
+    /**
+     * This method checkd whether the passed back end fragment is corrupt or not.
+     * @param backEndInformation object to be checked
+     * @return true, if the passed back end fragment is corrupt, otherwise false
+     */
+    protected abstract boolean checkIsBackEndCorrupt ( final BackEndFragmentInformation<B> backEndInformation );
 
     /**
      * This method deletes the passed back end fragment.
