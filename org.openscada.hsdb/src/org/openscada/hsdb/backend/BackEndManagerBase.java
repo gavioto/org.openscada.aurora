@@ -342,7 +342,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * That root channel will be returned as result of the method.
      * @return root channel of the built tree
      */
-    public CalculatingStorageChannel buildStorageChannelTree ()
+    public synchronized CalculatingStorageChannel buildStorageChannelTree ()
     {
         // optimize calculation
         if ( ( storageChannels != null ) && ( storageChannels.length > 0 ) )
@@ -407,7 +407,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#releaseStorageChannelTree()
      */
-    public void releaseStorageChannelTree ()
+    public synchronized void releaseStorageChannelTree ()
     {
         deinitializeBackEnds ( storageChannelTreeBackEnds );
         storageChannelTreeBackEnds.clear ();
@@ -417,7 +417,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#delete()
      */
-    public void delete ()
+    public synchronized void delete ()
     {
         backEndManagerFactory.delete ( configuration );
     }
@@ -465,7 +465,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#getBackEndForInsert(java.lang.Object, long, org.openscada.hsdb.calculation.CalculationMethod, long)
      */
-    public B getBackEndForInsert ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp ) throws Exception
+    public synchronized B getBackEndForInsert ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp ) throws Exception
     {
         final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1 );
         BackEndFragmentInformation<B> result;
@@ -544,7 +544,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#getExistingBackEnds(java.lang.Object, long, org.openscada.hsdb.calculation.CalculationMethod, long, long)
      */
-    public B[] getExistingBackEnds ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime ) throws Exception
+    public synchronized B[] getExistingBackEnds ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime ) throws Exception
     {
         final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, startTime, endTime );
         final List<B> result = new ArrayList<B> ();
@@ -562,7 +562,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#deleteOldBackEnds(long, org.openscada.hsdb.calculation.CalculationMethod, long)
      */
-    public void deleteOldBackEnds ( final long detailLevelId, final CalculationMethod calculationMethod, final long endTime )
+    public synchronized void deleteOldBackEnds ( final long detailLevelId, final CalculationMethod calculationMethod, final long endTime )
     {
         final List<BackEndFragmentInformation<B>> backEndFragmentInformationToDelete = new ArrayList<BackEndFragmentInformation<B>> ();
         final Map<CalculationMethod, List<BackEndFragmentInformation<B>>> map = masterBackEnds.get ( detailLevelId );
@@ -606,7 +606,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#markBackEndAsCorrupt(long, org.openscada.hsdb.calculation.CalculationMethod, long)
      */
-    public void markBackEndAsCorrupt ( final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp )
+    public synchronized void markBackEndAsCorrupt ( final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp )
     {
         final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1 );
         boolean statusChanged = false;
@@ -628,7 +628,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#repairBackEndFragmentsIfRequired(AbortNotificator)
      */
-    public boolean repairBackEndFragmentsIfRequired ( final AbortNotificator abortNotificator )
+    public synchronized boolean repairBackEndFragmentsIfRequired ( final AbortNotificator abortNotificator )
     {
         if ( corruptFilesExist )
         {
