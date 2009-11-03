@@ -54,10 +54,10 @@ public class StorageChannelMetaData
      * @param startTime time stamp of first possible entry of the channel
      * @param endTime time stamp of first entry that will not be stored in the channel
      * @param proposedDataAge age of the data in milliseconds a stored data should be kept available
-     * @param acceptedFutureTime maximum time in milliseconds the new value can differ from the current time in order to be processed
+     * @param acceptedTimeDelta maximum time in milliseconds the new value can differ from the current time in order to be processed
      * @param dataType data type of the stored values
      */
-    public StorageChannelMetaData ( final String configurationId, final CalculationMethod calculationMethod, final long[] calculationMethodParameters, final long detailLevelId, final long startTime, final long endTime, final long proposedDataAge, final long acceptedFutureTime, final DataType dataType )
+    public StorageChannelMetaData ( final String configurationId, final CalculationMethod calculationMethod, final long[] calculationMethodParameters, final long detailLevelId, final long startTime, final long endTime, final long proposedDataAge, final long acceptedTimeDelta, final DataType dataType )
     {
         this.configurationId = configurationId;
         this.calculationMethod = calculationMethod;
@@ -66,7 +66,7 @@ public class StorageChannelMetaData
         this.startTime = startTime;
         this.endTime = endTime;
         this.proposedDataAge = proposedDataAge;
-        this.acceptedTimeDelta = acceptedFutureTime;
+        this.acceptedTimeDelta = acceptedTimeDelta;
         this.dataType = dataType;
     }
 

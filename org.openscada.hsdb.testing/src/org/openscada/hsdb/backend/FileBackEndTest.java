@@ -3,6 +3,7 @@ package org.openscada.hsdb.backend;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.URLEncoder;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,8 +27,9 @@ public class FileBackEndTest extends BackEndTestBase
     @Override
     protected BackEnd createBackEnd ( final StorageChannelMetaData metaData ) throws Exception
     {
-        final BackEnd backEnd = new FileBackEnd ( URLEncoder.encode ( metaData.getConfigurationId (), "utf-8" ) + ".va", false );
-        backEnd.delete ();
+        final FileBackEnd backEnd = new FileBackEnd ( URLEncoder.encode ( metaData.getConfigurationId (), "utf-8" ) + ".va", false );
+        new File ( backEnd.getFileName () ).delete ();
+        backEnd.setLock ( new ReentrantReadWriteLock () );
         backEnd.create ( metaData );
         backEnd.initialize ( metaData );
         return backEnd;
@@ -42,11 +44,12 @@ public class FileBackEndTest extends BackEndTestBase
     {
         final long value = 1L;
         final File file = new File ( "test.txt" );
-        final RandomAccessFile raf1 = new RandomAccessFile ( file, "rwd" );
+        final RandomAccessFile raf1 = new RandomAccessFile ( file, "rw" );
         final RandomAccessFile raf2 = new RandomAccessFile ( file, "r" );
         raf1.seek ( 0L );
         raf2.seek ( 0L );
         raf1.writeLong ( value );
+        raf1.getChannel ().force ( false );
         Assert.assertTrue ( raf1.length () == 8 );
         Assert.assertTrue ( raf2.readLong () == value );
         raf2.close ();
@@ -75,7 +78,20 @@ public class FileBackEndTest extends BackEndTestBase
         final LongValue[] result3 = backEnd.getLongValues ( MAX_COUNT - 2, MAX_COUNT - 1 );
         Assert.assertEquals ( 1, result3.length );
         Assert.assertEquals ( 1, result3[0].getValue () );
-        backEnd.deinitialize ();
-        backEnd.delete ();
+    }
+
+    /**
+     * This method cleans all artifacts that have been created during a test run.
+     * @throws Exception in case of problems
+     */
+    @Override
+    public void cleanup () throws Exception
+    {
+        if ( backEnd instanceof FileBackEnd )
+        {
+            final String fileName = ( (FileBackEnd)backEnd ).getFileName ();
+            super.cleanup ();
+            new File ( fileName ).delete ();
+        }
     }
 }

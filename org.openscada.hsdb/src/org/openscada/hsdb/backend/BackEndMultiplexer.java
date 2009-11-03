@@ -6,10 +6,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openscada.hsdb.StorageChannelMetaData;
-import org.openscada.hsdb.backend.internal.InverseTimeOrderComparator;
-import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.datatypes.LongValue;
 import org.openscada.hsdb.relict.RelictCleaner;
 import org.slf4j.Logger;
@@ -28,46 +27,29 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
     /** Metadata of the storage channel. */
     private StorageChannelMetaData metaData;
 
-    /** Factory that is used to create new fractal backend objects. */
-    private final BackEndFactory backEndFactory;
-
-    /** List of currently available backend objects. The elements are sorted by time span. The latest element is placed first. */
-    private final List<BackEnd> backEnds;
-
-    /** Amount of milliseconds that can be contained by any newly created storage channel backend. */
-    private final long newBackendTimespan;
+    /** Manager that is used to create and access backend objects. */
+    private final BackEndManager<? extends BackEnd> backEndManager;
 
     /** Flag indicating whether the instance has been initialized or not. */
     private boolean initialized;
 
     /**
      * Constructor.
-     * @param backEndFactory factory that is used to create new fractal backend objects
-     * @param newBackendTimespan timespan that is used when a new backend fragment has to be created
+     * @param backEndManager manager that is used to create and access backend objects
      */
-    public BackEndMultiplexer ( final BackEndFactory backEndFactory, final long newBackendTimespan )
+    public BackEndMultiplexer ( final BackEndManager<? extends BackEnd> backEndManager )
     {
-        this.backEndFactory = backEndFactory;
-        this.newBackendTimespan = newBackendTimespan < 1 ? 1 : newBackendTimespan;
-        backEnds = new LinkedList<BackEnd> ();
+        this.backEndManager = backEndManager;
         initialized = false;
     }
 
     /**
-     * @see org.openscada.hsdb.backend.BackEnd#create
+     * This method returns the manager that is used to create and access backend objects
+     * @return manager that is used to create and access backend objects
      */
-    public synchronized void create ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
+    public BackEndManager<? extends BackEnd> getBackEndManager ()
     {
-        // assure that no old data exists
-        if ( backEndFactory.getExistingBackEnds ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getCalculationMethod () ).length > 0 )
-        {
-            final String message = String.format ( "data already exists for combination! (configuration id: '%s'; detail level: '%d'; calculation method: '%s')", storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), CalculationMethod.convertCalculationMethodToString ( storageChannelMetaData.getCalculationMethod () ) );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
-
-        // create new backend
-        getBackEnd ( storageChannelMetaData.getStartTime () );
+        return this.backEndManager;
     }
 
     /**
@@ -76,29 +58,16 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
     public synchronized void initialize ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
     {
         deinitialize ();
-        backEnds.clear ();
-        final BackEnd[] backEndArray = backEndFactory.getExistingBackEnds ( storageChannelMetaData.getConfigurationId (), storageChannelMetaData.getDetailLevelId (), storageChannelMetaData.getCalculationMethod () );
         initialized = true;
-        for ( final BackEnd backEnd : backEndArray )
-        {
-            backEnd.initialize ( storageChannelMetaData );
-        }
-        Arrays.sort ( backEndArray, new InverseTimeOrderComparator () );
-        backEnds.addAll ( Arrays.asList ( backEndArray ) );
         metaData = new StorageChannelMetaData ( storageChannelMetaData );
     }
 
     /**
-     * @see org.openscada.hsdb.relict.RelictCleaner#cleanupRelicts
+     * @see org.openscada.hsdb.relict.RelictCleaner#cleanupRelicts()
      */
-    public synchronized void cleanupRelicts ()
+    public void cleanupRelicts () throws Exception
     {
-        // if only one back end remains, then no more data is deleted
         logger.debug ( "deleting old data... start" );
-        if ( metaData == null )
-        {
-            return;
-        }
         try
         {
             // assure that at least the last two values remain
@@ -116,74 +85,14 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                 return;
             }
 
-            // delete all sub back ends that are older than the newest value that is older than the proposed data age
-            final long timeToDelete = lastValues[0].getTime () - 1;
-            final int startIndex = backEnds.size () - 1;
-            for ( int i = startIndex; i >= 1; i-- )
-            {
-                final BackEnd backEnd = backEnds.get ( i );
-                if ( backEnd != null )
-                {
-                    StorageChannelMetaData subMetaData = null;
-                    try
-                    {
-                        subMetaData = backEnd.getMetaData ();
-                        if ( ( subMetaData == null ) || ( subMetaData.getEndTime () <= timeToDelete ) )
-                        {
-                            try
-                            {
-                                logger.info ( String.format ( "deleting relict data (%s) by BackEndMultiplexor (%s)! ", subMetaData, metaData ) );
-                                backEnd.delete ();
-                            }
-                            catch ( final Exception e1 )
-                            {
-                                logger.warn ( String.format ( "relict data (%s) could not be deleted by BackEndMultiplexor (%s)! ", subMetaData, metaData ), e1 );
-                            }
-                            backEnds.remove ( i );
-                        }
-                        else
-                        {
-                            // since the array of back ends is sorted, no older entries will be found during further iteration steps
-                            break;
-                        }
-                    }
-                    catch ( final Exception e )
-                    {
-                        logger.warn ( String.format ( "metadata of sub backend could not be accessed! (%s)", metaData ), e );
-                    }
-                }
-            }
+            // delete old back ends
+            backEndManager.deleteOldBackEnds ( metaData.getDetailLevelId (), metaData.getCalculationMethod (), lastValues[0].getTime () - 1 );
         }
         catch ( final Exception e )
         {
             logger.error ( "unable to retrieve latest value", e );
         }
-
-        // update meta data information
-        try
-        {
-            updateMetaData ();
-        }
-        catch ( final Exception e )
-        {
-            logger.error ( "could not update meta data", e );
-        }
         logger.debug ( "deleting old data... end" );
-    }
-
-    /**
-     * This method updates the time span of the global meta data object according to the currently available back end fragments.
-     * @throws Exception in case of problems accessing the meta data objects of the back end fragments
-     */
-    private void updateMetaData () throws Exception
-    {
-        if ( !backEnds.isEmpty () )
-        {
-            final StorageChannelMetaData first = backEnds.get ( 0 ).getMetaData ();
-            final StorageChannelMetaData last = backEnds.get ( backEnds.size () - 1 ).getMetaData ();
-            metaData.setStartTime ( Math.min ( metaData.getStartTime (), last.getStartTime () ) );
-            metaData.setEndTime ( Math.max ( metaData.getEndTime (), first.getEndTime () ) );
-        }
     }
 
     /**
@@ -209,31 +118,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
     public synchronized void deinitialize () throws Exception
     {
         initialized = false;
-        for ( final BackEnd backEnd : backEnds )
-        {
-            try
-            {
-                backEnd.deinitialize ();
-            }
-            catch ( final Exception e )
-            {
-                logger.warn ( String.format ( "sub back end of '%s' could not be deinitialized", metaData ), e );
-            }
-        }
         metaData = null;
-    }
-
-    /**
-     * @see org.openscada.hsdb.backend.BackEnd#delete
-     */
-    public synchronized void delete () throws Exception
-    {
-        assureInitialized ();
-        for ( final BackEnd backEnd : backEnds )
-        {
-            backEnd.delete ();
-        }
-        backEnds.clear ();
     }
 
     /**
@@ -251,104 +136,6 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
     }
 
     /**
-     * This method creates a new back end object using the back end factory, creates and initializes the object's data, adds the object to the back end list and returns a reference to the newly created object.
-     * @param startTime start time of the newly created back end object
-     * @param endTime end time of the newly created back end object
-     * @param index insertion index of the new object in the list of back end objects
-     * @return reference to the newly created object
-     * @throws Exception in case of any problem
-     */
-    private BackEnd createAndAddNewBackEnd ( final long startTime, final long endTime, final int index ) throws Exception
-    {
-        final StorageChannelMetaData storageChannelMetaData = new StorageChannelMetaData ( metaData );
-        storageChannelMetaData.setStartTime ( startTime );
-        storageChannelMetaData.setEndTime ( endTime );
-        logger.debug ( String.format ( "creating new backend: config=%s start=%s stop=%s", metaData.getConfigurationId (), startTime, endTime ) );
-        final BackEnd backEnd = backEndFactory.createNewBackEnd ( storageChannelMetaData );
-        backEnd.create ( storageChannelMetaData );
-        backEnd.initialize ( storageChannelMetaData );
-        backEnds.add ( index, backEnd );
-        updateMetaData ();
-        return backEnd;
-    }
-
-    /**
-     * This method returns the backend that is able to process data with the passed timestamp.
-     * If no suitable backend currently exists, a new one will be created using the backend factory.
-     * @param timestamp timestam for which a storage channel backend has to be retrieved
-     * @return backend that is able to process data with the passed timestamp
-     * @throws Exception in case of any problem
-     */
-    private BackEnd getBackEnd ( final long timestamp ) throws Exception
-    {
-        // search within the array of existing storage channel backends for a suitable channel
-        long maxEndTime = Long.MAX_VALUE;
-        final long size = backEnds.size ();
-        BackEnd backEnd = null;
-        for ( int i = 0; i < size; i++ )
-        {
-            backEnd = backEnds.get ( i );
-            final StorageChannelMetaData metaData = backEnd.getMetaData ();
-            long startTime = metaData.getStartTime ();
-            if ( startTime <= timestamp )
-            {
-                // check if an existing backend can be used
-                long endTime = metaData.getEndTime ();
-                if ( endTime > timestamp )
-                {
-                    return backEnd;
-                }
-
-                // calculate new start time and end time for new backend fragment
-                startTime = endTime;
-                final long index = ( timestamp - startTime ) / newBackendTimespan;
-                if ( index > 0 )
-                {
-                    startTime += index * newBackendTimespan;
-                }
-                endTime = Math.min ( startTime + newBackendTimespan, maxEndTime );
-                if ( endTime <= startTime )
-                {
-                    final String message = "end time cannot be before start time when creating a new storage channel backend fragment";
-                    logger.error ( message );
-                    throw new Exception ( message );
-                }
-
-                // a new backend has to be created
-                return createAndAddNewBackEnd ( startTime, endTime, i );
-            }
-            maxEndTime = startTime;
-        }
-
-        // create a new backend channel with a completely independent timespan, since no channel exists
-        final long startTime = timestamp - ( timestamp % newBackendTimespan );
-        return createAndAddNewBackEnd ( startTime, Math.min ( maxEndTime, startTime + this.newBackendTimespan ), backEnds.size () );
-    }
-
-    /**
-     * This method removes backend objects from the internal list.
-     * @param backEndsToRemove backend objects that have to be removed
-     */
-    private void removeBackEnds ( final List<BackEnd> backEndsToRemove ) throws Exception
-    {
-        for ( final BackEnd backEnd : backEndsToRemove )
-        {
-            try
-            {
-                backEnds.remove ( backEnd );
-                backEnd.deinitialize ();
-            }
-            catch ( final Exception e )
-            {
-            }
-        }
-        if ( !backEndsToRemove.isEmpty () )
-        {
-            updateMetaData ();
-        }
-    }
-
-    /**
      * @see org.openscada.hsdb.StorageChannel#updateLong
      */
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
@@ -358,11 +145,14 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         {
             try
             {
-                getBackEnd ( longValue.getTime () ).updateLong ( longValue );
+                final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
+                backEnd.updateLong ( longValue );
+                backEnd.deinitialize ();
             }
             catch ( final Exception e )
             {
                 logger.error ( String.format ( "backend (%s): could not write to sub backend (startTime: %s)", metaData, longValue.getTime () ), e );
+                backEndManager.markBackEndAsCorrupt ( this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
             }
         }
     }
@@ -382,11 +172,15 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                 long startTime = 0L;
                 try
                 {
-                    startTime = getBackEnd ( longValue.getTime () ).getMetaData ().getStartTime ();
+                    final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
+                    final StorageChannelMetaData metaData = backEnd.getMetaData ();
+                    startTime = metaData.getStartTime ();
+                    backEnd.deinitialize ();
                 }
                 catch ( final Exception e )
                 {
                     logger.error ( String.format ( "backend (%s): could not access sub backend (startTime: %s)", metaData, longValue.getTime () ), e );
+                    backEndManager.markBackEndAsCorrupt ( this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
                 }
                 List<LongValue> longValuesToProcess = backends.get ( startTime );
                 if ( longValuesToProcess == null )
@@ -402,11 +196,14 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
             {
                 try
                 {
-                    getBackEnd ( entry.getKey () ).updateLongs ( entry.getValue ().toArray ( EMPTY_LONGVALUE_ARRAY ) );
+                    final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), entry.getKey () );
+                    backEnd.updateLongs ( entry.getValue ().toArray ( EMPTY_LONGVALUE_ARRAY ) );
+                    backEnd.deinitialize ();
                 }
                 catch ( final Exception e )
                 {
                     logger.error ( String.format ( "backend (%s): could not write to sub backend (startTime: %s)", metaData, entry.getKey () ), e );
+                    backEndManager.markBackEndAsCorrupt ( this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), entry.getKey () );
                 }
             }
         }
@@ -422,71 +219,102 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
 
         // collect result data
         final List<LongValue> longValues = new LinkedList<LongValue> ();
-        final List<BackEnd> backEndsToRemove = new ArrayList<BackEnd> ();
-        for ( final BackEnd backEnd : backEnds )
+        final BackEnd[] backEnds = backEndManager.getExistingBackEnds ( this, metaData.getDetailLevelId (), metaData.getCalculationMethod (), startTime, endTime );
+        try
         {
-            try
+            for ( final BackEnd backEnd : backEnds )
             {
-                final StorageChannelMetaData metaData = backEnd.getMetaData ();
-                final long metaDataStartTime = metaData.getStartTime ();
-                final long metaDataEndTime = metaData.getEndTime ();
                 try
                 {
-                    if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
+                    final StorageChannelMetaData metaData = backEnd.getMetaData ();
+                    final long metaDataStartTime = metaData.getStartTime ();
+                    final long metaDataEndTime = metaData.getEndTime ();
+                    try
                     {
-                        // process values that match the time span
-                        longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
-                    }
-                    if ( startTime >= metaDataEndTime )
-                    {
-                        final LongValue[] olderValues = backEnd.getLongValues ( startTime, endTime );
-                        if ( olderValues.length > 0 )
+                        if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
                         {
-                            longValues.addAll ( 0, Arrays.asList ( olderValues ) );
+                            // process values that match the time span
+                            longValues.addAll ( 0, Arrays.asList ( backEnd.getLongValues ( startTime, endTime ) ) );
+                        }
+                        if ( startTime >= metaDataEndTime )
+                        {
+                            final LongValue[] olderValues = backEnd.getLongValues ( startTime, endTime );
+                            if ( olderValues.length > 0 )
+                            {
+                                longValues.addAll ( 0, Arrays.asList ( olderValues ) );
+                            }
+                        }
+                        if ( !longValues.isEmpty () && longValues.get ( 0 ).getTime () <= startTime )
+                        {
+                            break;
                         }
                     }
-                    if ( !longValues.isEmpty () && longValues.get ( 0 ).getTime () <= startTime )
+                    catch ( final Exception e )
                     {
-                        break;
+                        final String message = String.format ( "backend (%s): could not read from sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
+                        if ( startTime < ( System.currentTimeMillis () - metaData.getProposedDataAge () ) )
+                        {
+                            logger.info ( message + " - backend is probably outdated", e );
+                        }
+                        else
+                        {
+                            logger.error ( message, e );
+                        }
+                        backEndManager.markBackEndAsCorrupt ( metaData.getDetailLevelId (), metaData.getCalculationMethod (), metaData.getStartTime () );
+                        longValues.add ( 0, new LongValue ( metaDataStartTime, 0, 0, 0, 0 ) );
+                        if ( metaDataStartTime <= startTime )
+                        {
+                            break;
+                        }
                     }
                 }
-                catch ( final Exception e )
+                catch ( final Exception e1 )
                 {
-                    final String message = String.format ( "backend (%s): could not read from sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
+                    final String message = String.format ( "backend (%s): could not access sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
                     if ( startTime < ( System.currentTimeMillis () - metaData.getProposedDataAge () ) )
                     {
-                        logger.info ( message + " - backend is probably outdated", e );
+                        logger.info ( message + " - backend is probably outdated", e1 );
                     }
                     else
                     {
-                        logger.error ( message, e );
-                    }
-                    longValues.add ( 0, new LongValue ( metaDataStartTime, 0, 0, 0, 0 ) );
-                    if ( metaDataStartTime <= startTime )
-                    {
-                        break;
+                        logger.error ( message, e1 );
                     }
                 }
             }
-            catch ( final Exception e1 )
+        }
+        finally
+        {
+            for ( final BackEnd backEnd : backEnds )
             {
-                backEndsToRemove.add ( backEnd );
-                final String message = String.format ( "backend (%s): could not access sub backend (startTime: %s; endTime: %s)", metaData, startTime, endTime );
-                if ( startTime < ( System.currentTimeMillis () - metaData.getProposedDataAge () ) )
+                try
                 {
-                    logger.info ( message + " - backend is probably outdated", e1 );
+                    backEnd.deinitialize ();
                 }
-                else
+                catch ( final Exception e )
                 {
-                    logger.error ( message, e1 );
+                    logger.warn ( "could not deinitialize back end", e );
                 }
             }
         }
 
-        // remove problematic backends
-        removeBackEnds ( backEndsToRemove );
-
         // return final result
         return longValues.toArray ( EMPTY_LONGVALUE_ARRAY );
+    }
+
+    /**
+     * This instance does not support locking logic.
+     * @see org.openscada.hsdb.backend.BackEnd#setLock(ReentrantReadWriteLock)
+     */
+    public void setLock ( final ReentrantReadWriteLock lock )
+    {
+    }
+
+    /**
+     * This instance does not support locking logic.
+     * @see org.openscada.hsdb.backend.BackEnd#getLock()
+     */
+    public ReentrantReadWriteLock getLock ()
+    {
+        return null;
     }
 }

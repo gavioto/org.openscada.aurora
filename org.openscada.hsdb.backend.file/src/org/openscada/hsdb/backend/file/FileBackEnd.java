@@ -10,7 +10,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.CRC32;
 
 import org.openscada.hsdb.StorageChannelMetaData;
@@ -78,19 +80,27 @@ public class FileBackEnd implements BackEnd
     /** Flag indicating whether the instance has been initialized or not. */
     private boolean initialized;
 
+    /** Synchronization object that should be used when reading or writing data. */
+    private ReentrantReadWriteLock lock;
+
+    /** Flag indicating whether the back end contains data or not. */
+    private boolean isEmpty;
+
     /**
      * Constructor expecting the configuration of the file backend.
      * @param fileName name of the existing file that is used to store data
-     * @param keepUpenWhileInitialized true, if the file connection should be kept open while the state of the instance is initialized, otherwise false
+     * @param keepOpenWhileInitialized true, if the file connection should be kept open while the state of the instance is initialized, otherwise false
      */
-    public FileBackEnd ( final String fileName, final boolean keepUpenWhileInitialized )
+    public FileBackEnd ( final String fileName, final boolean keepOpenWhileInitialized )
     {
         this.fileName = fileName;
         this.file = new File ( fileName );
-        this.keepUpenWhileInitialized = keepUpenWhileInitialized;
+        this.keepUpenWhileInitialized = keepOpenWhileInitialized;
         this.metaData = null;
         this.openInWriteMode = false;
         this.initialized = false;
+        this.lock = null;
+        this.isEmpty = true;
         if ( fileName == null || fileName.trim ().length () == 0 )
         {
             throw new IllegalArgumentException ( "invalid filename passed via configuration" );
@@ -98,7 +108,46 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
-     * @see org.openscada.hsdb.backend.BackEnd#create
+     * This method returns the name of the file of the back end object.
+     * @return name of the file of the back end object
+     */
+    public String getFileName ()
+    {
+        return fileName;
+    }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEnd#setLock(ReentrantReadWriteLock)
+     */
+    public void setLock ( final ReentrantReadWriteLock lock )
+    {
+        this.lock = lock;
+    }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEnd#getLock()
+     */
+    public ReentrantReadWriteLock getLock ()
+    {
+        return lock;
+    }
+
+    /**
+     * This method returns the information whether the file contains any data or not.
+     * This information is only available as long as the instance is initialized
+     * @return true if the file contains any data otherwise false
+     * @throws Exception if the instance is not initialized
+     */
+    public boolean getIsEmpty () throws Exception
+    {
+        assureInitialized ();
+        return isEmpty;
+    }
+
+    /**
+     * This method creates a new file using the passed meta data as input for the header information of the file.
+     * @param storageChannelMetaData meta data that will be used as input for the header information of the file
+     * @throws Exception if the file could not be created or the header information could not be written
      */
     public synchronized void create ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
     {
@@ -150,27 +199,8 @@ public class FileBackEnd implements BackEnd
             throw new Exception ( message );
         }
 
-        // write standardized file header to file
-        openConnection ( true );
-        this.randomAccessFile.seek ( 0L );
+        // calculate parity
         final long dataOffset = ( 11 + calculationMethodParameters.length ) * 8 + configurationIdBytes.length + 4;
-        this.randomAccessFile.writeLong ( FILE_MARKER );
-        this.randomAccessFile.writeLong ( dataOffset );
-        this.randomAccessFile.writeLong ( FILE_VERSION );
-        this.randomAccessFile.writeLong ( detailLevelId );
-        this.randomAccessFile.writeLong ( startTime );
-        this.randomAccessFile.writeLong ( endTime );
-        this.randomAccessFile.writeLong ( proposedDataAge );
-        this.randomAccessFile.writeLong ( acceptedTimeDelta );
-        this.randomAccessFile.writeLong ( dataType );
-        this.randomAccessFile.writeLong ( calculationMethodId );
-        this.randomAccessFile.writeInt ( calculationMethodParameters.length );
-        this.randomAccessFile.writeInt ( configurationIdBytes.length );
-        for ( int i = 0; i < calculationMethodParameters.length; i++ )
-        {
-            this.randomAccessFile.writeLong ( calculationMethodParameters[i] );
-        }
-        this.randomAccessFile.write ( configurationIdBytes );
         final CRC32 crc32 = new CRC32 ();
         final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset - 12 );
         byteBuffer.putLong ( dataOffset );
@@ -190,8 +220,76 @@ public class FileBackEnd implements BackEnd
         }
         byteBuffer.put ( configurationIdBytes );
         crc32.update ( byteBuffer.array () );
-        this.randomAccessFile.writeInt ( (int)crc32.getValue () );
+        final int parity = (int)crc32.getValue ();
+
+        // write standardized file header to file
+        if ( lock != null )
+        {
+            lock.writeLock ().lock ();
+        }
+        try
+        {
+            openConnection ( true );
+            this.randomAccessFile.seek ( 0L );
+            this.randomAccessFile.writeLong ( FILE_MARKER );
+            this.randomAccessFile.writeLong ( dataOffset );
+            this.randomAccessFile.writeLong ( FILE_VERSION );
+            this.randomAccessFile.writeLong ( detailLevelId );
+            this.randomAccessFile.writeLong ( startTime );
+            this.randomAccessFile.writeLong ( endTime );
+            this.randomAccessFile.writeLong ( proposedDataAge );
+            this.randomAccessFile.writeLong ( acceptedTimeDelta );
+            this.randomAccessFile.writeLong ( dataType );
+            this.randomAccessFile.writeLong ( calculationMethodId );
+            this.randomAccessFile.writeInt ( calculationMethodParameters.length );
+            this.randomAccessFile.writeInt ( configurationIdBytes.length );
+            for ( int i = 0; i < calculationMethodParameters.length; i++ )
+            {
+                this.randomAccessFile.writeLong ( calculationMethodParameters[i] );
+            }
+            this.randomAccessFile.write ( configurationIdBytes );
+            this.randomAccessFile.writeInt ( parity );
+            if ( lock != null )
+            {
+                this.randomAccessFile.getChannel ().force ( false );
+            }
+        }
+        finally
+        {
+            if ( lock != null )
+            {
+                this.randomAccessFile.getChannel ().force ( false );
+                lock.writeLock ().unlock ();
+            }
+        }
         closeIfRequired ();
+    }
+
+    /**
+     * This method deletes the related file.
+     */
+    public void delete ()
+    {
+        if ( lock != null )
+        {
+            lock.writeLock ().lock ();
+        }
+        if ( file.exists () )
+        {
+            logger.info ( String.format ( "deleting existing file '%s'...", this.fileName ) );
+            if ( file.delete () )
+            {
+                logger.info ( String.format ( "deletion of file '%s' successful", this.fileName ) );
+            }
+            else
+            {
+                logger.warn ( String.format ( "deletion of file '%s' failed", this.fileName ) );
+            }
+        }
+        if ( lock != null )
+        {
+            lock.writeLock ().unlock ();
+        }
     }
 
     /**
@@ -201,7 +299,15 @@ public class FileBackEnd implements BackEnd
     {
         this.metaData = null;
         this.initialized = true;
-        getMetaData ();
+        try
+        {
+            getMetaData ();
+        }
+        catch ( final Exception e )
+        {
+            initialized = false;
+            throw new Exception ( e.getMessage (), e );
+        }
         closeIfRequired ();
     }
 
@@ -250,29 +356,7 @@ public class FileBackEnd implements BackEnd
         closeConnection ();
         this.initialized = false;
         this.metaData = null;
-    }
-
-    /**
-     * @see org.openscada.hsdb.backend.BackEnd#delete
-     */
-    public synchronized void delete () throws Exception
-    {
-        // assure that any previous open connection is closed
-        closeConnection ();
-
-        // delete old file if any exists
-        if ( file.exists () )
-        {
-            logger.info ( String.format ( "deleting existing file '%s'...", this.fileName ) );
-            if ( file.delete () )
-            {
-                logger.info ( String.format ( "deletion of file '%s' successful", this.fileName ) );
-            }
-            else
-            {
-                logger.warn ( String.format ( "deletion of file '%s' failed", this.fileName ) );
-            }
-        }
+        this.isEmpty = true;
     }
 
     /**
@@ -297,100 +381,115 @@ public class FileBackEnd implements BackEnd
      */
     private StorageChannelMetaData extractMetaData () throws Exception
     {
-        this.randomAccessFile.seek ( 0L );
-        final long fileSize = this.randomAccessFile.length ();
-        if ( fileSize < 16 )
+        if ( lock != null )
         {
-            final String message = String.format ( "file '%s' is of invalid format! (too small)", this.fileName );
-            logger.error ( message );
-            throw new Exception ( message );
+            lock.readLock ().lock ();
         }
-        final long fileMarker = this.randomAccessFile.readLong ();
-        if ( fileMarker != FILE_MARKER )
+        try
         {
-            final String message = String.format ( "file '%s' is of invalid format! (invalid marker)", this.fileName );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
-        this.dataOffset = this.randomAccessFile.readLong ();
-        if ( fileSize < this.dataOffset )
-        {
-            final String message = String.format ( "file '%s' is of invalid format! (invalid header)", this.fileName );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
-        final long version = this.randomAccessFile.readLong ();
-        if ( version != FILE_VERSION )
-        {
-            final String message = String.format ( "file '%s' is of invalid format! (wrong version)", this.fileName );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
-        final long detailLevelId = this.randomAccessFile.readLong ();
-        final long startTime = this.randomAccessFile.readLong ();
-        final long endTime = this.randomAccessFile.readLong ();
-        if ( startTime >= endTime )
-        {
-            final String message = String.format ( "file '%s' has invalid timespan specified! (startTime >= endTime)", this.fileName );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
-        final long proposedDataAge = this.randomAccessFile.readLong ();
-        final long acceptedTimeDelta = this.randomAccessFile.readLong ();
-        final long dataType = this.randomAccessFile.readLong ();
-        final long calculationMethodId = this.randomAccessFile.readLong ();
-        final int calculationMethodParameterCountSize = this.randomAccessFile.readInt ();
-        final int configurationIdSize = this.randomAccessFile.readInt ();
-        if ( this.dataOffset - this.randomAccessFile.getFilePointer () - 4 - configurationIdSize != calculationMethodParameterCountSize * 8 )
-        {
-            final String message = String.format ( "file '%s' is of invalid format! (invalid count of calculation method parameters)", this.fileName );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
-        final long[] calculationMethodParameters = new long[calculationMethodParameterCountSize];
-        for ( int i = 0; i < calculationMethodParameters.length; i++ )
-        {
-            calculationMethodParameters[i] = this.randomAccessFile.readLong ();
-        }
-        if ( this.dataOffset - this.randomAccessFile.getFilePointer () - 4 != configurationIdSize )
-        {
-            final String message = String.format ( "file '%s' is of invalid format! (invalid configuration id)", this.fileName );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
-        final byte[] configurationIdBytes = new byte[configurationIdSize];
-        this.randomAccessFile.readFully ( configurationIdBytes );
-        final String configurationId = decodeStringFromBytes ( configurationIdBytes );
-        final CRC32 crc32 = new CRC32 ();
-        final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)this.dataOffset - 12 );
-        byteBuffer.putLong ( this.dataOffset );
-        byteBuffer.putLong ( version );
-        byteBuffer.putLong ( detailLevelId );
-        byteBuffer.putLong ( startTime );
-        byteBuffer.putLong ( endTime );
-        byteBuffer.putLong ( proposedDataAge );
-        byteBuffer.putLong ( acceptedTimeDelta );
-        byteBuffer.putLong ( dataType );
-        byteBuffer.putLong ( calculationMethodId );
-        byteBuffer.putInt ( calculationMethodParameters.length );
-        byteBuffer.putInt ( configurationIdSize );
-        for ( int i = 0; i < calculationMethodParameters.length; i++ )
-        {
-            byteBuffer.putLong ( calculationMethodParameters[i] );
-        }
-        byteBuffer.put ( configurationIdBytes );
-        crc32.update ( byteBuffer.array () );
-        final int checksum = (int)crc32.getValue ();
-        final int fileChecksum = this.randomAccessFile.readInt ();
-        if ( fileChecksum != checksum )
-        {
-            final String message = String.format ( "file '%s' has a corrupt header! (expected: %s, actual: %s)", this.fileName, checksum, fileChecksum );
-            logger.error ( message );
-            throw new Exception ( message );
-        }
+            this.randomAccessFile.seek ( 0L );
+            final long fileSize = this.randomAccessFile.length ();
+            if ( fileSize < 16 )
+            {
+                final String message = String.format ( "file '%s' is of invalid format! (too small)", this.fileName );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
+            final long fileMarker = this.randomAccessFile.readLong ();
+            if ( fileMarker != FILE_MARKER )
+            {
+                final String message = String.format ( "file '%s' is of invalid format! (invalid marker)", this.fileName );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
+            this.dataOffset = this.randomAccessFile.readLong ();
+            if ( fileSize < this.dataOffset )
+            {
+                final String message = String.format ( "file '%s' is of invalid format! (invalid header)", this.fileName );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
+            final long version = this.randomAccessFile.readLong ();
+            if ( version != FILE_VERSION )
+            {
+                final String message = String.format ( "file '%s' is of invalid format! (wrong version)", this.fileName );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
+            final long detailLevelId = this.randomAccessFile.readLong ();
+            final long startTime = this.randomAccessFile.readLong ();
+            final long endTime = this.randomAccessFile.readLong ();
+            if ( startTime >= endTime )
+            {
+                final String message = String.format ( "file '%s' has invalid timespan specified! (startTime >= endTime)", this.fileName );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
+            final long proposedDataAge = this.randomAccessFile.readLong ();
+            final long acceptedTimeDelta = this.randomAccessFile.readLong ();
+            final long dataType = this.randomAccessFile.readLong ();
+            final long calculationMethodId = this.randomAccessFile.readLong ();
+            final int calculationMethodParameterCountSize = this.randomAccessFile.readInt ();
+            final int configurationIdSize = this.randomAccessFile.readInt ();
+            if ( this.dataOffset - this.randomAccessFile.getFilePointer () - 4 - configurationIdSize != calculationMethodParameterCountSize * 8 )
+            {
+                final String message = String.format ( "file '%s' is of invalid format! (invalid count of calculation method parameters)", this.fileName );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
+            final long[] calculationMethodParameters = new long[calculationMethodParameterCountSize];
+            for ( int i = 0; i < calculationMethodParameters.length; i++ )
+            {
+                calculationMethodParameters[i] = this.randomAccessFile.readLong ();
+            }
+            if ( this.dataOffset - this.randomAccessFile.getFilePointer () - 4 != configurationIdSize )
+            {
+                final String message = String.format ( "file '%s' is of invalid format! (invalid configuration id)", this.fileName );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
+            final byte[] configurationIdBytes = new byte[configurationIdSize];
+            this.randomAccessFile.readFully ( configurationIdBytes );
+            final String configurationId = decodeStringFromBytes ( configurationIdBytes );
+            final CRC32 crc32 = new CRC32 ();
+            final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)this.dataOffset - 12 );
+            byteBuffer.putLong ( this.dataOffset );
+            byteBuffer.putLong ( version );
+            byteBuffer.putLong ( detailLevelId );
+            byteBuffer.putLong ( startTime );
+            byteBuffer.putLong ( endTime );
+            byteBuffer.putLong ( proposedDataAge );
+            byteBuffer.putLong ( acceptedTimeDelta );
+            byteBuffer.putLong ( dataType );
+            byteBuffer.putLong ( calculationMethodId );
+            byteBuffer.putInt ( calculationMethodParameters.length );
+            byteBuffer.putInt ( configurationIdSize );
+            for ( int i = 0; i < calculationMethodParameters.length; i++ )
+            {
+                byteBuffer.putLong ( calculationMethodParameters[i] );
+            }
+            byteBuffer.put ( configurationIdBytes );
+            crc32.update ( byteBuffer.array () );
+            final int checksum = (int)crc32.getValue ();
+            final int fileChecksum = this.randomAccessFile.readInt ();
+            if ( fileChecksum != checksum )
+            {
+                final String message = String.format ( "file '%s' has a corrupt header! (expected: %s, actual: %s)", this.fileName, checksum, fileChecksum );
+                logger.error ( message );
+                throw new Exception ( message );
+            }
 
-        // create a wrapper object for returning the retrieved data
-        return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, DataType.convertLongToDataType ( dataType ) );
+            // create a wrapper object for returning the retrieved data
+            this.isEmpty = dataOffset + 1 < randomAccessFile.length ();
+            return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, DataType.convertLongToDataType ( dataType ) );
+        }
+        finally
+        {
+            if ( lock != null )
+            {
+                lock.readLock ().unlock ();
+            }
+        }
     }
 
     /**
@@ -457,17 +556,40 @@ public class FileBackEnd implements BackEnd
      */
     private LongValue readLongValue ( final long position ) throws Exception
     {
-        if ( this.randomAccessFile.getFilePointer () != position )
+        if ( lock != null )
         {
-            this.randomAccessFile.seek ( position );
+            lock.readLock ().lock ();
         }
-        final long time = this.randomAccessFile.readLong ();
-        final long qualityIndicatorAsLong = this.randomAccessFile.readLong ();
-        final long manualIndicatorAsLong = this.randomAccessFile.readLong ();
-        final double qualityIndicator = Double.longBitsToDouble ( qualityIndicatorAsLong );
-        final double manualIndicator = Double.longBitsToDouble ( manualIndicatorAsLong );
-        final long baseValueCount = this.randomAccessFile.readLong ();
-        final long value = this.randomAccessFile.readLong ();
+        long time;
+        long qualityIndicatorAsLong;
+        long manualIndicatorAsLong;
+        double qualityIndicator;
+        double manualIndicator;
+        long baseValueCount;
+        long value;
+        int fileChecksum;
+        try
+        {
+            if ( this.randomAccessFile.getFilePointer () != position )
+            {
+                this.randomAccessFile.seek ( position );
+            }
+            time = this.randomAccessFile.readLong ();
+            qualityIndicatorAsLong = this.randomAccessFile.readLong ();
+            manualIndicatorAsLong = this.randomAccessFile.readLong ();
+            qualityIndicator = Double.longBitsToDouble ( qualityIndicatorAsLong );
+            manualIndicator = Double.longBitsToDouble ( manualIndicatorAsLong );
+            baseValueCount = this.randomAccessFile.readLong ();
+            value = this.randomAccessFile.readLong ();
+            fileChecksum = this.randomAccessFile.readByte ();
+        }
+        finally
+        {
+            if ( lock != null )
+            {
+                lock.readLock ().unlock ();
+            }
+        }
         final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE - 1 );
         byteBuffer.putLong ( time );
         byteBuffer.putLong ( qualityIndicatorAsLong );
@@ -475,7 +597,6 @@ public class FileBackEnd implements BackEnd
         byteBuffer.putLong ( baseValueCount );
         byteBuffer.putLong ( value );
         final byte checksum = calculateLrcParity ( byteBuffer.array () );
-        final int fileChecksum = this.randomAccessFile.readByte ();
         if ( fileChecksum != checksum )
         {
             final String message = String.format ( "file '%s' is corrupt! invalid checksum (expected: %s, actual: %s)", this.fileName, checksum, fileChecksum );
@@ -590,62 +711,104 @@ public class FileBackEnd implements BackEnd
      * This method stores the passed data in the file.
      * It is assumed that a valid connection exists.
      * Only data that matches the specified time span will be processed.
-     * @param longValue data that has to be stored.
+     * @param longValues data that has to be stored.
      * @throws Exception in case of problems
      */
-    private void writeLongValue ( final LongValue longValue ) throws Exception
+    private void writeLongValues ( final LongValue[] longValues ) throws Exception
     {
         // assure that the passed value matches the timespan of the metadata
-        final long time = longValue.getTime ();
-        if ( time < this.metaData.getStartTime () || time >= this.metaData.getEndTime () )
+        if ( ( longValues == null ) || ( longValues.length == 0 ) )
         {
             return;
         }
-
-        // calculate insertion point of new data
-        final long insertionPoint = getInsertionPoint ( longValue.getTime () );
-        long endCopy = this.randomAccessFile.length ();
-
-        // make room for new data if data cannot be appended at the end or existing data has to be overwritten
-        if ( ( insertionPoint != endCopy ) && ( readLongValue ( insertionPoint ).getTime () != time ) )
+        int index = 0;
+        final long startTime = this.metaData.getStartTime ();
+        final long endTime = this.metaData.getEndTime ();
+        if ( lock != null )
         {
-            // move file content to create cap for new data
-            final byte[] buffer = new byte[(int)Math.min ( MAX_COPY_BUFFER_FILL_SIZE, endCopy - insertionPoint )];
-            long startCopy = Math.max ( endCopy - buffer.length, insertionPoint );
-            while ( startCopy < endCopy )
+            lock.writeLock ().lock ();
+        }
+        try
+        {
+            while ( index < longValues.length )
             {
-                final int bufferFillSize = (int) ( endCopy - startCopy );
-                this.randomAccessFile.seek ( startCopy );
-                this.randomAccessFile.read ( buffer, 0, bufferFillSize );
-                this.randomAccessFile.seek ( startCopy + RECORD_BLOCK_SIZE );
-                this.randomAccessFile.write ( buffer, 0, bufferFillSize );
-                endCopy = startCopy;
-                startCopy = Math.max ( insertionPoint, startCopy - bufferFillSize );
+                // get current value
+                long time = longValues[index].getTime ();
+                if ( time < startTime )
+                {
+                    index++;
+                    continue;
+                }
+                if ( time >= endTime )
+                {
+                    return;
+                }
+
+                // calculate insertion point of new data
+                final long insertionPoint = getInsertionPoint ( time );
+                long endCopy = this.randomAccessFile.length ();
+
+                // make room for new data if data cannot be appended at the end or existing data has to be overwritten
+                final boolean addAll = insertionPoint == endCopy;
+                if ( !addAll && ( readLongValue ( insertionPoint ).getTime () != time ) )
+                {
+                    // move file content to create cap for new data
+                    final byte[] buffer = new byte[(int)Math.min ( MAX_COPY_BUFFER_FILL_SIZE, endCopy - insertionPoint )];
+                    long startCopy = Math.max ( endCopy - buffer.length, insertionPoint );
+                    while ( startCopy < endCopy )
+                    {
+                        final int bufferFillSize = (int) ( endCopy - startCopy );
+                        this.randomAccessFile.seek ( startCopy );
+                        this.randomAccessFile.read ( buffer, 0, bufferFillSize );
+                        this.randomAccessFile.seek ( startCopy + RECORD_BLOCK_SIZE );
+                        this.randomAccessFile.write ( buffer, 0, bufferFillSize );
+                        endCopy = startCopy;
+                        startCopy = Math.max ( insertionPoint, startCopy - bufferFillSize );
+                    }
+                }
+
+                // set file pointer to correct insertion position
+                this.randomAccessFile.seek ( insertionPoint );
+
+                // write data
+                do
+                {
+                    // prepare values to write
+                    final LongValue longValue = longValues[index];
+                    time = longValue.getTime ();
+                    final long qualityIndicator = Double.doubleToLongBits ( longValue.getQualityIndicator () );
+                    final long manualIndicator = Double.doubleToLongBits ( longValue.getManualIndicator () );
+                    final long baseValueCount = longValue.getBaseValueCount ();
+                    final long value = longValue.getValue ();
+                    final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE - 1 );
+                    byteBuffer.putLong ( time );
+                    byteBuffer.putLong ( qualityIndicator );
+                    byteBuffer.putLong ( manualIndicator );
+                    byteBuffer.putLong ( baseValueCount );
+                    byteBuffer.putLong ( value );
+
+                    // write values
+                    this.randomAccessFile.writeLong ( time );
+                    this.randomAccessFile.writeLong ( qualityIndicator );
+                    this.randomAccessFile.writeLong ( manualIndicator );
+                    this.randomAccessFile.writeLong ( baseValueCount );
+                    this.randomAccessFile.writeLong ( value );
+                    this.randomAccessFile.writeByte ( calculateLrcParity ( byteBuffer.array () ) );
+                    index++;
+                } while ( addAll && ( index < longValues.length ) );
+            }
+            if ( lock != null )
+            {
+                randomAccessFile.getChannel ().force ( false );
             }
         }
-
-        // set file pointer to correct insertion position
-        this.randomAccessFile.seek ( insertionPoint );
-
-        // prepare values to write
-        final long qualityIndicator = Double.doubleToLongBits ( longValue.getQualityIndicator () );
-        final long manualIndicator = Double.doubleToLongBits ( longValue.getManualIndicator () );
-        final long baseValueCount = longValue.getBaseValueCount ();
-        final long value = longValue.getValue ();
-        final ByteBuffer byteBuffer = ByteBuffer.allocate ( RECORD_BLOCK_SIZE - 1 );
-        byteBuffer.putLong ( time );
-        byteBuffer.putLong ( qualityIndicator );
-        byteBuffer.putLong ( manualIndicator );
-        byteBuffer.putLong ( baseValueCount );
-        byteBuffer.putLong ( value );
-
-        // write values
-        this.randomAccessFile.writeLong ( time );
-        this.randomAccessFile.writeLong ( qualityIndicator );
-        this.randomAccessFile.writeLong ( manualIndicator );
-        this.randomAccessFile.writeLong ( baseValueCount );
-        this.randomAccessFile.writeLong ( value );
-        this.randomAccessFile.writeByte ( calculateLrcParity ( byteBuffer.array () ) );
+        finally
+        {
+            if ( lock != null )
+            {
+                lock.writeLock ().unlock ();
+            }
+        }
     }
 
     /**
@@ -662,7 +825,7 @@ public class FileBackEnd implements BackEnd
                 openConnection ( true );
 
                 // write data to file
-                writeLongValue ( longValue );
+                writeLongValues ( new LongValue[] { longValue } );
             }
             finally
             {
@@ -685,10 +848,8 @@ public class FileBackEnd implements BackEnd
                 openConnection ( true );
 
                 // write data to file
-                for ( int i = 0; i < longValues.length; i++ )
-                {
-                    writeLongValue ( longValues[i] );
-                }
+                Arrays.sort ( longValues );
+                writeLongValues ( longValues );
             }
             finally
             {

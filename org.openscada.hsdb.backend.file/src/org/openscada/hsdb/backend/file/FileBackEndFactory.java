@@ -75,7 +75,7 @@ public class FileBackEndFactory implements BackEndFactory
     /**
      * Constructor
      * @param fileRoot root folder within the storage files are located and new ones have to be created
-     * @param maximumDetailLevelToKeepFileConnectionsOpen maximum detail level when the file connection should be keppt open to gain performance as long as the file back end instance stays initialized
+     * @param maximumDetailLevelToKeepFileConnectionsOpen maximum detail level when the file connection should be kept open to gain performance as long as the file back end instance stays initialized
      */
     public FileBackEndFactory ( final String fileRoot, final long maximumDetailLevelToKeepFileConnectionsOpen )
     {
@@ -87,15 +87,25 @@ public class FileBackEndFactory implements BackEndFactory
     }
 
     /**
+     * This method returns the file root of the factory.
+     * @return file root of the factory
+     */
+    public String getFileRoot ()
+    {
+        return fileRoot;
+    }
+
+    /**
      * This method converts the time to a valid and readable part of a file name.
      * @param time time to be converted
      * @return converted time
      */
-    private static String encodeFileNamePart ( final long time )
+    public static String encodeFileNamePart ( final long time )
     {
         final Calendar calendar = Calendar.getInstance ();
         calendar.setTimeInMillis ( time );
-        return String.format ( TIME_FORMAT, calendar.get ( Calendar.YEAR ), calendar.get ( Calendar.MONTH ), calendar.get ( Calendar.DAY_OF_MONTH ), calendar.get ( Calendar.HOUR_OF_DAY ), calendar.get ( Calendar.MINUTE ), calendar.get ( Calendar.SECOND ), calendar.get ( Calendar.MILLISECOND ), calendar.get ( Calendar.DST_OFFSET ) );
+        calendar.add ( Calendar.HOUR_OF_DAY, -1 );
+        return String.format ( TIME_FORMAT, calendar.get ( Calendar.YEAR ), calendar.get ( Calendar.MONTH ) + 1, calendar.get ( Calendar.DAY_OF_MONTH ), calendar.get ( Calendar.HOUR_OF_DAY ), calendar.get ( Calendar.MINUTE ), calendar.get ( Calendar.SECOND ), calendar.get ( Calendar.MILLISECOND ), calendar.get ( Calendar.DST_OFFSET ) );
     }
 
     /**
@@ -103,7 +113,7 @@ public class FileBackEndFactory implements BackEndFactory
      * @param rawFileNamePart text to be converted
      * @return converted text
      */
-    private static String encodeFileNamePart ( final String rawFileNamePart )
+    public static String encodeFileNamePart ( final String rawFileNamePart )
     {
         if ( rawFileNamePart == null )
         {
@@ -172,15 +182,15 @@ public class FileBackEndFactory implements BackEndFactory
      * This method creates and initializes a back end object for the passed file object.
      * If the object is not used internally within this class, then the object should be deinitialized before passing the argument outside this class.
      * @param file file that is used to create a back end object
-     * @param keepUpenWhileInitialized true, if the file connection should be kept open while the state of the instance is initialized, otherwise false
+     * @param keepOpenWhileInitialized true, if the file connection should be kept open while the state of the instance is initialized, otherwise false
      * @return initialized back end object
      */
-    private BackEnd getBackEnd ( final File file, final boolean keepUpenWhileInitialized )
+    private BackEnd getBackEnd ( final File file, final boolean keepOpenWhileInitialized )
     {
         FileBackEnd fileBackEnd = null;
         try
         {
-            fileBackEnd = new FileBackEnd ( file.getPath (), keepUpenWhileInitialized );
+            fileBackEnd = new FileBackEnd ( file.getPath (), keepOpenWhileInitialized );
             fileBackEnd.initialize ( null );
             final StorageChannelMetaData metaData = fileBackEnd.getMetaData ();
             final String fileName = file.getName ();
@@ -203,15 +213,17 @@ public class FileBackEndFactory implements BackEndFactory
 
     /**
      * This method returns the metadata objects of all existing back end objects within the specified directory.
+     * If merge mode is specified then the following applies:
      * If more than one metadata object exists for the same configuration, calculation
      * method and detail level then the additional information is merged into one single meta data object.
      * The time span is hereby widened so that the earliest start time is used and the latest end time.
      * All other information is taken from the sub meta data object with the latest end time.
      * @param directory directory in the root folder from which the back end files are loaded. if no directory is passed then all available directories within the root folder will be processed
+     * @param merge flag indicating whether the result object should be merged or not
      * @return metadata objects of all existing back end objects
      * @throws Exception in case of any problems
      */
-    private StorageChannelMetaData[] getExistingBackEndsMetaDataInDirectory ( final String directory )
+    private StorageChannelMetaData[] getExistingBackEndsMetaDataInDirectory ( final String directory, final boolean merge )
     {
         // check if root folder exists
         final File root = new File ( fileRoot );
@@ -233,40 +245,47 @@ public class FileBackEndFactory implements BackEndFactory
                     try
                     {
                         final StorageChannelMetaData metaData = backEnd.getMetaData ();
-                        if ( metaData != null )
+                        if ( merge )
                         {
-                            boolean addNew = true;
-                            for ( final StorageChannelMetaData entry : metaDatas )
+                            if ( metaData != null )
                             {
-                                final String storedConfigurationId = entry.getConfigurationId ();
-                                if ( ( storedConfigurationId != null ) && !storedConfigurationId.equals ( metaData.getConfigurationId () ) )
+                                boolean addNew = true;
+                                for ( final StorageChannelMetaData entry : metaDatas )
                                 {
-                                    // since the list is ordered by directory and therefore by configuration id, it can be assumed that no more suitable entry exists in the list
-                                    break;
-                                }
-                                if ( ( entry.getDetailLevelId () == metaData.getDetailLevelId () ) && ( entry.getCalculationMethod () == metaData.getCalculationMethod () ) )
-                                {
-                                    // adapt the current entry in the list and expand the time span
-                                    entry.setStartTime ( Math.min ( entry.getStartTime (), metaData.getStartTime () ) );
-                                    final long endTime = metaData.getEndTime ();
-                                    if ( entry.getEndTime () < endTime )
+                                    final String storedConfigurationId = entry.getConfigurationId ();
+                                    if ( ( storedConfigurationId != null ) && !storedConfigurationId.equals ( metaData.getConfigurationId () ) )
                                     {
-                                        entry.setCalculationMethod ( metaData.getCalculationMethod () );
-                                        entry.setCalculationMethodParameters ( metaData.getCalculationMethodParameters () );
-                                        entry.setConfigurationId ( metaData.getConfigurationId () );
-                                        entry.setDataType ( metaData.getDataType () );
-                                        entry.setEndTime ( endTime );
-                                        entry.setProposedDataAge ( metaData.getProposedDataAge () );
+                                        // since the list is ordered by directory and therefore by configuration id, it can be assumed that no more suitable entry exists in the list
+                                        break;
                                     }
-                                    entry.setEndTime ( Math.max ( entry.getEndTime (), metaData.getEndTime () ) );
-                                    addNew = false;
-                                    break;
+                                    if ( ( entry.getDetailLevelId () == metaData.getDetailLevelId () ) && ( entry.getCalculationMethod () == metaData.getCalculationMethod () ) )
+                                    {
+                                        // adapt the current entry in the list and expand the time span
+                                        entry.setStartTime ( Math.min ( entry.getStartTime (), metaData.getStartTime () ) );
+                                        final long endTime = metaData.getEndTime ();
+                                        if ( entry.getEndTime () < endTime )
+                                        {
+                                            entry.setCalculationMethod ( metaData.getCalculationMethod () );
+                                            entry.setCalculationMethodParameters ( metaData.getCalculationMethodParameters () );
+                                            entry.setConfigurationId ( metaData.getConfigurationId () );
+                                            entry.setDataType ( metaData.getDataType () );
+                                            entry.setEndTime ( endTime );
+                                            entry.setProposedDataAge ( metaData.getProposedDataAge () );
+                                        }
+                                        entry.setEndTime ( Math.max ( entry.getEndTime (), metaData.getEndTime () ) );
+                                        addNew = false;
+                                        break;
+                                    }
+                                }
+                                if ( addNew )
+                                {
+                                    metaDatas.add ( 0, new StorageChannelMetaData ( metaData ) );
                                 }
                             }
-                            if ( addNew )
-                            {
-                                metaDatas.add ( 0, new StorageChannelMetaData ( metaData ) );
-                            }
+                        }
+                        else
+                        {
+                            metaDatas.add ( 0, new StorageChannelMetaData ( metaData ) );
                         }
                         backEnd.deinitialize ();
                     }
@@ -281,19 +300,19 @@ public class FileBackEndFactory implements BackEndFactory
     }
 
     /**
-     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData()
+     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData(boolean)
      */
-    public StorageChannelMetaData[] getExistingBackEndsMetaData () throws Exception
+    public StorageChannelMetaData[] getExistingBackEndsMetaData ( final boolean merge ) throws Exception
     {
-        return getExistingBackEndsMetaDataInDirectory ( null );
+        return getExistingBackEndsMetaDataInDirectory ( null, merge );
     }
 
     /**
-     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData(String)
+     * @see org.openscada.hsdb.backend.BackEndFactory#getExistingBackEndsMetaData(String,boolean)
      */
-    public StorageChannelMetaData[] getExistingBackEndsMetaData ( final String configurationId ) throws Exception
+    public StorageChannelMetaData[] getExistingBackEndsMetaData ( final String configurationId, final boolean merge ) throws Exception
     {
-        return getExistingBackEndsMetaDataInDirectory ( configurationId );
+        return getExistingBackEndsMetaDataInDirectory ( configurationId, merge );
     }
 
     /**
@@ -326,10 +345,10 @@ public class FileBackEndFactory implements BackEndFactory
 
         // evaluate the configuration id directory
         final List<BackEnd> backEnds = new ArrayList<BackEnd> ();
-        final boolean keepUpenWhileInitialized = getKeepFileConnectionOpen ( detailLevelId );
+        final boolean keepOpenWhileInitialized = getKeepFileConnectionOpen ( detailLevelId );
         for ( final File file : directories[0].listFiles ( new FileFileFilter ( String.format ( FILE_MASK, configurationIdFileName, CalculationMethod.convertCalculationMethodToShortString ( calculationMethod ), detailLevelId, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ) ) ) )
         {
-            final BackEnd backEnd = getBackEnd ( file, keepUpenWhileInitialized );
+            final BackEnd backEnd = getBackEnd ( file, keepOpenWhileInitialized );
             if ( backEnd != null )
             {
                 backEnd.deinitialize ();
@@ -337,6 +356,17 @@ public class FileBackEndFactory implements BackEndFactory
             }
         }
         return backEnds.toArray ( EMTPY_BACKEND_ARRAY );
+    }
+
+    /**
+     * This method returns the name of the file that matches the passed meta data information.
+     * @param storageChannelMetaData meta data information for which a file name has to be generated
+     * @return name of the file that matches the passed meta data information
+     */
+    public String generateFileName ( final StorageChannelMetaData storageChannelMetaData )
+    {
+        final String configurationId = encodeFileNamePart ( storageChannelMetaData.getConfigurationId () );
+        return new File ( new File ( fileRoot, configurationId ), String.format ( FILE_MASK, configurationId, CalculationMethod.convertCalculationMethodToShortString ( storageChannelMetaData.getCalculationMethod () ), storageChannelMetaData.getDetailLevelId (), encodeFileNamePart ( storageChannelMetaData.getStartTime () ), encodeFileNamePart ( storageChannelMetaData.getEndTime () ) ) ).getPath ();
     }
 
     /**
@@ -351,16 +381,9 @@ public class FileBackEndFactory implements BackEndFactory
             logger.error ( message );
             throw new Exception ( message );
         }
-        final String configurationId = encodeFileNamePart ( storageChannelMetaData.getConfigurationId () );
-        if ( configurationId == null )
-        {
-            final String message = "invalid configurationId specified as metadata for FileBackEndFactory!";
-            logger.error ( message );
-            throw new Exception ( message );
-        }
 
         // assure that root folder exists
-        return new FileBackEnd ( new File ( new File ( fileRoot, configurationId ), String.format ( FILE_MASK, configurationId, CalculationMethod.convertCalculationMethodToShortString ( storageChannelMetaData.getCalculationMethod () ), storageChannelMetaData.getDetailLevelId (), encodeFileNamePart ( storageChannelMetaData.getStartTime () ), encodeFileNamePart ( storageChannelMetaData.getEndTime () ) ) ).getPath (), getKeepFileConnectionOpen ( storageChannelMetaData.getDetailLevelId () ) );
+        return new FileBackEnd ( generateFileName ( storageChannelMetaData ), getKeepFileConnectionOpen ( storageChannelMetaData.getDetailLevelId () ) );
     }
 
     /**

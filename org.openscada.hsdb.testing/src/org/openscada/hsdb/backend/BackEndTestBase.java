@@ -24,14 +24,14 @@ public abstract class BackEndTestBase
     /** Configuration id that is used for the tests. */
     private final static String CONFIGURATION_ID = "Confüg_ura<tio\\n?:#\"'";
 
-    /** Instance that is tested. */
+    /** Back end instance that is used for testing. */
     protected BackEnd backEnd;
 
     /**
-     * This method creates, initializes and returns the backend that has to be tested.
-     * If a backend with the same meta data already exists, the old back end will be deleted.
+     * This method creates, initializes and returns the backend manager for the back end that has to be tested.
+     * If data with the same meta data already exists, the old back end will be deleted.
      * @param metaData metadata that should be used when creating a back end
-     * @return backend that has to be tested
+     * @return backend manager for the back end that has to be tested
      * @throws Exception in case of problems
      */
     protected abstract BackEnd createBackEnd ( StorageChannelMetaData metaData ) throws Exception;
@@ -113,7 +113,6 @@ public abstract class BackEndTestBase
         {
             if ( backEnd != null )
             {
-                backEnd.delete ();
                 backEnd.deinitialize ();
             }
         }

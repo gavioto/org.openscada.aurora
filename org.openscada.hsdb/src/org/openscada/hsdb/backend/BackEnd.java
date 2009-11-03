@@ -1,5 +1,7 @@
 package org.openscada.hsdb.backend;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.openscada.hsdb.StorageChannel;
 import org.openscada.hsdb.StorageChannelMetaData;
 
@@ -9,15 +11,6 @@ import org.openscada.hsdb.StorageChannelMetaData;
  */
 public interface BackEnd extends StorageChannel
 {
-    /**
-     * This method resets any previously existing data and prepares the storage channel for new data.
-     * This method has to be called if a new backend storage channel has to be created but not if an existing one should be used.
-     * After this method is executed, the initialize method has to be called before methods of the StorageChannel interface can be used.
-     * @param storageChannelMetaData metadata describing the backend of the storage channel
-     * @throws Exception in case of any problem
-     */
-    public abstract void create ( final StorageChannelMetaData storageChannelMetaData ) throws Exception;
-
     /**
      * This method initializes the backend storage channel.
      * It has to be assured that the method is called before any methods of the StorageChannel interface all triggered.
@@ -41,9 +34,15 @@ public interface BackEnd extends StorageChannel
     public abstract void deinitialize () throws Exception;
 
     /**
-     * This method removes all data that was previously stored or retrieved by the backend storage channel.
-     * The initialize method must have been executed before this method can be called.
-     * @throws Exception in case of any problem
+     * This method assigns the synchronization object that should be used when reading or writing data.
+     * If no lock is passed then no synchronization will be performed.
+     * @param lock synchronization object that should be used when reading or writing data
      */
-    public abstract void delete () throws Exception;
+    public abstract void setLock ( ReentrantReadWriteLock lock );
+
+    /**
+     * This method returns the synchronization object that should be used when reading or writing data.
+     * @return synchronization object that should be used when reading or writing data
+     */
+    public abstract ReentrantReadWriteLock getLock ();
 }

@@ -4,6 +4,10 @@ import java.io.File;
 
 import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.backend.file.FileBackEndFactory;
+import org.openscada.hsdb.backend.file.FileBackEndManager;
+import org.openscada.hsdb.backend.file.FileBackEndManagerFactory;
+import org.openscada.hsdb.configuration.Configuration;
+import org.openscada.hsdb.configuration.Conversions;
 
 /**
  * Test class for following classes:
@@ -16,6 +20,9 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
     /** Base directory for test files. */
     private final static String ROOT = "va_base_test";
 
+    /** Manager that will be used to create the back end objects. */
+    private FileBackEndManager manager = null;
+
     /**
      * This method creates, initializes and returns the backend that has to be tested.
      * If a backend with the same meta data already exists, the old back end will be deleted.
@@ -26,45 +33,19 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
     @Override
     protected BackEnd createBackEnd ( final StorageChannelMetaData metaData ) throws Exception
     {
-        final BackEnd backEnd = new BackEndMultiplexer ( new FileBackEndFactory ( ROOT, 0 ), 50 );
+        final Configuration configuration = Conversions.convertMetaDatasToConfiguration ( new StorageChannelMetaData[] { metaData } );
+        configuration.getData ().put ( Configuration.MANAGER_FRAGMENT_TIMESPAN_PER_LEVEL_PREFIX + 0, MAX_COUNT + Conversions.MILLISECOND_SPAN_SUFFIX );
+        final FileBackEndFactory backEndFactory = new FileBackEndFactory ( ROOT, 0 );
+        final FileBackEndManagerFactory backEndManagerFactory = new FileBackEndManagerFactory ( backEndFactory );
+        manager = new FileBackEndManager ( configuration, backEndManagerFactory, backEndFactory );
+        manager.delete ();
+        manager = null;
+        System.gc ();
+        manager = backEndManagerFactory.getBackEndManager ( configuration, true );
+        manager.initialize ();
+        final BackEndMultiplexer backEnd = new BackEndMultiplexer ( manager );
         backEnd.initialize ( metaData );
-        backEnd.delete ();
-        backEnd.create ( metaData );
         return backEnd;
-    }
-
-    /**
-     * This method cleans the root directory.
-     */
-    private void cleanDirectory ()
-    {
-        if ( PERFORM_CLEANUP )
-        {
-            if ( ( ROOT != null ) && ( ROOT.length () > 0 ) )
-            {
-                deleteDirectory ( new File ( ROOT ) );
-            }
-        }
-    }
-
-    /**
-     * This method deletes the passed directory or file.
-     * In case of a directory, all sub directories and files will also be deleted.
-     * @param file or directory that has to be deleted
-     */
-    private void deleteDirectory ( final File file )
-    {
-        if ( file != null )
-        {
-            if ( file.isDirectory () )
-            {
-                for ( final File subDir : file.listFiles () )
-                {
-                    deleteDirectory ( subDir );
-                }
-            }
-            file.delete ();
-        }
     }
 
     /**
@@ -74,10 +55,11 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
     @Override
     public void cleanup () throws Exception
     {
-        if ( backEnd != null )
+        super.cleanup ();
+        if ( PERFORM_CLEANUP && ( manager != null ) )
         {
-            super.cleanup ();
-            cleanDirectory ();
+            manager.delete ();
+            new File ( ROOT ).delete ();
         }
     }
 }
