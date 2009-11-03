@@ -92,16 +92,10 @@ public interface BackEndManager<B extends BackEnd>
 
     /**
      * This method checks the consistency of the back end files and tries to repair corrupt files.
-     * The repair process will be performed in a separate process.
-     * @param callback runnable that will be executed as callback as soon as all corrupted files have been repaired
-     * @return true if all files are supposed to be ok. if false is returned, an attempt is made to repair corrupt files. after the attempt is finished successfully, the runnable will be called
+     * @param abortNotificator object that will be used to check whether the operation should be aborted or not
+     * @return true if all files are supposed to be ok, otherwise false
      */
-    public abstract boolean startRepairProcedure ( Runnable callback );
-
-    /**
-     * This method aborts a running repair procedure.
-     */
-    public abstract void abortRepairProcedure ();
+    public abstract boolean repairBackEndFragmentsIfRequired ( AbortNotificator abortNotificator );
 
     /**
      * This method returns the storage channel that can be used as root for the current hierarchy.

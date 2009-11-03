@@ -55,6 +55,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** This list contains all back end objects that have been allocated to build up a storage channel tree. */
     private final List<BackEnd> storageChannelTreeBackEnds;
 
+    /** Flag indicating whether corrupt files exist or not. */
+    private boolean corruptFilesExist;
+
     /**
      * Constructor.
      * @param configuration configuration of the manager instance
@@ -68,6 +71,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         this.backEndManagerFactory = backEndManagerFactory;
         this.backEndFactory = backEndFactory;
         this.emptyBackEndArray = emptyBackEndArray;
+        this.corruptFilesExist = false;
         this.masterBackEnds = new HashMap<Long, Map<CalculationMethod, List<BackEndFragmentInformation<B>>>> ();
         this.calculationLogicProviderFactory = new CalculationLogicProviderFactoryImpl ();
         this.calculationMethods = Conversions.getCalculationMethods ( configuration );
@@ -143,6 +147,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         // prepare new configuration
         final int size = backEndFragmentInformations.size ();
         data.put ( Configuration.MANAGER_KNOWN_FRAGMENTS_COUNT, "" + size );
+        corruptFilesExist = false;
         for ( int i = 0; i < size; i++ )
         {
             final BackEndFragmentInformation<B> backendInformation = backEndFragmentInformations.get ( i );
@@ -152,6 +157,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_END_TIME_PREFIX + i, "" + backendInformation.getEndTime () );
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_CORRUPT_STATUS_PREFIX + i, "" + backendInformation.getIsCorrupt () );
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_NAME_PREFIX + i, backendInformation.getFragmentName () );
+            corruptFilesExist |= ( backendInformation.getDetailLevelId () > 0 ) && backendInformation.getIsCorrupt ();
         }
 
         // save configuration
@@ -205,6 +211,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 backEndFragmentInformation.setEndTime ( endTime );
                 backEndFragmentInformation.setFragmentName ( fragmentName );
                 final boolean mergedCorruptFlag = isCorrupt || checkIsBackEndCorrupt ( backEndFragmentInformation );
+                corruptFilesExist |= ( detailLevelId > 0 ) && mergedCorruptFlag;
                 backEndFragmentInformation.setIsCorrupt ( mergedCorruptFlag );
                 addBackEndFragmentInformation ( backEndFragmentInformation, i == fragmentCount - 1 );
                 if ( !isCorrupt && mergedCorruptFlag )
@@ -593,7 +600,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             if ( !backEndInformation.getIsCorrupt () )
             {
-                logger.error ( String.format ( "marking back end fragment (%s) od configuration with id '%s' as corrupt", backEndInformation.getFragmentName (), configuration.getId () ) );
+                logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndInformation.getFragmentName (), configuration.getId () ) );
                 backEndInformation.setIsCorrupt ( true );
                 statusChanged = true;
             }
@@ -605,18 +612,34 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     }
 
     /**
-     * @see org.openscada.hsdb.backend.BackEndManager#startRepairProcedure(java.lang.Runnable)
+     * @see org.openscada.hsdb.backend.BackEndManager#repairBackEndFragmentsIfRequired(AbortNotificator)
      */
-    public boolean startRepairProcedure ( final Runnable callback )
+    public boolean repairBackEndFragmentsIfRequired ( final AbortNotificator abortNotificator )
     {
-        return true;
-    }
+        if ( corruptFilesExist )
+        {
+            logger.info ( "start processing corrupt files..." );
+            for ( long i = 1; i < maximumCompressionLevel; i++ )
+            {
+                for ( final CalculationMethod calculationMethod : calculationMethods )
+                {
+                    final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( i, calculationMethod, Long.MIN_VALUE, Long.MAX_VALUE );
+                    for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
+                    {
+                        if ( backEndInformation.getIsCorrupt () )
+                        {
+                            // set corrupt information to false. it might be set again to true during the repair process
+                            backEndInformation.setIsCorrupt ( false );
 
-    /**
-     * @see org.openscada.hsdb.backend.BackEndManager#abortRepairProcedure()
-     */
-    public void abortRepairProcedure ()
-    {
+                            // process this back end fragment
+                        }
+                    }
+                }
+            }
+            flushConfiguration ();
+            logger.info ( "end processing corrupt files!" );
+        }
+        return !corruptFilesExist;
     }
 
     /**
