@@ -176,15 +176,18 @@ public class HsdbHelper
                 // maximum 2 entries are completely virtual due to the algorithm
                 // it is possible that one value will be processed with a time span before the interval start time
                 // therefore the index can be increased by length-3 to optimize performance of this method
-                if ( normalizedValues.length > 3 )
+                if ( inputValues.length > 1 )
                 {
-                    startIndex += normalizedValues.length - 3;
-                }
-                final long lastFilledValueTime = inputValues[inputValues.length - 1].getTime ();
-                final long size = inputValues.length;
-                while ( ( startIndex + 1 < size ) && ( inputValues[startIndex + 1].getTime () < lastFilledValueTime ) )
-                {
-                    startIndex++;
+                    if ( normalizedValues.length > 3 )
+                    {
+                        startIndex += normalizedValues.length - 3;
+                    }
+                    final long lastFilledValueTime = inputValues[inputValues.length - 1].getTime ();
+                    final long size = inputValues.length;
+                    while ( ( startIndex + 1 < size ) && ( inputValues[startIndex + 1].getTime () < lastFilledValueTime ) )
+                    {
+                        startIndex++;
+                    }
                 }
                 final BaseValue newValue = outputCalculationLogicProvider.generateValues ( normalizedValues );
                 final BaseValue oldValue = newValues.isEmpty () ? null : newValues.get ( newValues.size () );

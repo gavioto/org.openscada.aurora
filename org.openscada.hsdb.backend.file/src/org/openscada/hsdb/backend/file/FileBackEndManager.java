@@ -194,4 +194,18 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
     {
         return !new File ( backEndInformation.getFragmentName () ).exists ();
     }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndManagerBase#readyForRepair(org.openscada.hsdb.backend.BackEndFragmentInformation)
+     */
+    @Override
+    protected boolean readyForRepair ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
+    {
+        final File file = new File ( backEndInformation.getFragmentName () );
+        if ( file.exists () )
+        {
+            return file.delete ();
+        }
+        return true;
+    }
 }

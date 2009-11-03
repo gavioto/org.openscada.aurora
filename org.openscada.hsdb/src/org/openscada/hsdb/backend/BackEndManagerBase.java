@@ -9,12 +9,15 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openscada.hsdb.CalculatingStorageChannel;
+import org.openscada.hsdb.ExtendedStorageChannel;
 import org.openscada.hsdb.ExtendedStorageChannelAdapter;
 import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.calculation.CalculationLogicProvider;
 import org.openscada.hsdb.calculation.CalculationLogicProviderFactoryImpl;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.configuration.Configuration;
 import org.openscada.hsdb.configuration.Conversions;
+import org.openscada.hsdb.utils.HsdbHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +58,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** This list contains all back end objects that have been allocated to build up a storage channel tree. */
     private final List<BackEnd> storageChannelTreeBackEnds;
 
+    /** This array contains the storage channels that are part of the tree. */
+    private CalculatingStorageChannel[] storageChannels;
+
     /** Flag indicating whether corrupt files exist or not. */
     private boolean corruptFilesExist;
 
@@ -72,6 +78,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         this.backEndFactory = backEndFactory;
         this.emptyBackEndArray = emptyBackEndArray;
         this.corruptFilesExist = false;
+        this.storageChannels = null;
         this.masterBackEnds = new HashMap<Long, Map<CalculationMethod, List<BackEndFragmentInformation<B>>>> ();
         this.calculationLogicProviderFactory = new CalculationLogicProviderFactoryImpl ();
         this.calculationMethods = Conversions.getCalculationMethods ( configuration );
@@ -337,6 +344,12 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public CalculatingStorageChannel buildStorageChannelTree ()
     {
+        // optimize calculation
+        if ( ( storageChannels != null ) && ( storageChannels.length > 0 ) )
+        {
+            return storageChannels[0];
+        }
+
         // create back end objects 
         Exception exception = null;
         try
@@ -357,7 +370,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             }
 
             // create hierarchical storage channel structure
-            final CalculatingStorageChannel[] storageChannels = new CalculatingStorageChannel[storageChannelTreeBackEnds.size ()];
+            storageChannels = new CalculatingStorageChannel[storageChannelTreeBackEnds.size ()];
             for ( int i = 0; i < storageChannelTreeBackEnds.size (); i++ )
             {
                 final BackEnd backEnd = storageChannelTreeBackEnds.get ( i );
@@ -367,7 +380,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 {
                     final BackEnd superBackEndCandidate = storageChannelTreeBackEnds.get ( j );
                     final CalculationMethod superCalculationMethod = superBackEndCandidate.getMetaData ().getCalculationMethod ();
-                    if ( superCalculationMethod == calculationMethod || superCalculationMethod == CalculationMethod.NATIVE )
+                    if ( ( superCalculationMethod == calculationMethod ) || ( superCalculationMethod == CalculationMethod.NATIVE ) )
                     {
                         superBackEndIndex = j;
                         break;
@@ -398,6 +411,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     {
         deinitializeBackEnds ( storageChannelTreeBackEnds );
         storageChannelTreeBackEnds.clear ();
+        storageChannels = null;
     }
 
     /**
@@ -465,7 +479,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             final BackEndFragmentInformation<B> existingBackEndInformation = backEndInformations.get ( 0 );
             if ( ( existingBackEndInformation.getStartTime () <= timestamp ) && ( existingBackEndInformation.getEndTime () > timestamp ) )
             {
-                // all is ok. the current back end object can be used
+                // all is good. the current back end object can be used
                 result = existingBackEndInformation;
             }
             else
@@ -618,7 +632,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     {
         if ( corruptFilesExist )
         {
-            logger.info ( "start processing corrupt files..." );
+            logger.info ( "collecting data required for repair action..." );
+            buildStorageChannelTree ();
+            final List<BackEndFragmentInformation<B>> corruptBackEndFragmentInformations = new ArrayList<BackEndFragmentInformation<B>> ();
             for ( long i = 1; i < maximumCompressionLevel; i++ )
             {
                 for ( final CalculationMethod calculationMethod : calculationMethods )
@@ -628,16 +644,66 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     {
                         if ( backEndInformation.getIsCorrupt () )
                         {
-                            // set corrupt information to false. it might be set again to true during the repair process
-                            backEndInformation.setIsCorrupt ( false );
-
-                            // process this back end fragment
+                            if ( readyForRepair ( backEndInformation ) )
+                            {
+                                corruptBackEndFragmentInformations.add ( backEndInformation );
+                            }
+                            else
+                            {
+                                logger.error ( String.format ( "corrupt back end fragment '%s' for configuration '%s' is not ready for being repaired!", backEndInformation.getFragmentName (), configuration.getId () ) );
+                            }
                         }
                     }
                 }
             }
-            flushConfiguration ();
-            logger.info ( "end processing corrupt files!" );
+            logger.info ( String.format ( "[%s] corrupt back end fragments scheduled to be repaired...", corruptBackEndFragmentInformations.size () ) );
+            if ( !corruptBackEndFragmentInformations.isEmpty () )
+            {
+                logger.info ( String.format ( "start processing [%s] corrupt back end fragments...", corruptBackEndFragmentInformations.size () ) );
+                for ( final BackEndFragmentInformation<B> backEndInformation : corruptBackEndFragmentInformations )
+                {
+                    // abort if abort is requested
+                    if ( ( abortNotificator != null ) && abortNotificator.getAbort () )
+                    {
+                        break;
+                    }
+
+                    // set corrupt information to false. it might be set again to true during the repair process
+                    backEndInformation.setIsCorrupt ( false );
+
+                    // process this back end fragment
+                    final long detailLevelId = backEndInformation.getDetailLevelId ();
+                    final CalculationMethod calculationMethod = backEndInformation.getCalculationMethod ();
+                    final long startTime = backEndInformation.getStartTime ();
+                    final long endTime = backEndInformation.getEndTime ();
+
+                    // search for the storage channel that is responsible for the corrupt back end fragment
+                    for ( final CalculatingStorageChannel outputCalculatingStorageChannel : storageChannels )
+                    {
+                        try
+                        {
+                            final StorageChannelMetaData metaData = outputCalculatingStorageChannel.getMetaData ();
+                            if ( ( metaData.getDetailLevelId () == detailLevelId ) && ( metaData.getCalculationMethod () == calculationMethod ) )
+                            {
+                                // process the data for the corrupt time span
+                                final CalculatingStorageChannel inputCalculatingStorageChannel = (CalculatingStorageChannel)outputCalculatingStorageChannel.getInputStorageChannel ();
+                                final CalculationLogicProvider outputCalculationLogicProvider = outputCalculatingStorageChannel.getCalculationLogicProvider ();
+                                final CalculationLogicProvider inputCalculationLogicProvider = inputCalculatingStorageChannel.getCalculationLogicProvider ();
+                                final ExtendedStorageChannel outputChannel = outputCalculatingStorageChannel.getBaseStorageChannel ();
+                                final ExtendedStorageChannel inputChannel = inputCalculatingStorageChannel.getBaseStorageChannel ();
+                                HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, endTime );
+                                break;
+                            }
+                        }
+                        catch ( final Exception e )
+                        {
+                            logger.error ( String.format ( "unable to access meta data for storage channel of configuration '%s'", configuration.getId () ) );
+                        }
+                    }
+                }
+                flushConfiguration ();
+                logger.info ( "end processing corrupt back end fragments!" );
+            }
         }
         return !corruptFilesExist;
     }
@@ -663,11 +729,18 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     protected abstract B createBackEnd ( final BackEndFragmentInformation<B> backEndInformation, final boolean initialize ) throws Exception;
 
     /**
-     * This method checkd whether the passed back end fragment is corrupt or not.
+     * This method checks whether the passed back end fragment is corrupt or not.
      * @param backEndInformation object to be checked
      * @return true, if the passed back end fragment is corrupt, otherwise false
      */
     protected abstract boolean checkIsBackEndCorrupt ( final BackEndFragmentInformation<B> backEndInformation );
+
+    /**
+     * This method returns whether the passed back end fragment is ready for being repaired.
+     * @param backEndInformation object that has to be checked
+     * @return true, if the passed back end fragment is ready for being repaired, otherwise false
+     */
+    protected abstract boolean readyForRepair ( final BackEndFragmentInformation<B> backEndInformation );
 
     /**
      * This method deletes the passed back end fragment.
