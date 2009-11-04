@@ -1,6 +1,10 @@
 package org.openscada.hsdb.backend;
 
+import java.util.Map;
+
 import org.openscada.hsdb.CalculatingStorageChannel;
+import org.openscada.hsdb.ExtendedStorageChannel;
+import org.openscada.hsdb.calculation.CalculationLogicProvider;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.configuration.Configuration;
 
@@ -104,6 +108,12 @@ public interface BackEndManager<B extends BackEnd>
      * @return storage channel that can be used as root for the current hierarchy or null if at least one corruppt file exists
      */
     public abstract CalculatingStorageChannel buildStorageChannelTree ();
+
+    /**
+     * This method builds a map containing all available storage channels mapped by detail level id and calculation method including the calculation logic provider objects
+     * @return map containing all available storage channels mapped by detail level id and calculation method including the calculation logic provider objects
+     */
+    public abstract Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> buildStorageChannelStructure ();
 
     /**
      * This method releases all resources that have been allocated in order to build the storage channel tree.

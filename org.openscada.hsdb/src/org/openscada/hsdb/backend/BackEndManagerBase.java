@@ -415,6 +415,62 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     }
 
     /**
+     * @see org.openscada.hsdb.backend.BackEndManager#buildStorageChannelStructure()
+     */
+    public synchronized Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> buildStorageChannelStructure ()
+    {
+        // build the storage channel tree structure if it does not yet exist
+        final boolean storageChannelTreeExists = storageChannels != null;
+        if ( !storageChannelTreeExists )
+        {
+            buildStorageChannelTree ();
+        }
+
+        // build structure
+        final Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> resultMap = new HashMap<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> ();
+        try
+        {
+            for ( final CalculatingStorageChannel calculatingStorageChannel : storageChannels )
+            {
+                // collect data for map entry
+                final StorageChannelMetaData metaData = new StorageChannelMetaData ( calculatingStorageChannel.getMetaData () );
+                final long detailLevelId = metaData.getDetailLevelId ();
+                final CalculationMethod calculationMethod = metaData.getCalculationMethod ();
+                final CalculationLogicProvider calculationLogicProvider = calculationLogicProviderFactory.getCalculationLogicProvider ( metaData );
+                final BackEndMultiplexer backEnd = new BackEndMultiplexer ( this );
+                backEnd.initialize ( metaData );
+                final ExtendedStorageChannel storageChannel = new ExtendedStorageChannelAdapter ( backEnd );
+
+                // create map entry
+                Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>> map = resultMap.get ( detailLevelId );
+                if ( map == null )
+                {
+                    map = new HashMap<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>> ();
+                    resultMap.put ( detailLevelId, map );
+                }
+                Map<ExtendedStorageChannel, CalculationLogicProvider> map2 = map.get ( calculationMethod );
+                if ( map2 == null )
+                {
+                    map2 = new HashMap<ExtendedStorageChannel, CalculationLogicProvider> ();
+                    map.put ( calculationMethod, map2 );
+                }
+                map2.put ( storageChannel, calculationLogicProvider );
+            }
+        }
+        catch ( final Exception e )
+        {
+            logger.error ( "problem wwhile building the storage channel structure", e );
+        }
+
+        // release the storage channel tree structure if did not exist before
+        if ( !storageChannelTreeExists )
+        {
+            releaseStorageChannelTree ();
+        }
+        return resultMap;
+    }
+
+    /**
      * @see org.openscada.hsdb.backend.BackEndManager#delete()
      */
     public synchronized void delete ()
