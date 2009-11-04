@@ -634,8 +634,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             logger.info ( "collecting data required for repair action..." );
             buildStorageChannelTree ();
+            final long now = System.currentTimeMillis ();
             final List<BackEndFragmentInformation<B>> corruptBackEndFragmentInformations = new ArrayList<BackEndFragmentInformation<B>> ();
-            for ( long i = 1; i < maximumCompressionLevel; i++ )
+            for ( long i = 1; i <= maximumCompressionLevel; i++ )
             {
                 for ( final CalculationMethod calculationMethod : calculationMethods )
                 {
@@ -644,8 +645,23 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     {
                         if ( backEndInformation.getIsCorrupt () )
                         {
+                            deleteBackEnd ( backEndInformation );
                             if ( readyForRepair ( backEndInformation ) )
                             {
+                                final B backEnd = backEndInformation.getBackEndFragment ();
+                                if ( backEnd != null )
+                                {
+                                    backEndInformation.setBackEndFragment ( null );
+                                    try
+                                    {
+                                        backEnd.deinitialize ();
+                                    }
+                                    catch ( final Exception e )
+                                    {
+                                        logger.error ( String.format ( "unable to deinitialize back end fragment '%s' for configuration with id '%s'", backEndInformation.getFragmentName (), configuration.getId () ) );
+                                        continue;
+                                    }
+                                }
                                 corruptBackEndFragmentInformations.add ( backEndInformation );
                             }
                             else
@@ -678,9 +694,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     final long endTime = backEndInformation.getEndTime ();
 
                     // search for the storage channel that is responsible for the corrupt back end fragment
-                    for ( final CalculatingStorageChannel outputCalculatingStorageChannel : storageChannels )
+                    try
                     {
-                        try
+                        for ( final CalculatingStorageChannel outputCalculatingStorageChannel : storageChannels )
                         {
                             final StorageChannelMetaData metaData = outputCalculatingStorageChannel.getMetaData ();
                             if ( ( metaData.getDetailLevelId () == detailLevelId ) && ( metaData.getCalculationMethod () == calculationMethod ) )
@@ -691,19 +707,20 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                 final CalculationLogicProvider inputCalculationLogicProvider = inputCalculatingStorageChannel.getCalculationLogicProvider ();
                                 final ExtendedStorageChannel outputChannel = outputCalculatingStorageChannel.getBaseStorageChannel ();
                                 final ExtendedStorageChannel inputChannel = inputCalculatingStorageChannel.getBaseStorageChannel ();
-                                HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, endTime );
+                                HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
                                 break;
                             }
                         }
-                        catch ( final Exception e )
-                        {
-                            logger.error ( String.format ( "unable to access meta data for storage channel of configuration '%s'", configuration.getId () ) );
-                        }
+                    }
+                    catch ( final Exception e )
+                    {
+                        logger.error ( String.format ( "unable to access meta data for storage channel of configuration '%s'", configuration.getId () ) );
                     }
                 }
                 flushConfiguration ();
                 logger.info ( "end processing corrupt back end fragments!" );
             }
+            releaseStorageChannelTree ();
         }
         return !corruptFilesExist;
     }

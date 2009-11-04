@@ -202,10 +202,6 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
     protected boolean readyForRepair ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
     {
         final File file = new File ( backEndInformation.getFragmentName () );
-        if ( file.exists () )
-        {
-            return file.delete ();
-        }
-        return true;
+        return !file.exists ();
     }
 }

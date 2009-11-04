@@ -164,6 +164,7 @@ public class HsdbHelper
         final BaseValue[] emptyOutputArray = outputDataType == DataType.LONG_VALUE ? ExtendedStorageChannel.EMPTY_LONGVALUE_ARRAY : ExtendedStorageChannel.EMPTY_DOUBLEVALUE_ARRAY;
         long currentStart = startTime;
         final List<BaseValue> newValues = new ArrayList<BaseValue> ();
+        BaseValue oldValue = null;
         do
         {
             final long currentEnd = Math.min ( currentStart + fetchTimeSpan, endTime );
@@ -190,11 +191,11 @@ public class HsdbHelper
                     }
                 }
                 final BaseValue newValue = outputCalculationLogicProvider.generateValues ( normalizedValues );
-                final BaseValue oldValue = newValues.isEmpty () ? null : newValues.get ( newValues.size () );
                 if ( valueChanged ( oldValue, newValue ) )
                 {
                     newValues.add ( newValue );
                 }
+                oldValue = newValue;
                 currentStart = gapEnd;
             }
             if ( !newValues.isEmpty () )
