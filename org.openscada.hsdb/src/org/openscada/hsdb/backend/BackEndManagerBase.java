@@ -73,6 +73,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** Task that is used to perform repair jobs. */
     private final ExecutorService repairTask;
 
+    /** Lock object to avoid usage of synchronize. */
+    private final ReentrantReadWriteLock lock;
+
     /**
      * Constructor.
      * @param configuration configuration of the manager instance
@@ -95,13 +98,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         final Map<String, String> data = configuration.getData ();
         this.maximumCompressionLevel = data == null ? 0 : Conversions.parseLong ( data.get ( Configuration.MAX_COMPRESSION_LEVEL ), 0 );
         this.repairTask = Executors.newSingleThreadExecutor ( HsdbThreadFactory.createFactory ( REPAIR_THREAD_ID ) );
+        lock = new ReentrantReadWriteLock ();
     }
 
     /**
      * This method updates the configuration using the current internal object structure as input.
      * After that the updated configuration is stored to the configuration file.
      */
-    protected synchronized void flushConfiguration ()
+    protected void flushConfiguration ()
     {
         // remove existing entries in the configuration that have to be created again
         final Map<String, String> data = configuration.getData ();
@@ -371,139 +375,171 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * That root channel will be returned as result of the method.
      * @return root channel of the built tree
      */
-    public synchronized CalculatingStorageChannel buildStorageChannelTree ()
+    public CalculatingStorageChannel buildStorageChannelTree ()
     {
-        // optimize calculation
-        if ( ( storageChannels != null ) && ( storageChannels.length > 0 ) )
-        {
-            return storageChannels[0];
-        }
-
-        // create back end objects 
-        Exception exception = null;
+        lock.writeLock ().lock ();
         try
         {
-            // create back end objects
-            final StorageChannelMetaData[] metaDatas = Conversions.convertConfigurationToMetaDatas ( configuration );
-            if ( ( metaDatas == null ) || ( metaDatas.length == 0 ) )
+            // optimize calculation
+            if ( ( storageChannels != null ) && ( storageChannels.length > 0 ) )
             {
-                final String message = String.format ( "invalid configuration (%s)", configuration.getId () );
-                logger.error ( message );
-                throw new Exception ( message );
-            }
-            for ( final StorageChannelMetaData metaData : metaDatas )
-            {
-                final BackEndMultiplexer backEnd = new BackEndMultiplexer ( this );
-                storageChannelTreeBackEnds.add ( backEnd );
-                backEnd.initialize ( metaData );
+                return storageChannels[0];
             }
 
-            // create hierarchical storage channel structure
-            storageChannels = new CalculatingStorageChannel[storageChannelTreeBackEnds.size ()];
-            for ( int i = 0; i < storageChannelTreeBackEnds.size (); i++ )
+            // create back end objects 
+            Exception exception = null;
+            try
             {
-                final BackEnd backEnd = storageChannelTreeBackEnds.get ( i );
-                final CalculationMethod calculationMethod = backEnd.getMetaData ().getCalculationMethod ();
-                int superBackEndIndex = -1;
-                for ( int j = i - 1; j >= 0; j-- )
+                // create back end objects
+                final StorageChannelMetaData[] metaDatas = Conversions.convertConfigurationToMetaDatas ( configuration );
+                if ( ( metaDatas == null ) || ( metaDatas.length == 0 ) )
                 {
-                    final BackEnd superBackEndCandidate = storageChannelTreeBackEnds.get ( j );
-                    final CalculationMethod superCalculationMethod = superBackEndCandidate.getMetaData ().getCalculationMethod ();
-                    if ( ( superCalculationMethod == calculationMethod ) || ( superCalculationMethod == CalculationMethod.NATIVE ) )
+                    final String message = String.format ( "invalid configuration (%s)", configuration.getId () );
+                    logger.error ( message );
+                    throw new Exception ( message );
+                }
+                for ( final StorageChannelMetaData metaData : metaDatas )
+                {
+                    final BackEndMultiplexer backEnd = new BackEndMultiplexer ( this );
+                    storageChannelTreeBackEnds.add ( backEnd );
+                    backEnd.initialize ( metaData );
+                }
+
+                // create hierarchical storage channel structure
+                storageChannels = new CalculatingStorageChannel[storageChannelTreeBackEnds.size ()];
+                for ( int i = 0; i < storageChannelTreeBackEnds.size (); i++ )
+                {
+                    final BackEnd backEnd = storageChannelTreeBackEnds.get ( i );
+                    final CalculationMethod calculationMethod = backEnd.getMetaData ().getCalculationMethod ();
+                    int superBackEndIndex = -1;
+                    for ( int j = i - 1; j >= 0; j-- )
                     {
-                        superBackEndIndex = j;
-                        break;
+                        final BackEnd superBackEndCandidate = storageChannelTreeBackEnds.get ( j );
+                        final CalculationMethod superCalculationMethod = superBackEndCandidate.getMetaData ().getCalculationMethod ();
+                        if ( ( superCalculationMethod == calculationMethod ) || ( superCalculationMethod == CalculationMethod.NATIVE ) )
+                        {
+                            superBackEndIndex = j;
+                            break;
+                        }
+                    }
+                    storageChannels[i] = new CalculatingStorageChannel ( new ExtendedStorageChannelAdapter ( backEnd ), superBackEndIndex >= 0 ? storageChannels[superBackEndIndex] : null, calculationLogicProviderFactory.getCalculationLogicProvider ( backEnd.getMetaData () ) );
+                    if ( superBackEndIndex >= 0 )
+                    {
+                        storageChannels[superBackEndIndex].registerStorageChannel ( storageChannels[i] );
                     }
                 }
-                storageChannels[i] = new CalculatingStorageChannel ( new ExtendedStorageChannelAdapter ( backEnd ), superBackEndIndex >= 0 ? storageChannels[superBackEndIndex] : null, calculationLogicProviderFactory.getCalculationLogicProvider ( backEnd.getMetaData () ) );
-                if ( superBackEndIndex >= 0 )
-                {
-                    storageChannels[superBackEndIndex].registerStorageChannel ( storageChannels[i] );
-                }
+                return storageChannels[0];
             }
-            return storageChannels[0];
+            catch ( final Exception e )
+            {
+                exception = e;
+            }
+            final String message = String.format ( "could not create all back ends required for configuration '%s'", configuration.getId () );
+            logger.error ( message, exception );
+            releaseStorageChannelTree ();
+            throw new RuntimeException ( message, exception );
         }
-        catch ( final Exception e )
+        finally
         {
-            exception = e;
+            lock.writeLock ().unlock ();
         }
-        final String message = String.format ( "could not create all back ends required for configuration '%s'", configuration.getId () );
-        logger.error ( message, exception );
-        releaseStorageChannelTree ();
-        throw new RuntimeException ( message, exception );
     }
 
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#releaseStorageChannelTree()
      */
-    public synchronized void releaseStorageChannelTree ()
+    public void releaseStorageChannelTree ()
     {
-        storageChannelTreeBackEnds.clear ();
-        storageChannels = null;
+        lock.writeLock ().lock ();
+        try
+        {
+            storageChannelTreeBackEnds.clear ();
+            storageChannels = null;
+        }
+        finally
+        {
+            lock.writeLock ().unlock ();
+        }
     }
 
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#buildStorageChannelStructure()
      */
-    public synchronized Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> buildStorageChannelStructure ()
+    public Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> buildStorageChannelStructure ()
     {
-        // build the storage channel tree structure if it does not yet exist
-        final boolean storageChannelTreeExists = storageChannels != null;
-        if ( !storageChannelTreeExists )
-        {
-            buildStorageChannelTree ();
-        }
-
-        // build structure
-        final Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> resultMap = new HashMap<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> ();
+        lock.readLock ().lock ();
         try
         {
-            for ( final CalculatingStorageChannel calculatingStorageChannel : storageChannels )
+            // build the storage channel tree structure if it does not yet exist
+            final boolean storageChannelTreeExists = storageChannels != null;
+            if ( !storageChannelTreeExists )
             {
-                // collect data for map entry
-                final StorageChannelMetaData metaData = new StorageChannelMetaData ( calculatingStorageChannel.getMetaData () );
-                final long detailLevelId = metaData.getDetailLevelId ();
-                final CalculationMethod calculationMethod = metaData.getCalculationMethod ();
-                final CalculationLogicProvider calculationLogicProvider = calculationLogicProviderFactory.getCalculationLogicProvider ( metaData );
-                final BackEndMultiplexer backEnd = new BackEndMultiplexer ( this );
-                backEnd.initialize ( metaData );
-                final ExtendedStorageChannel storageChannel = new ExtendedStorageChannelAdapter ( backEnd );
-
-                // create map entry
-                Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>> map = resultMap.get ( detailLevelId );
-                if ( map == null )
-                {
-                    map = new HashMap<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>> ();
-                    resultMap.put ( detailLevelId, map );
-                }
-                Map<ExtendedStorageChannel, CalculationLogicProvider> map2 = map.get ( calculationMethod );
-                if ( map2 == null )
-                {
-                    map2 = new HashMap<ExtendedStorageChannel, CalculationLogicProvider> ();
-                    map.put ( calculationMethod, map2 );
-                }
-                map2.put ( storageChannel, calculationLogicProvider );
+                buildStorageChannelTree ();
             }
-        }
-        catch ( final Exception e )
-        {
-            logger.error ( "problem while building the storage channel structure", e );
-        }
 
-        // release the storage channel tree structure if did not exist before
-        if ( !storageChannelTreeExists )
-        {
-            releaseStorageChannelTree ();
+            // build structure
+            final Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> resultMap = new HashMap<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> ();
+            try
+            {
+                for ( final CalculatingStorageChannel calculatingStorageChannel : storageChannels )
+                {
+                    // collect data for map entry
+                    final StorageChannelMetaData metaData = new StorageChannelMetaData ( calculatingStorageChannel.getMetaData () );
+                    final long detailLevelId = metaData.getDetailLevelId ();
+                    final CalculationMethod calculationMethod = metaData.getCalculationMethod ();
+                    final CalculationLogicProvider calculationLogicProvider = calculationLogicProviderFactory.getCalculationLogicProvider ( metaData );
+                    final BackEndMultiplexer backEnd = new BackEndMultiplexer ( this );
+                    backEnd.initialize ( metaData );
+                    final ExtendedStorageChannel storageChannel = new ExtendedStorageChannelAdapter ( backEnd );
+
+                    // create map entry
+                    Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>> map = resultMap.get ( detailLevelId );
+                    if ( map == null )
+                    {
+                        map = new HashMap<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>> ();
+                        resultMap.put ( detailLevelId, map );
+                    }
+                    Map<ExtendedStorageChannel, CalculationLogicProvider> map2 = map.get ( calculationMethod );
+                    if ( map2 == null )
+                    {
+                        map2 = new HashMap<ExtendedStorageChannel, CalculationLogicProvider> ();
+                        map.put ( calculationMethod, map2 );
+                    }
+                    map2.put ( storageChannel, calculationLogicProvider );
+                }
+            }
+            catch ( final Exception e )
+            {
+                logger.error ( "problem while building the storage channel structure", e );
+            }
+
+            // release the storage channel tree structure if did not exist before
+            if ( !storageChannelTreeExists )
+            {
+                releaseStorageChannelTree ();
+            }
+            return resultMap;
         }
-        return resultMap;
+        finally
+        {
+            lock.readLock ().unlock ();
+        }
     }
 
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#delete()
      */
-    public synchronized void delete ()
+    public void delete ()
     {
-        backEndManagerFactory.delete ( configuration );
+        lock.writeLock ().lock ();
+        try
+        {
+            backEndManagerFactory.delete ( configuration );
+        }
+        finally
+        {
+            lock.writeLock ().unlock ();
+        }
     }
 
     /**
@@ -555,36 +591,44 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#getBackEndForInsert(java.lang.Object, long, org.openscada.hsdb.calculation.CalculationMethod, long)
      */
-    public synchronized B getBackEndForInsert ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp ) throws Exception
+    public B getBackEndForInsert ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp ) throws Exception
     {
-        final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1 );
-        BackEndFragmentInformation<B> result;
-        if ( backEndInformations.isEmpty () )
+        lock.writeLock ().lock ();
+        try
         {
-            // create new back end object
-            result = addNewBackEndObjects ( detailLevelId, calculationMethod, timestamp, timestamp );
-        }
-        else
-        {
-            final BackEndFragmentInformation<B> existingBackEndInformation = backEndInformations.get ( 0 );
-            if ( ( existingBackEndInformation.getStartTime () <= timestamp ) && ( existingBackEndInformation.getEndTime () > timestamp ) )
+            final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1 );
+            BackEndFragmentInformation<B> result;
+            if ( backEndInformations.isEmpty () )
             {
-                // all is good. the current back end object can be used
-                result = existingBackEndInformation;
+                // create new back end object
+                result = addNewBackEndObjects ( detailLevelId, calculationMethod, timestamp, timestamp );
             }
             else
             {
-                // create new back end object
-                result = addNewBackEndObjects ( detailLevelId, calculationMethod, existingBackEndInformation.getEndTime (), timestamp );
+                final BackEndFragmentInformation<B> existingBackEndInformation = backEndInformations.get ( 0 );
+                if ( ( existingBackEndInformation.getStartTime () <= timestamp ) && ( existingBackEndInformation.getEndTime () > timestamp ) )
+                {
+                    // all is good. the current back end object can be used
+                    result = existingBackEndInformation;
+                }
+                else
+                {
+                    // create new back end object
+                    result = addNewBackEndObjects ( detailLevelId, calculationMethod, existingBackEndInformation.getEndTime (), timestamp );
+                }
             }
+            if ( result.getBackEndFragment () == null )
+            {
+                result.setBackEndFragment ( createBackEnd ( result, false ) );
+                result.getBackEndFragment ().setLock ( new ReentrantReadWriteLock () );
+            }
+            final B backEnd = createBackEnd ( result, true );
+            return backEnd;
         }
-        if ( result.getBackEndFragment () == null )
+        finally
         {
-            result.setBackEndFragment ( createBackEnd ( result, false ) );
-            result.getBackEndFragment ().setLock ( new ReentrantReadWriteLock () );
+            lock.writeLock ().unlock ();
         }
-        final B backEnd = createBackEnd ( result, true );
-        return backEnd;
     }
 
     /**
@@ -635,92 +679,116 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#getExistingBackEnds(java.lang.Object, long, org.openscada.hsdb.calculation.CalculationMethod, long, long)
      */
-    public synchronized B[] getExistingBackEnds ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime ) throws Exception
+    public B[] getExistingBackEnds ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime ) throws Exception
     {
-        final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, startTime, endTime );
-        final List<B> result = new ArrayList<B> ();
-        for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
+        lock.readLock ().lock ();
+        try
         {
-            if ( backEndInformation.getBackEndFragment () == null )
+            final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, startTime, endTime );
+            final List<B> result = new ArrayList<B> ();
+            for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
             {
-                backEndInformation.setBackEndFragment ( createBackEnd ( backEndInformation, false ) );
-                backEndInformation.getBackEndFragment ().setLock ( new ReentrantReadWriteLock () );
+                if ( backEndInformation.getBackEndFragment () == null )
+                {
+                    backEndInformation.setBackEndFragment ( createBackEnd ( backEndInformation, false ) );
+                    backEndInformation.getBackEndFragment ().setLock ( new ReentrantReadWriteLock () );
+                }
+                result.add ( createBackEnd ( backEndInformation, true ) );
             }
-            result.add ( createBackEnd ( backEndInformation, true ) );
+            return result.toArray ( emptyBackEndArray );
         }
-        return result.toArray ( emptyBackEndArray );
+        finally
+        {
+            lock.readLock ().unlock ();
+        }
     }
 
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#deleteOldBackEnds(long, org.openscada.hsdb.calculation.CalculationMethod, long)
      */
-    public synchronized void deleteOldBackEnds ( final long detailLevelId, final CalculationMethod calculationMethod, final long endTime )
+    public void deleteOldBackEnds ( final long detailLevelId, final CalculationMethod calculationMethod, final long endTime )
     {
-        final List<BackEndFragmentInformation<B>> backEndFragmentInformationToDelete = new ArrayList<BackEndFragmentInformation<B>> ();
-        final Map<CalculationMethod, List<BackEndFragmentInformation<B>>> map = masterBackEnds.get ( detailLevelId );
-        if ( map == null )
+        lock.writeLock ().lock ();
+        try
         {
-            return;
-        }
-        final List<BackEndFragmentInformation<B>> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
-        if ( list == null )
-        {
-            return;
-        }
-        for ( final BackEndFragmentInformation<B> backEndFragmentInformation : list )
-        {
-            if ( backEndFragmentInformation.getEndTime () <= endTime )
+            final List<BackEndFragmentInformation<B>> backEndFragmentInformationToDelete = new ArrayList<BackEndFragmentInformation<B>> ();
+            final Map<CalculationMethod, List<BackEndFragmentInformation<B>>> map = masterBackEnds.get ( detailLevelId );
+            if ( map == null )
             {
-                final B backEnd = backEndFragmentInformation.getBackEndFragment ();
-                if ( backEnd != null )
+                return;
+            }
+            final List<BackEndFragmentInformation<B>> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
+            if ( list == null )
+            {
+                return;
+            }
+            for ( final BackEndFragmentInformation<B> backEndFragmentInformation : list )
+            {
+                if ( backEndFragmentInformation.getEndTime () <= endTime )
                 {
-                    try
+                    final B backEnd = backEndFragmentInformation.getBackEndFragment ();
+                    if ( backEnd != null )
                     {
-                        backEnd.deinitialize ();
+                        try
+                        {
+                            backEnd.deinitialize ();
+                        }
+                        catch ( final Exception e )
+                        {
+                            final String message = String.format ( "could not deinitialize back end for configuration '%s'", configuration.getId () );
+                            logger.error ( message, e );
+                        }
                     }
-                    catch ( final Exception e )
-                    {
-                        final String message = String.format ( "could not deinitialize back end for configuration '%s'", configuration.getId () );
-                        logger.error ( message, e );
-                    }
+                    deleteBackEnd ( backEndFragmentInformation );
+                    backEndFragmentInformationToDelete.add ( backEndFragmentInformation );
                 }
-                deleteBackEnd ( backEndFragmentInformation );
-                backEndFragmentInformationToDelete.add ( backEndFragmentInformation );
+            }
+            if ( !backEndFragmentInformationToDelete.isEmpty () )
+            {
+                list.removeAll ( backEndFragmentInformationToDelete );
+                flushConfiguration ();
             }
         }
-        if ( !backEndFragmentInformationToDelete.isEmpty () )
+        finally
         {
-            list.removeAll ( backEndFragmentInformationToDelete );
-            flushConfiguration ();
+            lock.writeLock ().unlock ();
         }
     }
 
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#markBackEndAsCorrupt(long, org.openscada.hsdb.calculation.CalculationMethod, long)
      */
-    public synchronized void markBackEndAsCorrupt ( final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp )
+    public void markBackEndAsCorrupt ( final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp )
     {
-        final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1 );
-        boolean statusChanged = false;
-        for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
+        lock.readLock ().lock ();
+        try
         {
-            if ( !backEndInformation.getIsCorrupt () )
+            final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1 );
+            boolean statusChanged = false;
+            for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
             {
-                logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndInformation.getFragmentName (), configuration.getId () ) );
-                backEndInformation.setIsCorrupt ( true );
-                statusChanged = true;
+                if ( !backEndInformation.getIsCorrupt () )
+                {
+                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndInformation.getFragmentName (), configuration.getId () ) );
+                    backEndInformation.setIsCorrupt ( true );
+                    statusChanged = true;
+                }
+            }
+            if ( statusChanged )
+            {
+                flushConfiguration ();
             }
         }
-        if ( statusChanged )
+        finally
         {
-            flushConfiguration ();
+            lock.readLock ().unlock ();
         }
     }
 
     /**
      * @see org.openscada.hsdb.backend.BackEndManager#repairBackEndFragmentsIfRequired(AbortNotificator)
      */
-    public synchronized boolean repairBackEndFragmentsIfRequired ( final AbortNotificator abortNotificator )
+    public boolean repairBackEndFragmentsIfRequired ( final AbortNotificator abortNotificator )
     {
         if ( corruptFilesExist )
         {

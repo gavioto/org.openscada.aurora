@@ -78,7 +78,7 @@ public class FileBackEnd implements BackEnd
     private long dataOffset;
 
     /** Flag indicating whether the instance has been initialized or not. */
-    private boolean initialized;
+    private volatile boolean initialized;
 
     /** Synchronization object that should be used when reading or writing data. */
     private ReentrantReadWriteLock lock;
@@ -322,7 +322,7 @@ public class FileBackEnd implements BackEnd
     /**
      * @see org.openscada.hsdb.backend.BackEnd#getMetaData
      */
-    public synchronized StorageChannelMetaData getMetaData () throws Exception
+    public StorageChannelMetaData getMetaData () throws Exception
     {
         assureInitialized ();
         if ( !file.exists () )

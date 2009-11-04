@@ -353,7 +353,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     /**
      * @see org.openscada.hsdb.ExtendedStorageChannel#getMetaData
      */
-    public synchronized StorageChannelMetaData getMetaData () throws Exception
+    public StorageChannelMetaData getMetaData () throws Exception
     {
         if ( baseStorageChannel == null )
         {

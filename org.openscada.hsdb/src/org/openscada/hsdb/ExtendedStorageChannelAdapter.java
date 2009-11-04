@@ -51,7 +51,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
     /**
      * @see org.openscada.hsdb.ExtendedStorageChannel#getMetaData
      */
-    public synchronized StorageChannelMetaData getMetaData () throws Exception
+    public StorageChannelMetaData getMetaData () throws Exception
     {
         if ( storageChannel == null )
         {

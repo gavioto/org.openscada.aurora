@@ -31,7 +31,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
     private final BackEndManager<? extends BackEnd> backEndManager;
 
     /** Flag indicating whether the instance has been initialized or not. */
-    private boolean initialized;
+    private volatile boolean initialized;
 
     /**
      * Constructor.
@@ -98,7 +98,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
     /**
      * @see org.openscada.hsdb.backend.BackEnd#getMetaData
      */
-    public synchronized StorageChannelMetaData getMetaData () throws Exception
+    public StorageChannelMetaData getMetaData () throws Exception
     {
         assureInitialized ();
         return metaData;
