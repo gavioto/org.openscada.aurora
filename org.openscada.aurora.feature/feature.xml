@@ -5,15 +5,15 @@
       version="0.14.0.qualifier"
       provider-name="inavare GmbH">
 
-   <description url="http://www.example.com/description">
+   <description>
       [Enter Feature Description here.]
    </description>
 
-   <copyright url="http://www.example.com/copyright">
+   <copyright>
       [Enter Copyright Description here.]
    </copyright>
 
-   <license url="http://www.example.com/license">
+   <license>
       [Enter License Description here.]
    </license>
 
@@ -70,6 +70,13 @@
 
    <plugin
          id="org.openscada.hsdb.backend.file"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.osgi.equinox.console"
          download-size="0"
          install-size="0"
          version="0.0.0"
