@@ -204,4 +204,29 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         final File file = new File ( backEndInformation.getFragmentName () );
         return !file.exists ();
     }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndManagerBase#isBackEndEmpty(org.openscada.hsdb.backend.BackEndFragmentInformation)
+     */
+    @Override
+    protected boolean isBackEndEmpty ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
+    {
+        FileBackEnd backEnd = backEndInformation.getBackEndFragment ();
+        boolean result = false;
+        if ( backEnd == null )
+        {
+            backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
+        }
+        try
+        {
+            backEnd.initialize ( null );
+            result = backEnd.isEmpty ();
+            backEnd.deinitialize ();
+        }
+        catch ( final Exception e )
+        {
+            logger.error ( String.format ( "could not access back end '%s' for configuration with id '%s'", backEndInformation.getFragmentName (), backEndInformation.getConfigurationId () ) );
+        }
+        return result;
+    }
 }

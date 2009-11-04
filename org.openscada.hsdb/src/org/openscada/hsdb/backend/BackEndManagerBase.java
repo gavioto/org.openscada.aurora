@@ -507,12 +507,18 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             final long metaDataEndTime = backEndFragmentInformation.getEndTime ();
             if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
             {
-                result.add ( backEndFragmentInformation );
+                if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                {
+                    result.add ( backEndFragmentInformation );
+                }
             }
             if ( startTime >= metaDataEndTime )
             {
-                result.add ( backEndFragmentInformation );
-                break;
+                if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                {
+                    result.add ( backEndFragmentInformation );
+                    break;
+                }
             }
         }
         return result;
@@ -814,6 +820,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @return true, if the passed back end fragment is ready for being repaired, otherwise false
      */
     protected abstract boolean readyForRepair ( final BackEndFragmentInformation<B> backEndInformation );
+
+    /**
+     * This method returns whether the passed back end fragment contains data or not
+     * @param backEndInformation object that has to be checked
+     * @return true, if the passed fragment does not contain any data, otherwise false
+     */
+    protected abstract boolean isBackEndEmpty ( final BackEndFragmentInformation<B> backEndInformation );
 
     /**
      * This method deletes the passed back end fragment.

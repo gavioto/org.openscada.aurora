@@ -138,7 +138,7 @@ public class FileBackEnd implements BackEnd
      * @return true if the file contains any data otherwise false
      * @throws Exception if the instance is not initialized
      */
-    public boolean getIsEmpty () throws Exception
+    public boolean isEmpty () throws Exception
     {
         assureInitialized ();
         return isEmpty;
@@ -480,7 +480,7 @@ public class FileBackEnd implements BackEnd
             }
 
             // create a wrapper object for returning the retrieved data
-            this.isEmpty = dataOffset + 1 < randomAccessFile.length ();
+            this.isEmpty = dataOffset + 1 >= randomAccessFile.length ();
             return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, DataType.convertLongToDataType ( dataType ) );
         }
         finally
