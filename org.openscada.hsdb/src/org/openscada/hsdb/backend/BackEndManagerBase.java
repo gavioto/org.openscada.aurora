@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openscada.hsdb.CalculatingStorageChannel;
@@ -15,6 +17,7 @@ import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.calculation.CalculationLogicProvider;
 import org.openscada.hsdb.calculation.CalculationLogicProviderFactoryImpl;
 import org.openscada.hsdb.calculation.CalculationMethod;
+import org.openscada.hsdb.concurrent.HsdbThreadFactory;
 import org.openscada.hsdb.configuration.Configuration;
 import org.openscada.hsdb.configuration.Conversions;
 import org.openscada.hsdb.utils.HsdbHelper;
@@ -31,6 +34,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** The default logger. */
     private final static Logger logger = LoggerFactory.getLogger ( BackEndManagerBase.class );
 
+    /** Id of the repair thread. */
+    private final String REPAIR_THREAD_ID = "hsdb.RepairThread";
+
     /** Configuration of the manager instance. */
     private final Configuration configuration;
 
@@ -40,7 +46,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** Factory that can be used to create new back end objects. */
     private final BackEndFactory backEndFactory;
 
-    /** Emtpy back end array. */
+    /** Empty back end array. */
     private final B[] emptyBackEndArray;
 
     /** Maximum compression level. */
@@ -64,6 +70,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** Flag indicating whether corrupt files exist or not. */
     private boolean corruptFilesExist;
 
+    /** Task that is used to perform repair jobs. */
+    private final ExecutorService repairTask;
+
     /**
      * Constructor.
      * @param configuration configuration of the manager instance
@@ -85,13 +94,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         this.storageChannelTreeBackEnds = new ArrayList<BackEnd> ();
         final Map<String, String> data = configuration.getData ();
         this.maximumCompressionLevel = data == null ? 0 : Conversions.parseLong ( data.get ( Configuration.MAX_COMPRESSION_LEVEL ), 0 );
+        this.repairTask = Executors.newSingleThreadExecutor ( HsdbThreadFactory.createFactory ( REPAIR_THREAD_ID ) );
     }
 
     /**
      * This method updates the configuration using the current internal object structure as input.
      * After that the updated configuration is stored to the configuration file.
      */
-    protected void flushConfiguration ()
+    protected synchronized void flushConfiguration ()
     {
         // remove existing entries in the configuration that have to be created again
         final Map<String, String> data = configuration.getData ();
@@ -259,10 +269,29 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             list = new LinkedList<BackEndFragmentInformation<B>> ();
             map.put ( calculationMethod, list );
         }
-        list.add ( backEndFragmentInformation );
-        if ( sort )
+        boolean add = true;
+        for ( final BackEndFragmentInformation<B> existingBackEndFragmentInformation : list )
         {
-            Collections.sort ( list );
+            if ( existingBackEndFragmentInformation.getFragmentName ().equals ( backEndFragmentInformation.getFragmentName () ) )
+            {
+                existingBackEndFragmentInformation.setBackEndFragment ( backEndFragmentInformation.getBackEndFragment () );
+                existingBackEndFragmentInformation.setCalculationMethod ( backEndFragmentInformation.getCalculationMethod () );
+                existingBackEndFragmentInformation.setConfigurationId ( backEndFragmentInformation.getConfigurationId () );
+                existingBackEndFragmentInformation.setDetailLevelId ( backEndFragmentInformation.getDetailLevelId () );
+                existingBackEndFragmentInformation.setStartTime ( backEndFragmentInformation.getStartTime () );
+                existingBackEndFragmentInformation.setEndTime ( backEndFragmentInformation.getEndTime () );
+                existingBackEndFragmentInformation.setIsCorrupt ( existingBackEndFragmentInformation.getIsCorrupt () || backEndFragmentInformation.getIsCorrupt () );
+                add = false;
+                break;
+            }
+        }
+        if ( add )
+        {
+            list.add ( backEndFragmentInformation );
+            if ( sort )
+            {
+                Collections.sort ( list );
+            }
         }
     }
 
@@ -409,7 +438,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public synchronized void releaseStorageChannelTree ()
     {
-        deinitializeBackEnds ( storageChannelTreeBackEnds );
         storageChannelTreeBackEnds.clear ();
         storageChannels = null;
     }
@@ -459,7 +487,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         catch ( final Exception e )
         {
-            logger.error ( "problem wwhile building the storage channel structure", e );
+            logger.error ( "problem while building the storage channel structure", e );
         }
 
         // release the storage channel tree structure if did not exist before
@@ -561,11 +589,12 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
 
     /**
      * This method adds new back end objects to the internal storage.
-     * @param detailLevelId
-     * @param calculationMethod
-     * @param timestamp
-     * @return
-     * @throws Exception
+     * If there is a time gap between the last object and the new one, the gap will be filled by an additional element.
+     * @param detailLevelId detail level of the stored data
+     * @param calculationMethod method that is used to calculate the data that is stored in the channel
+     * @param timestamp time stamp for which the object has to be created
+     * @return added back end object
+     * @throws Exception in case of problems
      */
     private BackEndFragmentInformation<B> addNewBackEndObjects ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long time ) throws Exception
     {
@@ -615,6 +644,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             if ( backEndInformation.getBackEndFragment () == null )
             {
                 backEndInformation.setBackEndFragment ( createBackEnd ( backEndInformation, false ) );
+                backEndInformation.getBackEndFragment ().setLock ( new ReentrantReadWriteLock () );
             }
             result.add ( createBackEnd ( backEndInformation, true ) );
         }
@@ -694,8 +724,10 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     {
         if ( corruptFilesExist )
         {
+            // collect information of all corrupt back end object
             logger.info ( "collecting data required for repair action..." );
             buildStorageChannelTree ();
+            final CalculatingStorageChannel[] storageChannels = this.storageChannels;
             final long now = System.currentTimeMillis ();
             final List<BackEndFragmentInformation<B>> corruptBackEndFragmentInformations = new ArrayList<BackEndFragmentInformation<B>> ();
             for ( long i = 1; i <= maximumCompressionLevel; i++ )
@@ -746,14 +778,15 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                         break;
                     }
 
-                    // set corrupt information to false. it might be set again to true during the repair process
-                    backEndInformation.setIsCorrupt ( false );
-
                     // process this back end fragment
                     final long detailLevelId = backEndInformation.getDetailLevelId ();
                     final CalculationMethod calculationMethod = backEndInformation.getCalculationMethod ();
                     final long startTime = backEndInformation.getStartTime ();
                     final long endTime = backEndInformation.getEndTime ();
+
+                    // check whether the corrupt fragment is the latest of its detail level and calculation method
+                    final List<BackEndFragmentInformation<B>> existingBackEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, Long.MAX_VALUE - 1, Long.MAX_VALUE );
+                    final boolean latestBackEndFragment = existingBackEndInformations.isEmpty () || ( existingBackEndInformations.get ( 0 ).getStartTime () == startTime );
 
                     // search for the storage channel that is responsible for the corrupt back end fragment
                     try
@@ -769,7 +802,32 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                 final CalculationLogicProvider inputCalculationLogicProvider = inputCalculatingStorageChannel.getCalculationLogicProvider ();
                                 final ExtendedStorageChannel outputChannel = outputCalculatingStorageChannel.getBaseStorageChannel ();
                                 final ExtendedStorageChannel inputChannel = inputCalculatingStorageChannel.getBaseStorageChannel ();
-                                HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
+                                if ( latestBackEndFragment )
+                                {
+                                    logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
+                                    HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
+                                    backEndInformation.setIsCorrupt ( false );
+                                }
+                                else
+                                {
+                                    repairTask.submit ( new Runnable () {
+                                        public void run ()
+                                        {
+                                            try
+                                            {
+                                                logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
+                                                HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
+                                                backEndInformation.setIsCorrupt ( false );
+                                                flushConfiguration ();
+                                            }
+                                            catch ( final Exception e )
+                                            {
+                                                final String message = String.format ( "problem while repairing corrupt back end fragment (%s) for configuration '%s'", backEndInformation.getFragmentName (), configuration.getId () );
+                                                logger.error ( message, e );
+                                            }
+                                        }
+                                    } );
+                                }
                                 break;
                             }
                         }

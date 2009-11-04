@@ -23,7 +23,7 @@ public class HsdbHelper
     private final static Logger logger = LoggerFactory.getLogger ( HsdbHelper.class );
 
     /** Maximum values that will be read from the input storage channel when processing data. */
-    private final static long MAX_GAP_COUNT = 10000;
+    private final static long MAX_GAP_COUNT = 100000;
 
     /**
      * This method extracts a sub array out of the passed array of elements matching the specified criteria.

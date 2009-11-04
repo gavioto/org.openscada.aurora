@@ -84,7 +84,10 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
                 logger.error ( "could not retrieve meta data information of existing back end fragments", e );
             }
         }
-        super.initialize ();
+        else
+        {
+            super.initialize ();
+        }
     }
 
     /**
@@ -211,10 +214,21 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
     @Override
     protected boolean isBackEndEmpty ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
     {
+        if ( backEndInformation.getIsCorrupt () )
+        {
+            return false;
+        }
         FileBackEnd backEnd = backEndInformation.getBackEndFragment ();
         boolean result = false;
         if ( backEnd == null )
         {
+            final String fileName = backEndInformation.getFragmentName ();
+            if ( !new File ( fileName ).exists () )
+            {
+                // the file does not exist but it should be there.
+                // since no check can be performed, assume that the file contains invalid data
+                return false;
+            }
             backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
         }
         try
