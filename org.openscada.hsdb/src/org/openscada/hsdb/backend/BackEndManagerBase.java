@@ -794,8 +794,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             // collect information of all corrupt back end object
             logger.info ( "collecting data required for repair action..." );
-            buildStorageChannelTree ();
-            final CalculatingStorageChannel[] storageChannels = this.storageChannels;
             final long now = System.currentTimeMillis ();
             final List<BackEndFragmentInformation<B>> corruptBackEndFragmentInformations = new ArrayList<BackEndFragmentInformation<B>> ();
             for ( long i = 1; i <= maximumCompressionLevel; i++ )
@@ -807,7 +805,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     {
                         if ( backEndInformation.getIsCorrupt () )
                         {
-                            deleteBackEnd ( backEndInformation );
                             if ( readyForRepair ( backEndInformation ) )
                             {
                                 final B backEnd = backEndInformation.getBackEndFragment ();
@@ -837,6 +834,8 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             logger.info ( String.format ( "[%s] corrupt back end fragments scheduled to be repaired...", corruptBackEndFragmentInformations.size () ) );
             if ( !corruptBackEndFragmentInformations.isEmpty () )
             {
+                buildStorageChannelTree ();
+                final CalculatingStorageChannel[] storageChannels = this.storageChannels;
                 logger.info ( String.format ( "start processing [%s] corrupt back end fragments...", corruptBackEndFragmentInformations.size () ) );
                 for ( final BackEndFragmentInformation<B> backEndInformation : corruptBackEndFragmentInformations )
                 {
@@ -872,9 +871,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                 final ExtendedStorageChannel inputChannel = inputCalculatingStorageChannel.getBaseStorageChannel ();
                                 if ( latestBackEndFragment )
                                 {
-                                    logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
-                                    HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
-                                    backEndInformation.setIsCorrupt ( false );
+                                    if ( ( abortNotificator == null ) || !abortNotificator.getAbort () )
+                                    {
+                                        logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
+                                        deleteBackEnd ( backEndInformation );
+                                        HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
+                                        backEndInformation.setIsCorrupt ( false );
+                                    }
                                 }
                                 else
                                 {
@@ -883,10 +886,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                         {
                                             try
                                             {
-                                                logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
-                                                HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
-                                                backEndInformation.setIsCorrupt ( false );
-                                                flushConfiguration ();
+                                                if ( ( abortNotificator == null ) || !abortNotificator.getAbort () )
+                                                {
+                                                    logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
+                                                    deleteBackEnd ( backEndInformation );
+                                                    HsdbHelper.processData ( inputChannel, outputChannel, inputCalculationLogicProvider, outputCalculationLogicProvider, startTime, Math.min ( now, endTime ) );
+                                                    backEndInformation.setIsCorrupt ( false );
+                                                    flushConfiguration ();
+                                                }
                                             }
                                             catch ( final Exception e )
                                             {

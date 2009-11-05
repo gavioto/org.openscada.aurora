@@ -11,7 +11,6 @@ import java.util.Set;
 import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.datatypes.DataType;
-import org.openscada.utils.str.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,7 +275,7 @@ public class Conversions
         }
 
         // set common data
-        data.put ( Configuration.CALCULATION_METHODS, StringHelper.join ( calculationMethods, LIST_SEPARATOR ) );
+        //        data.put ( Configuration.CALCULATION_METHODS, StringHelper.join ( calculationMethods, LIST_SEPARATOR ) );
         data.put ( Configuration.MAX_COMPRESSION_LEVEL, "" + maxLevel );
 
         // the configuration is now complete
