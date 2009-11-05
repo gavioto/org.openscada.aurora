@@ -1,8 +1,10 @@
-package org.openscada.hsdb.backend;
+package org.openscada.hsdb.testing.backend;
 
 import java.io.File;
 
 import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.BackEnd;
+import org.openscada.hsdb.backend.BackEndMultiplexer;
 import org.openscada.hsdb.backend.file.FileBackEndFactory;
 import org.openscada.hsdb.backend.file.FileBackEndManager;
 import org.openscada.hsdb.backend.file.FileBackEndManagerFactory;
@@ -11,8 +13,8 @@ import org.openscada.hsdb.configuration.Conversions;
 
 /**
  * Test class for following classes:
- * org.openscada.hsdb.backend.FileBackEndFactory.
- * org.openscada.hsdb.backend.BackEndMultiplexor.
+ * org.openscada.hsdb.testing.backend.FileBackEndFactory.
+ * org.openscada.hsdb.testing.backend.BackEndMultiplexor.
  * @author Ludwig Straub
  */
 public class FileBackEndMultiplexorTest extends BackEndTestBase

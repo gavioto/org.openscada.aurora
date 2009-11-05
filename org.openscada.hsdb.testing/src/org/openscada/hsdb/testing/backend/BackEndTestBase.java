@@ -1,16 +1,17 @@
-package org.openscada.hsdb.backend;
+package org.openscada.hsdb.testing.backend;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.BackEnd;
 import org.openscada.hsdb.calculation.CalculationMethod;
 import org.openscada.hsdb.datatypes.DataType;
 import org.openscada.hsdb.datatypes.LongValue;
 
 /**
- * Test class provides methods for testing implementations of interface org.openscada.hsdb.backend.BackEnd.
+ * Test class provides methods for testing implementations of interface org.openscada.hsdb.testing.backend.BackEnd.
  * @author Ludwig Straub
  */
 public abstract class BackEndTestBase
@@ -22,7 +23,7 @@ public abstract class BackEndTestBase
     protected final static int MAX_COUNT = 500;
 
     /** Configuration id that is used for the tests. */
-    private final static String CONFIGURATION_ID = "Confüg_ura<tio\\n?:#\"'";
+    private final static String CONFIGURATION_ID = "Confï¿½g_ura<tio\\n?:#\"'";
 
     /** Back end instance that is used for testing. */
     protected BackEnd backEnd;

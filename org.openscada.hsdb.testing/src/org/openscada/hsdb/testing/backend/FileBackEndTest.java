@@ -1,4 +1,4 @@
-package org.openscada.hsdb.backend;
+package org.openscada.hsdb.testing.backend;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -8,11 +8,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openscada.hsdb.StorageChannelMetaData;
+import org.openscada.hsdb.backend.BackEnd;
 import org.openscada.hsdb.backend.file.FileBackEnd;
 import org.openscada.hsdb.datatypes.LongValue;
 
 /**
- * Test class for class org.openscada.hsdb.backend.FileBackEnd.
+ * Test class for class org.openscada.hsdb.testing.backend.FileBackEnd.
  * @author Ludwig Straub
  */
 public class FileBackEndTest extends BackEndTestBase

@@ -1,4 +1,4 @@
-package org.openscada.hsdb.backend;
+package org.openscada.hsdb.testing.backend;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
