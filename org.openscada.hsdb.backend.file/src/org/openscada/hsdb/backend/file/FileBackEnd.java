@@ -513,7 +513,7 @@ public class FileBackEnd implements BackEnd
             {
                 // open new connection
                 logger.debug ( String.format ( "OPENING file '%s' successful", this.fileName ) );
-                this.randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rwd" : "r" );
+                this.randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
                 this.openInWriteMode = allowWrite;
             }
             catch ( final IOException e )
