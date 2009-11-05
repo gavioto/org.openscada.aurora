@@ -573,7 +573,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             {
                 try
                 {
-                    if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                    if ( backEndFragmentInformation.getIsCorrupt () || !isBackEndEmpty ( backEndFragmentInformation ) )
                     {
                         result.add ( backEndFragmentInformation );
                     }
@@ -582,13 +582,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 {
                     logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), configuration.getId () ) );
                     backEndFragmentInformation.setIsCorrupt ( true );
+                    flushConfiguration ();
                 }
             }
             if ( startTime >= metaDataEndTime )
             {
                 try
                 {
-                    if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                    if ( backEndFragmentInformation.getIsCorrupt () || !isBackEndEmpty ( backEndFragmentInformation ) )
                     {
                         result.add ( backEndFragmentInformation );
                         break;
@@ -598,6 +599,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 {
                     logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), configuration.getId () ) );
                     backEndFragmentInformation.setIsCorrupt ( true );
+                    flushConfiguration ();
                 }
             }
         }
