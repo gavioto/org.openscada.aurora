@@ -571,17 +571,33 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             final long metaDataEndTime = backEndFragmentInformation.getEndTime ();
             if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
             {
-                if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                try
                 {
-                    result.add ( backEndFragmentInformation );
+                    if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                    {
+                        result.add ( backEndFragmentInformation );
+                    }
+                }
+                catch ( final Exception e )
+                {
+                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), configuration.getId () ) );
+                    backEndFragmentInformation.setIsCorrupt ( true );
                 }
             }
             if ( startTime >= metaDataEndTime )
             {
-                if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                try
                 {
-                    result.add ( backEndFragmentInformation );
-                    break;
+                    if ( !isBackEndEmpty ( backEndFragmentInformation ) )
+                    {
+                        result.add ( backEndFragmentInformation );
+                        break;
+                    }
+                }
+                catch ( final Exception e )
+                {
+                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), configuration.getId () ) );
+                    backEndFragmentInformation.setIsCorrupt ( true );
                 }
             }
         }
@@ -958,8 +974,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * This method returns whether the passed back end fragment contains data or not
      * @param backEndInformation object that has to be checked
      * @return true, if the passed fragment does not contain any data, otherwise false
+     * @throws Exception if back end fragment is corrupt
      */
-    protected abstract boolean isBackEndEmpty ( final BackEndFragmentInformation<B> backEndInformation );
+    protected abstract boolean isBackEndEmpty ( final BackEndFragmentInformation<B> backEndInformation ) throws Exception;
 
     /**
      * This method deletes the passed back end fragment.
