@@ -617,6 +617,13 @@ public class FileBackEnd implements BackEnd
     private long getInsertionPoint ( final long time ) throws Exception
     {
         long endSearch = this.randomAccessFile.length () - RECORD_BLOCK_SIZE;
+        final long incompleteData = ( endSearch - dataOffset ) % RECORD_BLOCK_SIZE;
+        if ( incompleteData != 0 )
+        {
+            endSearch -= incompleteData;
+            endSearch = Math.max ( endSearch, dataOffset );
+            logger.warn ( String.format ( "skipping last entry when reading file '%s' since it is not complete", fileName ) );
+        }
         while ( endSearch >= this.dataOffset )
         {
             final LongValue existingLongValue = readLongValue ( endSearch );
@@ -881,6 +888,13 @@ public class FileBackEnd implements BackEnd
             // get data from file
             final long fileSize = this.randomAccessFile.length ();
             long startingPosition = getFirstEntryPosition ( startTime );
+            final long incompleteData = ( startingPosition - dataOffset ) % RECORD_BLOCK_SIZE;
+            if ( incompleteData != 0 )
+            {
+                startingPosition -= incompleteData;
+                startingPosition = Math.max ( startingPosition, dataOffset );
+                logger.warn ( String.format ( "skipping last entry when reading file '%s' since it is not complete", fileName ) );
+            }
             final List<LongValue> longValues = new ArrayList<LongValue> ();
             while ( startingPosition + RECORD_BLOCK_SIZE <= fileSize )
             {

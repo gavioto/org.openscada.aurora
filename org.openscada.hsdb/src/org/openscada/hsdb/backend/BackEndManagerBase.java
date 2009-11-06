@@ -226,6 +226,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 }
                 final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
                 backEndFragmentInformation.setConfigurationId ( configurationId );
+                backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
                 backEndFragmentInformation.setCalculationMethod ( calculationMethod );
                 backEndFragmentInformation.setDetailLevelId ( detailLevelId );
                 backEndFragmentInformation.setStartTime ( startTime );
@@ -278,6 +279,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             if ( existingBackEndFragmentInformation.getFragmentName ().equals ( backEndFragmentInformation.getFragmentName () ) )
             {
+                backEndFragmentInformation.setLock ( existingBackEndFragmentInformation.getLock () );
                 existingBackEndFragmentInformation.setBackEndFragment ( backEndFragmentInformation.getBackEndFragment () );
                 existingBackEndFragmentInformation.setCalculationMethod ( backEndFragmentInformation.getCalculationMethod () );
                 existingBackEndFragmentInformation.setConfigurationId ( backEndFragmentInformation.getConfigurationId () );
@@ -638,7 +640,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             if ( result.getBackEndFragment () == null )
             {
                 result.setBackEndFragment ( createBackEnd ( result, false ) );
-                result.getBackEndFragment ().setLock ( new ReentrantReadWriteLock () );
             }
             final B backEnd = createBackEnd ( result, true );
             return backEnd;
@@ -672,6 +673,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
             backEndFragmentInformation.setCalculationMethod ( calculationMethod );
             backEndFragmentInformation.setConfigurationId ( configuration.getId () );
+            backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
             backEndFragmentInformation.setDetailLevelId ( detailLevelId );
             backEndFragmentInformation.setIsCorrupt ( false );
             backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, startTime, fragmentStart ) );
@@ -683,6 +685,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
         backEndFragmentInformation.setCalculationMethod ( calculationMethod );
         backEndFragmentInformation.setConfigurationId ( configuration.getId () );
+        backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
         backEndFragmentInformation.setDetailLevelId ( detailLevelId );
         backEndFragmentInformation.setIsCorrupt ( false );
         backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, fragmentStart, fragmentStart + timespan ) );
@@ -709,7 +712,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 if ( backEndInformation.getBackEndFragment () == null )
                 {
                     backEndInformation.setBackEndFragment ( createBackEnd ( backEndInformation, false ) );
-                    backEndInformation.getBackEndFragment ().setLock ( new ReentrantReadWriteLock () );
                 }
                 result.add ( createBackEnd ( backEndInformation, true ) );
             }

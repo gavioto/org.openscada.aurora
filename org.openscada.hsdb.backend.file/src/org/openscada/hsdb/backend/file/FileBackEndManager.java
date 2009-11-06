@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.backend.BackEndFragmentInformation;
@@ -64,6 +65,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
                     {
                         final BackEndFragmentInformation<FileBackEnd> backEndFragmentInformation = new BackEndFragmentInformation<FileBackEnd> ();
                         backEndFragmentInformation.setConfigurationId ( configurationId );
+                        backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
                         backEndFragmentInformation.setCalculationMethod ( metaData.getCalculationMethod () );
                         backEndFragmentInformation.setDetailLevelId ( metaData.getDetailLevelId () );
                         backEndFragmentInformation.setStartTime ( metaData.getStartTime () );
@@ -88,13 +90,6 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         {
             super.initialize ();
         }
-    }
-
-    /**
-     * @see org.openscada.hsdb.backend.BackEndManagerBase#createBackEnd(org.openscada.hsdb.backend.BackEndFragmentInformation)
-     */
-    protected void createBackEnd ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
-    {
     }
 
     /**
@@ -142,6 +137,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         }
         final StorageChannelMetaData metaData = new StorageChannelMetaData ( configurationId, calculationMethod, calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, dataType );
         final FileBackEnd result = new FileBackEnd ( fileName, false );
+        result.setLock ( backEndInformation.getLock () );
         if ( backEndInformation.getBackEndFragment () != null )
         {
             result.setLock ( backEndInformation.getBackEndFragment ().getLock () );
@@ -230,6 +226,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
                 return false;
             }
             backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
+            backEnd.setLock ( backEndInformation.getLock () );
         }
         backEnd.initialize ( null );
         result = backEnd.isEmpty ();

@@ -1,5 +1,7 @@
 package org.openscada.hsdb.backend;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.openscada.hsdb.calculation.CalculationMethod;
 
 public class BackEndFragmentInformation<B extends BackEnd> implements Comparable<BackEndFragmentInformation<?>>
@@ -19,6 +21,8 @@ public class BackEndFragmentInformation<B extends BackEnd> implements Comparable
     private String fragmentName;
 
     private B backEndFragment;
+
+    private ReentrantReadWriteLock lock;
 
     public String getConfigurationId ()
     {
@@ -98,6 +102,16 @@ public class BackEndFragmentInformation<B extends BackEnd> implements Comparable
     public void setBackEndFragment ( final B backEndFragment )
     {
         this.backEndFragment = backEndFragment;
+    }
+
+    public ReentrantReadWriteLock getLock ()
+    {
+        return lock;
+    }
+
+    public void setLock ( final ReentrantReadWriteLock lock )
+    {
+        this.lock = lock;
     }
 
     public int compareTo ( final BackEndFragmentInformation<?> o )
