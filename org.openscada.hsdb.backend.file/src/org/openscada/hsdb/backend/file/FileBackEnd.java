@@ -94,13 +94,13 @@ public class FileBackEnd implements BackEnd
     public FileBackEnd ( final String fileName, final boolean keepOpenWhileInitialized )
     {
         this.fileName = fileName;
-        this.file = new File ( fileName );
-        this.keepUpenWhileInitialized = keepOpenWhileInitialized;
-        this.metaData = null;
-        this.openInWriteMode = false;
-        this.initialized = false;
-        this.lock = null;
-        this.isEmpty = true;
+        file = new File ( fileName );
+        keepUpenWhileInitialized = keepOpenWhileInitialized;
+        metaData = null;
+        openInWriteMode = false;
+        initialized = false;
+        lock = null;
+        isEmpty = true;
         if ( fileName == null || fileName.trim ().length () == 0 )
         {
             throw new IllegalArgumentException ( "invalid filename passed via configuration" );
@@ -154,7 +154,7 @@ public class FileBackEnd implements BackEnd
         // assure that a valid object has been passed
         if ( storageChannelMetaData == null )
         {
-            final String message = String.format ( "invalid StorageChannelMetaData object passed for file '%s'!", this.fileName );
+            final String message = String.format ( "invalid StorageChannelMetaData object passed for file '%s'!", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -174,13 +174,13 @@ public class FileBackEnd implements BackEnd
         // validate input data
         if ( configurationId == null )
         {
-            final String message = String.format ( "invalid configuration id specified for file '%s'!", this.fileName );
+            final String message = String.format ( "invalid configuration id specified for file '%s'!", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
         if ( startTime >= endTime )
         {
-            final String message = String.format ( "invalid timespan specified for file '%s'! (startTime >= endTime)", this.fileName );
+            final String message = String.format ( "invalid timespan specified for file '%s'! (startTime >= endTime)", fileName );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -191,10 +191,10 @@ public class FileBackEnd implements BackEnd
         {
             parent.mkdirs ();
         }
-        logger.info ( String.format ( "creating file '%s'", this.fileName ) );
+        logger.info ( String.format ( "creating file '%s'", fileName ) );
         if ( !file.createNewFile () )
         {
-            final String message = String.format ( "file '%s' could not be created. please verify the access rights and make sure that no file with the given name already exists. (file exists=%s)", this.fileName, file.exists () );
+            final String message = String.format ( "file '%s' could not be created. please verify the access rights and make sure that no file with the given name already exists. (file exists=%s)", fileName, file.exists () );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -230,35 +230,35 @@ public class FileBackEnd implements BackEnd
         try
         {
             openConnection ( true );
-            this.randomAccessFile.seek ( 0L );
-            this.randomAccessFile.writeLong ( FILE_MARKER );
-            this.randomAccessFile.writeLong ( dataOffset );
-            this.randomAccessFile.writeLong ( FILE_VERSION );
-            this.randomAccessFile.writeLong ( detailLevelId );
-            this.randomAccessFile.writeLong ( startTime );
-            this.randomAccessFile.writeLong ( endTime );
-            this.randomAccessFile.writeLong ( proposedDataAge );
-            this.randomAccessFile.writeLong ( acceptedTimeDelta );
-            this.randomAccessFile.writeLong ( dataType );
-            this.randomAccessFile.writeLong ( calculationMethodId );
-            this.randomAccessFile.writeInt ( calculationMethodParameters.length );
-            this.randomAccessFile.writeInt ( configurationIdBytes.length );
+            randomAccessFile.seek ( 0L );
+            randomAccessFile.writeLong ( FILE_MARKER );
+            randomAccessFile.writeLong ( dataOffset );
+            randomAccessFile.writeLong ( FILE_VERSION );
+            randomAccessFile.writeLong ( detailLevelId );
+            randomAccessFile.writeLong ( startTime );
+            randomAccessFile.writeLong ( endTime );
+            randomAccessFile.writeLong ( proposedDataAge );
+            randomAccessFile.writeLong ( acceptedTimeDelta );
+            randomAccessFile.writeLong ( dataType );
+            randomAccessFile.writeLong ( calculationMethodId );
+            randomAccessFile.writeInt ( calculationMethodParameters.length );
+            randomAccessFile.writeInt ( configurationIdBytes.length );
             for ( int i = 0; i < calculationMethodParameters.length; i++ )
             {
-                this.randomAccessFile.writeLong ( calculationMethodParameters[i] );
+                randomAccessFile.writeLong ( calculationMethodParameters[i] );
             }
-            this.randomAccessFile.write ( configurationIdBytes );
-            this.randomAccessFile.writeInt ( parity );
+            randomAccessFile.write ( configurationIdBytes );
+            randomAccessFile.writeInt ( parity );
             if ( lock != null )
             {
-                this.randomAccessFile.getChannel ().force ( false );
+                randomAccessFile.getChannel ().force ( false );
             }
         }
         finally
         {
             if ( lock != null )
             {
-                this.randomAccessFile.getChannel ().force ( false );
+                randomAccessFile.getChannel ().force ( false );
                 lock.writeLock ().unlock ();
             }
         }
@@ -276,14 +276,14 @@ public class FileBackEnd implements BackEnd
         }
         if ( file.exists () )
         {
-            logger.info ( String.format ( "deleting existing file '%s'...", this.fileName ) );
+            logger.info ( String.format ( "deleting existing file '%s'...", fileName ) );
             if ( file.delete () )
             {
-                logger.info ( String.format ( "deletion of file '%s' successful", this.fileName ) );
+                logger.info ( String.format ( "deletion of file '%s' successful", fileName ) );
             }
             else
             {
-                logger.warn ( String.format ( "deletion of file '%s' failed", this.fileName ) );
+                logger.warn ( String.format ( "deletion of file '%s' failed", fileName ) );
             }
         }
         if ( lock != null )
@@ -297,8 +297,8 @@ public class FileBackEnd implements BackEnd
      */
     public synchronized void initialize ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
     {
-        this.metaData = null;
-        this.initialized = true;
+        metaData = null;
+        initialized = true;
         try
         {
             getMetaData ();
@@ -331,13 +331,13 @@ public class FileBackEnd implements BackEnd
             logger.error ( message );
             throw new Exception ( message );
         }
-        if ( this.metaData == null )
+        if ( metaData == null )
         {
             openConnection ( false );
-            this.metaData = extractMetaData ();
+            metaData = extractMetaData ();
             closeIfRequired ();
         }
-        return this.metaData;
+        return metaData;
     }
 
     /**
@@ -354,9 +354,9 @@ public class FileBackEnd implements BackEnd
     public synchronized void deinitialize () throws Exception
     {
         closeConnection ();
-        this.initialized = false;
-        this.metaData = null;
-        this.isEmpty = true;
+        initialized = false;
+        metaData = null;
+        isEmpty = true;
     }
 
     /**
@@ -365,9 +365,9 @@ public class FileBackEnd implements BackEnd
      */
     private void assureInitialized () throws Exception
     {
-        if ( !this.initialized )
+        if ( !initialized )
         {
-            final String message = String.format ( "back end (%s) is not properly initialized!", this.metaData );
+            final String message = String.format ( "back end (%s) is not properly initialized!", metaData );
             logger.error ( message );
             throw new Exception ( message );
         }
@@ -387,73 +387,73 @@ public class FileBackEnd implements BackEnd
         }
         try
         {
-            this.randomAccessFile.seek ( 0L );
-            final long fileSize = this.randomAccessFile.length ();
+            randomAccessFile.seek ( 0L );
+            final long fileSize = randomAccessFile.length ();
             if ( fileSize < 16 )
             {
-                final String message = String.format ( "file '%s' is of invalid format! (too small)", this.fileName );
+                final String message = String.format ( "file '%s' is of invalid format! (too small)", fileName );
                 logger.error ( message );
                 throw new Exception ( message );
             }
-            final long fileMarker = this.randomAccessFile.readLong ();
+            final long fileMarker = randomAccessFile.readLong ();
             if ( fileMarker != FILE_MARKER )
             {
-                final String message = String.format ( "file '%s' is of invalid format! (invalid marker)", this.fileName );
+                final String message = String.format ( "file '%s' is of invalid format! (invalid marker)", fileName );
                 logger.error ( message );
                 throw new Exception ( message );
             }
-            this.dataOffset = this.randomAccessFile.readLong ();
-            if ( fileSize < this.dataOffset )
+            dataOffset = randomAccessFile.readLong ();
+            if ( fileSize < dataOffset )
             {
-                final String message = String.format ( "file '%s' is of invalid format! (invalid header)", this.fileName );
+                final String message = String.format ( "file '%s' is of invalid format! (invalid header)", fileName );
                 logger.error ( message );
                 throw new Exception ( message );
             }
-            final long version = this.randomAccessFile.readLong ();
+            final long version = randomAccessFile.readLong ();
             if ( version != FILE_VERSION )
             {
-                final String message = String.format ( "file '%s' is of invalid format! (wrong version)", this.fileName );
+                final String message = String.format ( "file '%s' is of invalid format! (wrong version)", fileName );
                 logger.error ( message );
                 throw new Exception ( message );
             }
-            final long detailLevelId = this.randomAccessFile.readLong ();
-            final long startTime = this.randomAccessFile.readLong ();
-            final long endTime = this.randomAccessFile.readLong ();
+            final long detailLevelId = randomAccessFile.readLong ();
+            final long startTime = randomAccessFile.readLong ();
+            final long endTime = randomAccessFile.readLong ();
             if ( startTime >= endTime )
             {
-                final String message = String.format ( "file '%s' has invalid timespan specified! (startTime >= endTime)", this.fileName );
+                final String message = String.format ( "file '%s' has invalid timespan specified! (startTime >= endTime)", fileName );
                 logger.error ( message );
                 throw new Exception ( message );
             }
-            final long proposedDataAge = this.randomAccessFile.readLong ();
-            final long acceptedTimeDelta = this.randomAccessFile.readLong ();
-            final long dataType = this.randomAccessFile.readLong ();
-            final long calculationMethodId = this.randomAccessFile.readLong ();
-            final int calculationMethodParameterCountSize = this.randomAccessFile.readInt ();
-            final int configurationIdSize = this.randomAccessFile.readInt ();
-            if ( this.dataOffset - this.randomAccessFile.getFilePointer () - 4 - configurationIdSize != calculationMethodParameterCountSize * 8 )
+            final long proposedDataAge = randomAccessFile.readLong ();
+            final long acceptedTimeDelta = randomAccessFile.readLong ();
+            final long dataType = randomAccessFile.readLong ();
+            final long calculationMethodId = randomAccessFile.readLong ();
+            final int calculationMethodParameterCountSize = randomAccessFile.readInt ();
+            final int configurationIdSize = randomAccessFile.readInt ();
+            if ( dataOffset - randomAccessFile.getFilePointer () - 4 - configurationIdSize != calculationMethodParameterCountSize * 8 )
             {
-                final String message = String.format ( "file '%s' is of invalid format! (invalid count of calculation method parameters)", this.fileName );
+                final String message = String.format ( "file '%s' is of invalid format! (invalid count of calculation method parameters)", fileName );
                 logger.error ( message );
                 throw new Exception ( message );
             }
             final long[] calculationMethodParameters = new long[calculationMethodParameterCountSize];
             for ( int i = 0; i < calculationMethodParameters.length; i++ )
             {
-                calculationMethodParameters[i] = this.randomAccessFile.readLong ();
+                calculationMethodParameters[i] = randomAccessFile.readLong ();
             }
-            if ( this.dataOffset - this.randomAccessFile.getFilePointer () - 4 != configurationIdSize )
+            if ( dataOffset - randomAccessFile.getFilePointer () - 4 != configurationIdSize )
             {
-                final String message = String.format ( "file '%s' is of invalid format! (invalid configuration id)", this.fileName );
+                final String message = String.format ( "file '%s' is of invalid format! (invalid configuration id)", fileName );
                 logger.error ( message );
                 throw new Exception ( message );
             }
             final byte[] configurationIdBytes = new byte[configurationIdSize];
-            this.randomAccessFile.readFully ( configurationIdBytes );
+            randomAccessFile.readFully ( configurationIdBytes );
             final String configurationId = decodeStringFromBytes ( configurationIdBytes );
             final CRC32 crc32 = new CRC32 ();
-            final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)this.dataOffset - 12 );
-            byteBuffer.putLong ( this.dataOffset );
+            final ByteBuffer byteBuffer = ByteBuffer.allocate ( (int)dataOffset - 12 );
+            byteBuffer.putLong ( dataOffset );
             byteBuffer.putLong ( version );
             byteBuffer.putLong ( detailLevelId );
             byteBuffer.putLong ( startTime );
@@ -471,16 +471,16 @@ public class FileBackEnd implements BackEnd
             byteBuffer.put ( configurationIdBytes );
             crc32.update ( byteBuffer.array () );
             final int checksum = (int)crc32.getValue ();
-            final int fileChecksum = this.randomAccessFile.readInt ();
+            final int fileChecksum = randomAccessFile.readInt ();
             if ( fileChecksum != checksum )
             {
-                final String message = String.format ( "file '%s' has a corrupt header! (expected: %s, actual: %s)", this.fileName, checksum, fileChecksum );
+                final String message = String.format ( "file '%s' has a corrupt header! (expected: %s, actual: %s)", fileName, checksum, fileChecksum );
                 logger.error ( message );
                 throw new Exception ( message );
             }
 
             // create a wrapper object for returning the retrieved data
-            this.isEmpty = dataOffset + 1 >= randomAccessFile.length ();
+            isEmpty = dataOffset + 1 >= randomAccessFile.length ();
             return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, DataType.convertLongToDataType ( dataType ) );
         }
         finally
@@ -501,25 +501,25 @@ public class FileBackEnd implements BackEnd
     private void openConnection ( final boolean allowWrite ) throws Exception
     {
         // close connection if a writable file is required and the current connection only supports reading
-        if ( this.randomAccessFile != null && allowWrite && !this.openInWriteMode )
+        if ( randomAccessFile != null && allowWrite && !openInWriteMode )
         {
             closeConnection ();
         }
 
         // if file already is open, nothing has to be done
-        if ( this.randomAccessFile == null )
+        if ( randomAccessFile == null )
         {
             try
             {
                 // open new connection
-                logger.debug ( String.format ( "OPENING file '%s' successful", this.fileName ) );
-                this.randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
-                this.openInWriteMode = allowWrite;
+                logger.debug ( String.format ( "OPENING file '%s' successful", fileName ) );
+                randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
+                openInWriteMode = allowWrite;
             }
             catch ( final IOException e )
             {
                 // close connection in case of problems
-                final String message = String.format ( "file '%s' could not be opened", this.fileName );
+                final String message = String.format ( "file '%s' could not be opened", fileName );
                 logger.error ( message, e );
                 closeConnection ();
                 throw new Exception ( message, e );
@@ -532,18 +532,18 @@ public class FileBackEnd implements BackEnd
      */
     private void closeConnection ()
     {
-        if ( this.randomAccessFile != null )
+        if ( randomAccessFile != null )
         {
             try
             {
-                logger.debug ( String.format ( "closing file '%s' successful", this.fileName ) );
-                this.randomAccessFile.close ();
+                logger.debug ( String.format ( "closing file '%s' successful", fileName ) );
+                randomAccessFile.close ();
             }
             catch ( final IOException e )
             {
-                logger.warn ( String.format ( "file '%s' could not be closed", this.fileName ) );
+                logger.warn ( String.format ( "file '%s' could not be closed", fileName ) );
             }
-            this.randomAccessFile = null;
+            randomAccessFile = null;
         }
     }
 
@@ -570,18 +570,18 @@ public class FileBackEnd implements BackEnd
         int fileChecksum;
         try
         {
-            if ( this.randomAccessFile.getFilePointer () != position )
+            if ( randomAccessFile.getFilePointer () != position )
             {
-                this.randomAccessFile.seek ( position );
+                randomAccessFile.seek ( position );
             }
-            time = this.randomAccessFile.readLong ();
-            qualityIndicatorAsLong = this.randomAccessFile.readLong ();
-            manualIndicatorAsLong = this.randomAccessFile.readLong ();
+            time = randomAccessFile.readLong ();
+            qualityIndicatorAsLong = randomAccessFile.readLong ();
+            manualIndicatorAsLong = randomAccessFile.readLong ();
             qualityIndicator = Double.longBitsToDouble ( qualityIndicatorAsLong );
             manualIndicator = Double.longBitsToDouble ( manualIndicatorAsLong );
-            baseValueCount = this.randomAccessFile.readLong ();
-            value = this.randomAccessFile.readLong ();
-            fileChecksum = this.randomAccessFile.readByte ();
+            baseValueCount = randomAccessFile.readLong ();
+            value = randomAccessFile.readLong ();
+            fileChecksum = randomAccessFile.readByte ();
         }
         finally
         {
@@ -599,9 +599,13 @@ public class FileBackEnd implements BackEnd
         final byte checksum = calculateLrcParity ( byteBuffer.array () );
         if ( fileChecksum != checksum )
         {
-            final String message = String.format ( "file '%s' is corrupt! invalid checksum (expected: %s, actual: %s)", this.fileName, checksum, fileChecksum );
+            final String message = String.format ( "file '%s' is corrupt! invalid checksum (expected: %s, actual: %s)", fileName, checksum, fileChecksum );
             logger.error ( message );
             throw new Exception ( message );
+        }
+        if ( time < metaData.getStartTime () || time >= metaData.getEndTime () )
+        {
+            logger.warn ( String.format ( "valid entry within file '%s' has an invalid time specified! (hack attack?). please check file! (metadata: '%s*, time: '%s')", fileName, metaData, time ) );
         }
         return new LongValue ( time, qualityIndicator, manualIndicator, baseValueCount, value );
     }
@@ -616,7 +620,7 @@ public class FileBackEnd implements BackEnd
      */
     private long getInsertionPoint ( final long time ) throws Exception
     {
-        long endSearch = this.randomAccessFile.length () - RECORD_BLOCK_SIZE;
+        long endSearch = randomAccessFile.length () - RECORD_BLOCK_SIZE;
         final long incompleteData = ( endSearch - dataOffset ) % RECORD_BLOCK_SIZE;
         if ( incompleteData != 0 )
         {
@@ -624,7 +628,7 @@ public class FileBackEnd implements BackEnd
             endSearch = Math.max ( endSearch, dataOffset );
             logger.warn ( String.format ( "skipping last entry when reading file '%s' since it is not complete", fileName ) );
         }
-        while ( endSearch >= this.dataOffset )
+        while ( endSearch >= dataOffset )
         {
             final LongValue existingLongValue = readLongValue ( endSearch );
             final long existingTime = existingLongValue.getTime ();
@@ -638,7 +642,7 @@ public class FileBackEnd implements BackEnd
             }
             endSearch -= RECORD_BLOCK_SIZE;
         }
-        return this.dataOffset;
+        return dataOffset;
     }
 
     /**
@@ -653,39 +657,39 @@ public class FileBackEnd implements BackEnd
     private long getFirstEntryPosition ( final long startTime ) throws Exception
     {
         // ignore incomplete data at file end
-        long fileSize = this.randomAccessFile.length ();
-        final long incompleteData = ( fileSize - this.dataOffset ) % RECORD_BLOCK_SIZE;
+        long fileSize = randomAccessFile.length ();
+        final long incompleteData = ( fileSize - dataOffset ) % RECORD_BLOCK_SIZE;
         if ( incompleteData > 0 )
         {
             fileSize -= incompleteData;
         }
 
         // check for bounds to optimize search
-        if ( this.metaData.getEndTime () < startTime )
+        if ( metaData.getEndTime () < startTime )
         {
-            return fileSize > this.dataOffset ? fileSize - RECORD_BLOCK_SIZE : fileSize;
+            return fileSize > dataOffset ? fileSize - RECORD_BLOCK_SIZE : fileSize;
         }
-        if ( this.metaData.getStartTime () > startTime )
+        if ( metaData.getStartTime () > startTime )
         {
-            return this.dataOffset;
+            return dataOffset;
         }
 
         // prepare data for real binary search
         long startSearch = 0;
-        long endSearch = ( fileSize - this.dataOffset ) / RECORD_BLOCK_SIZE;
+        long endSearch = ( fileSize - dataOffset ) / RECORD_BLOCK_SIZE;
         if ( startSearch == endSearch )
         {
-            return this.dataOffset;
+            return dataOffset;
         }
 
         // perform real binary search
         long midTime = startSearch;
         long midSearch = startSearch;
-        long filePointer = this.dataOffset;
+        long filePointer = dataOffset;
         while ( startSearch < endSearch )
         {
             midSearch = ( startSearch + endSearch ) / 2;
-            filePointer = midSearch * RECORD_BLOCK_SIZE + this.dataOffset;
+            filePointer = midSearch * RECORD_BLOCK_SIZE + dataOffset;
             midTime = readLongValue ( filePointer ).getTime ();
             if ( midTime < startTime )
             {
@@ -701,7 +705,7 @@ public class FileBackEnd implements BackEnd
             }
         }
         long resultIndex = Math.max ( 0, Math.min ( startSearch, endSearch ) );
-        filePointer = resultIndex * RECORD_BLOCK_SIZE + this.dataOffset;
+        filePointer = resultIndex * RECORD_BLOCK_SIZE + dataOffset;
         if ( filePointer < fileSize )
         {
             midTime = readLongValue ( filePointer ).getTime ();
@@ -710,8 +714,8 @@ public class FileBackEnd implements BackEnd
                 resultIndex--;
             }
         }
-        final long result = Math.max ( 0, resultIndex ) * RECORD_BLOCK_SIZE + this.dataOffset;
-        return result > this.dataOffset && result == fileSize ? result - RECORD_BLOCK_SIZE : result;
+        final long result = Math.max ( 0, resultIndex ) * RECORD_BLOCK_SIZE + dataOffset;
+        return result > dataOffset && result == fileSize ? result - RECORD_BLOCK_SIZE : result;
     }
 
     /**
@@ -729,8 +733,8 @@ public class FileBackEnd implements BackEnd
             return;
         }
         int index = 0;
-        final long startTime = this.metaData.getStartTime ();
-        final long endTime = this.metaData.getEndTime ();
+        final long startTime = metaData.getStartTime ();
+        final long endTime = metaData.getEndTime ();
         if ( lock != null )
         {
             lock.writeLock ().lock ();
@@ -753,7 +757,7 @@ public class FileBackEnd implements BackEnd
 
                 // calculate insertion point of new data
                 final long insertionPoint = getInsertionPoint ( time );
-                long endCopy = this.randomAccessFile.length ();
+                long endCopy = randomAccessFile.length ();
 
                 // make room for new data if data cannot be appended at the end or existing data has to be overwritten
                 final boolean addAll = insertionPoint == endCopy;
@@ -765,17 +769,17 @@ public class FileBackEnd implements BackEnd
                     while ( startCopy < endCopy )
                     {
                         final int bufferFillSize = (int) ( endCopy - startCopy );
-                        this.randomAccessFile.seek ( startCopy );
-                        this.randomAccessFile.read ( buffer, 0, bufferFillSize );
-                        this.randomAccessFile.seek ( startCopy + RECORD_BLOCK_SIZE );
-                        this.randomAccessFile.write ( buffer, 0, bufferFillSize );
+                        randomAccessFile.seek ( startCopy );
+                        randomAccessFile.read ( buffer, 0, bufferFillSize );
+                        randomAccessFile.seek ( startCopy + RECORD_BLOCK_SIZE );
+                        randomAccessFile.write ( buffer, 0, bufferFillSize );
                         endCopy = startCopy;
                         startCopy = Math.max ( insertionPoint, startCopy - bufferFillSize );
                     }
                 }
 
                 // set file pointer to correct insertion position
-                this.randomAccessFile.seek ( insertionPoint );
+                randomAccessFile.seek ( insertionPoint );
 
                 // write data
                 do
@@ -795,12 +799,12 @@ public class FileBackEnd implements BackEnd
                     byteBuffer.putLong ( value );
 
                     // write values
-                    this.randomAccessFile.writeLong ( time );
-                    this.randomAccessFile.writeLong ( qualityIndicator );
-                    this.randomAccessFile.writeLong ( manualIndicator );
-                    this.randomAccessFile.writeLong ( baseValueCount );
-                    this.randomAccessFile.writeLong ( value );
-                    this.randomAccessFile.writeByte ( calculateLrcParity ( byteBuffer.array () ) );
+                    randomAccessFile.writeLong ( time );
+                    randomAccessFile.writeLong ( qualityIndicator );
+                    randomAccessFile.writeLong ( manualIndicator );
+                    randomAccessFile.writeLong ( baseValueCount );
+                    randomAccessFile.writeLong ( value );
+                    randomAccessFile.writeByte ( calculateLrcParity ( byteBuffer.array () ) );
                     index++;
                 } while ( addAll && ( index < longValues.length ) );
             }
@@ -886,7 +890,7 @@ public class FileBackEnd implements BackEnd
             openConnection ( false );
 
             // get data from file
-            final long fileSize = this.randomAccessFile.length ();
+            final long fileSize = randomAccessFile.length ();
             long startingPosition = getFirstEntryPosition ( startTime );
             final long incompleteData = ( startingPosition - dataOffset ) % RECORD_BLOCK_SIZE;
             if ( incompleteData != 0 )
@@ -925,11 +929,11 @@ public class FileBackEnd implements BackEnd
         {
             return emptyByteArray;
         }
-        synchronized ( this.charEncoder )
+        synchronized ( charEncoder )
         {
             try
             {
-                return this.charEncoder.encode ( CharBuffer.wrap ( data ) ).array ();
+                return charEncoder.encode ( CharBuffer.wrap ( data ) ).array ();
             }
             catch ( final CharacterCodingException e )
             {
@@ -952,7 +956,7 @@ public class FileBackEnd implements BackEnd
 
         try
         {
-            return this.charDecoder.decode ( ByteBuffer.wrap ( bytes ) ).toString ().replaceAll ( "\u0000", "" );
+            return charDecoder.decode ( ByteBuffer.wrap ( bytes ) ).toString ().replaceAll ( "\u0000", "" );
         }
         catch ( final CharacterCodingException e )
         {
@@ -965,7 +969,7 @@ public class FileBackEnd implements BackEnd
      */
     private void closeIfRequired ()
     {
-        if ( !this.keepUpenWhileInitialized )
+        if ( !keepUpenWhileInitialized )
         {
             closeConnection ();
         }
