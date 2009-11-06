@@ -41,6 +41,7 @@ public class FileBackEndMultiplexorTest extends BackEndTestBase
         final FileBackEndManagerFactory backEndManagerFactory = new FileBackEndManagerFactory ( backEndFactory );
         manager = new FileBackEndManager ( configuration, backEndManagerFactory, backEndFactory );
         manager.delete ();
+        backEndFactory.deleteBackEnds ( configuration.getId () );
         manager = null;
         System.gc ();
         manager = backEndManagerFactory.getBackEndManager ( configuration, true );

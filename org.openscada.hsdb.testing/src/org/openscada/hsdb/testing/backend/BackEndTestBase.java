@@ -44,7 +44,7 @@ public abstract class BackEndTestBase
     @Before
     public void testFileCreate () throws Exception
     {
-        backEnd = createBackEnd ( new StorageChannelMetaData ( CONFIGURATION_ID, CalculationMethod.NATIVE, new long[0], 0, 0, MAX_COUNT, Long.MAX_VALUE, 0, DataType.LONG_VALUE ) );
+        backEnd = createBackEnd ( new StorageChannelMetaData ( CONFIGURATION_ID, CalculationMethod.NATIVE, new long[0], 0, 0, MAX_COUNT, Long.MAX_VALUE, Long.MAX_VALUE, DataType.LONG_VALUE ) );
     }
 
     /**
