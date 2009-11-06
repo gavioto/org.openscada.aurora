@@ -605,7 +605,7 @@ public class FileBackEnd implements BackEnd
         }
         if ( time < metaData.getStartTime () || time >= metaData.getEndTime () )
         {
-            logger.warn ( String.format ( "valid entry within file '%s' has an invalid time specified! (hack attack?). please check file! (metadata: '%s*, time: '%s')", fileName, metaData, time ) );
+            logger.warn ( String.format ( "valid entry within file '%s' has an invalid time specified! please check file! (metadata: '%s*, time: '%s')", fileName, metaData, time ) );
         }
         return new LongValue ( time, qualityIndicator, manualIndicator, baseValueCount, value );
     }
