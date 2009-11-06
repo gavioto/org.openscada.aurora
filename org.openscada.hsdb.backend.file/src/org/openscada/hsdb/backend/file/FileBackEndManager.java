@@ -144,7 +144,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         }
         if ( !new File ( fileName ).exists () )
         {
-            logger.debug ( String.format ( "creating file %s", fileName ) );
+            logger.debug ( "creating file {}", fileName );
             result.create ( metaData );
         }
         if ( initialize )
