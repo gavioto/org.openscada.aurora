@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 
 import org.openscada.hsdb.backend.BackEndManagerFactory;
 import org.openscada.hsdb.configuration.Configuration;
+import org.openscada.hsdb.datatypes.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,19 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
         }
         final Configuration configuration = new Configuration ();
         configuration.setId ( properties.getProperty ( Configuration.MANAGER_CONFIGURATION_ID ) );
+        if ( configuration.getId () == null )
+        {
+            final String configurationId = FileBackEndFactory.decodeFileNamePart ( encodedConfigurationId );
+            logger.error ( String.format ( "could not retrieve configuration for '%s' from control file '%s'. please check file!", configurationId, configurationFileName ) );
+            configuration.setId ( configurationId );
+            data.put ( Configuration.MANAGER_CONFIGURATION_ID, configurationId );
+        }
+        if ( !data.containsKey ( Configuration.DATA_TYPE_KEY ) )
+        {
+            final String configurationId = FileBackEndFactory.decodeFileNamePart ( encodedConfigurationId );
+            logger.error ( String.format ( "could not retrieve data type information for configuration '%s' from control file '%s'. please check file!", configurationId, configurationFileName ) );
+            data.put ( Configuration.DATA_TYPE_KEY, DataType.convertDataTypeToShortString ( DataType.DOUBLE_VALUE ) );
+        }
         configuration.setData ( data );
         return configuration;
     }

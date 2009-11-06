@@ -130,6 +130,27 @@ public class FileBackEndFactory implements BackEndFactory
     }
 
     /**
+     * This method converts the passed part of a file name to its origin value.
+     * @param fileNamePart text to be converted
+     * @return origin value of the converted text
+     */
+    public static String decodeFileNamePart ( final String fileNamePart )
+    {
+        if ( fileNamePart == null )
+        {
+            return "";
+        }
+        try
+        {
+            return URLEncoder.encode ( fileNamePart.replaceAll ( " ", FILENAME_PART_SEPERATOR ), "utf-8" );
+        }
+        catch ( final Exception e )
+        {
+            return fileNamePart;
+        }
+    }
+
+    /**
      * This method extracts data from the file name and returns the result.
      * If the desired information could not be extracted, then the default value will be returned instead.
      * @param pattern pattern that will be used to extract data from the filename
