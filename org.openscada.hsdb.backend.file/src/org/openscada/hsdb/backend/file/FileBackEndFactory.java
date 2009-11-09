@@ -81,9 +81,9 @@ public class FileBackEndFactory implements BackEndFactory
     {
         this.fileRoot = fileRoot;
         this.maximumDetailLevelToKeepFileConnectionsOpen = maximumDetailLevelToKeepFileConnectionsOpen;
-        this.configurationIdPattern = Pattern.compile ( String.format ( FILE_MASK, "(" + CONFIGURATION_ID_REGEX_PATTERN + ")", CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
-        this.calculationMethodPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, "(" + CALCULATION_METHOD_REGEX_PATTERN + ")", DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
-        this.detailLevelIdPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, CALCULATION_METHOD_REGEX_PATTERN, "(" + DETAIL_LEVEL_ID_REGEX_PATTERN + ")", START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
+        configurationIdPattern = Pattern.compile ( String.format ( FILE_MASK, "(" + CONFIGURATION_ID_REGEX_PATTERN + ")", CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
+        calculationMethodPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, "(" + CALCULATION_METHOD_REGEX_PATTERN + ")", DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
+        detailLevelIdPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, CALCULATION_METHOD_REGEX_PATTERN, "(" + DETAIL_LEVEL_ID_REGEX_PATTERN + ")", START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
     }
 
     /**
@@ -333,7 +333,7 @@ public class FileBackEndFactory implements BackEndFactory
      */
     public StorageChannelMetaData[] getExistingBackEndsMetaData ( final String configurationId, final boolean merge ) throws Exception
     {
-        return getExistingBackEndsMetaDataInDirectory ( configurationId, merge );
+        return getExistingBackEndsMetaDataInDirectory ( encodeFileNamePart ( configurationId ), merge );
     }
 
     /**
