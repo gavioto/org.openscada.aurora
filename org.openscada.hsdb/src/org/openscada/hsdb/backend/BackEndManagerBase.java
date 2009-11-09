@@ -872,9 +872,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     final long startTime = backEndInformation.getStartTime ();
                     final long endTime = backEndInformation.getEndTime ();
 
-                    // check whether the corrupt fragment is the latest of its detail level and calculation method
+                    // check whether the corrupt fragment is the latest of its detail level and calculation method or whether it is needed by other such corrupt fragments for input
                     final List<BackEndFragmentInformation<B>> existingBackEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, Long.MAX_VALUE - 1, Long.MAX_VALUE, false );
-                    final boolean latestBackEndFragment = existingBackEndInformations.isEmpty () || ( existingBackEndInformations.get ( 0 ).getStartTime () == startTime );
+                    final boolean urgentlyNeededBackEndFragment = existingBackEndInformations.isEmpty () || ( existingBackEndInformations.get ( 0 ).getStartTime () == startTime ) || getIsDependingRequiredBackEndFragment ( backEndInformation );
 
                     // search for the storage channel that is responsible for the corrupt back end fragment
                     try
@@ -890,7 +890,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                 final CalculationLogicProvider inputCalculationLogicProvider = inputCalculatingStorageChannel.getCalculationLogicProvider ();
                                 final ExtendedStorageChannel outputChannel = outputCalculatingStorageChannel.getBaseStorageChannel ();
                                 final ExtendedStorageChannel inputChannel = inputCalculatingStorageChannel.getBaseStorageChannel ();
-                                if ( latestBackEndFragment )
+                                if ( urgentlyNeededBackEndFragment )
                                 {
                                     if ( ( abortNotificator == null ) || !abortNotificator.getAbort () )
                                     {
@@ -939,6 +939,29 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             releaseStorageChannelTree ();
         }
         return !corruptFilesExist;
+    }
+
+    /**
+     * This method checks whether the passed corrupt back end fragment should be repaired at once or whether the repair action can be performed later without disadvantage.
+     * The repair action has to be performed at once if at least one back end fragment of the next highest compression level and a possibly affected time span is also corrupt.
+     * @param backEndInformation information object of the back end fragment that has to be checked
+     * @return true, if the back end fragment specified by the passed information object has to be repaired at once, otherwise false
+     */
+    private boolean getIsDependingRequiredBackEndFragment ( final BackEndFragmentInformation<B> backEndInformation )
+    {
+        if ( backEndInformation == null )
+        {
+            return false;
+        }
+        final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( backEndInformation.getDetailLevelId () + 1, backEndInformation.getCalculationMethod (), backEndInformation.getStartTime (), Long.MAX_VALUE, false );
+        for ( final BackEndFragmentInformation<B> higherBackEndInformation : backEndInformations )
+        {
+            if ( higherBackEndInformation.getIsCorrupt () )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
