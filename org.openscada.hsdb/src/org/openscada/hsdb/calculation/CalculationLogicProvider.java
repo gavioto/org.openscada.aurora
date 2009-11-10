@@ -39,5 +39,5 @@ public interface CalculationLogicProvider
      * @param values values that were processed during the time span
      * @return calculated value
      */
-    public abstract BaseValue generateValues ( final BaseValue[] values );
+    public abstract BaseValue generateValue ( final BaseValue[] values );
 }

@@ -116,9 +116,9 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     protected abstract double calculateDouble ( final DoubleValue[] values );
 
     /**
-     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#generateValues
+     * @see org.openscada.hsdb.calculation.CalculationLogicProvider#generateValue
      */
-    public BaseValue generateValues ( final BaseValue[] values )
+    public BaseValue generateValue ( final BaseValue[] values )
     {
         // check input
         if ( ( values == null ) || ( values.length == 0 ) )

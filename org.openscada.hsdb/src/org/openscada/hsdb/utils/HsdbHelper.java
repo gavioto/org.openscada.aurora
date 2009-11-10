@@ -190,7 +190,7 @@ public class HsdbHelper
                         startIndex++;
                     }
                 }
-                final BaseValue newValue = outputCalculationLogicProvider.generateValues ( normalizedValues );
+                final BaseValue newValue = outputCalculationLogicProvider.generateValue ( normalizedValues );
                 if ( valueChanged ( oldValue, newValue ) )
                 {
                     newValues.add ( newValue );
