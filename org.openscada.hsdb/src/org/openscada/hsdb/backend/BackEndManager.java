@@ -78,6 +78,12 @@ public interface BackEndManager<B extends BackEnd>
     public abstract B[] getExistingBackEnds ( Object user, long detailLevelId, CalculationMethod calculationMethod, long startTime, long endTime ) throws Exception;
 
     /**
+     * This method frees resources that might have been allocated for the specified object.
+     * @param user object for which resources might have been allocated
+     */
+    public abstract void freeRelatedResourced ( Object user );
+
+    /**
      * This method deletes all back ends that have an end time that is not newer than the passed value.
      * @param detailLevelId detail level of the stored data
      * @param calculationMethod method that is used to calculate the data that is stored in the channel

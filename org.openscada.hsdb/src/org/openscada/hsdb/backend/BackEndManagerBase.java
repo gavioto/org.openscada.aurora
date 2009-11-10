@@ -714,6 +714,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     }
 
     /**
+     * @see org.openscada.hsdb.backend.BackEndManager#freeRelatedResourced(java.lang.Object)
+     */
+    public void freeRelatedResourced ( final Object user )
+    {
+    }
+
+    /**
      * @see org.openscada.hsdb.backend.BackEndManager#deleteOldBackEnds(long, org.openscada.hsdb.calculation.CalculationMethod, long)
      */
     public void deleteOldBackEnds ( final long detailLevelId, final CalculationMethod calculationMethod, final long endTime )

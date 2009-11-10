@@ -49,7 +49,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
      */
     public BackEndManager<? extends BackEnd> getBackEndManager ()
     {
-        return this.backEndManager;
+        return backEndManager;
     }
 
     /**
@@ -117,6 +117,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
      */
     public synchronized void deinitialize () throws Exception
     {
+        backEndManager.freeRelatedResourced ( this );
         initialized = false;
         metaData = null;
     }
@@ -145,14 +146,14 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
         {
             try
             {
-                final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
+                final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, metaData.getDetailLevelId (), metaData.getCalculationMethod (), longValue.getTime () );
                 backEnd.updateLong ( longValue );
                 backEnd.deinitialize ();
             }
             catch ( final Exception e )
             {
                 logger.error ( String.format ( "backend (%s): could not write to sub backend (startTime: %s)", metaData, longValue.getTime () ), e );
-                backEndManager.markBackEndAsCorrupt ( this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
+                backEndManager.markBackEndAsCorrupt ( metaData.getDetailLevelId (), metaData.getCalculationMethod (), longValue.getTime () );
             }
         }
     }
@@ -172,7 +173,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                 long startTime = 0L;
                 try
                 {
-                    final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
+                    final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, metaData.getDetailLevelId (), metaData.getCalculationMethod (), longValue.getTime () );
                     final StorageChannelMetaData metaData = backEnd.getMetaData ();
                     startTime = metaData.getStartTime ();
                     backEnd.deinitialize ();
@@ -180,7 +181,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                 catch ( final Exception e )
                 {
                     logger.error ( String.format ( "backend (%s): could not access sub backend (startTime: %s)", metaData, longValue.getTime () ), e );
-                    backEndManager.markBackEndAsCorrupt ( this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), longValue.getTime () );
+                    backEndManager.markBackEndAsCorrupt ( metaData.getDetailLevelId (), metaData.getCalculationMethod (), longValue.getTime () );
                 }
                 List<LongValue> longValuesToProcess = backends.get ( startTime );
                 if ( longValuesToProcess == null )
@@ -196,14 +197,14 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
             {
                 try
                 {
-                    final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), entry.getKey () );
+                    final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, metaData.getDetailLevelId (), metaData.getCalculationMethod (), entry.getKey () );
                     backEnd.updateLongs ( entry.getValue ().toArray ( EMPTY_LONGVALUE_ARRAY ) );
                     backEnd.deinitialize ();
                 }
                 catch ( final Exception e )
                 {
                     logger.error ( String.format ( "backend (%s): could not write to sub backend (startTime: %s)", metaData, entry.getKey () ), e );
-                    backEndManager.markBackEndAsCorrupt ( this.metaData.getDetailLevelId (), this.metaData.getCalculationMethod (), entry.getKey () );
+                    backEndManager.markBackEndAsCorrupt ( metaData.getDetailLevelId (), metaData.getCalculationMethod (), entry.getKey () );
                 }
             }
         }
