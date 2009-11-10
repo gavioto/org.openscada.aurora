@@ -7,9 +7,8 @@ import org.openscada.hsdb.calculation.CalculationMethod;
 /**
  * This class provides data for back end fragment objects.
  * @author Ludwig Straub
- * @param <B> type of back end fragment for which the data will be provided
  */
-public class BackEndFragmentInformation<B extends BackEnd> implements Comparable<BackEndFragmentInformation<?>>
+public class BackEndFragmentInformation implements Comparable<BackEndFragmentInformation>
 {
     /** Id of the configuration of the back end fragment. */
     private String configurationId;
@@ -31,9 +30,6 @@ public class BackEndFragmentInformation<B extends BackEnd> implements Comparable
 
     /** Name of the back end fragment. */
     private String fragmentName;
-
-    /** Reference to back end fragment object. */
-    private B backEndFragment;
 
     /** Lock provider that is used to restrict the access to the back end fragment object. */
     private ReentrantReadWriteLock lock;
@@ -165,24 +161,6 @@ public class BackEndFragmentInformation<B extends BackEnd> implements Comparable
     }
 
     /**
-     * This method returns the reference to back end fragment object.
-     * @return reference to back end fragment object
-     */
-    public B getBackEndFragment ()
-    {
-        return backEndFragment;
-    }
-
-    /**
-     * This method sets the reference to back end fragment object.
-     * @param backEndFragment reference to back end fragment object
-     */
-    public void setBackEndFragment ( final B backEndFragment )
-    {
-        this.backEndFragment = backEndFragment;
-    }
-
-    /**
      * This method returns the lock provider that is used to restrict the access to the back end fragment object.
      * @return lock provider that is used to restrict the access to the back end fragment object
      */
@@ -203,7 +181,7 @@ public class BackEndFragmentInformation<B extends BackEnd> implements Comparable
     /**
      * @see Comparable#compareTo(Object)
      */
-    public int compareTo ( final BackEndFragmentInformation<?> o )
+    public int compareTo ( final BackEndFragmentInformation o )
     {
         final long otherStartTime = o.getStartTime ();
         if ( startTime < otherStartTime )

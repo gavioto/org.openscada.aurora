@@ -60,10 +60,10 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
                 final StorageChannelMetaData[] metaDatas = backEndFactory.getExistingBackEndsMetaData ( configurationId, false );
                 if ( ( metaDatas != null ) && ( metaDatas.length > 0 ) )
                 {
-                    final List<BackEndFragmentInformation<FileBackEnd>> fragmentInformations = new ArrayList<BackEndFragmentInformation<FileBackEnd>> ();
+                    final List<BackEndFragmentInformation> fragmentInformations = new ArrayList<BackEndFragmentInformation> ();
                     for ( final StorageChannelMetaData metaData : metaDatas )
                     {
-                        final BackEndFragmentInformation<FileBackEnd> backEndFragmentInformation = new BackEndFragmentInformation<FileBackEnd> ();
+                        final BackEndFragmentInformation backEndFragmentInformation = new BackEndFragmentInformation ();
                         backEndFragmentInformation.setConfigurationId ( configurationId );
                         backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
                         backEndFragmentInformation.setCalculationMethod ( metaData.getCalculationMethod () );
@@ -109,7 +109,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
      * @see org.openscada.hsdb.backend.BackEndManagerBase#createBackEnd(org.openscada.hsdb.backend.BackEndFragmentInformation, boolean)
      */
     @Override
-    protected FileBackEnd createBackEnd ( final BackEndFragmentInformation<FileBackEnd> backEndInformation, final boolean initialize, final boolean keepOpen ) throws Exception
+    protected FileBackEnd createBackEnd ( final BackEndFragmentInformation backEndInformation, final boolean initialize, final boolean keepOpen ) throws Exception
     {
         final Map<String, String> data = getConfiguration ().getData ();
         final String configurationId = backEndInformation.getConfigurationId ();
@@ -162,12 +162,8 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
      * @see org.openscada.hsdb.backend.BackEndManagerBase#deleteBackEnd(org.openscada.hsdb.backend.BackEnd)
      */
     @Override
-    protected void deleteBackEnd ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
+    protected void deleteBackEnd ( final BackEndFragmentInformation backEndInformation )
     {
-        if ( backEndInformation.getBackEndFragment () != null )
-        {
-            backEndInformation.getBackEndFragment ().delete ();
-        }
         final String fileName = backEndInformation.getFragmentName ();
         final File file = new File ( fileName );
         if ( file.exists () )
@@ -175,7 +171,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
             logger.error ( "deleting file '{}'", fileName );
             if ( !file.delete () )
             {
-                logger.error ( "could not delete file '{}'. trying to delete file during next application shutdown", fileName );
+                logger.warn ( "could not delete file '{}'. trying to delete file during next application shutdown", fileName );
                 file.deleteOnExit ();
             }
         }
@@ -185,7 +181,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
      * @see org.openscada.hsdb.backend.BackEndManagerBase#checkIsBackEndCorrupt(org.openscada.hsdb.backend.BackEndFragmentInformation)
      */
     @Override
-    protected boolean checkIsBackEndCorrupt ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
+    protected boolean checkIsBackEndCorrupt ( final BackEndFragmentInformation backEndInformation )
     {
         return !new File ( backEndInformation.getFragmentName () ).exists ();
     }
@@ -194,7 +190,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
      * @see org.openscada.hsdb.backend.BackEndManagerBase#readyForRepair(org.openscada.hsdb.backend.BackEndFragmentInformation)
      */
     @Override
-    protected boolean readyForRepair ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
+    protected boolean readyForRepair ( final BackEndFragmentInformation backEndInformation )
     {
         return !new File ( backEndInformation.getFragmentName () ).exists ();
     }
@@ -203,26 +199,22 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
      * @see org.openscada.hsdb.backend.BackEndManagerBase#isBackEndEmpty(org.openscada.hsdb.backend.BackEndFragmentInformation)
      */
     @Override
-    protected boolean isBackEndEmpty ( final BackEndFragmentInformation<FileBackEnd> backEndInformation ) throws Exception
+    protected boolean isBackEndEmpty ( final BackEndFragmentInformation backEndInformation ) throws Exception
     {
         if ( backEndInformation.getIsCorrupt () )
         {
             return false;
         }
-        FileBackEnd backEnd = backEndInformation.getBackEndFragment ();
         boolean result = false;
-        if ( backEnd == null )
+        final String fileName = backEndInformation.getFragmentName ();
+        if ( !new File ( fileName ).exists () )
         {
-            final String fileName = backEndInformation.getFragmentName ();
-            if ( !new File ( fileName ).exists () )
-            {
-                // the file does not exist but it should be there.
-                // since no check can be performed, assume that the file contains invalid data
-                return false;
-            }
-            backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
-            backEnd.setLock ( backEndInformation.getLock () );
+            // the file does not exist but it should be there.
+            // since no check can be performed, assume that the file contains invalid data
+            return false;
         }
+        final FileBackEnd backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
+        backEnd.setLock ( backEndInformation.getLock () );
         backEnd.initialize ( null );
         result = backEnd.isEmpty ();
         backEnd.deinitialize ();

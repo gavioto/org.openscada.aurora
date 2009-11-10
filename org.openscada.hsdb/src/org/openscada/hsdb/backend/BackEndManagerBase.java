@@ -59,7 +59,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     private final CalculationLogicProviderFactoryImpl calculationLogicProviderFactory;
 
     /** Currently available back end objects. */
-    private final Map<Long, Map<CalculationMethod, List<BackEndFragmentInformation<B>>>> masterBackEnds;
+    private final Map<Long, Map<CalculationMethod, List<BackEndFragmentInformation>>> masterBackEnds;
 
     /** This list contains all back end objects that have been allocated to build up a storage channel tree. */
     private final List<BackEnd> storageChannelTreeBackEnds;
@@ -91,7 +91,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         this.emptyBackEndArray = emptyBackEndArray;
         this.corruptFilesExist = false;
         this.storageChannels = null;
-        this.masterBackEnds = new HashMap<Long, Map<CalculationMethod, List<BackEndFragmentInformation<B>>>> ();
+        this.masterBackEnds = new HashMap<Long, Map<CalculationMethod, List<BackEndFragmentInformation>>> ();
         this.calculationLogicProviderFactory = new CalculationLogicProviderFactoryImpl ();
         this.calculationMethods = Conversions.getCalculationMethods ( configuration );
         this.storageChannelTreeBackEnds = new ArrayList<BackEnd> ();
@@ -149,7 +149,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
 
         // build new configuration structure
-        final List<BackEndFragmentInformation<B>> backEndFragmentInformations = new ArrayList<BackEndFragmentInformation<B>> ();
+        final List<BackEndFragmentInformation> backEndFragmentInformations = new ArrayList<BackEndFragmentInformation> ();
         for ( long i = 0; i <= maximumCompressionLevel; i++ )
         {
             if ( i == 0 )
@@ -171,7 +171,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         corruptFilesExist = false;
         for ( int i = 0; i < size; i++ )
         {
-            final BackEndFragmentInformation<B> backendInformation = backEndFragmentInformations.get ( i );
+            final BackEndFragmentInformation backendInformation = backEndFragmentInformations.get ( i );
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_CALCULATION_METHOD_PREFIX + i, CalculationMethod.convertCalculationMethodToShortString ( backendInformation.getCalculationMethod () ) );
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_COMPRESSION_LEVEL_PREFIX + i, "" + backendInformation.getDetailLevelId () );
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_START_TIME_PREFIX + i, "" + backendInformation.getStartTime () );
@@ -224,7 +224,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 {
                     throw new Exception ( String.format ( "invalid file name specified for file with index %s", i ) );
                 }
-                final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
+                final BackEndFragmentInformation backEndFragmentInformation = new BackEndFragmentInformation ();
                 backEndFragmentInformation.setConfigurationId ( configurationId );
                 backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
                 backEndFragmentInformation.setCalculationMethod ( calculationMethod );
@@ -258,29 +258,28 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @param backEndFragmentInformation object that has to be added
      * @param sort flag indicating whether the sort order should be maintained. This flag may only be set to false, if another call of the method will be performed afterwards and then the flag is set to true
      */
-    protected void addBackEndFragmentInformation ( final BackEndFragmentInformation<B> backEndFragmentInformation, final boolean sort )
+    protected void addBackEndFragmentInformation ( final BackEndFragmentInformation backEndFragmentInformation, final boolean sort )
     {
         final long detailLevelId = backEndFragmentInformation.getDetailLevelId ();
-        Map<CalculationMethod, List<BackEndFragmentInformation<B>>> map = masterBackEnds.get ( detailLevelId );
+        Map<CalculationMethod, List<BackEndFragmentInformation>> map = masterBackEnds.get ( detailLevelId );
         if ( map == null )
         {
-            map = new HashMap<CalculationMethod, List<BackEndFragmentInformation<B>>> ();
+            map = new HashMap<CalculationMethod, List<BackEndFragmentInformation>> ();
             masterBackEnds.put ( detailLevelId, map );
         }
         final CalculationMethod calculationMethod = backEndFragmentInformation.getCalculationMethod ();
-        List<BackEndFragmentInformation<B>> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
+        List<BackEndFragmentInformation> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
         if ( list == null )
         {
-            list = new LinkedList<BackEndFragmentInformation<B>> ();
+            list = new LinkedList<BackEndFragmentInformation> ();
             map.put ( calculationMethod, list );
         }
         boolean add = true;
-        for ( final BackEndFragmentInformation<B> existingBackEndFragmentInformation : list )
+        for ( final BackEndFragmentInformation existingBackEndFragmentInformation : list )
         {
             if ( existingBackEndFragmentInformation.getFragmentName ().equals ( backEndFragmentInformation.getFragmentName () ) )
             {
                 backEndFragmentInformation.setLock ( existingBackEndFragmentInformation.getLock () );
-                existingBackEndFragmentInformation.setBackEndFragment ( backEndFragmentInformation.getBackEndFragment () );
                 existingBackEndFragmentInformation.setCalculationMethod ( backEndFragmentInformation.getCalculationMethod () );
                 existingBackEndFragmentInformation.setConfigurationId ( backEndFragmentInformation.getConfigurationId () );
                 existingBackEndFragmentInformation.setDetailLevelId ( backEndFragmentInformation.getDetailLevelId () );
@@ -555,20 +554,20 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @param addIfEmpty flag indicating whether back end objects should also be returned if they contain no data
      * @return currently available back end information objects matching the specified criteria
      */
-    protected List<BackEndFragmentInformation<B>> getBackEndInformations ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime, final boolean addIfEmpty )
+    protected List<BackEndFragmentInformation> getBackEndInformations ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime, final boolean addIfEmpty )
     {
-        final List<BackEndFragmentInformation<B>> result = new ArrayList<BackEndFragmentInformation<B>> ();
-        final Map<CalculationMethod, List<BackEndFragmentInformation<B>>> map = masterBackEnds.get ( detailLevelId );
+        final List<BackEndFragmentInformation> result = new ArrayList<BackEndFragmentInformation> ();
+        final Map<CalculationMethod, List<BackEndFragmentInformation>> map = masterBackEnds.get ( detailLevelId );
         if ( map == null )
         {
             return result;
         }
-        final List<BackEndFragmentInformation<B>> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
+        final List<BackEndFragmentInformation> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
         if ( list == null )
         {
             return result;
         }
-        for ( final BackEndFragmentInformation<B> backEndFragmentInformation : list )
+        for ( final BackEndFragmentInformation backEndFragmentInformation : list )
         {
             final long metaDataStartTime = backEndFragmentInformation.getStartTime ();
             final long metaDataEndTime = backEndFragmentInformation.getEndTime ();
@@ -617,8 +616,8 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         lock.writeLock ().lock ();
         try
         {
-            final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1, true );
-            BackEndFragmentInformation<B> result;
+            final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1, true );
+            BackEndFragmentInformation result;
             if ( backEndInformations.isEmpty () )
             {
                 // create new back end object
@@ -626,7 +625,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             }
             else
             {
-                final BackEndFragmentInformation<B> existingBackEndInformation = backEndInformations.get ( 0 );
+                final BackEndFragmentInformation existingBackEndInformation = backEndInformations.get ( 0 );
                 if ( ( existingBackEndInformation.getStartTime () <= timestamp ) && ( existingBackEndInformation.getEndTime () > timestamp ) )
                 {
                     // all is good. the current back end object can be used
@@ -637,10 +636,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     // create new back end object
                     result = addNewBackEndObjects ( detailLevelId, calculationMethod, existingBackEndInformation.getEndTime (), timestamp );
                 }
-            }
-            if ( result.getBackEndFragment () == null )
-            {
-                result.setBackEndFragment ( createBackEnd ( result, false, false ) );
             }
             final B backEnd = createBackEnd ( result, true, true );
             return backEnd;
@@ -660,7 +655,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @return added back end object
      * @throws Exception in case of problems
      */
-    private BackEndFragmentInformation<B> addNewBackEndObjects ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long time ) throws Exception
+    private BackEndFragmentInformation addNewBackEndObjects ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long time ) throws Exception
     {
         final Map<String, String> data = configuration.getData ();
         long timespan = Conversions.decodeTimeSpan ( data.get ( Configuration.MANAGER_FRAGMENT_TIMESPAN_PER_LEVEL_PREFIX + detailLevelId ) );
@@ -671,7 +666,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         final long fragmentStart = Conversions.getFragmentStartTime ( time, timespan );
         if ( startTime < fragmentStart )
         {
-            final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
+            final BackEndFragmentInformation backEndFragmentInformation = new BackEndFragmentInformation ();
             backEndFragmentInformation.setCalculationMethod ( calculationMethod );
             backEndFragmentInformation.setConfigurationId ( configuration.getId () );
             backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
@@ -680,10 +675,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, startTime, fragmentStart ) );
             backEndFragmentInformation.setStartTime ( startTime );
             backEndFragmentInformation.setEndTime ( fragmentStart );
-            backEndFragmentInformation.setBackEndFragment ( createBackEnd ( backEndFragmentInformation, false, false ) );
             addBackEndFragmentInformation ( backEndFragmentInformation, false );
         }
-        final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
+        final BackEndFragmentInformation backEndFragmentInformation = new BackEndFragmentInformation ();
         backEndFragmentInformation.setCalculationMethod ( calculationMethod );
         backEndFragmentInformation.setConfigurationId ( configuration.getId () );
         backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
@@ -692,7 +686,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, fragmentStart, fragmentStart + timespan ) );
         backEndFragmentInformation.setStartTime ( fragmentStart );
         backEndFragmentInformation.setEndTime ( fragmentStart + timespan );
-        backEndFragmentInformation.setBackEndFragment ( createBackEnd ( backEndFragmentInformation, false, false ) );
         addBackEndFragmentInformation ( backEndFragmentInformation, true );
         flushConfiguration ();
         return backEndFragmentInformation;
@@ -706,14 +699,10 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         lock.readLock ().lock ();
         try
         {
-            final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, startTime, endTime, false );
+            final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, startTime, endTime, false );
             final List<B> result = new ArrayList<B> ();
-            for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
+            for ( final BackEndFragmentInformation backEndInformation : backEndInformations )
             {
-                if ( backEndInformation.getBackEndFragment () == null )
-                {
-                    backEndInformation.setBackEndFragment ( createBackEnd ( backEndInformation, false, false ) );
-                }
                 result.add ( createBackEnd ( backEndInformation, true, false ) );
             }
             return result.toArray ( emptyBackEndArray );
@@ -732,34 +721,21 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         lock.writeLock ().lock ();
         try
         {
-            final List<BackEndFragmentInformation<B>> backEndFragmentInformationToDelete = new ArrayList<BackEndFragmentInformation<B>> ();
-            final Map<CalculationMethod, List<BackEndFragmentInformation<B>>> map = masterBackEnds.get ( detailLevelId );
+            final List<BackEndFragmentInformation> backEndFragmentInformationToDelete = new ArrayList<BackEndFragmentInformation> ();
+            final Map<CalculationMethod, List<BackEndFragmentInformation>> map = masterBackEnds.get ( detailLevelId );
             if ( map == null )
             {
                 return;
             }
-            final List<BackEndFragmentInformation<B>> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
+            final List<BackEndFragmentInformation> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
             if ( list == null )
             {
                 return;
             }
-            for ( final BackEndFragmentInformation<B> backEndFragmentInformation : list )
+            for ( final BackEndFragmentInformation backEndFragmentInformation : list )
             {
                 if ( backEndFragmentInformation.getEndTime () <= endTime )
                 {
-                    final B backEnd = backEndFragmentInformation.getBackEndFragment ();
-                    if ( backEnd != null )
-                    {
-                        try
-                        {
-                            backEnd.deinitialize ();
-                        }
-                        catch ( final Exception e )
-                        {
-                            final String message = String.format ( "could not deinitialize back end for configuration '%s'", configuration.getId () );
-                            logger.error ( message, e );
-                        }
-                    }
                     deleteBackEnd ( backEndFragmentInformation );
                     backEndFragmentInformationToDelete.add ( backEndFragmentInformation );
                 }
@@ -784,9 +760,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         lock.readLock ().lock ();
         try
         {
-            final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1, true );
+            final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1, true );
             boolean statusChanged = false;
-            for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
+            for ( final BackEndFragmentInformation backEndInformation : backEndInformations )
             {
                 if ( !backEndInformation.getIsCorrupt () )
                 {
@@ -816,32 +792,18 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             // collect information of all corrupt back end object
             logger.info ( "collecting data required for repair action..." );
             final long now = System.currentTimeMillis ();
-            final List<BackEndFragmentInformation<B>> corruptBackEndFragmentInformations = new ArrayList<BackEndFragmentInformation<B>> ();
+            final List<BackEndFragmentInformation> corruptBackEndFragmentInformations = new ArrayList<BackEndFragmentInformation> ();
             for ( long i = 1; i <= maximumCompressionLevel; i++ )
             {
                 for ( final CalculationMethod calculationMethod : calculationMethods )
                 {
-                    final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( i, calculationMethod, Long.MIN_VALUE, Long.MAX_VALUE, false );
-                    for ( final BackEndFragmentInformation<B> backEndInformation : backEndInformations )
+                    final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( i, calculationMethod, Long.MIN_VALUE, Long.MAX_VALUE, false );
+                    for ( final BackEndFragmentInformation backEndInformation : backEndInformations )
                     {
                         if ( backEndInformation.getIsCorrupt () )
                         {
                             if ( readyForRepair ( backEndInformation ) )
                             {
-                                final B backEnd = backEndInformation.getBackEndFragment ();
-                                if ( backEnd != null )
-                                {
-                                    backEndInformation.setBackEndFragment ( null );
-                                    try
-                                    {
-                                        backEnd.deinitialize ();
-                                    }
-                                    catch ( final Exception e )
-                                    {
-                                        logger.error ( String.format ( "unable to deinitialize back end fragment '%s' for configuration with id '%s'", backEndInformation.getFragmentName (), configuration.getId () ) );
-                                        continue;
-                                    }
-                                }
                                 corruptBackEndFragmentInformations.add ( backEndInformation );
                             }
                             else
@@ -858,7 +820,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 buildStorageChannelTree ();
                 final CalculatingStorageChannel[] storageChannels = this.storageChannels;
                 logger.info ( String.format ( "start processing [%s] corrupt back end fragments...", corruptBackEndFragmentInformations.size () ) );
-                for ( final BackEndFragmentInformation<B> backEndInformation : corruptBackEndFragmentInformations )
+                for ( final BackEndFragmentInformation backEndInformation : corruptBackEndFragmentInformations )
                 {
                     // abort if abort is requested
                     if ( ( abortNotificator != null ) && abortNotificator.getAbort () )
@@ -873,7 +835,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     final long endTime = backEndInformation.getEndTime ();
 
                     // check whether the corrupt fragment is the latest of its detail level and calculation method or whether it is needed by other such corrupt fragments for input
-                    final List<BackEndFragmentInformation<B>> existingBackEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, Long.MAX_VALUE - 1, Long.MAX_VALUE, false );
+                    final List<BackEndFragmentInformation> existingBackEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, Long.MAX_VALUE - 1, Long.MAX_VALUE, false );
                     final boolean urgentlyNeededBackEndFragment = existingBackEndInformations.isEmpty () || ( existingBackEndInformations.get ( 0 ).getStartTime () == startTime ) || getIsDependingRequiredBackEndFragment ( backEndInformation );
 
                     // search for the storage channel that is responsible for the corrupt back end fragment
@@ -947,14 +909,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @param backEndInformation information object of the back end fragment that has to be checked
      * @return true, if the back end fragment specified by the passed information object has to be repaired at once, otherwise false
      */
-    private boolean getIsDependingRequiredBackEndFragment ( final BackEndFragmentInformation<B> backEndInformation )
+    private boolean getIsDependingRequiredBackEndFragment ( final BackEndFragmentInformation backEndInformation )
     {
         if ( backEndInformation == null )
         {
             return false;
         }
-        final List<BackEndFragmentInformation<B>> backEndInformations = getBackEndInformations ( backEndInformation.getDetailLevelId () + 1, backEndInformation.getCalculationMethod (), backEndInformation.getStartTime (), Long.MAX_VALUE, false );
-        for ( final BackEndFragmentInformation<B> higherBackEndInformation : backEndInformations )
+        final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( backEndInformation.getDetailLevelId () + 1, backEndInformation.getCalculationMethod (), backEndInformation.getStartTime (), Long.MAX_VALUE, false );
+        for ( final BackEndFragmentInformation higherBackEndInformation : backEndInformations )
         {
             if ( higherBackEndInformation.getIsCorrupt () )
             {
@@ -983,21 +945,21 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @return created back end object
      * @throws Exception in case of problems
      */
-    protected abstract B createBackEnd ( final BackEndFragmentInformation<B> backEndInformation, final boolean initialize, final boolean keepOpen ) throws Exception;
+    protected abstract B createBackEnd ( final BackEndFragmentInformation backEndInformation, final boolean initialize, final boolean keepOpen ) throws Exception;
 
     /**
      * This method checks whether the passed back end fragment is corrupt or not.
      * @param backEndInformation object to be checked
      * @return true, if the passed back end fragment is corrupt, otherwise false
      */
-    protected abstract boolean checkIsBackEndCorrupt ( final BackEndFragmentInformation<B> backEndInformation );
+    protected abstract boolean checkIsBackEndCorrupt ( final BackEndFragmentInformation backEndInformation );
 
     /**
      * This method returns whether the passed back end fragment is ready for being repaired.
      * @param backEndInformation object that has to be checked
      * @return true, if the passed back end fragment is ready for being repaired, otherwise false
      */
-    protected abstract boolean readyForRepair ( final BackEndFragmentInformation<B> backEndInformation );
+    protected abstract boolean readyForRepair ( final BackEndFragmentInformation backEndInformation );
 
     /**
      * This method returns whether the passed back end fragment contains data or not
@@ -1005,11 +967,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * @return true, if the passed fragment does not contain any data, otherwise false
      * @throws Exception if back end fragment is corrupt
      */
-    protected abstract boolean isBackEndEmpty ( final BackEndFragmentInformation<B> backEndInformation ) throws Exception;
+    protected abstract boolean isBackEndEmpty ( final BackEndFragmentInformation backEndInformation ) throws Exception;
 
     /**
      * This method deletes the passed back end fragment.
      * @param backEndInformation object containing meta information that has to be used when deleting the back end object
      */
-    protected abstract void deleteBackEnd ( final BackEndFragmentInformation<B> backEndInformation );
+    protected abstract void deleteBackEnd ( final BackEndFragmentInformation backEndInformation );
 }
