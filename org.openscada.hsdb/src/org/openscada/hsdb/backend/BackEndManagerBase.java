@@ -640,9 +640,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             }
             if ( result.getBackEndFragment () == null )
             {
-                result.setBackEndFragment ( createBackEnd ( result, false ) );
+                result.setBackEndFragment ( createBackEnd ( result, false, false ) );
             }
-            final B backEnd = createBackEnd ( result, true );
+            final B backEnd = createBackEnd ( result, true, true );
             return backEnd;
         }
         finally
@@ -680,7 +680,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, startTime, fragmentStart ) );
             backEndFragmentInformation.setStartTime ( startTime );
             backEndFragmentInformation.setEndTime ( fragmentStart );
-            createBackEnd ( backEndFragmentInformation, false );
+            backEndFragmentInformation.setBackEndFragment ( createBackEnd ( backEndFragmentInformation, false, false ) );
             addBackEndFragmentInformation ( backEndFragmentInformation, false );
         }
         final BackEndFragmentInformation<B> backEndFragmentInformation = new BackEndFragmentInformation<B> ();
@@ -692,7 +692,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, fragmentStart, fragmentStart + timespan ) );
         backEndFragmentInformation.setStartTime ( fragmentStart );
         backEndFragmentInformation.setEndTime ( fragmentStart + timespan );
-        createBackEnd ( backEndFragmentInformation, false );
+        backEndFragmentInformation.setBackEndFragment ( createBackEnd ( backEndFragmentInformation, false, false ) );
         addBackEndFragmentInformation ( backEndFragmentInformation, true );
         flushConfiguration ();
         return backEndFragmentInformation;
@@ -712,9 +712,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             {
                 if ( backEndInformation.getBackEndFragment () == null )
                 {
-                    backEndInformation.setBackEndFragment ( createBackEnd ( backEndInformation, false ) );
+                    backEndInformation.setBackEndFragment ( createBackEnd ( backEndInformation, false, false ) );
                 }
-                result.add ( createBackEnd ( backEndInformation, true ) );
+                result.add ( createBackEnd ( backEndInformation, true, false ) );
             }
             return result.toArray ( emptyBackEndArray );
         }
@@ -979,10 +979,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      * If the passed object already contains a back end object, then only the created new backend object will be returned.
      * @param backEndInformation object containing meta information that has to be used when creating the back end object
      * @param initialize flag indicating whether the back end object that has to be created should also be initialized or not
+     * @param keepOpen flag indicating whether the back end object should be kept open to gain performance or not
      * @return created back end object
      * @throws Exception in case of problems
      */
-    protected abstract B createBackEnd ( final BackEndFragmentInformation<B> backEndInformation, final boolean initialize ) throws Exception;
+    protected abstract B createBackEnd ( final BackEndFragmentInformation<B> backEndInformation, final boolean initialize, final boolean keepOpen ) throws Exception;
 
     /**
      * This method checks whether the passed back end fragment is corrupt or not.

@@ -53,7 +53,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         if ( fragmentCount == 0 )
         {
             // search for files in the folder
-            logger.info ( "no fragment information could be located in the configuration file. existing fragments will be evaluated and combined to a new configuration" );
+            logger.info ( "no fragment information could be located in the configuration file for configuration with id '{}'. existing fragments will be evaluated and combined to a new configuration", configurationId );
             try
             {
                 final FileBackEndFactory backEndFactory = (FileBackEndFactory)getBackEndFactory ();
@@ -83,7 +83,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
             }
             catch ( final Exception e )
             {
-                logger.error ( "could not retrieve meta data information of existing back end fragments", e );
+                logger.error ( String.format ( "could not retrieve meta data information of existing back end fragments for configuration with id '%s'", configurationId ), e );
             }
         }
         else
@@ -109,7 +109,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
      * @see org.openscada.hsdb.backend.BackEndManagerBase#createBackEnd(org.openscada.hsdb.backend.BackEndFragmentInformation, boolean)
      */
     @Override
-    protected FileBackEnd createBackEnd ( final BackEndFragmentInformation<FileBackEnd> backEndInformation, final boolean initialize ) throws Exception
+    protected FileBackEnd createBackEnd ( final BackEndFragmentInformation<FileBackEnd> backEndInformation, final boolean initialize, final boolean keepOpen ) throws Exception
     {
         final Map<String, String> data = getConfiguration ().getData ();
         final String configurationId = backEndInformation.getConfigurationId ();
@@ -117,7 +117,6 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         final long detailLevelId = backEndInformation.getDetailLevelId ();
         final long startTime = backEndInformation.getStartTime ();
         final long endTime = backEndInformation.getEndTime ();
-
         final String fileName = backEndInformation.getFragmentName ();
         final long[] calculationMethodParameters = detailLevelId == 0 ? new long[0] : new long[] {};
         long proposedDataAge = Conversions.parseLong ( data.get ( Configuration.PROPOSED_DATA_AGE_KEY_PREFIX + detailLevelId ), 1 );
@@ -136,12 +135,8 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
             throw new Exception ( "invalid data type specified in configuration" );
         }
         final StorageChannelMetaData metaData = new StorageChannelMetaData ( configurationId, calculationMethod, calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, dataType );
-        final FileBackEnd result = new FileBackEnd ( fileName, false );
+        final FileBackEnd result = new FileBackEnd ( fileName, keepOpen );
         result.setLock ( backEndInformation.getLock () );
-        if ( backEndInformation.getBackEndFragment () != null )
-        {
-            result.setLock ( backEndInformation.getBackEndFragment ().getLock () );
-        }
         if ( !new File ( fileName ).exists () )
         {
             logger.debug ( "creating file {}", fileName );
@@ -160,7 +155,6 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
     @Override
     protected String getFragmentName ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime )
     {
-        // TODO: get real values (they wont affect the result, but this is quite dirty now
         return ( (FileBackEndFactory)getBackEndFactory () ).generateFileName ( new StorageChannelMetaData ( getConfiguration ().getId (), calculationMethod, new long[0], detailLevelId, startTime, endTime, 0, 0, DataType.LONG_VALUE ) );
     }
 
@@ -178,9 +172,10 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         final File file = new File ( fileName );
         if ( file.exists () )
         {
+            logger.error ( "deleting file '{}'", fileName );
             if ( !file.delete () )
             {
-                logger.error ( "could not delete file '%s'. trying to delete file during next application shutdown", fileName );
+                logger.error ( "could not delete file '{}'. trying to delete file during next application shutdown", fileName );
                 file.deleteOnExit ();
             }
         }
@@ -201,8 +196,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
     @Override
     protected boolean readyForRepair ( final BackEndFragmentInformation<FileBackEnd> backEndInformation )
     {
-        final File file = new File ( backEndInformation.getFragmentName () );
-        return !file.exists ();
+        return !new File ( backEndInformation.getFragmentName () ).exists ();
     }
 
     /**
