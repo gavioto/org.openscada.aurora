@@ -78,6 +78,13 @@ public interface BackEndManager<B extends BackEnd>
     public abstract B[] getExistingBackEnds ( Object user, long detailLevelId, CalculationMethod calculationMethod, long startTime, long endTime ) throws Exception;
 
     /**
+     * This method deinitializes the passed back end object if it is not needed by other instances.
+     * @param user object for which the back end was allocated
+     * @param backEnd object that has to be deinitialized
+     */
+    public abstract void deinitializeBackEnd ( Object user, BackEnd backEnd );
+
+    /**
      * This method frees resources that might have been allocated for the specified object.
      * @param user object for which resources might have been allocated
      */

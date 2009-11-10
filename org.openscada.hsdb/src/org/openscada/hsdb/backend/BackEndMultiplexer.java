@@ -57,7 +57,6 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
      */
     public synchronized void initialize ( final StorageChannelMetaData storageChannelMetaData ) throws Exception
     {
-        deinitialize ();
         initialized = true;
         metaData = new StorageChannelMetaData ( storageChannelMetaData );
     }
@@ -148,7 +147,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
             {
                 final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, metaData.getDetailLevelId (), metaData.getCalculationMethod (), longValue.getTime () );
                 backEnd.updateLong ( longValue );
-                backEnd.deinitialize ();
+                backEndManager.deinitializeBackEnd ( this, backEnd );
             }
             catch ( final Exception e )
             {
@@ -176,7 +175,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                     final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, metaData.getDetailLevelId (), metaData.getCalculationMethod (), longValue.getTime () );
                     final StorageChannelMetaData metaData = backEnd.getMetaData ();
                     startTime = metaData.getStartTime ();
-                    backEnd.deinitialize ();
+                    backEndManager.deinitializeBackEnd ( this, backEnd );
                 }
                 catch ( final Exception e )
                 {
@@ -199,7 +198,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
                 {
                     final BackEnd backEnd = backEndManager.getBackEndForInsert ( this, metaData.getDetailLevelId (), metaData.getCalculationMethod (), entry.getKey () );
                     backEnd.updateLongs ( entry.getValue ().toArray ( EMPTY_LONGVALUE_ARRAY ) );
-                    backEnd.deinitialize ();
+                    backEndManager.deinitializeBackEnd ( this, backEnd );
                 }
                 catch ( final Exception e )
                 {
@@ -289,7 +288,7 @@ public class BackEndMultiplexer implements BackEnd, RelictCleaner
             {
                 try
                 {
-                    backEnd.deinitialize ();
+                    backEndManager.deinitializeBackEnd ( this, backEnd );
                 }
                 catch ( final Exception e )
                 {

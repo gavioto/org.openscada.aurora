@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -76,6 +77,9 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** Lock object to avoid usage of synchronize. */
     private final ReentrantReadWriteLock lock;
 
+    /** Map containing back end objects that are currently in use for writing by the mapping object. */
+    private final Map<Object, Map<B, BackEndFragmentInformation>> cachedBackEnds;
+
     /**
      * Constructor.
      * @param configuration configuration of the manager instance
@@ -99,6 +103,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         this.maximumCompressionLevel = data == null ? 0 : Conversions.parseLong ( data.get ( Configuration.MAX_COMPRESSION_LEVEL ), 0 );
         this.repairTask = Executors.newSingleThreadExecutor ( HsdbThreadFactory.createFactory ( REPAIR_THREAD_ID ) );
         lock = new ReentrantReadWriteLock ();
+        cachedBackEnds = new HashMap<Object, Map<B, BackEndFragmentInformation>> ();
     }
 
     /**
@@ -637,8 +642,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     result = addNewBackEndObjects ( detailLevelId, calculationMethod, existingBackEndInformation.getEndTime (), timestamp );
                 }
             }
-            final B backEnd = createBackEnd ( result, true, true );
-            return backEnd;
+            return checkReplaceExistingWriteBackEnd ( user, result );
         }
         finally
         {
@@ -701,9 +705,19 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, startTime, endTime, false );
             final List<B> result = new ArrayList<B> ();
+            final Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
+            final B cachedBackEndFragment = cachedBackEnd == null || cachedBackEnd.isEmpty () ? null : cachedBackEnd.keySet ().iterator ().next ();
+            final BackEndFragmentInformation cachedBackEndFragmentInformation = cachedBackEnd == null || cachedBackEnd.isEmpty () ? null : cachedBackEnd.values ().iterator ().next ();
             for ( final BackEndFragmentInformation backEndInformation : backEndInformations )
             {
-                result.add ( createBackEnd ( backEndInformation, true, false ) );
+                if ( ( cachedBackEndFragmentInformation != null ) && ( cachedBackEndFragmentInformation.compareTo ( backEndInformation ) == 0 ) )
+                {
+                    result.add ( cachedBackEndFragment );
+                }
+                else
+                {
+                    result.add ( createBackEnd ( backEndInformation, true, true ) );
+                }
             }
             return result.toArray ( emptyBackEndArray );
         }
@@ -714,10 +728,87 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     }
 
     /**
+     * This method checks whether the specified back end fragment already has been cached for the specified object.
+     * If this is the case, the cached object will be returned.
+     * If this is not the, then a new object will be created and put into the cache, replacing any existing objects.
+     * The objects that are removed from the cache are deinitialized.
+     * @param user object for which the cache has to be checked
+     * @param backEndFragmentInformation object providing the information of the back end fragment object that has to be cached
+     * @return valid back end fragment object, either created new or read from the cache
+     * @throws Exception in case of problems while creating a new element for the cache
+     */
+    private B checkReplaceExistingWriteBackEnd ( final Object user, final BackEndFragmentInformation backEndFragmentInformation ) throws Exception
+    {
+        Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
+        if ( cachedBackEnd == null )
+        {
+            cachedBackEnd = new HashMap<B, BackEndFragmentInformation> ();
+            cachedBackEnds.put ( user, cachedBackEnd );
+        }
+        if ( !cachedBackEnd.isEmpty () )
+        {
+            final Entry<B, BackEndFragmentInformation> entry = cachedBackEnd.entrySet ().iterator ().next ();
+            if ( entry.getValue ().compareTo ( backEndFragmentInformation ) == 0 )
+            {
+                return entry.getKey ();
+            }
+            entry.getKey ().deinitialize ();
+        }
+        cachedBackEnd.clear ();
+        final B backEnd = createBackEnd ( backEndFragmentInformation, true, true );
+        cachedBackEnd.put ( backEnd, backEndFragmentInformation );
+        return backEnd;
+    }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndManager#deinitializeBackEnd(java.lang.Object, org.openscada.hsdb.backend.BackEnd)
+     */
+    public void deinitializeBackEnd ( final Object user, final BackEnd backEnd )
+    {
+        try
+        {
+            final Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
+            if ( ( cachedBackEnd == null ) || !cachedBackEnd.keySet ().contains ( backEnd ) )
+            {
+                logger.debug ( "deinitializing back end fragment for configuration with id '{}'", configuration.getId () );
+                backEnd.deinitialize ();
+            }
+        }
+        catch ( final Exception e )
+        {
+            logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", configuration.getId () ), e );
+        }
+    }
+
+    /**
      * @see org.openscada.hsdb.backend.BackEndManager#freeRelatedResourced(java.lang.Object)
      */
     public void freeRelatedResourced ( final Object user )
     {
+        lock.writeLock ().lock ();
+        try
+        {
+            final Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.remove ( user );
+            if ( cachedBackEnd != null )
+            {
+                for ( final B backEnd : cachedBackEnd.keySet () )
+                {
+                    try
+                    {
+                        backEnd.deinitialize ();
+                    }
+                    catch ( final Exception e )
+                    {
+                        logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", configuration.getId () ), e );
+                    }
+                }
+                cachedBackEnd.clear ();
+            }
+        }
+        finally
+        {
+            lock.writeLock ().unlock ();
+        }
     }
 
     /**
