@@ -227,4 +227,25 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         }
         return backEndInformation.getIsEmpty ();
     }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndManagerBase#updateBackEndEarliestTimeInformation(org.openscada.hsdb.backend.BackEndFragmentInformation)
+     */
+    @Override
+    protected Long updateBackEndEarliestTimeInformation ( final BackEndFragmentInformation backEndInformation ) throws Exception
+    {
+        if ( backEndInformation.getIsCorrupt () || updateBackEndEmptyInformation ( backEndInformation ) )
+        {
+            return null;
+        }
+        Long result = backEndInformation.getSupposedEarliestValueTime ();
+        if ( result == null )
+        {
+            final FileBackEnd backEnd = createBackEnd ( backEndInformation, true, true );
+            result = backEnd.getFirstEntryTime ();
+            backEndInformation.setSupposedEarliestValueTime ( result );
+            backEnd.deinitialize ();
+        }
+        return result;
+    }
 }

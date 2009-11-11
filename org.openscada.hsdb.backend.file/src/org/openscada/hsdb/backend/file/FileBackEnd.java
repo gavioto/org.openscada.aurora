@@ -145,6 +145,33 @@ public class FileBackEnd implements BackEnd
     }
 
     /**
+     * This method returns the time of the first entry within the file.
+     * If the file is empty, null is returned.
+     * @return time of the first entry within the file or null if no entry exists
+     * @throws Exception if the instance is not initialized or the file could not be accessed
+     */
+    public Long getFirstEntryTime () throws Exception
+    {
+        assureInitialized ();
+        if ( isEmpty )
+        {
+            return null;
+        }
+        try
+        {
+            // assure that read operation can be performed
+            openConnection ( false );
+
+            // get data from file
+            return readLongValue ( dataOffset ).getTime ();
+        }
+        finally
+        {
+            closeIfRequired ();
+        }
+    }
+
+    /**
      * This method creates a new file using the passed meta data as input for the header information of the file.
      * @param storageChannelMetaData meta data that will be used as input for the header information of the file
      * @throws Exception if the file could not be created or the header information could not be written
@@ -480,7 +507,7 @@ public class FileBackEnd implements BackEnd
             }
 
             // create a wrapper object for returning the retrieved data
-            isEmpty = dataOffset + 1 >= randomAccessFile.length ();
+            isEmpty = dataOffset + RECORD_BLOCK_SIZE + 1 >= randomAccessFile.length ();
             return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, DataType.convertLongToDataType ( dataType ) );
         }
         finally

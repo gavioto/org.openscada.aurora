@@ -37,6 +37,9 @@ public class BackEndFragmentInformation implements Comparable<BackEndFragmentInf
     /** Flag indicating whether the back end fragment is empty or not. */
     private Boolean isEmpty;
 
+    /** Time of the first value that can be found within the back end fragment. */
+    private Long earliestValueTime;
+
     /**
      * This method returns the id of the configuration of the back end fragment.
      * @return id of the configuration of the back end fragment
@@ -197,6 +200,24 @@ public class BackEndFragmentInformation implements Comparable<BackEndFragmentInf
     public void setIsEmpty ( final boolean isEmpty )
     {
         this.isEmpty = isEmpty;
+    }
+
+    /**
+     * This method returns the time of the first value that can be found within the back end fragment.
+     * @return time of the first value that can be found within the back end fragment
+     */
+    public Long getSupposedEarliestValueTime ()
+    {
+        return earliestValueTime;
+    }
+
+    /**
+     * This method sets the time of the first value that can be found within the back end fragment.
+     * @param earliestValueTime time of the first value that can be found within the back end fragment
+     */
+    public void setSupposedEarliestValueTime ( final Long earliestValueTime )
+    {
+        this.earliestValueTime = earliestValueTime;
     }
 
     /**

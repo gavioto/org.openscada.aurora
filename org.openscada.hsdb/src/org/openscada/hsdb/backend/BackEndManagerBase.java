@@ -619,6 +619,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     {
                         result.add ( backEndFragmentInformation );
                     }
+                    final Long earliestTime = updateBackEndEarliestTimeInformation ( backEndFragmentInformation );
+                    if ( ( earliestTime != null ) && ( earliestTime <= startTime ) )
+                    {
+                        break;
+                    }
                 }
                 catch ( final Exception e )
                 {
@@ -1110,11 +1115,20 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /**
      * This method returns whether the passed back end fragment contains data or not.
      * If the empty information is not yet set within the passed object, then it also will be set.
-     * @param backEndInformation object that has to be checked
+     * @param backEndInformation object that has to be processed
      * @return true, if the passed fragment does not contain any data, otherwise false
      * @throws Exception if back end fragment is corrupt
      */
     protected abstract boolean updateBackEndEmptyInformation ( final BackEndFragmentInformation backEndInformation ) throws Exception;
+
+    /**
+     * This method returns the time of the first entry of the passed back end fragment.
+     * If no entry is available, null is returned.
+     * If the evaluated information is not available within the passed object, then it also will be set.
+     * @param backEndInformation object that has to be processed
+     * @return time of the first entry of the passed back end fragment or null, if no entry is available
+     */
+    protected abstract Long updateBackEndEarliestTimeInformation ( final BackEndFragmentInformation backEndInformation ) throws Exception;
 
     /**
      * This method deletes the passed back end fragment.
