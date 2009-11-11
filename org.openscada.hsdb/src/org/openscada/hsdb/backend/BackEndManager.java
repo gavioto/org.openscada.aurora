@@ -22,6 +22,12 @@ public interface BackEndManager<B extends BackEnd>
     public abstract void initialize () throws Exception;
 
     /**
+     * This method deinitializes the manager object.
+     * @throws Exception if the instance could not be deinitialized.
+     */
+    public abstract void deinitialize () throws Exception;
+
+    /**
      * This method returns the configuration of the manager instance.
      * @return configuration of the manager instance
      */

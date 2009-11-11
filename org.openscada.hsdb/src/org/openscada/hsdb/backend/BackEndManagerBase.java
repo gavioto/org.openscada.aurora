@@ -80,6 +80,8 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     /** Map containing back end objects that are currently in use for writing by the mapping object. */
     private final Map<Object, Map<B, BackEndFragmentInformation>> cachedBackEnds;
 
+    protected boolean initialized;
+
     /**
      * Constructor.
      * @param configuration configuration of the manager instance
@@ -104,6 +106,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         this.repairTask = Executors.newSingleThreadExecutor ( HsdbThreadFactory.createFactory ( REPAIR_THREAD_ID ) );
         lock = new ReentrantReadWriteLock ();
         cachedBackEnds = new HashMap<Object, Map<B, BackEndFragmentInformation>> ();
+        initialized = false;
     }
 
     /**
@@ -255,6 +258,38 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         if ( updateConfiguration )
         {
             flushConfiguration ();
+        }
+        initialized = true;
+    }
+
+    /**
+     * @see org.openscada.hsdb.backend.BackEndManager#deinitialize()
+     */
+    public void deinitialize () throws Exception
+    {
+        lock.writeLock ().lock ();
+        initialized = false;
+        try
+        {
+            for ( final Map<B, BackEndFragmentInformation> entry : cachedBackEnds.values () )
+            {
+                for ( final B backEnd : entry.keySet () )
+                {
+                    try
+                    {
+                        backEnd.deinitialize ();
+                    }
+                    catch ( final Exception e )
+                    {
+                        logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", configuration.getId () ), e );
+                    }
+                }
+            }
+            cachedBackEnds.clear ();
+        }
+        finally
+        {
+            lock.writeLock ().unlock ();
         }
     }
 
@@ -580,7 +615,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             {
                 try
                 {
-                    if ( addIfEmpty || backEndFragmentInformation.getIsCorrupt () || !isBackEndEmpty ( backEndFragmentInformation ) )
+                    if ( addIfEmpty || backEndFragmentInformation.getIsCorrupt () || !updateBackEndEmptyInformation ( backEndFragmentInformation ) )
                     {
                         result.add ( backEndFragmentInformation );
                     }
@@ -596,7 +631,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             {
                 try
                 {
-                    if ( backEndFragmentInformation.getIsCorrupt () || !isBackEndEmpty ( backEndFragmentInformation ) )
+                    if ( backEndFragmentInformation.getIsCorrupt () || !updateBackEndEmptyInformation ( backEndFragmentInformation ) )
                     {
                         result.add ( backEndFragmentInformation );
                         break;
@@ -642,6 +677,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     result = addNewBackEndObjects ( detailLevelId, calculationMethod, existingBackEndInformation.getEndTime (), timestamp );
                 }
             }
+            result.setIsEmpty ( false );
             return checkReplaceExistingWriteBackEnd ( user, result );
         }
         finally
@@ -741,6 +777,10 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     private B checkReplaceExistingWriteBackEnd ( final Object user, final BackEndFragmentInformation backEndFragmentInformation ) throws Exception
     {
+        if ( !initialized )
+        {
+            return createBackEnd ( backEndFragmentInformation, false, false );
+        }
         Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
         if ( cachedBackEnd == null )
         {
@@ -754,7 +794,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             {
                 return entry.getKey ();
             }
-            entry.getKey ().deinitialize ();
+            try
+            {
+                entry.getKey ().deinitialize ();
+            }
+            catch ( final Exception e )
+            {
+                logger.error ( String.format ( "could not deinitialize back end fragment for configuration with id '%s'", configuration.getId () ), e );
+            }
         }
         cachedBackEnd.clear ();
         final B backEnd = createBackEnd ( backEndFragmentInformation, true, true );
@@ -772,7 +819,6 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             final Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
             if ( ( cachedBackEnd == null ) || !cachedBackEnd.keySet ().contains ( backEnd ) )
             {
-                logger.debug ( "deinitializing back end fragment for configuration with id '{}'", configuration.getId () );
                 backEnd.deinitialize ();
             }
         }
@@ -1062,12 +1108,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     protected abstract boolean readyForRepair ( final BackEndFragmentInformation backEndInformation );
 
     /**
-     * This method returns whether the passed back end fragment contains data or not
+     * This method returns whether the passed back end fragment contains data or not.
+     * If the empty information is not yet set within the passed object, then it also will be set.
      * @param backEndInformation object that has to be checked
      * @return true, if the passed fragment does not contain any data, otherwise false
      * @throws Exception if back end fragment is corrupt
      */
-    protected abstract boolean isBackEndEmpty ( final BackEndFragmentInformation backEndInformation ) throws Exception;
+    protected abstract boolean updateBackEndEmptyInformation ( final BackEndFragmentInformation backEndInformation ) throws Exception;
 
     /**
      * This method deletes the passed back end fragment.

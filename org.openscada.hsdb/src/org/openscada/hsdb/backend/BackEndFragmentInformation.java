@@ -34,6 +34,9 @@ public class BackEndFragmentInformation implements Comparable<BackEndFragmentInf
     /** Lock provider that is used to restrict the access to the back end fragment object. */
     private ReentrantReadWriteLock lock;
 
+    /** Flag indicating whether the back end fragment is empty or not. */
+    private Boolean isEmpty;
+
     /**
      * This method returns the id of the configuration of the back end fragment.
      * @return id of the configuration of the back end fragment
@@ -176,6 +179,24 @@ public class BackEndFragmentInformation implements Comparable<BackEndFragmentInf
     public void setLock ( final ReentrantReadWriteLock lock )
     {
         this.lock = lock;
+    }
+
+    /**
+     * This method returns the flag indicating whether the back end fragment is empty or not.
+     * @return flag indicating whether the back end fragment is empty or not
+     */
+    public Boolean getIsEmpty ()
+    {
+        return isEmpty;
+    }
+
+    /**
+     * This method sets the flag indicating whether the back end fragment is empty or not.
+     * @param isEmpty flag indicating whether the back end fragment is empty or not
+     */
+    public void setIsEmpty ( final boolean isEmpty )
+    {
+        this.isEmpty = isEmpty;
     }
 
     /**

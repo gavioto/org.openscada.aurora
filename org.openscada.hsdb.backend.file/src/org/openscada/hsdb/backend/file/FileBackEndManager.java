@@ -85,6 +85,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
             {
                 logger.error ( String.format ( "could not retrieve meta data information of existing back end fragments for configuration with id '%s'", configurationId ), e );
             }
+            initialized = true;
         }
         else
         {
@@ -196,28 +197,34 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
     }
 
     /**
-     * @see org.openscada.hsdb.backend.BackEndManagerBase#isBackEndEmpty(org.openscada.hsdb.backend.BackEndFragmentInformation)
+     * @see org.openscada.hsdb.backend.BackEndManagerBase#updateBackEndEmptyInformation(org.openscada.hsdb.backend.BackEndFragmentInformation)
      */
     @Override
-    protected boolean isBackEndEmpty ( final BackEndFragmentInformation backEndInformation ) throws Exception
+    protected boolean updateBackEndEmptyInformation ( final BackEndFragmentInformation backEndInformation ) throws Exception
     {
         if ( backEndInformation.getIsCorrupt () )
         {
             return false;
         }
-        boolean result = false;
-        final String fileName = backEndInformation.getFragmentName ();
-        if ( !new File ( fileName ).exists () )
+        if ( backEndInformation.getIsEmpty () == null )
         {
-            // the file does not exist but it should be there.
-            // since no check can be performed, assume that the file contains invalid data
-            return false;
+            final String fileName = backEndInformation.getFragmentName ();
+            if ( !new File ( fileName ).exists () )
+            {
+                // the file does not exist but it should be there.
+                // since no check can be performed, assume that the file contains invalid data
+                backEndInformation.setIsEmpty ( false );
+            }
+            else
+            {
+                final FileBackEnd backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
+                backEnd.setLock ( backEndInformation.getLock () );
+                backEnd.initialize ( null );
+                final boolean result = backEnd.isEmpty ();
+                backEnd.deinitialize ();
+                backEndInformation.setIsEmpty ( result );
+            }
         }
-        final FileBackEnd backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
-        backEnd.setLock ( backEndInformation.getLock () );
-        backEnd.initialize ( null );
-        result = backEnd.isEmpty ();
-        backEnd.deinitialize ();
-        return result;
+        return backEndInformation.getIsEmpty ();
     }
 }

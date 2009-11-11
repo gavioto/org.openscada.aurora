@@ -294,7 +294,9 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         for ( final long startTime : sortedStartTimes )
         {
             final long endTime = startTime + timeSpan;
+            logger.debug ( "calculating old values start ({})", getMetaData () );
             calculateOldValues ( startTime, endTime );
+            logger.debug ( "calculating old values done ({})", getMetaData () );
         }
     }
 
