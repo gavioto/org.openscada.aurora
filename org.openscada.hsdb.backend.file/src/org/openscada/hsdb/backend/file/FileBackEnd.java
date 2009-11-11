@@ -86,6 +86,9 @@ public class FileBackEnd implements BackEnd
     /** Flag indicating whether the back end contains data or not. */
     private boolean isEmpty;
 
+    /** Time of first value that was located within the file when the file was initialized. */
+    private Long firstValueTime;
+
     /**
      * Constructor expecting the configuration of the file backend.
      * @param fileName name of the existing file that is used to store data
@@ -101,6 +104,7 @@ public class FileBackEnd implements BackEnd
         initialized = false;
         lock = null;
         isEmpty = true;
+        firstValueTime = null;
         if ( fileName == null || fileName.trim ().length () == 0 )
         {
             throw new IllegalArgumentException ( "invalid filename passed via configuration" );
@@ -153,22 +157,7 @@ public class FileBackEnd implements BackEnd
     public Long getFirstEntryTime () throws Exception
     {
         assureInitialized ();
-        if ( isEmpty )
-        {
-            return null;
-        }
-        try
-        {
-            // assure that read operation can be performed
-            openConnection ( false );
-
-            // get data from file
-            return readLongValue ( dataOffset ).getTime ();
-        }
-        finally
-        {
-            closeIfRequired ();
-        }
+        return firstValueTime;
     }
 
     /**
@@ -384,6 +373,7 @@ public class FileBackEnd implements BackEnd
         initialized = false;
         metaData = null;
         isEmpty = true;
+        firstValueTime = null;
     }
 
     /**
@@ -508,6 +498,10 @@ public class FileBackEnd implements BackEnd
 
             // create a wrapper object for returning the retrieved data
             isEmpty = dataOffset + RECORD_BLOCK_SIZE + 1 >= randomAccessFile.length ();
+            if ( !isEmpty )
+            {
+                firstValueTime = readLongValue ( dataOffset ).getTime ();
+            }
             return new StorageChannelMetaData ( configurationId, CalculationMethod.convertLongToCalculationMethod ( calculationMethodId ), calculationMethodParameters, detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, DataType.convertLongToDataType ( dataType ) );
         }
         finally
@@ -539,7 +533,7 @@ public class FileBackEnd implements BackEnd
             try
             {
                 // open new connection
-                logger.debug ( String.format ( "OPENING file '%s' successful", fileName ) );
+                logger.debug ( String.format ( "opening file '%s' successful", fileName ) );
                 randomAccessFile = new RandomAccessFile ( file, allowWrite ? "rw" : "r" );
                 openInWriteMode = allowWrite;
             }
@@ -630,7 +624,7 @@ public class FileBackEnd implements BackEnd
             logger.error ( message );
             throw new Exception ( message );
         }
-        if ( time < metaData.getStartTime () || time >= metaData.getEndTime () )
+        if ( ( metaData != null ) && ( ( time < metaData.getStartTime () ) || ( time >= metaData.getEndTime () ) ) )
         {
             logger.warn ( String.format ( "valid entry within file '%s' has an invalid time specified! please check file! (metadata: '%s*, time: '%s')", fileName, metaData, time ) );
         }

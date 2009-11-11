@@ -214,15 +214,16 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
                 // the file does not exist but it should be there.
                 // since no check can be performed, assume that the file contains invalid data
                 backEndInformation.setIsEmpty ( false );
+                backEndInformation.setSupposedEarliestValueTime ( null );
             }
             else
             {
                 final FileBackEnd backEnd = new FileBackEnd ( backEndInformation.getFragmentName (), true );
                 backEnd.setLock ( backEndInformation.getLock () );
                 backEnd.initialize ( null );
-                final boolean result = backEnd.isEmpty ();
+                backEndInformation.setIsEmpty ( backEnd.isEmpty () );
+                backEndInformation.setSupposedEarliestValueTime ( backEnd.getFirstEntryTime () );
                 backEnd.deinitialize ();
-                backEndInformation.setIsEmpty ( result );
             }
         }
         return backEndInformation.getIsEmpty ();
@@ -238,14 +239,6 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         {
             return null;
         }
-        Long result = backEndInformation.getSupposedEarliestValueTime ();
-        if ( result == null )
-        {
-            final FileBackEnd backEnd = createBackEnd ( backEndInformation, true, true );
-            result = backEnd.getFirstEntryTime ();
-            backEndInformation.setSupposedEarliestValueTime ( result );
-            backEnd.deinitialize ();
-        }
-        return result;
+        return backEndInformation.getSupposedEarliestValueTime ();
     }
 }
