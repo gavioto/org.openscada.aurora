@@ -679,6 +679,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, startTime, fragmentStart ) );
             backEndFragmentInformation.setStartTime ( startTime );
             backEndFragmentInformation.setEndTime ( fragmentStart );
+            createBackEnd ( backEndFragmentInformation, false, false );
             addBackEndFragmentInformation ( backEndFragmentInformation, false );
         }
         final BackEndFragmentInformation backEndFragmentInformation = new BackEndFragmentInformation ();
@@ -690,6 +691,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         backEndFragmentInformation.setFragmentName ( getFragmentName ( detailLevelId, calculationMethod, fragmentStart, fragmentStart + timespan ) );
         backEndFragmentInformation.setStartTime ( fragmentStart );
         backEndFragmentInformation.setEndTime ( fragmentStart + timespan );
+        createBackEnd ( backEndFragmentInformation, false, false );
         addBackEndFragmentInformation ( backEndFragmentInformation, true );
         flushConfiguration ();
         return backEndFragmentInformation;
