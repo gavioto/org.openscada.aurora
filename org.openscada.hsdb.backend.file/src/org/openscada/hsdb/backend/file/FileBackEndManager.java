@@ -169,7 +169,7 @@ public class FileBackEndManager extends BackEndManagerBase<FileBackEnd>
         final File file = new File ( fileName );
         if ( file.exists () )
         {
-            logger.error ( "deleting file '{}'", fileName );
+            logger.info ( "deleting file '{}'", fileName );
             if ( !file.delete () )
             {
                 logger.warn ( "could not delete file '{}'. trying to delete file during next application shutdown", fileName );
