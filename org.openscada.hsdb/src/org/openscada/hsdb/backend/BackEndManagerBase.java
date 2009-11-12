@@ -789,7 +789,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
         if ( cachedBackEnd == null )
         {
-            cachedBackEnd = new HashMap<B, BackEndFragmentInformation> ();
+            cachedBackEnd = new HashMap<B, BackEndFragmentInformation> ( 1, 1.0f );
             cachedBackEnds.put ( user, cachedBackEnd );
         }
         if ( !cachedBackEnd.isEmpty () )
