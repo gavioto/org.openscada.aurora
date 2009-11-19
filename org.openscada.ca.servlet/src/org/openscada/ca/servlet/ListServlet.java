@@ -296,6 +296,14 @@ public class ListServlet extends HttpServlet
         stream.print ( "<table class='configuration' width='100%'>" );
         stream.print ( "<tr><th>ID</th><th>State</th><th>Error</th><th>Data</th></tr>" );
 
+        Arrays.sort ( configurations, new Comparator<Configuration> () {
+
+            public int compare ( final Configuration o1, final Configuration o2 )
+            {
+                return o1.getId ().compareTo ( o2.getId () );
+            }
+        } );
+
         for ( final Configuration cfg : configurations )
         {
             stream.print ( "<tr>" );
