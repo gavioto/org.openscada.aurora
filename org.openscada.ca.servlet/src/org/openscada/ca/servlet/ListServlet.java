@@ -62,7 +62,7 @@ public class ListServlet extends HttpServlet
     public ListServlet ( final BundleContext context )
     {
         this.adminTracker = new ServiceTracker ( context, ConfigurationAdministrator.class.getName (), null );
-        this.adminTracker.open ( true );
+        this.adminTracker.open ();
     }
 
     @Override
