@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2008-2009 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.ca.servlet;
 
 import java.io.IOException;
@@ -43,7 +62,7 @@ public class ListServlet extends HttpServlet
     public ListServlet ( final BundleContext context )
     {
         this.adminTracker = new ServiceTracker ( context, ConfigurationAdministrator.class.getName (), null );
-        this.adminTracker.open ( true );
+        this.adminTracker.open ();
     }
 
     @Override
@@ -276,6 +295,14 @@ public class ListServlet extends HttpServlet
         final PrintWriter stream = resp.getWriter ();
         stream.print ( "<table class='configuration' width='100%'>" );
         stream.print ( "<tr><th>ID</th><th>State</th><th>Error</th><th>Data</th></tr>" );
+
+        Arrays.sort ( configurations, new Comparator<Configuration> () {
+
+            public int compare ( final Configuration o1, final Configuration o2 )
+            {
+                return o1.getId ().compareTo ( o2.getId () );
+            }
+        } );
 
         for ( final Configuration cfg : configurations )
         {

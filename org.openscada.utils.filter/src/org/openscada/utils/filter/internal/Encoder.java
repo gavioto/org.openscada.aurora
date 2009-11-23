@@ -1,6 +1,5 @@
 package org.openscada.utils.filter.internal;
 
-import java.nio.charset.Charset;
 
 public class Encoder
 {
@@ -13,11 +12,13 @@ public class Encoder
 
     public static final byte CHAR_BACKSPACE = 0x5c;
 
-    public static String encode ( String toEncode )
+    public static String encode ( final String toEncode )
     {
-        StringBuilder sb = new StringBuilder ();
-        for ( byte b : toEncode.getBytes ( Charset.forName ( "UTF-8" ) ) )
+        final StringBuilder sb = new StringBuilder ();
+
+        for ( int i = 0; i < toEncode.length (); i++ )
         {
+            final char b = toEncode.charAt ( i );
             switch ( b )
             {
             case CHAR_ASTERISK:
@@ -33,7 +34,7 @@ public class Encoder
                 }
                 else
                 {
-                    sb.append ( new Character ( (char)b ) );
+                    sb.append ( new Character ( b ) );
                 }
             }
         }

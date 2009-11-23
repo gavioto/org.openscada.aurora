@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.openscada.hsdb.CalculatingStorageChannel;
 import org.openscada.hsdb.ExtendedStorageChannel;
@@ -15,6 +16,8 @@ import org.openscada.hsdb.backend.file.FileBackEnd;
 import org.openscada.hsdb.backend.file.FileBackEndFactory;
 import org.openscada.hsdb.backend.file.FileBackEndManager;
 import org.openscada.hsdb.backend.file.FileBackEndManagerFactory;
+import org.openscada.hsdb.calculation.AverageCalculationLogicProvider;
+import org.openscada.hsdb.calculation.CalculationLogicProvider;
 import org.openscada.hsdb.configuration.Configuration;
 import org.openscada.hsdb.configuration.Conversions;
 import org.openscada.hsdb.datatypes.DataType;
@@ -64,24 +67,26 @@ public class CalculatingStorageChannelTest
      * @throws Exception if test fails
      */
     @Test
+    public void calculateData () throws Exception
+    {
+        final CalculationLogicProvider clp = new AverageCalculationLogicProvider ( DataType.DOUBLE_VALUE, DataType.DOUBLE_VALUE, new long[] { 1000 } );
+        final DoubleValue dv = (DoubleValue)clp.generateValue ( new DoubleValue[] { new DoubleValue ( 1, 1, 0, 1, 1 ), new DoubleValue ( 2, 1, 0.5, 1, 1 ), new DoubleValue ( 3, 1, 0.5, 1, 1 ) } );
+        Assert.assertTrue ( "Invalid manual value calculated!", dv.getManualIndicator () == 0.25 );
+    }
+
+    /**
+     * Test for compressing live data.
+     * @throws Exception if test fails
+     */
+    @Test
     public void compressData () throws Exception
     {
         // get input data
-        FileBackEnd inputBackEnd = new FileBackEnd ( "AT LUS.TL  01.DT a01.TEMP.V_0_NAT_20091107.000000.000.0_20091108.000000.000.0.va", false );
+        final FileBackEnd inputBackEnd = new FileBackEnd ( "foobar_0_NAT_20091113.000000.000.0_20091114.000000.000.0.va", false );
         inputBackEnd.initialize ( null );
         final StorageChannelMetaData metaData = inputBackEnd.getMetaData ();
-        ExtendedStorageChannel inputChannel = new ExtendedStorageChannelAdapter ( inputBackEnd );
+        final ExtendedStorageChannel inputChannel = new ExtendedStorageChannelAdapter ( inputBackEnd );
         final List<DoubleValue> doubleValues = new ArrayList<DoubleValue> ( Arrays.asList ( inputChannel.getDoubleValues ( Long.MIN_VALUE, Long.MAX_VALUE ) ) );
-        inputBackEnd.deinitialize ();
-        inputBackEnd = new FileBackEnd ( "AT LUS.TL  01.DT a01.TEMP.V_0_NAT_20091108.000000.000.0_20091109.000000.000.0.va", false );
-        inputBackEnd.initialize ( null );
-        inputChannel = new ExtendedStorageChannelAdapter ( inputBackEnd );
-        doubleValues.addAll ( Arrays.asList ( inputChannel.getDoubleValues ( Long.MIN_VALUE, Long.MAX_VALUE ) ) );
-        inputBackEnd.deinitialize ();
-        inputBackEnd = new FileBackEnd ( "AT LUS.TL  01.DT a01.TEMP.V_0_NAT_20091109.000000.000.0_20091110.000000.000.0.va", false );
-        inputBackEnd.initialize ( null );
-        inputChannel = new ExtendedStorageChannelAdapter ( inputBackEnd );
-        doubleValues.addAll ( Arrays.asList ( inputChannel.getDoubleValues ( Long.MIN_VALUE, Long.MAX_VALUE ) ) );
         inputBackEnd.deinitialize ();
 
         // prepare configuration
