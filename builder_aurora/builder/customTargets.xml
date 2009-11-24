@@ -106,6 +106,7 @@
   	<openscada.builder.copyPlugin id="org.openscada.utils.filter" />
   	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.console" />
   	
+  	<openscada.builder.copyFeature id="org.openscada.ca" />
   	<openscada.builder.copyPlugin id="org.openscada.ca" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.common" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.file" />
