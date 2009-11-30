@@ -39,10 +39,25 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
         private final ServiceRegistration handle;
 
+        /**
+         * Create a new service entry that is registered with OSGi
+         * @param service the service
+         * @param handle the service registration
+         */
         public Entry ( final T service, final ServiceRegistration handle )
         {
             this.service = service;
             this.handle = handle;
+        }
+
+        /**
+         * Create a new service entry that is not registered with OSGi
+         * @param service the service
+         */
+        public Entry ( final T service )
+        {
+            this.service = service;
+            this.handle = null;
         }
 
         public ServiceRegistration getHandle ()
@@ -66,7 +81,20 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         for ( final Entry<T> entry : this.services.values () )
         {
             disposeService ( entry.getService () );
-            entry.getHandle ().unregister ();
+            unregisterService ( entry );
+        }
+    }
+
+    /**
+     * Unregister the service entry with OSGi
+     * @param entry the entry to unregister
+     */
+    protected void unregisterService ( final Entry<T> entry )
+    {
+        final ServiceRegistration handle = entry.getHandle ();
+        if ( handle != null )
+        {
+            handle.unregister ();
         }
     }
 
@@ -76,7 +104,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         if ( entry != null )
         {
             disposeService ( entry.getService () );
-            entry.getHandle ().unregister ();
+            unregisterService ( entry );
         }
     }
 
@@ -97,6 +125,19 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         }
     }
 
+    /**
+     * Create a new service instance
+     * <p>
+     * The method must also register the service with the OSGi bundle context if needed. The service
+     * registration must then be places into the result that is returned. This is an optional step.
+     * There is no need to register the created service.
+     * </p>
+     * @param configurationId the configuration id for which the service should be created
+     * @param context the bundle context
+     * @param parameters the initial parameters
+     * @return a new entry instance which holds the service
+     * @throws Exception if anything goes wrong
+     */
     protected abstract Entry<T> createService ( String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
 
     protected abstract void disposeService ( T service );
