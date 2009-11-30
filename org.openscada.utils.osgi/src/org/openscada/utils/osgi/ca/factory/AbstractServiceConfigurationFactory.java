@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2008-2009 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.utils.osgi.ca.factory;
 
 import java.util.HashMap;
@@ -7,20 +26,20 @@ import org.openscada.ca.ConfigurationFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-public abstract class AbstractServiceConfigurationFactory implements ConfigurationFactory
+public abstract class AbstractServiceConfigurationFactory<T> implements ConfigurationFactory
 {
 
-    private final Map<String, Entry> services = new HashMap<String, Entry> ();
+    private final Map<String, Entry<T>> services = new HashMap<String, Entry<T>> ();
 
     private final BundleContext context;
 
-    protected static class Entry
+    protected static class Entry<T>
     {
-        private final Object service;
+        private final T service;
 
         private final ServiceRegistration handle;
 
-        public Entry ( final Object service, final ServiceRegistration handle )
+        public Entry ( final T service, final ServiceRegistration handle )
         {
             this.service = service;
             this.handle = handle;
@@ -31,7 +50,7 @@ public abstract class AbstractServiceConfigurationFactory implements Configurati
             return this.handle;
         }
 
-        public Object getService ()
+        public T getService ()
         {
             return this.service;
         }
@@ -44,7 +63,7 @@ public abstract class AbstractServiceConfigurationFactory implements Configurati
 
     public void dispose ()
     {
-        for ( final Entry entry : this.services.values () )
+        for ( final Entry<T> entry : this.services.values () )
         {
             disposeService ( entry.getService () );
             entry.getHandle ().unregister ();
@@ -53,7 +72,7 @@ public abstract class AbstractServiceConfigurationFactory implements Configurati
 
     public void delete ( final String configurationId ) throws Exception
     {
-        final Entry entry = this.services.remove ( configurationId );
+        final Entry<T> entry = this.services.remove ( configurationId );
         if ( entry != null )
         {
             disposeService ( entry.getService () );
@@ -63,7 +82,7 @@ public abstract class AbstractServiceConfigurationFactory implements Configurati
 
     public void update ( final String configurationId, final Map<String, String> parameters ) throws Exception
     {
-        Entry entry = this.services.get ( configurationId );
+        Entry<T> entry = this.services.get ( configurationId );
         if ( entry != null )
         {
             updateService ( entry, parameters );
@@ -78,9 +97,9 @@ public abstract class AbstractServiceConfigurationFactory implements Configurati
         }
     }
 
-    protected abstract Entry createService ( String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
+    protected abstract Entry<T> createService ( String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
 
-    protected abstract void disposeService ( Object service );
+    protected abstract void disposeService ( T service );
 
-    protected abstract void updateService ( Entry entry, Map<String, String> parameters ) throws Exception;
+    protected abstract void updateService ( Entry<T> entry, Map<String, String> parameters ) throws Exception;
 }
