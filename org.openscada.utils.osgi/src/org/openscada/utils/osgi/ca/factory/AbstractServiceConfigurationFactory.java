@@ -113,7 +113,14 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         Entry<T> entry = this.services.get ( configurationId );
         if ( entry != null )
         {
-            updateService ( entry, parameters );
+            final Entry<T> newEntry = updateService ( configurationId, entry, parameters );
+            if ( newEntry != null && newEntry != entry )
+            {
+                // replace with the new entry
+                disposeService ( entry.getService () );
+                unregisterService ( entry );
+                this.services.put ( configurationId, newEntry );
+            }
         }
         else
         {
@@ -142,5 +149,5 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
     protected abstract void disposeService ( T service );
 
-    protected abstract void updateService ( Entry<T> entry, Map<String, String> parameters ) throws Exception;
+    protected abstract Entry<T> updateService ( String configurationId, Entry<T> entry, Map<String, String> parameters ) throws Exception;
 }

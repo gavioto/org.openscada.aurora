@@ -117,10 +117,11 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
     }
 
     @Override
-    protected void updateService ( final Entry<BeanConfigurationFactory.BeanServiceInstance> entry, final Map<String, String> parameters ) throws Exception
+    protected Entry<BeanConfigurationFactory.BeanServiceInstance> updateService ( final String configurationId, final Entry<BeanConfigurationFactory.BeanServiceInstance> entry, final Map<String, String> parameters ) throws Exception
     {
         entry.getService ().update ( parameters );
         entry.getHandle ().setProperties ( entry.getService ().getProperties () );
+        return null;
     }
 
 }
