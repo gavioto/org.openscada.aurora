@@ -1,11 +1,15 @@
 package org.openscada.utils.filter.internal;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterVisitor;
+import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.openscada.utils.filter.Assertion;
 import org.openscada.utils.filter.Filter;
 import org.openscada.utils.filter.FilterAssertion;
@@ -62,6 +66,23 @@ public class FilterVisitorImpl implements FilterVisitor
         {
             SimpleNode simpleNode = (SimpleNode)node;
             return new FilterAssertion ( simpleNode.getAttribute (), Assertion.fromValue ( simpleNode.getAssertionType () ), simpleNode.getValue () );
+        }
+        else if ( node instanceof SubstringNode )
+        {
+            SubstringNode substringNode = (SubstringNode)node;
+            List<String> values = new ArrayList<String> ();
+            values.add(substringNode.getInitial () == null ? "" : substringNode.getInitial ());
+            for ( String string : (List<String>) substringNode.getAny () )
+            {
+                values.add ( string );
+            }
+            values.add ( substringNode.getFinal () == null ? "" : substringNode.getFinal () );
+            return new FilterAssertion ( substringNode.getAttribute (), Assertion.fromValue ( substringNode.getAssertionType () ), values);
+        }
+        else if ( node instanceof PresenceNode )
+        {
+            PresenceNode presenceNode = (PresenceNode)node;
+            return new FilterAssertion ( presenceNode.getAttribute (), Assertion.fromValue ( presenceNode.getAssertionType () ),  "");
         }
         else
         {

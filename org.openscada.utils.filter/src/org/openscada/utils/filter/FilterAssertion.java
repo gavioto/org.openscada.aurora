@@ -1,5 +1,8 @@
 package org.openscada.utils.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openscada.utils.filter.internal.Encoder;
 
 public class FilterAssertion implements Filter
@@ -51,7 +54,7 @@ public class FilterAssertion implements Filter
     @Override
     public String toString ()
     {
-        return "(" + attribute + assertion.toString () + Encoder.encode ( value == null ? "" : value.toString () ) + ")";
+        return "(" + attribute + assertion.toString () + nullSafeToString ( value ) + ")";
     }
 
     public boolean isAssertion ()
@@ -67,5 +70,33 @@ public class FilterAssertion implements Filter
     public boolean isEmpty ()
     {
         return assertion == null;
+    }
+
+    private String nullSafeToString ( Object value )
+    {
+        if ( value == null )
+        {
+            return "";
+        }
+        if ( value instanceof List )
+        {
+            List valueList = (List)value;
+            StringBuilder sb = new StringBuilder ();
+            int i = 0;
+            for ( Object part : valueList )
+            {
+                if ( i > 0 && i < valueList.size () )
+                {
+                    sb.append ( "*" );
+                }
+                sb.append ( part == null ? "" : Encoder.encode ( part.toString () ) );
+                i += 1;
+            }
+            return sb.toString ();
+        }
+        else
+        {
+            return Encoder.encode ( value.toString () );
+        }
     }
 }
