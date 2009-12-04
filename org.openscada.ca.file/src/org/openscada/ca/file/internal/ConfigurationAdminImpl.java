@@ -270,7 +270,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         return path;
     }
 
-    protected void performStoreConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final ConfigurationFuture future ) throws FileNotFoundException, IOException
+    protected void performStoreConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws FileNotFoundException, IOException
     {
         if ( this.root == null )
         {
@@ -279,19 +279,46 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
 
         final File path = getFactoryPath ( factoryId );
-
         final File file = new File ( path, encode ( configurationId ) );
 
         logger.info ( String.format ( "Storing %s to %s", configurationId, file ) );
 
+        final Map<String, String> newProperties = new HashMap<String, String> ();
+
+        // if this is differential, load in old data first
+        if ( !fullSet )
+        {
+            final ConfigurationImpl oldConfig = loadConfiguration ( factoryId, file );
+            if ( oldConfig != null )
+            {
+                newProperties.putAll ( oldConfig.getData () );
+            }
+        }
+
+        // merge in changes
+        for ( final Map.Entry<String, String> entry : properties.entrySet () )
+        {
+            final String key = entry.getKey ();
+            final String value = entry.getValue ();
+            if ( value != null )
+            {
+                newProperties.put ( key, value );
+            }
+            else
+            {
+                newProperties.remove ( key );
+            }
+        }
+
+        // convert to properties and store
         final Properties p = new Properties ();
-        p.putAll ( properties );
+        p.putAll ( newProperties );
         p.put ( "id", configurationId );
 
         final FileOutputStream stream = new FileOutputStream ( file );
         try
         {
-            logger.debug ( "Storing {}/{} -> {}", new Object[] { factoryId, configurationId, properties } );
+            logger.debug ( "Storing {}/{} -> {}", new Object[] { factoryId, configurationId, newProperties } );
             p.store ( stream, "" );
         }
         finally
@@ -300,7 +327,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
 
         // notify the abstract service from our content change
-        changeConfiguration ( factoryId, configurationId, properties, future );
+        changeConfiguration ( factoryId, configurationId, newProperties, future );
     }
 
     private File getFactoryPath ( final String factoryId )

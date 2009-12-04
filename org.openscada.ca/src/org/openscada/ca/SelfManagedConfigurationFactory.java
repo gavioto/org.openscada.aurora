@@ -48,7 +48,7 @@ public interface SelfManagedConfigurationFactory
      */
     public void removeConfigurationListener ( ConfigurationListener listener );
 
-    public NotifyFuture<Configuration> update ( String configurationId, Map<String, String> properties );
+    public NotifyFuture<Configuration> update ( String configurationId, Map<String, String> properties, boolean fullSet );
 
     public NotifyFuture<Configuration> delete ( String configurationId );
 }

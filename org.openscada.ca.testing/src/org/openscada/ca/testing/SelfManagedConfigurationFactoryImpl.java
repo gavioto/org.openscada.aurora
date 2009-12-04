@@ -102,7 +102,7 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         this.listeners.remove ( listener );
     }
 
-    public synchronized NotifyFuture<Configuration> update ( final String configurationId, final Map<String, String> properties )
+    public synchronized NotifyFuture<Configuration> update ( final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         logger.info ( "Updating: {} -> {}", new Object[] { configurationId, properties } );
         ConfigurationImpl cfg = this.configurations.get ( configurationId );

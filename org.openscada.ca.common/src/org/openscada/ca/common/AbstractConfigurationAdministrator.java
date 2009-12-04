@@ -286,7 +286,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
     }
 
-    protected abstract void performStoreConfiguration ( String factoryId, String configurationId, Map<String, String> properties, ConfigurationFuture future ) throws Exception;
+    protected abstract void performStoreConfiguration ( String factoryId, String configurationId, Map<String, String> properties, boolean fullSet, ConfigurationFuture future ) throws Exception;
 
     protected abstract void performDeleteConfiguration ( String factoryId, String configurationId, ConfigurationFuture future ) throws Exception;
 
@@ -428,15 +428,15 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeStore ( factoryId, configurationId, properties );
+            return invokeStore ( factoryId, configurationId, properties, true );
         }
         else
         {
-            return factory.getSelfService ().update ( configurationId, properties );
+            return factory.getSelfService ().update ( configurationId, properties, true );
         }
     }
 
-    public synchronized Future<Configuration> updateConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties )
+    public synchronized Future<Configuration> updateConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -452,11 +452,11 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeStore ( factoryId, configurationId, properties );
+            return invokeStore ( factoryId, configurationId, properties, fullSet );
         }
         else
         {
-            return factory.getSelfService ().update ( configurationId, properties );
+            return factory.getSelfService ().update ( configurationId, properties, fullSet );
         }
     }
 
@@ -499,7 +499,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
     }
 
-    private NotifyFuture<Configuration> invokeStore ( final String factoryId, final String configurationId, final Map<String, String> properties )
+    private NotifyFuture<Configuration> invokeStore ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final ConfigurationFuture future = new ConfigurationFuture ();
         this.executor.execute ( new Runnable () {
@@ -508,7 +508,7 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             {
                 try
                 {
-                    performStoreConfiguration ( factoryId, configurationId, properties, future );
+                    performStoreConfiguration ( factoryId, configurationId, properties, fullSet, future );
                 }
                 catch ( final Throwable e )
                 {

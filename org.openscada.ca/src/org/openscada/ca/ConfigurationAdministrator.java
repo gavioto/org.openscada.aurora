@@ -30,7 +30,7 @@ public interface ConfigurationAdministrator
 
     public Future<Configuration> createConfiguration ( String factoryId, String configurationId, Map<String, String> initialProperties );
 
-    public Future<Configuration> updateConfiguration ( String factoryId, String configurationId, Map<String, String> newProperties );
+    public Future<Configuration> updateConfiguration ( String factoryId, String configurationId, Map<String, String> newProperties, boolean fullSet );
 
     public Future<Configuration> deleteConfiguration ( String factoryId, String configurationId );
 

@@ -139,7 +139,7 @@ public class ListServlet extends HttpServlet
         }
 
         final PrintWriter stream = resp.getWriter ();
-        waitForFuture ( stream, admin.updateConfiguration ( factoryId, configurationId, parseData ( data ) ) );
+        waitForFuture ( stream, admin.updateConfiguration ( factoryId, configurationId, parseData ( data ), true ) );
     }
 
     private void handleDelete ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
