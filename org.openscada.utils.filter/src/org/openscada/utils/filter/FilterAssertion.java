@@ -1,6 +1,5 @@
 package org.openscada.utils.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openscada.utils.filter.internal.Encoder;
@@ -72,6 +71,7 @@ public class FilterAssertion implements Filter
         return assertion == null;
     }
 
+    @SuppressWarnings ( "unchecked" )
     private String nullSafeToString ( Object value )
     {
         if ( value == null )

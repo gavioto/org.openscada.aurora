@@ -1,6 +1,5 @@
 package org.openscada.utils.filter;
 
-import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 
 /**
  * @author jrose
@@ -9,12 +8,15 @@ import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 public enum Assertion
 {
 
-    EQUALITY ( AbstractExprNode.EQUALITY ),
-    PRESENCE ( AbstractExprNode.PRESENCE ),
-    SUBSTRING ( AbstractExprNode.SUBSTRING ),
-    GREATEREQ ( AbstractExprNode.GREATEREQ ),
-    LESSEQ ( AbstractExprNode.LESSEQ ),
-    APPROXIMATE ( AbstractExprNode.APPROXIMATE );
+    EQUALITY ( 0 ),
+    PRESENCE ( 1 ),
+    SUBSTRING ( 2 ),
+    GREATEREQ ( 3 ),
+    LESSEQ ( 4 ),
+    APPROXIMATE ( 6 ),
+
+    LESSTHAN ( 7 ),
+    GREATERTHAN ( 8 );
 
     private final int op;
 
@@ -27,18 +29,22 @@ public enum Assertion
     {
         switch ( op )
         {
-        case AbstractExprNode.EQUALITY:
+        case 0:
             return Assertion.EQUALITY;
-        case AbstractExprNode.PRESENCE:
+        case 1:
             return Assertion.PRESENCE;
-        case AbstractExprNode.SUBSTRING:
+        case 2:
             return Assertion.SUBSTRING;
-        case AbstractExprNode.GREATEREQ:
+        case 3:
             return Assertion.GREATEREQ;
-        case AbstractExprNode.LESSEQ:
+        case 4:
             return Assertion.LESSEQ;
-        case AbstractExprNode.APPROXIMATE:
+        case 6:
             return Assertion.APPROXIMATE;
+        case 7:
+            return Assertion.LESSTHAN;
+        case 8:
+            return Assertion.GREATERTHAN;
         }
         return null;
     }
@@ -48,18 +54,22 @@ public enum Assertion
     {
         switch ( this.op )
         {
-        case AbstractExprNode.APPROXIMATE:
-            return "~=";
-        case AbstractExprNode.EQUALITY:
+        case 0:
             return "=";
-        case AbstractExprNode.GREATEREQ:
-            return ">=";
-        case AbstractExprNode.LESSEQ:
-            return "<=";
-        case AbstractExprNode.PRESENCE:
+        case 1:
             return "=*";
-        case AbstractExprNode.SUBSTRING:
+        case 2:
             return "=";
+        case 3:
+            return ">=";
+        case 4:
+            return "<=";
+        case 6:
+            return "~=";
+        case 7:
+            return "<";
+        case 8:
+            return ">";
         }
         return null;
     }

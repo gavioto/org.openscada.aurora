@@ -1,6 +1,5 @@
 package org.openscada.utils.filter;
 
-import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 
 /**
  * @author jrose
@@ -8,10 +7,9 @@ import org.apache.directory.shared.ldap.filter.AbstractExprNode;
  */
 public enum Operator
 {
-
-    OR ( AbstractExprNode.OR ),
-    AND ( AbstractExprNode.AND ),
-    NOT ( AbstractExprNode.NOT );
+    OR ( 9 ),
+    AND ( 10 ),
+    NOT ( 11 );
 
     private final int op;
 
@@ -24,26 +22,26 @@ public enum Operator
     {
         switch ( op )
         {
-        case AbstractExprNode.OR:
+        case 9:
             return Operator.OR;
-        case AbstractExprNode.AND:
+        case 10:
             return Operator.AND;
-        case AbstractExprNode.NOT:
+        case 11:
             return Operator.NOT;
         }
         return null;
     }
-
+    
     @Override
     public String toString ()
     {
         switch ( this.op )
         {
-        case AbstractExprNode.OR:
+        case 9:
             return "|";
-        case AbstractExprNode.AND:
+        case 10:
             return "&";
-        case AbstractExprNode.NOT:
+        case 11:
             return "!";
         }
         return null;
