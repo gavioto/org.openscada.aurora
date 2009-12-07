@@ -76,7 +76,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         this.context = context;
     }
 
-    public void dispose ()
+    public synchronized void dispose ()
     {
         for ( final Entry<T> entry : this.services.values () )
         {
@@ -98,7 +98,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         }
     }
 
-    public void delete ( final String configurationId ) throws Exception
+    public synchronized void delete ( final String configurationId ) throws Exception
     {
         final Entry<T> entry = this.services.remove ( configurationId );
         if ( entry != null )
@@ -108,7 +108,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         }
     }
 
-    public void update ( final String configurationId, final Map<String, String> parameters ) throws Exception
+    public synchronized void update ( final String configurationId, final Map<String, String> parameters ) throws Exception
     {
         Entry<T> entry = this.services.get ( configurationId );
         if ( entry != null )
@@ -150,4 +150,9 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     protected abstract void disposeService ( T service );
 
     protected abstract Entry<T> updateService ( String configurationId, Entry<T> entry, Map<String, String> parameters ) throws Exception;
+
+    protected synchronized Entry<T> getService ( final String configurationId )
+    {
+        return this.services.get ( configurationId );
+    }
 }
