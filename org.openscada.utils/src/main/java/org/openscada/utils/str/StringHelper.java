@@ -22,6 +22,8 @@ package org.openscada.utils.str;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.openscada.utils.lang.Apply;
+
 /**
  * A helper class for string operations
  * @author Jens Reimann
@@ -39,7 +41,7 @@ public class StringHelper
      * @param delimiter the delimiter to use
      * @return the result string
      */
-    public static String join ( Collection<?> items, String delimiter )
+    public static String join ( final Collection<?> items, final String delimiter )
     {
         StringBuffer buffer = new StringBuffer ();
         Iterator<?> iter = items.iterator ();
@@ -47,6 +49,27 @@ public class StringHelper
         while ( iter.hasNext () )
         {
             buffer.append ( iter.next () );
+            if ( iter.hasNext () )
+            {
+                buffer.append ( delimiter );
+            }
+        }
+
+        return buffer.toString ();
+    }
+
+    public static String join ( final Collection<?> items, final String delimiter, final Apply<String> toApply)
+    {
+        StringBuffer buffer = new StringBuffer ();
+        Iterator<?> iter = items.iterator ();
+
+        while ( iter.hasNext () )
+        {
+            if ( toApply != null ) {
+                buffer.append ( toApply.apply ( String.valueOf ( iter.next () ) ) );
+            } else {
+                buffer.append ( iter.next () );
+            }
             if ( iter.hasNext () )
             {
                 buffer.append ( delimiter );
