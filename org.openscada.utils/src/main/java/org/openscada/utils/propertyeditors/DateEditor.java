@@ -8,15 +8,21 @@ import java.util.Date;
 
 public class DateEditor extends PropertyEditorSupport
 {
+    private static final SimpleDateFormat dfDateTimeS = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss.S" );
+    private static final SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" );
+    private static final SimpleDateFormat dfDate = new SimpleDateFormat ( "yyyy-MM-dd" );
+    
     @Override
     public void setAsText ( String text ) throws IllegalArgumentException
     {
         Date d = null;
-        SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" );
-        SimpleDateFormat dfDate = new SimpleDateFormat ( "yyyy-MM-dd" );
         try
         {
-            if ( text.length () > 10 )
+            if ( text.length () > 19 )
+            {
+                d = dfDateTimeS.parse ( text );
+            }
+            else if ( text.length () > 10 )
             {
                 d = dfDateTime.parse ( text );
             }
