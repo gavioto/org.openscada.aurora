@@ -26,6 +26,10 @@ public class FilterParser
 
     public FilterParser ( String filter ) throws FilterParseException
     {
+        if (filter == null || "".equals ( filter.trim () )) {
+            this.filter = new FilterEmpty();
+            return;
+        }
         boolean expressionExpected = true;
         FilterAssertion currentAssertion = null;
         Stack<FilterExpression> filterExpressions = new Stack<FilterExpression> ();
