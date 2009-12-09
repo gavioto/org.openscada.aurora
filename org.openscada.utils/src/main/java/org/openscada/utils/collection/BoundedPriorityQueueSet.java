@@ -50,15 +50,29 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
     public boolean add ( E e )
     {
         final boolean result = internalSet.add ( e );
+        if ( !result )
+        {
+            return false;
+        }
         shrinkToSize ();
-        return result;
+        return internalSet.contains ( e );
     }
 
     public boolean addAll ( Collection<? extends E> c )
     {
         final boolean result = internalSet.addAll ( c );
+        if ( !result )
+        {
+            return false;
+        }
         shrinkToSize ();
-        return result;
+        for ( E e : c )
+        {
+            if (internalSet.contains ( e )) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void clear ()
@@ -175,15 +189,17 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
 
     public boolean offer ( E e )
     {
-        this.add ( e );
-        return true;
+        return this.add ( e );
     }
 
     public E poll ()
     {
-        try {
+        try
+        {
             return internalSet.last ();
-        } catch (NoSuchElementException e) {
+        }
+        catch ( NoSuchElementException e )
+        {
             return null;
         }
     }
