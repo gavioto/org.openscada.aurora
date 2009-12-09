@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class BoundedPriorityQueueSet<E> implements SortedSet<E>, Queue<E>
+public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
 {
     private final SortedSet<E> internalSet;
 
@@ -193,5 +193,10 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, Queue<E>
         E result = internalSet.last ();
         internalSet.remove ( result );
         return result;
+    }
+
+    public int getCapacity ()
+    {
+        return capacity;
     }
 }
