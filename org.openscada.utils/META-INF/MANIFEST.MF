@@ -13,8 +13,7 @@ Export-Package: org.openscada.utils;version="0.15.0",
  org.openscada.utils.lifecycle;version="0.15.0",
  org.openscada.utils.propertyeditors;version="0.15.0",
  org.openscada.utils.statuscodes;version="0.15.0",
- org.openscada.utils.str;version="0.15.0",
- org.openscada.utils.timing;version="0.15.0";uses:="org.openscada.utils.statuscodes,org.slf4j"
+ org.openscada.utils.str;version="0.15.0"
 Bundle-Version: 0.15.0.qualifier
 Bundle-Name: OpenSCADA Common Utilities
 Bundle-Description: Utility classes for use throughout the OpenSCADA p
