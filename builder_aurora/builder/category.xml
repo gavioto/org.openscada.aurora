@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.openscada.aurora_0.15.0.qualifier.jar" id="org.openscada.aurora" version="0.15.0.qualifier">
+      <category name="org.openscada.aurora.category"/>
+   </feature>
+   <feature url="features/org.openscada.aurora.sdk_0.15.0.qualifier.jar" id="org.openscada.aurora.sdk" version="0.15.0.qualifier">
+      <category name="org.openscada.aurora.category"/>
+   </feature>
+   <feature url="features/org.openscada.hsdb_0.14.0.qualifier.jar" id="org.openscada.hsdb" version="0.14.0.qualifier">
+      <category name="org.openscada.aurora.hsbd.category"/>
+   </feature>
+   <feature url="features/org.openscada.ca_0.15.0.qualifier.jar" id="org.openscada.ca" version="0.15.0.qualifier">
+      <category name="org.openscada.aurora.ca"/>
+   </feature>
+   <category-def name="org.openscada.aurora.category" label="OpenSCADA Aurora"/>
+   <category-def name="org.openscada.aurora.hsbd.category" label="OpenSCADA HSDB"/>
+   <category-def name="org.openscada.aurora.ca" label="OpenSCADA CA"/>
+</site>
