@@ -15,7 +15,6 @@ public class Activator implements BundleActivator
     public void start ( final BundleContext context ) throws Exception
     {
         this.service = new ConfigurationAdministratorService ( context );
-
     }
 
     /*
