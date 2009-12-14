@@ -55,7 +55,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.openscada.ca.servelt.jaxws"
+         id="org.openscada.ca.servlet.jaxws"
          download-size="0"
          install-size="0"
          version="0.0.0"
