@@ -32,13 +32,16 @@ public class EndpointExporter implements ServiceListener
         this.baseAddress = baseAddress;
 
         final String filter = String.format ( "(%s=%s)", JaxWsExporter.EXPORT_ENABLED, true );
-        context.addServiceListener ( this, filter );
-        final ServiceReference[] refs = context.getServiceReferences ( null, filter );
-        if ( refs != null )
+        synchronized ( this )
         {
-            for ( final ServiceReference ref : refs )
+            context.addServiceListener ( this, filter );
+            final ServiceReference[] refs = context.getServiceReferences ( null, filter );
+            if ( refs != null )
             {
-                addService ( ref );
+                for ( final ServiceReference ref : refs )
+                {
+                    addService ( ref );
+                }
             }
         }
     }
@@ -52,7 +55,7 @@ public class EndpointExporter implements ServiceListener
         }
     }
 
-    public void serviceChanged ( final ServiceEvent event )
+    public synchronized void serviceChanged ( final ServiceEvent event )
     {
         switch ( event.getType () )
         {
