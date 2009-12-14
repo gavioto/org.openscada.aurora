@@ -97,10 +97,14 @@ public class EndpointExporter implements ServiceListener
     {
         logger.info ( "Exporting service: {} -> {}", new Object[] { reference } );
         Endpoint e = null;
+        final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
+
         try
         {
 
             final WebService webService = service.getClass ().getAnnotation ( WebService.class );
+
+            Thread.currentThread ().setContextClassLoader ( service.getClass ().getClassLoader () );
 
             if ( webService != null )
             {
@@ -118,6 +122,7 @@ public class EndpointExporter implements ServiceListener
         }
         finally
         {
+            Thread.currentThread ().setContextClassLoader ( currentClassLoader );
             if ( e != null )
             {
                 e.stop ();
