@@ -6,13 +6,15 @@ import java.util.Map;
 
 import org.openscada.utils.osgi.pool.ObjectPoolTracker.ObjectPoolServiceListener;
 
-public abstract class AllObjectPoolServiceTracker
+public class AllObjectPoolServiceTracker
 {
     private final ObjectPoolTracker poolTracker;
 
     private final ObjectPoolServiceListener poolListener;
 
     private final Map<ObjectPool, PoolHandler> poolMap = new HashMap<ObjectPool, PoolHandler> ();
+
+    private final ObjectPoolListener serviceListener;
 
     protected class PoolHandler implements ObjectPoolListener
     {
@@ -78,8 +80,9 @@ public abstract class AllObjectPoolServiceTracker
         }
     }
 
-    public AllObjectPoolServiceTracker ( final ObjectPoolTracker poolTracker )
+    public AllObjectPoolServiceTracker ( final ObjectPoolTracker poolTracker, final ObjectPoolListener listener )
     {
+        this.serviceListener = listener;
         this.poolTracker = poolTracker;
 
         this.poolListener = new ObjectPoolServiceListener () {
@@ -101,11 +104,20 @@ public abstract class AllObjectPoolServiceTracker
         };
     }
 
-    protected abstract void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties );
+    protected synchronized void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties )
+    {
+        this.serviceListener.serviceAdded ( service, properties );
+    }
 
-    protected abstract void handleServiceModified ( final Object service, final Dictionary<?, ?> properties );
+    protected synchronized void handleServiceModified ( final Object service, final Dictionary<?, ?> properties )
+    {
+        this.serviceListener.serviceModified ( service, properties );
+    }
 
-    protected abstract void handleServiceRemoved ( final Object service, final Dictionary<?, ?> properties );
+    protected synchronized void handleServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
+    {
+        this.serviceListener.serviceRemoved ( service, properties );
+    }
 
     protected synchronized void handlePoolAdd ( final ObjectPool objectPool, final int priority )
     {

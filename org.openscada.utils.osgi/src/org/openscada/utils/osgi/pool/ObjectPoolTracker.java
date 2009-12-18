@@ -5,8 +5,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.openscada.utils.osgi.FilterUtil;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -35,9 +38,14 @@ public class ObjectPoolTracker
 
     private final Map<ObjectPool, Integer> poolMap = new HashMap<ObjectPool, Integer> ();
 
-    public ObjectPoolTracker ( final BundleContext context, final String poolClass )
+    public ObjectPoolTracker ( final BundleContext context, final String poolClass ) throws InvalidSyntaxException
     {
-        this.poolTracker = new ServiceTracker ( context, ObjectPool.class.getName (), new ServiceTrackerCustomizer () {
+
+        final Map<String, String> parameters = new HashMap<String, String> ();
+        parameters.put ( ObjectPool.OBJECT_POOL_CLASS, poolClass );
+        final Filter filter = FilterUtil.createAndFilter ( ObjectPool.class.getName (), parameters );
+
+        this.poolTracker = new ServiceTracker ( context, filter, new ServiceTrackerCustomizer () {
 
             public void removedService ( final ServiceReference reference, final Object service )
             {
