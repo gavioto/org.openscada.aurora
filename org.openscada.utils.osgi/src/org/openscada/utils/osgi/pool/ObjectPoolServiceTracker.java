@@ -85,11 +85,11 @@ public class ObjectPoolServiceTracker
         }
     }
 
-    public ObjectPoolServiceTracker ( final ObjectPoolTracker poolTracker, final String serviceId, final ObjectPoolListener clientListener )
+    public ObjectPoolServiceTracker ( final ObjectPoolTracker poolTracker, final String serviceId, final ObjectPoolListener listener )
     {
         this.serviceId = serviceId;
         this.poolTracker = poolTracker;
-        this.clientListener = clientListener;
+        this.clientListener = listener;
         this.poolListener = new ObjectPoolServiceListener () {
 
             public void poolRemoved ( final ObjectPool objectPool )
