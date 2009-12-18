@@ -2,7 +2,9 @@ package org.openscada.utils.osgi.pool;
 
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,9 @@ public class ObjectPoolImpl implements ObjectPool
 
     private final static Logger logger = LoggerFactory.getLogger ( ObjectPoolImpl.class );
 
-    private final Multimap<String, ObjectPoolListener> listeners = HashMultimap.create ();
+    private final Multimap<String, ObjectPoolListener> idListeners = HashMultimap.create ();
+
+    private final Set<ObjectPoolListener> anyListener = new HashSet<ObjectPoolListener> ();
 
     private final Map<String, Map<Object, Dictionary<?, ?>>> services = new HashMap<String, Map<Object, Dictionary<?, ?>>> ();
 
@@ -67,7 +71,12 @@ public class ObjectPoolImpl implements ObjectPool
 
     private void fireAddedService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
-        for ( final ObjectPoolListener listener : this.listeners.get ( id ) )
+        for ( final ObjectPoolListener listener : this.idListeners.get ( id ) )
+        {
+            listener.serviceAdded ( service, properties );
+        }
+
+        for ( final ObjectPoolListener listener : this.anyListener )
         {
             listener.serviceAdded ( service, properties );
         }
@@ -75,7 +84,12 @@ public class ObjectPoolImpl implements ObjectPool
 
     private void fireModifiedService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
-        for ( final ObjectPoolListener listener : this.listeners.get ( id ) )
+        for ( final ObjectPoolListener listener : this.idListeners.get ( id ) )
+        {
+            listener.serviceModified ( service, properties );
+        }
+
+        for ( final ObjectPoolListener listener : this.anyListener )
         {
             listener.serviceModified ( service, properties );
         }
@@ -83,7 +97,12 @@ public class ObjectPoolImpl implements ObjectPool
 
     private void fireRemoveService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
-        for ( final ObjectPoolListener listener : this.listeners.get ( id ) )
+        for ( final ObjectPoolListener listener : this.idListeners.get ( id ) )
+        {
+            listener.serviceRemoved ( service, properties );
+        }
+
+        for ( final ObjectPoolListener listener : this.anyListener )
         {
             listener.serviceRemoved ( service, properties );
         }
@@ -91,7 +110,7 @@ public class ObjectPoolImpl implements ObjectPool
 
     public synchronized void dispose ()
     {
-        for ( final Map.Entry<String, ObjectPoolListener> entry : this.listeners.entries () )
+        for ( final Map.Entry<String, ObjectPoolListener> entry : this.idListeners.entries () )
         {
             final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( entry.getKey () );
             for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
@@ -108,19 +127,17 @@ public class ObjectPoolImpl implements ObjectPool
     {
         logger.debug ( "Adding listener" );
 
-        if ( this.listeners.put ( id, listener ) )
+        if ( this.idListeners.put ( id, listener ) )
         {
             final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
             if ( serviceMap != null )
             {
                 for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMap.entrySet () )
                 {
-                    // logger.debug ( "Late reporting: {} -> {}", new Object[] { entry.getKey (), entry.getValue () } );
                     listener.serviceAdded ( entry.getKey (), entry.getValue () );
                 }
             }
         }
-
     }
 
     /* (non-Javadoc)
@@ -128,6 +145,25 @@ public class ObjectPoolImpl implements ObjectPool
      */
     public synchronized void removeListener ( final String id, final ObjectPoolListener listener )
     {
-        this.listeners.remove ( id, listener );
+        this.idListeners.remove ( id, listener );
+    }
+
+    public synchronized void addListener ( final ObjectPoolListener listener )
+    {
+        if ( this.anyListener.add ( listener ) )
+        {
+            for ( final Map<Object, Dictionary<?, ?>> serviceMap : this.services.values () )
+            {
+                for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMap.entrySet () )
+                {
+                    listener.serviceAdded ( entry.getKey (), entry.getValue () );
+                }
+            }
+        }
+    }
+
+    public synchronized void removeListener ( final ObjectPoolListener listener )
+    {
+        this.anyListener.remove ( listener );
     }
 }

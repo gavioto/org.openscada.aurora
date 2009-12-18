@@ -7,4 +7,8 @@ public interface ObjectPool
 
     public abstract void removeListener ( final String id, final ObjectPoolListener listener );
 
+    public abstract void addListener ( final ObjectPoolListener listener );
+
+    public abstract void removeListener ( final ObjectPoolListener listener );
+
 }
