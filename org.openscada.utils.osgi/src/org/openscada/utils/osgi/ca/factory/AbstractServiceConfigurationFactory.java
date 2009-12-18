@@ -35,6 +35,8 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
     protected static class Entry<T>
     {
+        private final String id;
+
         private final T service;
 
         private final ServiceRegistration handle;
@@ -44,8 +46,9 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
          * @param service the service
          * @param handle the service registration
          */
-        public Entry ( final T service, final ServiceRegistration handle )
+        public Entry ( final String id, final T service, final ServiceRegistration handle )
         {
+            this.id = id;
             this.service = service;
             this.handle = handle;
         }
@@ -54,8 +57,9 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
          * Create a new service entry that is not registered with OSGi
          * @param service the service
          */
-        public Entry ( final T service )
+        public Entry ( final String id, final T service )
         {
+            this.id = id;
             this.service = service;
             this.handle = null;
         }
@@ -69,6 +73,11 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         {
             return this.service;
         }
+
+        public String getId ()
+        {
+            return this.id;
+        }
     }
 
     public AbstractServiceConfigurationFactory ( final BundleContext context )
@@ -80,7 +89,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     {
         for ( final Entry<T> entry : this.services.values () )
         {
-            disposeService ( entry.getService () );
+            disposeService ( entry.getId (), entry.getService () );
             unregisterService ( entry );
         }
     }
@@ -103,7 +112,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         final Entry<T> entry = this.services.remove ( configurationId );
         if ( entry != null )
         {
-            disposeService ( entry.getService () );
+            disposeService ( configurationId, entry.getService () );
             unregisterService ( entry );
         }
     }
@@ -117,7 +126,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
             if ( newEntry != null && newEntry != entry )
             {
                 // replace with the new entry
-                disposeService ( entry.getService () );
+                disposeService ( configurationId, entry.getService () );
                 unregisterService ( entry );
                 this.services.put ( configurationId, newEntry );
             }
@@ -147,7 +156,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
      */
     protected abstract Entry<T> createService ( String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
 
-    protected abstract void disposeService ( T service );
+    protected abstract void disposeService ( String configurationId, T service );
 
     protected abstract Entry<T> updateService ( String configurationId, Entry<T> entry, Map<String, String> parameters ) throws Exception;
 

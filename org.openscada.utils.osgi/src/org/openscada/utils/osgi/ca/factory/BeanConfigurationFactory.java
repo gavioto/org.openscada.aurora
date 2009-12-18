@@ -104,11 +104,11 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
 
         final ServiceRegistration reg = context.registerService ( this.beanClazz.getName (), bean.getTargetBean (), bean.getProperties () );
 
-        return new Entry<BeanServiceInstance> ( bean, reg );
+        return new Entry<BeanServiceInstance> ( configurationId, bean, reg );
     }
 
     @Override
-    protected void disposeService ( final BeanServiceInstance service )
+    protected void disposeService ( final String id, final BeanServiceInstance service )
     {
         if ( service instanceof Disposable )
         {
