@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Toggle Service
+Bundle-SymbolicName: org.openscada.utils.toggle
+Bundle-Version: 0.15.0.qualifier
+Bundle-Activator: org.openscada.utils.toggle.Activator
+Import-Package: org.osgi.framework;version="1.3.0",
+ org.slf4j
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
