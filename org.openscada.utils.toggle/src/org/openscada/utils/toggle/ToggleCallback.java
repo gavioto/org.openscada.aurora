@@ -1,6 +1,6 @@
 package org.openscada.utils.toggle;
 
-public interface TogleCallback
+public interface ToggleCallback
 {
     public void toggle ( boolean on );   
 }

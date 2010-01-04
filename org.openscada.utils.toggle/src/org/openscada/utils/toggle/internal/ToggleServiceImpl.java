@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.openscada.utils.toggle.ToggleError;
 import org.openscada.utils.toggle.ToggleService;
-import org.openscada.utils.toggle.TogleCallback;
+import org.openscada.utils.toggle.ToggleCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class ToggleServiceImpl implements ToggleService, Runnable
 
     private final ConcurrentMap<Integer, ToggleInfo> toggleInfos = new ConcurrentHashMap<Integer, ToggleInfo> ();
 
-    private final ConcurrentMap<Integer, List<TogleCallback>> toggleCallbacks = new ConcurrentHashMap<Integer, List<TogleCallback>> ();
+    private final ConcurrentMap<Integer, List<ToggleCallback>> toggleCallbacks = new ConcurrentHashMap<Integer, List<ToggleCallback>> ();
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor ();
 
@@ -33,7 +33,7 @@ public class ToggleServiceImpl implements ToggleService, Runnable
 
     private final Object addRemoveLock = new Object ();
 
-    public void addListener ( final int interval, final TogleCallback bc ) throws ToggleError
+    public void addListener ( final int interval, final ToggleCallback bc ) throws ToggleError
     {
         synchronized ( addRemoveLock )
         {
@@ -43,23 +43,23 @@ public class ToggleServiceImpl implements ToggleService, Runnable
             }
             if ( !toggleCallbacks.containsKey ( interval ) )
             {
-                toggleCallbacks.put ( interval, new CopyOnWriteArrayList<TogleCallback> () );
+                toggleCallbacks.put ( interval, new CopyOnWriteArrayList<ToggleCallback> () );
             }
-            List<TogleCallback> handlers = toggleCallbacks.get ( interval );
+            List<ToggleCallback> handlers = toggleCallbacks.get ( interval );
             handlers.add ( bc );
         }
     }
 
-    public void removeListener ( final TogleCallback bc )
+    public void removeListener ( final ToggleCallback bc )
     {
         synchronized ( addRemoveLock )
         {
-            for ( List<TogleCallback> bcs : toggleCallbacks.values () )
+            for ( List<ToggleCallback> bcs : toggleCallbacks.values () )
             {
                 bcs.remove ( bc );
             }
             List<Integer> toDelete = new ArrayList<Integer> ();
-            for ( Entry<Integer, List<TogleCallback>> entry : toggleCallbacks.entrySet () )
+            for ( Entry<Integer, List<ToggleCallback>> entry : toggleCallbacks.entrySet () )
             {
                 if ( entry.getValue ().size () == 0 )
                 {
@@ -97,7 +97,7 @@ public class ToggleServiceImpl implements ToggleService, Runnable
             {
                 final ToggleInfo i = toggleInfos.get ( toggle );
                 final boolean isOn = i.toggle ();
-                for ( TogleCallback bc : toggleCallbacks.get ( toggle ) )
+                for ( ToggleCallback bc : toggleCallbacks.get ( toggle ) )
                 {
                     try
                     {
