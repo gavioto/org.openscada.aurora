@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2008-2009 inavare GmbH (http://inavare.com)
+ * Copyright (C) 2008-2010 inavare GmbH (http://inavare.com)
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -47,10 +47,24 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
 
     private final Class<?> beanClazz;
 
-    public BeanConfigurationFactory ( final BundleContext context, final Class<?> beanClazz )
+    private final boolean mergeIdField;
+
+    /**
+     * Create a new factory
+     * @param context the bundle context
+     * @param beanClazz the bean class to use
+     * @param mergeIdField apply the configuration id as <q>id</q> if set the <code>true</code>
+     */
+    public BeanConfigurationFactory ( final BundleContext context, final Class<?> beanClazz, final boolean mergeIdField )
     {
         super ( context );
         this.beanClazz = beanClazz;
+        this.mergeIdField = true;
+    }
+
+    public BeanConfigurationFactory ( final BundleContext context, final Class<?> beanClazz )
+    {
+        this ( context, beanClazz, true );
     }
 
     protected static class BeanServiceInstance
@@ -100,6 +114,12 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
     protected Entry<BeanServiceInstance> createService ( final String configurationId, final BundleContext context, final Map<String, String> parameters ) throws Exception
     {
         final BeanServiceInstance bean = new BeanServiceInstance ( this.beanClazz.newInstance () );
+
+        if ( this.mergeIdField )
+        {
+            parameters.put ( "id", configurationId );
+        }
+
         bean.update ( parameters );
 
         final ServiceRegistration reg = context.registerService ( this.beanClazz.getName (), bean.getTargetBean (), bean.getProperties () );
