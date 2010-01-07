@@ -296,6 +296,9 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             file.delete ();
         }
 
+        final File metaFile = new File ( path, ".meta" );
+        metaFile.delete ();
+
         future.setComplete ();
 
         logger.debug ( "Delete factory root: {}", path );
