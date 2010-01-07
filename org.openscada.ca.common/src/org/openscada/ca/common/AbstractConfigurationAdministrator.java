@@ -1,7 +1,9 @@
 package org.openscada.ca.common;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -18,6 +20,7 @@ import org.openscada.ca.FactoryNotFoundException;
 import org.openscada.ca.FactoryState;
 import org.openscada.ca.SelfManagedConfigurationFactory;
 import org.openscada.utils.concurrent.AbstractFuture;
+import org.openscada.utils.concurrent.FutureListener;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.concurrent.NotifyFuture;
@@ -286,6 +289,8 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
 
     }
 
+    protected abstract void performPurge ( String factoryId, PurgeFuture future );
+
     protected abstract void performStoreConfiguration ( String factoryId, String configurationId, Map<String, String> properties, boolean fullSet, ConfigurationFuture future ) throws Exception;
 
     protected abstract void performDeleteConfiguration ( String factoryId, String configurationId, ConfigurationFuture future ) throws Exception;
@@ -380,10 +385,12 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
             final Map<String, String> properties = configuration.getData ();
             if ( properties != null )
             {
+                logger.debug ( "Update configuration" );
                 factoryService.update ( configuration.getId (), properties );
             }
             else
             {
+                logger.debug ( "Delete configuration: {}", configuration.getId () );
                 factoryService.delete ( configuration.getId () );
                 // FIXME: notify remove                
             }
@@ -409,6 +416,26 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         if ( future != null )
         {
             future.setResult ( configuration );
+        }
+    }
+
+    public synchronized Future<Void> purgeFactory ( final String factoryId )
+    {
+        logger.info ( "Request to purge: {}", factoryId );
+
+        final FactoryImpl factory = getFactory ( factoryId );
+        if ( factory == null )
+        {
+            return new InstantErrorFuture<Void> ( new FactoryNotFoundException ( factoryId ).fillInStackTrace () );
+        }
+
+        if ( !factory.isSelfManaged () )
+        {
+            return invokePurge ( factoryId );
+        }
+        else
+        {
+            return factory.getSelfService ().purge ();
         }
     }
 
@@ -484,8 +511,12 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
     }
 
-    protected final class ConfigurationFuture extends AbstractFuture<Configuration>
+    protected static final class ConfigurationFuture extends AbstractFuture<Configuration>
     {
+        public ConfigurationFuture ()
+        {
+        }
+
         @Override
         public void setError ( final Throwable error )
         {
@@ -497,6 +528,72 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         {
             super.setResult ( result );
         }
+    }
+
+    protected static final class PurgeFuture extends AbstractFuture<Void>
+    {
+        private final static Logger logger = LoggerFactory.getLogger ( AbstractConfigurationAdministrator.PurgeFuture.class );
+
+        private final Set<ConfigurationFuture> futures = new HashSet<ConfigurationFuture> ();
+
+        private boolean complete = false;
+
+        public synchronized void setComplete ()
+        {
+            this.complete = true;
+            checkComplete ();
+        }
+
+        public synchronized void addChild ( final ConfigurationFuture future )
+        {
+            this.futures.add ( future );
+
+            logger.debug ( "Added future: {} - {} entries", new Object[] { future, this.futures.size () } );
+
+            future.addListener ( new FutureListener<Configuration> () {
+
+                public void complete ( final Future<Configuration> xfuture )
+                {
+                    PurgeFuture.this.removed ( future );
+                }
+            } );
+        }
+
+        protected synchronized void removed ( final ConfigurationFuture future )
+        {
+            PurgeFuture.this.futures.remove ( future );
+            logger.debug ( "Removed future: {} - {} entries remain", new Object[] { future, PurgeFuture.this.futures.size () } );
+            checkComplete ();
+        }
+
+        protected synchronized void checkComplete ()
+        {
+            if ( this.complete && this.futures.isEmpty () )
+            {
+                logger.debug ( "Apply complete state" );
+                super.setResult ( null );
+            }
+        }
+    }
+
+    private NotifyFuture<Void> invokePurge ( final String factoryId )
+    {
+        final PurgeFuture future = new PurgeFuture ();
+        this.executor.execute ( new Runnable () {
+
+            public void run ()
+            {
+                try
+                {
+                    performPurge ( factoryId, future );
+                }
+                catch ( final Throwable e )
+                {
+                    future.setComplete ();
+                }
+            }
+        } );
+        return future;
     }
 
     private NotifyFuture<Configuration> invokeStore ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )

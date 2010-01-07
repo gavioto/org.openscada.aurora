@@ -64,6 +64,14 @@ public class SelfManagedConfigurationFactoryImpl implements SelfManagedConfigura
         listener.configurationUpdate ( this.configurations.values ().toArray ( new Configuration[0] ), null );
     }
 
+    public synchronized NotifyFuture<Void> purge ()
+    {
+        notifyListeners ( null, this.configurations.keySet ().toArray ( new String[0] ) );
+        this.configurations.clear ();
+
+        return new InstantFuture<Void> ( null );
+    }
+
     public synchronized NotifyFuture<Configuration> delete ( final String configurationId )
     {
         logger.info ( "Deleting: {}", configurationId );

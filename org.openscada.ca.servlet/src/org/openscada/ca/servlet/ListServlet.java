@@ -110,6 +110,10 @@ public class ListServlet extends HttpServlet
             {
                 handleCreate ( admin, req, resp );
             }
+            if ( req.getParameter ( "cmd_purge" ) != null )
+            {
+                handlePurge ( admin, req, resp );
+            }
             if ( req.getParameter ( "cmd_delete" ) != null )
             {
                 handleDelete ( admin, req, resp );
@@ -125,6 +129,19 @@ public class ListServlet extends HttpServlet
         {
             stopPage ( resp );
         }
+    }
+
+    private void handlePurge ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
+    {
+        final String factoryId = req.getParameter ( "factoryId" );
+
+        if ( factoryId == null )
+        {
+            return;
+        }
+
+        final PrintWriter stream = resp.getWriter ();
+        waitForFuture ( stream, admin.purgeFactory ( factoryId ) );
     }
 
     private void handleUpdate ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException

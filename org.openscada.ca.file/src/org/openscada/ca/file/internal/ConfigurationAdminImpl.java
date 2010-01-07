@@ -270,10 +270,49 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         return path;
     }
 
+    @Override
+    protected void performPurge ( final String factoryId, final PurgeFuture future )
+    {
+        logger.info ( "Request to delete: {}", factoryId );
+
+        if ( this.root == null )
+        {
+            logger.warn ( "Unable to store : no root" );
+            return;
+        }
+
+        final File path = getFactoryPath ( factoryId );
+
+        for ( final File file : path.listFiles ( new DataFilenameFilter () ) )
+        {
+            logger.info ( "Delete file: " + file.getName () );
+            final String id = idFromFile ( factoryId, file );
+
+            final ConfigurationFuture subFuture = new ConfigurationFuture ();
+            changeConfiguration ( factoryId, id, null, subFuture );
+
+            future.addChild ( subFuture );
+
+            file.delete ();
+        }
+
+        future.setComplete ();
+
+        logger.debug ( "Delete factory root: {}", path );
+        path.delete ();
+    }
+
+    private String idFromFile ( final String factoryId, final File file )
+    {
+        return loadConfiguration ( factoryId, file ).getData ().get ( "id" );
+    }
+
+    @Override
     protected void performStoreConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws FileNotFoundException, IOException
     {
         if ( this.root == null )
         {
+            future.setError ( new RuntimeException ( "No root to store" ).fillInStackTrace () );
             logger.warn ( "Unable to store : no root" );
             return;
         }

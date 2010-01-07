@@ -34,10 +34,15 @@ import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.SingleServiceTracker;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @WebService
 public class ConfigurationAdministratorService
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( ConfigurationAdministratorService.class );
+
     private final SingleServiceTracker tracker;
 
     private volatile ConfigurationAdministrator service;
@@ -113,6 +118,17 @@ public class ConfigurationAdministratorService
         return result;
     }
 
+    public void purge ( final String factoryId, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
+    {
+        logger.info ( "Request purge: {}", factoryId );
+
+        final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
+
+        jobs.add ( this.service.purgeFactory ( factoryId ) );
+
+        complete ( timeout, jobs );
+    }
+
     public void delete ( final String factoryId, final String[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
@@ -129,7 +145,7 @@ public class ConfigurationAdministratorService
     {
         for ( final Future<?> future : jobs )
         {
-            if ( timeout >= 0 )
+            if ( timeout > 0 )
             {
                 future.get ( timeout, TimeUnit.MILLISECONDS );
             }

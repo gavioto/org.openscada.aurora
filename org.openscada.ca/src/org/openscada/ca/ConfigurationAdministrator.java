@@ -34,6 +34,8 @@ public interface ConfigurationAdministrator
 
     public Future<Configuration> deleteConfiguration ( String factoryId, String configurationId );
 
+    public Future<Void> purgeFactory ( String factoryId );
+
     /* readers */
 
     public Factory getFactory ( String factoryId );

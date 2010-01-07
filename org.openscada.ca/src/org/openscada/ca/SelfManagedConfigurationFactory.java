@@ -51,4 +51,10 @@ public interface SelfManagedConfigurationFactory
     public NotifyFuture<Configuration> update ( String configurationId, Map<String, String> properties, boolean fullSet );
 
     public NotifyFuture<Configuration> delete ( String configurationId );
+
+    /**
+     * Delete all configurations at once
+     * @return the future for this operation
+     */
+    public NotifyFuture<Void> purge ();
 }
