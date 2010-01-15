@@ -1,11 +1,17 @@
 package org.openscada.utils.osgi.pool;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +28,13 @@ public class ObjectPoolImpl implements ObjectPool
     private final Set<ObjectPoolListener> anyListener = new HashSet<ObjectPoolListener> ();
 
     private final Map<String, Map<Object, Dictionary<?, ?>>> services = new HashMap<String, Map<Object, Dictionary<?, ?>>> ();
+
+    private final ExecutorService executor;
+
+    public ObjectPoolImpl ()
+    {
+        this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( toString () ) );
+    }
 
     public synchronized void addService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
@@ -71,53 +84,102 @@ public class ObjectPoolImpl implements ObjectPool
 
     private void fireAddedService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
-        for ( final ObjectPoolListener listener : this.idListeners.get ( id ) )
-        {
-            listener.serviceAdded ( service, properties );
-        }
+        final Collection<ObjectPoolListener> listeners = cloneListeners ( id );
 
-        for ( final ObjectPoolListener listener : this.anyListener )
-        {
-            listener.serviceAdded ( service, properties );
-        }
+        this.executor.execute ( new Runnable () {
+
+            public void run ()
+            {
+                for ( final ObjectPoolListener listener : listeners )
+                {
+                    listener.serviceAdded ( service, properties );
+                }
+            }
+        } );
+    }
+
+    protected Collection<ObjectPoolListener> cloneListeners ( final String id )
+    {
+        final List<ObjectPoolListener> listeners = new ArrayList<ObjectPoolListener> ();
+        listeners.addAll ( this.idListeners.get ( id ) );
+        listeners.addAll ( this.anyListener );
+        return listeners;
     }
 
     private void fireModifiedService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
-        for ( final ObjectPoolListener listener : this.idListeners.get ( id ) )
-        {
-            listener.serviceModified ( service, properties );
-        }
+        final Collection<ObjectPoolListener> listeners = cloneListeners ( id );
 
-        for ( final ObjectPoolListener listener : this.anyListener )
-        {
-            listener.serviceModified ( service, properties );
-        }
+        this.executor.execute ( new Runnable () {
+
+            public void run ()
+            {
+                for ( final ObjectPoolListener listener : listeners )
+                {
+                    listener.serviceModified ( service, properties );
+                }
+            }
+        } );
     }
 
     private void fireRemoveService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
-        for ( final ObjectPoolListener listener : this.idListeners.get ( id ) )
-        {
-            listener.serviceRemoved ( service, properties );
-        }
+        final Collection<ObjectPoolListener> listeners = cloneListeners ( id );
 
-        for ( final ObjectPoolListener listener : this.anyListener )
-        {
-            listener.serviceRemoved ( service, properties );
-        }
+        this.executor.execute ( new Runnable () {
+
+            public void run ()
+            {
+                for ( final ObjectPoolListener listener : listeners )
+                {
+                    listener.serviceRemoved ( service, properties );
+                }
+            }
+        } );
     }
 
-    public synchronized void dispose ()
+    public void dispose ()
     {
-        for ( final Map.Entry<String, ObjectPoolListener> entry : this.idListeners.entries () )
+        synchronized ( this )
         {
-            final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( entry.getKey () );
-            for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
-            {
-                entry.getValue ().serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
-            }
+            final Set<ObjectPoolListener> anyListener = new HashSet<ObjectPoolListener> ( this.anyListener );
+            final Multimap<String, ObjectPoolListener> idListeners = HashMultimap.create ( this.idListeners );
+            final Map<String, Map<Object, Dictionary<?, ?>>> services = new HashMap<String, Map<Object, Dictionary<?, ?>>> ( this.services );
+
+            anyListener.clear ();
+            idListeners.clear ();
+            services.clear ();
+
+            this.executor.execute ( new Runnable () {
+
+                public void run ()
+                {
+
+                    for ( final ObjectPoolListener listener : ObjectPoolImpl.this.anyListener )
+                    {
+                        for ( final Map<Object, Dictionary<?, ?>> map : ObjectPoolImpl.this.services.values () )
+                        {
+                            for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : map.entrySet () )
+                            {
+                                listener.serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
+                            }
+                        }
+                    }
+                    for ( final Map.Entry<String, ObjectPoolListener> entry : ObjectPoolImpl.this.idListeners.entries () )
+                    {
+                        final Map<Object, Dictionary<?, ?>> serviceMap = ObjectPoolImpl.this.services.get ( entry.getKey () );
+                        for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
+                        {
+                            entry.getValue ().serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
+                        }
+                    }
+
+                }
+            } );
         }
+
+        // wait for termination outside of sync
+        this.executor.shutdown ();
     }
 
     /* (non-Javadoc)
@@ -132,10 +194,19 @@ public class ObjectPoolImpl implements ObjectPool
             final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
             if ( serviceMap != null )
             {
-                for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMap.entrySet () )
-                {
-                    listener.serviceAdded ( entry.getKey (), entry.getValue () );
-                }
+                final Map<Object, Dictionary<?, ?>> serviceMapClone = new HashMap<Object, Dictionary<?, ?>> ( serviceMap );
+                this.executor.execute ( new Runnable () {
+
+                    public void run ()
+                    {
+
+                        for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMapClone.entrySet () )
+                        {
+                            listener.serviceAdded ( entry.getKey (), entry.getValue () );
+                        }
+
+                    }
+                } );
             }
         }
     }
@@ -152,13 +223,22 @@ public class ObjectPoolImpl implements ObjectPool
     {
         if ( this.anyListener.add ( listener ) )
         {
-            for ( final Map<Object, Dictionary<?, ?>> serviceMap : this.services.values () )
-            {
-                for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMap.entrySet () )
+            final Collection<Map<Object, Dictionary<?, ?>>> servicesClone = new ArrayList<Map<Object, Dictionary<?, ?>>> ( this.services.values () );
+
+            this.executor.execute ( new Runnable () {
+
+                public void run ()
                 {
-                    listener.serviceAdded ( entry.getKey (), entry.getValue () );
+                    for ( final Map<Object, Dictionary<?, ?>> serviceMap : servicesClone )
+                    {
+                        for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMap.entrySet () )
+                        {
+                            listener.serviceAdded ( entry.getKey (), entry.getValue () );
+                        }
+                    }
+
                 }
-            }
+            } );
         }
     }
 
