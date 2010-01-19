@@ -5,9 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openscada.utils.osgi.pool.ObjectPoolTracker.ObjectPoolServiceListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AllObjectPoolServiceTracker
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( AllObjectPoolServiceTracker.class );
+
     private final ObjectPoolTracker poolTracker;
 
     private final ObjectPoolServiceListener poolListener;
@@ -106,6 +111,7 @@ public class AllObjectPoolServiceTracker
 
     protected synchronized void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties )
     {
+        logger.debug ( "Service added {} -> {}", new Object[] { service, properties } );
         this.serviceListener.serviceAdded ( service, properties );
     }
 

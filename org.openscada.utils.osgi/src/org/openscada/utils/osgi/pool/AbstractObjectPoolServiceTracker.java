@@ -5,9 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openscada.utils.osgi.pool.ObjectPoolTracker.ObjectPoolServiceListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractObjectPoolServiceTracker
 {
+    private final static Logger logger = LoggerFactory.getLogger ( AbstractObjectPoolServiceTracker.class );
+
     private final ObjectPoolTracker poolTracker;
 
     private final ObjectPoolServiceListener poolListener;
@@ -115,6 +119,7 @@ public abstract class AbstractObjectPoolServiceTracker
 
     protected synchronized void handlePoolAdd ( final ObjectPool objectPool, final int priority )
     {
+        logger.debug ( "Pool added: {}/{}", new Object[] { objectPool, priority } );
         this.poolMap.put ( objectPool, new PoolHandler ( objectPool, this.serviceId ) );
     }
 
@@ -125,6 +130,8 @@ public abstract class AbstractObjectPoolServiceTracker
 
     protected synchronized void handlePoolRemove ( final ObjectPool objectPool )
     {
+        logger.debug ( "Pool removed: {}", objectPool );
+
         final PoolHandler handler = this.poolMap.get ( objectPool );
         if ( handler != null )
         {

@@ -46,7 +46,13 @@ public class ObjectPoolImpl implements ObjectPool
             serviceMap = new HashMap<Object, Dictionary<?, ?>> ();
             this.services.put ( id, serviceMap );
         }
-        serviceMap.put ( service, properties );
+
+        final Dictionary<?, ?> oldService = serviceMap.put ( service, properties );
+        if ( oldService != null )
+        {
+            logger.warn ( "Replaced service: {}", new Object[] { id } );
+        }
+
         fireAddedService ( id, service, properties );
     }
 
@@ -85,6 +91,8 @@ public class ObjectPoolImpl implements ObjectPool
     private void fireAddedService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
         final Collection<ObjectPoolListener> listeners = cloneListeners ( id );
+
+        logger.debug ( "Fire add service: {} ({} listeners)", new Object[] { id, listeners.size () } );
 
         this.executor.execute ( new Runnable () {
 
@@ -187,10 +195,12 @@ public class ObjectPoolImpl implements ObjectPool
      */
     public synchronized void addListener ( final String id, final ObjectPoolListener listener )
     {
-        logger.debug ( "Adding listener" );
+        logger.debug ( "Adding listener for {}", new Object[] { id } );
 
         if ( this.idListeners.put ( id, listener ) )
         {
+            logger.debug ( "Added listener {} for {}", new Object[] { listener, id } );
+
             final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
             if ( serviceMap != null )
             {
@@ -199,7 +209,6 @@ public class ObjectPoolImpl implements ObjectPool
 
                     public void run ()
                     {
-
                         for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMapClone.entrySet () )
                         {
                             listener.serviceAdded ( entry.getKey (), entry.getValue () );
@@ -221,6 +230,8 @@ public class ObjectPoolImpl implements ObjectPool
 
     public synchronized void addListener ( final ObjectPoolListener listener )
     {
+        logger.debug ( "Adding listener {}", listener );
+
         if ( this.anyListener.add ( listener ) )
         {
             final Collection<Map<Object, Dictionary<?, ?>>> servicesClone = new ArrayList<Map<Object, Dictionary<?, ?>>> ( this.services.values () );

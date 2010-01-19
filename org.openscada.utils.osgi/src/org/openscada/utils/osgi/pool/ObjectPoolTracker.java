@@ -16,6 +16,11 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A tracker which tracks object pools
+ * @author Jens Reimann
+ *
+ */
 public class ObjectPoolTracker
 {
 
@@ -40,7 +45,6 @@ public class ObjectPoolTracker
 
     public ObjectPoolTracker ( final BundleContext context, final String poolClass ) throws InvalidSyntaxException
     {
-
         final Map<String, String> parameters = new HashMap<String, String> ();
         parameters.put ( ObjectPool.OBJECT_POOL_CLASS, poolClass );
         final Filter filter = FilterUtil.createAndFilter ( ObjectPool.class.getName (), parameters );
@@ -153,10 +157,12 @@ public class ObjectPoolTracker
 
     public synchronized void addListener ( final ObjectPoolServiceListener listener )
     {
+        logger.debug ( "Adding pool service listener: {}", listener );
         if ( this.listeners.add ( listener ) )
         {
             for ( final Map.Entry<ObjectPool, Integer> entry : this.poolMap.entrySet () )
             {
+                logger.debug ( "Add Announce pool: {}/{}", new Object[] { entry.getKey (), entry.getValue () } );
                 listener.poolAdded ( entry.getKey (), entry.getValue () );
             }
         }
