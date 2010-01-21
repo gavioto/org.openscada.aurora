@@ -6,9 +6,9 @@ public class ConfigurationDataHelper
 {
     private final Map<String, String> data;
 
-    public ConfigurationDataHelper ( final Map<String, String> data )
+    public ConfigurationDataHelper ( final Map<String, String> parameters )
     {
-        this.data = data;
+        this.data = parameters;
     }
 
     /**
