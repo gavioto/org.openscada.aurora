@@ -403,8 +403,8 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         }
         catch ( final Throwable e )
         {
-            logger.info ( "Apply failed configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () } );
-            logger.info ( "Apply failed configuration:", e );
+            logger.warn ( "Apply failed configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () } );
+            logger.warn ( "Apply failed configuration:", e );
 
             synchronized ( this )
             {
