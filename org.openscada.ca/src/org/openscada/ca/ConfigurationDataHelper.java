@@ -68,4 +68,47 @@ public class ConfigurationDataHelper
             return defaultValue;
         }
     }
+
+    /**
+     * Get a string from the configuration data
+     * @param name the name of the parameter to get
+     * @param errorMessage the error message if the string is not set
+     * @return the string data
+     * @throws IllegalArgumentException if the string is not set
+     */
+    public String getStringChecked ( final String name, final String errorMessage ) throws IllegalArgumentException
+    {
+        final String str = this.data.get ( name );
+        if ( str == null )
+        {
+            throw new IllegalArgumentException ( errorMessage );
+        }
+        else
+        {
+            return str;
+        }
+    }
+
+    /**
+     * Get an integer from the configuration data
+     * <p>
+     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If
+     * the data can not be parsed to an integer a {@link NumberFormatException} will
+     * be thrown.
+     * </p>
+     * @param name the name of the parameter to get
+     * @param errorMessage the error message if the string is not set
+     * @return the value as integer
+     * @throws NumberFormatException
+     * @throws IllegalArgumentException
+     */
+    public int getIntegerChecked ( final String name, final String errorMessage ) throws IllegalArgumentException, NumberFormatException
+    {
+        final String str = this.data.get ( name );
+        if ( str == null )
+        {
+            throw new IllegalArgumentException ( errorMessage );
+        }
+        return Integer.parseInt ( str );
+    }
 }
