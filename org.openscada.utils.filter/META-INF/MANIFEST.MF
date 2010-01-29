@@ -4,5 +4,8 @@ Bundle-Name: OpenSCADA Filter
 Bundle-SymbolicName: org.openscada.utils.filter
 Bundle-Version: 0.15.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.openscada.utils.filter;version="0.15.0"
+Export-Package: org.openscada.utils.filter;version="0.15.0",
+ org.openscada.utils.filter.bean;version="0.15.0";uses:="org.openscada.utils.propertyeditors,org.openscada.utils.filter"
 Bundle-Vendor: inavare GmbH
+Import-Package: org.openscada.utils.propertyeditors;version="0.15.0",
+ org.slf4j;version="1.5.8"
