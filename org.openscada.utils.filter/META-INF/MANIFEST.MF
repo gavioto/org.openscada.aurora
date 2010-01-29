@@ -1,7 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Filter
+Bundle-Name: OpenSCADA Filter
 Bundle-SymbolicName: org.openscada.utils.filter
 Bundle-Version: 0.15.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.openscada.utils.filter;version="0.15.0"
+Bundle-Vendor: inavare GmbH
