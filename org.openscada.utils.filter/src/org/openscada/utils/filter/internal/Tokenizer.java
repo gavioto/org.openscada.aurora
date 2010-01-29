@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.utils.filter.internal;
 
 import java.util.Iterator;
@@ -21,17 +40,17 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
             super ();
         }
 
-        public TokenizeException ( String message, Throwable cause )
+        public TokenizeException ( final String message, final Throwable cause )
         {
             super ( message, cause );
         }
 
-        public TokenizeException ( String message )
+        public TokenizeException ( final String message )
         {
             super ( message );
         }
 
-        public TokenizeException ( Throwable cause )
+        public TokenizeException ( final Throwable cause )
         {
             super ( cause );
         }
@@ -49,9 +68,9 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
 
     private StringBuilder buffer;
 
-    public Tokenizer ( String toParse )
+    public Tokenizer ( final String toParse )
     {
-        filter = toParse.toCharArray ();
+        this.filter = toParse.toCharArray ();
     }
 
     public Iterator<Token> iterator ()
@@ -61,7 +80,7 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
 
     public boolean hasNext ()
     {
-        return filter != null && pos < filter.length;
+        return this.filter != null && this.pos < this.filter.length;
     }
 
     public Token next ()
@@ -70,102 +89,102 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
         for ( ;; )
         {
             overflow += 1;
-            if ( pos >= filter.length || overflow > filter.length )
+            if ( this.pos >= this.filter.length || overflow > this.filter.length )
             {
-                throw new TokenizeException ( "incorrect Syntax at pos " + pos );
+                throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
             }
-            final String currentChar = String.valueOf ( filter[pos] );
+            final String currentChar = String.valueOf ( this.filter[this.pos] );
 
             if ( currentChar.equals ( Tokens.tokenLeftParen.getValue () ) ) // left paren
             {
-                pos += 1;
-                buffer = new StringBuilder ();
+                this.pos += 1;
+                this.buffer = new StringBuilder ();
                 return Tokens.tokenLeftParen;
 
             }
             else if ( currentChar.equals ( Tokens.tokenRightParen.getValue () ) ) // right paren
             {
-                if ( isValue )
+                if ( this.isValue )
                 {
-                    isValue = false;
-                    return new TokenValue ( buffer.toString () );
+                    this.isValue = false;
+                    return new TokenValue ( this.buffer.toString () );
                 }
-                pos += 1;
+                this.pos += 1;
                 return Tokens.tokenRightParen;
 
             }
             else if ( TokenOperator.isOperator ( currentChar ) ) // operator
             {
-                pos += 1;
+                this.pos += 1;
                 return TokenOperator.getByValue ( currentChar );
 
             }
-            else if ( !isAttribute && !isAssertion && !isValue ) // attribute started
+            else if ( !this.isAttribute && !this.isAssertion && !this.isValue ) // attribute started
             {
-                isAttribute = true;
+                this.isAttribute = true;
                 continue;
             }
-            else if ( isAttribute && !isAssertion && !isValue ) // continue or end attribute
+            else if ( this.isAttribute && !this.isAssertion && !this.isValue ) // continue or end attribute
             {
-                if ( pos + 1 >= filter.length )
+                if ( this.pos + 1 >= this.filter.length )
                 {
-                    throw new TokenizeException ( "incorrect Syntax at pos " + pos );
+                    throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
                 }
-                String lookahead = currentChar + filter[pos + 1] + ( filter.length > pos + 2 ? filter[pos + 2] : "" );
+                final String lookahead = currentChar + this.filter[this.pos + 1] + ( this.filter.length > this.pos + 2 ? this.filter[this.pos + 2] : "" );
                 if ( TokenAssertion.isAssertion ( lookahead ) )
                 {
-                    isAssertion = true;
-                    isAttribute = false;
-                    final TokenAttribute token = new TokenAttribute ( buffer.toString () );
-                    buffer = new StringBuilder ();
+                    this.isAssertion = true;
+                    this.isAttribute = false;
+                    final TokenAttribute token = new TokenAttribute ( this.buffer.toString () );
+                    this.buffer = new StringBuilder ();
                     return token;
                 }
                 else
                 {
-                    if ( buffer == null )
+                    if ( this.buffer == null )
                     {
-                        throw new TokenizeException ( "incorrect Syntax at pos " + pos );
+                        throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
                     }
-                    buffer.append ( currentChar );
-                    pos += 1;
+                    this.buffer.append ( currentChar );
+                    this.pos += 1;
                     continue;
                 }
             }
-            else if ( isAssertion ) // handle assertion
+            else if ( this.isAssertion ) // handle assertion
             {
-                isAttribute = false;
-                isAssertion = false;
-                isValue = true;
-                String lookahead2 = currentChar + filter[pos + 1];
-                String lookahead3 = currentChar + filter[pos + 1] + ( filter.length > pos + 2 ? filter[pos + 2] : "" );
+                this.isAttribute = false;
+                this.isAssertion = false;
+                this.isValue = true;
+                final String lookahead2 = currentChar + this.filter[this.pos + 1];
+                final String lookahead3 = currentChar + this.filter[this.pos + 1] + ( this.filter.length > this.pos + 2 ? this.filter[this.pos + 2] : "" );
                 // special case for presence
                 if ( "=*)".equals ( lookahead3 ) )
                 {
-                    pos += 2;
+                    this.pos += 2;
                     return TokenAssertion.getByValue ( "=*" );
                 }
                 else if ( "=*".equals ( lookahead2 ) )
                 {
-                    pos += 1;
+                    this.pos += 1;
                     return TokenAssertion.getByValue ( "=" );
                 }
                 // all others are handled regularly
                 if ( TokenAssertion.getByValue ( lookahead2 ) != null )
                 {
-                    pos += 2;
+                    this.pos += 2;
                     return TokenAssertion.getByValue ( lookahead2 );
                 }
-                pos += 1;
+                this.pos += 1;
                 return TokenAssertion.getByValue ( currentChar );
 
             }
-            else if ( !isAttribute && !isAssertion && isValue ) // in any other case it is an value
+            else if ( !this.isAttribute && !this.isAssertion && this.isValue ) // in any other case it is an value
             {
-                buffer.append ( currentChar );
-                pos += 1;
+                this.buffer.append ( currentChar );
+                this.pos += 1;
                 continue;
             }
-            throw new TokenizeException ( "incorrect Syntax at pos " + pos );
+            throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
         }
     }
 

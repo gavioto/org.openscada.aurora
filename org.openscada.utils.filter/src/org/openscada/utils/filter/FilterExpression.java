@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.utils.filter;
 
 import java.util.ArrayList;
@@ -8,15 +27,15 @@ public class FilterExpression implements Filter
 
     private Operator operator;
 
-    private List<Filter> filterSet = new ArrayList<Filter> ();
+    private final List<Filter> filterSet = new ArrayList<Filter> ();
 
     @Override
     public String toString ()
     {
-        StringBuilder result = new StringBuilder ();
-        if ( operator == null )
+        final StringBuilder result = new StringBuilder ();
+        if ( this.operator == null )
         {
-            for ( Filter filter : filterSet )
+            for ( final Filter filter : this.filterSet )
             {
                 result.append ( filter.toString () );
             }
@@ -24,8 +43,8 @@ public class FilterExpression implements Filter
         else
         {
             result.append ( "(" );
-            result.append ( operator.toString () );
-            for ( Filter filter : filterSet )
+            result.append ( this.operator.toString () );
+            for ( final Filter filter : this.filterSet )
             {
                 result.append ( filter.toString () );
             }
@@ -36,15 +55,15 @@ public class FilterExpression implements Filter
 
     public List<Filter> getFilterSet ()
     {
-        return filterSet;
+        return this.filterSet;
     }
 
     public Operator getOperator ()
     {
-        return operator;
+        return this.operator;
     }
 
-    public void setOperator ( Operator operator )
+    public void setOperator ( final Operator operator )
     {
         this.operator = operator;
     }
@@ -61,6 +80,6 @@ public class FilterExpression implements Filter
 
     public boolean isEmpty ()
     {
-        return operator == null;
+        return this.operator == null;
     }
 }

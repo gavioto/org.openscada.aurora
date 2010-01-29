@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.utils.filter;
 
 import java.util.List;
@@ -13,7 +32,7 @@ public class FilterAssertion implements Filter
 
     private Object value;
 
-    public FilterAssertion ( String attribute, Assertion assertion, Object value )
+    public FilterAssertion ( final String attribute, final Assertion assertion, final Object value )
     {
         this.attribute = attribute;
         this.assertion = assertion;
@@ -22,30 +41,30 @@ public class FilterAssertion implements Filter
 
     public String getAttribute ()
     {
-        return attribute;
+        return this.attribute;
     }
 
-    public void setAttribute ( String attribute )
+    public void setAttribute ( final String attribute )
     {
         this.attribute = attribute;
     }
 
     public Assertion getAssertion ()
     {
-        return assertion;
+        return this.assertion;
     }
 
-    public void setAssertion ( Assertion assertion )
+    public void setAssertion ( final Assertion assertion )
     {
         this.assertion = assertion;
     }
 
     public Object getValue ()
     {
-        return value;
+        return this.value;
     }
 
-    public void setValue ( Object value )
+    public void setValue ( final Object value )
     {
         this.value = value;
     }
@@ -53,7 +72,7 @@ public class FilterAssertion implements Filter
     @Override
     public String toString ()
     {
-        return "(" + attribute + assertion.toString () + nullSafeToString ( value ) + ")";
+        return "(" + this.attribute + this.assertion.toString () + nullSafeToString ( this.value ) + ")";
     }
 
     public boolean isAssertion ()
@@ -68,11 +87,11 @@ public class FilterAssertion implements Filter
 
     public boolean isEmpty ()
     {
-        return assertion == null;
+        return this.assertion == null;
     }
 
     @SuppressWarnings ( "unchecked" )
-    private String nullSafeToString ( Object value )
+    private String nullSafeToString ( final Object value )
     {
         if ( value == null )
         {
@@ -80,10 +99,10 @@ public class FilterAssertion implements Filter
         }
         if ( value instanceof List )
         {
-            List valueList = (List)value;
-            StringBuilder sb = new StringBuilder ();
+            final List valueList = (List)value;
+            final StringBuilder sb = new StringBuilder ();
             int i = 0;
-            for ( Object part : valueList )
+            for ( final Object part : valueList )
             {
                 if ( i > 0 && i < valueList.size () )
                 {

@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.utils.filter;
 
 import java.util.ArrayList;
@@ -24,19 +43,20 @@ public class FilterParser
 
     private final Filter filter;
 
-    public FilterParser ( String filter ) throws FilterParseException
+    public FilterParser ( final String filter ) throws FilterParseException
     {
-        if (filter == null || "".equals ( filter.trim () )) {
-            this.filter = new FilterEmpty();
+        if ( filter == null || "".equals ( filter.trim () ) )
+        {
+            this.filter = new FilterEmpty ();
             return;
         }
         boolean expressionExpected = true;
         FilterAssertion currentAssertion = null;
-        Stack<FilterExpression> filterExpressions = new Stack<FilterExpression> ();
+        final Stack<FilterExpression> filterExpressions = new Stack<FilterExpression> ();
         Filter result = null;
         try
         {
-            for ( Token token : new Tokenizer ( filter ) )
+            for ( final Token token : new Tokenizer ( filter ) )
             {
                 if ( token instanceof TokenLeftParen )
                 {
@@ -46,7 +66,7 @@ public class FilterParser
                 if ( token instanceof TokenOperator )
                 {
                     expressionExpected = true;
-                    FilterExpression expression = new FilterExpression ();
+                    final FilterExpression expression = new FilterExpression ();
                     if ( "|".equals ( token.getValue () ) )
                     {
                         expression.setOperator ( Operator.OR );
@@ -138,7 +158,7 @@ public class FilterParser
                 }
             }
         }
-        catch ( TokenizeException e )
+        catch ( final TokenizeException e )
         {
             throw new FilterParseException ( e.getMessage () );
         }
@@ -146,7 +166,7 @@ public class FilterParser
         this.filter = result;
     }
 
-    private void validate ( Filter toValidate )
+    private void validate ( final Filter toValidate )
     {
         if ( toValidate == null )
         {
@@ -154,7 +174,7 @@ public class FilterParser
         }
         if ( toValidate.isAssertion () )
         {
-            FilterAssertion assertion = (FilterAssertion)toValidate;
+            final FilterAssertion assertion = (FilterAssertion)toValidate;
             if ( assertion.getAttribute () == null )
             {
                 throw new FilterParseException ();
@@ -170,7 +190,7 @@ public class FilterParser
         }
         else if ( toValidate.isExpression () )
         {
-            FilterExpression expression = (FilterExpression)toValidate;
+            final FilterExpression expression = (FilterExpression)toValidate;
             if ( expression.getOperator () == null )
             {
                 throw new FilterParseException ();
@@ -184,16 +204,16 @@ public class FilterParser
 
     public Filter getFilter ()
     {
-        return filter;
+        return this.filter;
     }
 
-    private Object toValue ( FilterAssertion currentAssertion, String value )
+    private Object toValue ( final FilterAssertion currentAssertion, final String value )
     {
         if ( currentAssertion.getAssertion () == Assertion.EQUALITY && value.contains ( "*" ) )
         {
             currentAssertion.setAssertion ( Assertion.SUBSTRING );
-            List<String> result = new ArrayList<String> ();
-            for ( String part : value.split ( "\\*" ) )
+            final List<String> result = new ArrayList<String> ();
+            for ( final String part : value.split ( "\\*" ) )
             {
                 result.add ( Encoder.decode ( part ) );
             }

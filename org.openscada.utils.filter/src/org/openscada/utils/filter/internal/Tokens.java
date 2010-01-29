@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.utils.filter.internal;
 
 import java.util.HashMap;
@@ -19,7 +38,7 @@ public class Tokens
         }
 
         @Override
-        public boolean equals ( Object obj )
+        public boolean equals ( final Object obj )
         {
             if ( obj == this )
             {
@@ -83,17 +102,17 @@ public class Tokens
             instances.put ( "!", new TokenOperator ( "!" ) );
         }
 
-        public TokenOperator ( String operator )
+        public TokenOperator ( final String operator )
         {
             this.operator = operator;
         }
 
-        public static boolean isOperator ( String operator )
+        public static boolean isOperator ( final String operator )
         {
             return instances.keySet ().contains ( operator );
         }
 
-        public static TokenOperator getByValue ( String operator )
+        public static TokenOperator getByValue ( final String operator )
         {
             return instances.get ( operator );
         }
@@ -129,22 +148,22 @@ public class Tokens
             instances.put ( "=*", new TokenAssertion ( "=*" ) );
         }
 
-        public TokenAssertion ( String assertion )
+        public TokenAssertion ( final String assertion )
         {
             this.assertion = assertion;
         }
 
-        public static boolean isAssertion ( String assertion )
+        public static boolean isAssertion ( final String assertion )
         {
             boolean result = false;
-            for ( Entry<String, TokenAssertion> entry : instances.entrySet () )
+            for ( final Entry<String, TokenAssertion> entry : instances.entrySet () )
             {
                 result = result || assertion.startsWith ( entry.getKey () );
             }
             return result;
         }
 
-        public static TokenAssertion getByValue ( String assertion )
+        public static TokenAssertion getByValue ( final String assertion )
         {
             return instances.get ( assertion );
         }
@@ -167,7 +186,7 @@ public class Tokens
 
         private final String value;
 
-        public TokenAttribute ( String value )
+        public TokenAttribute ( final String value )
         {
             this.value = value;
         }
@@ -190,7 +209,7 @@ public class Tokens
 
         private final String value;
 
-        public TokenValue ( String value )
+        public TokenValue ( final String value )
         {
             this.value = value;
         }
