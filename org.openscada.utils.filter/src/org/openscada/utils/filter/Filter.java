@@ -21,23 +21,7 @@ package org.openscada.utils.filter;
 
 public interface Filter
 {
-    public final static Filter EMPTY = new Filter () {
-
-        public boolean isAssertion ()
-        {
-            return false;
-        }
-
-        public boolean isEmpty ()
-        {
-            return false;
-        }
-
-        public boolean isExpression ()
-        {
-            return true;
-        }
-    };
+    public final static Filter EMPTY = new FilterEmpty ();
 
     public boolean isAssertion ();
 
