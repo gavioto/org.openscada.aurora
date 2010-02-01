@@ -81,6 +81,7 @@ public class BeanMatcher
         return ifEmpty;
     }
 
+    @SuppressWarnings ( "unchecked" )
     private static boolean matchAssertion ( final FilterAssertion filterAssertion, final Object object, final boolean ifEmpty, final PropertyEditorRegistry registry ) throws Exception
     {
         final PropertyDescriptor pd = getProperyDescriptor ( object.getClass (), filterAssertion.getAttribute () );
