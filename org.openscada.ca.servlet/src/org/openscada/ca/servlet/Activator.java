@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2008-2009 inavare GmbH (http://inavare.com)
+ * Copyright (C) 2008-2010 inavare GmbH (http://inavare.com)
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,6 @@ package org.openscada.ca.servlet;
 
 import javax.servlet.ServletException;
 
-import org.apache.log4j.Logger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -31,11 +30,12 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator, ServiceListener
 {
-
-    private final static Logger logger = Logger.getLogger ( Activator.class );
+    private final static Logger logger = LoggerFactory.getLogger ( Activator.class );
 
     private BundleContext context;
 
