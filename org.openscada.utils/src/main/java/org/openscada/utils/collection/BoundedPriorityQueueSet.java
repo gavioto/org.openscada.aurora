@@ -1,10 +1,28 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.openscada.utils.collection;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -14,26 +32,28 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
 
     private final int capacity;
 
-    public BoundedPriorityQueueSet ( int capacity )
+    public BoundedPriorityQueueSet ( final int capacity )
     {
         this ( capacity, (Comparator<E>)null );
     }
 
-    public BoundedPriorityQueueSet ( int capacity, Comparator<E> comparator )
+    public BoundedPriorityQueueSet ( final int capacity, final Comparator<E> comparator )
     {
         if ( capacity < 1 )
+        {
             throw new IllegalArgumentException ();
+        }
         this.capacity = capacity;
         this.internalSet = new TreeSet<E> ( comparator );
     }
 
-    public BoundedPriorityQueueSet ( int capacity, Collection<E> c )
+    public BoundedPriorityQueueSet ( final int capacity, final Collection<E> c )
     {
         this ( capacity, (Comparator<E>)null );
         shrinkToSize ();
     }
 
-    public BoundedPriorityQueueSet ( int capacity, Comparator<E> comparator, Collection<E> c )
+    public BoundedPriorityQueueSet ( final int capacity, final Comparator<E> comparator, final Collection<E> c )
     {
         this ( capacity, comparator );
         shrinkToSize ();
@@ -41,34 +61,35 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
 
     private void shrinkToSize ()
     {
-        while ( internalSet.size () > capacity )
+        while ( this.internalSet.size () > this.capacity )
         {
             remove ();
         }
     }
 
-    public boolean add ( E e )
+    public boolean add ( final E e )
     {
-        final boolean result = internalSet.add ( e );
+        final boolean result = this.internalSet.add ( e );
         if ( !result )
         {
             return false;
         }
         shrinkToSize ();
-        return internalSet.contains ( e );
+        return this.internalSet.contains ( e );
     }
 
-    public boolean addAll ( Collection<? extends E> c )
+    public boolean addAll ( final Collection<? extends E> c )
     {
-        final boolean result = internalSet.addAll ( c );
+        final boolean result = this.internalSet.addAll ( c );
         if ( !result )
         {
             return false;
         }
         shrinkToSize ();
-        for ( E e : c )
+        for ( final E e : c )
         {
-            if (internalSet.contains ( e )) {
+            if ( this.internalSet.contains ( e ) )
+            {
                 return true;
             }
         }
@@ -77,117 +98,117 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
 
     public void clear ()
     {
-        internalSet.clear ();
+        this.internalSet.clear ();
     }
 
     public Comparator<? super E> comparator ()
     {
-        return internalSet.comparator ();
+        return this.internalSet.comparator ();
     }
 
-    public boolean contains ( Object o )
+    public boolean contains ( final Object o )
     {
-        return internalSet.contains ( o );
+        return this.internalSet.contains ( o );
     }
 
-    public boolean containsAll ( Collection<?> c )
+    public boolean containsAll ( final Collection<?> c )
     {
-        return internalSet.containsAll ( c );
+        return this.internalSet.containsAll ( c );
     }
 
-    public boolean equals ( Object o )
+    public boolean equals ( final Object o )
     {
-        return internalSet.equals ( o );
+        return this.internalSet.equals ( o );
     }
 
     public E first ()
     {
-        return internalSet.first ();
+        return this.internalSet.first ();
     }
 
     public int hashCode ()
     {
-        return internalSet.hashCode ();
+        return this.internalSet.hashCode ();
     }
 
-    public SortedSet<E> headSet ( E toElement )
+    public SortedSet<E> headSet ( final E toElement )
     {
-        return internalSet.headSet ( toElement );
+        return this.internalSet.headSet ( toElement );
     }
 
     public boolean isEmpty ()
     {
-        return internalSet.isEmpty ();
+        return this.internalSet.isEmpty ();
     }
 
     public Iterator<E> iterator ()
     {
-        return internalSet.iterator ();
+        return this.internalSet.iterator ();
     }
 
     public E last ()
     {
-        return internalSet.last ();
+        return this.internalSet.last ();
     }
 
-    public boolean remove ( Object o )
+    public boolean remove ( final Object o )
     {
-        return internalSet.remove ( o );
+        return this.internalSet.remove ( o );
     }
 
-    public boolean removeAll ( Collection<?> c )
+    public boolean removeAll ( final Collection<?> c )
     {
-        return internalSet.removeAll ( c );
+        return this.internalSet.removeAll ( c );
     }
 
-    public boolean retainAll ( Collection<?> c )
+    public boolean retainAll ( final Collection<?> c )
     {
-        return internalSet.retainAll ( c );
+        return this.internalSet.retainAll ( c );
     }
 
     public int size ()
     {
-        return internalSet.size ();
+        return this.internalSet.size ();
     }
 
-    public SortedSet<E> subSet ( E fromElement, E toElement )
+    public SortedSet<E> subSet ( final E fromElement, final E toElement )
     {
-        return internalSet.subSet ( fromElement, toElement );
+        return this.internalSet.subSet ( fromElement, toElement );
     }
 
-    public SortedSet<E> tailSet ( E fromElement )
+    public SortedSet<E> tailSet ( final E fromElement )
     {
-        return internalSet.tailSet ( fromElement );
+        return this.internalSet.tailSet ( fromElement );
     }
 
     public Object[] toArray ()
     {
-        return internalSet.toArray ();
+        return this.internalSet.toArray ();
     }
 
-    public <T> T[] toArray ( T[] a )
+    public <T> T[] toArray ( final T[] a )
     {
-        return internalSet.toArray ( a );
+        return this.internalSet.toArray ( a );
     }
 
     public E element ()
     {
-        return internalSet.first ();
+        return this.internalSet.first ();
     }
 
     public E peek ()
     {
         try
         {
-            return internalSet.first ();
+            return this.internalSet.first ();
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
             return null;
         }
     }
 
-    public boolean offer ( E e )
+    public boolean offer ( final E e )
     {
         return this.add ( e );
     }
@@ -196,9 +217,9 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
     {
         try
         {
-            return internalSet.last ();
+            return this.internalSet.last ();
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
             return null;
         }
@@ -206,13 +227,13 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
 
     public E remove ()
     {
-        E result = internalSet.last ();
-        internalSet.remove ( result );
+        final E result = this.internalSet.last ();
+        this.internalSet.remove ( result );
         return result;
     }
 
     public int getCapacity ()
     {
-        return capacity;
+        return this.capacity;
     }
 }
