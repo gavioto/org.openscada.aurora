@@ -58,6 +58,7 @@ public abstract class AbstractObjectPoolServiceTracker
 
         private void fireServiceAdded ( final Object service, final Dictionary<?, ?> properties )
         {
+            logger.debug ( "Service added to pool: {} -> {}", new Object[] { this.serviceId, service } );
             AbstractObjectPoolServiceTracker.this.handleServiceAdded ( service, properties );
         }
 

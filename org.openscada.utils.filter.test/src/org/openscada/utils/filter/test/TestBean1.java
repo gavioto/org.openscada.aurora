@@ -76,4 +76,15 @@ public class TestBean1
         this.dateValue1 = dateValue1;
     }
 
+    private TestEnum testEnum1;
+
+    public TestEnum getTestEnum1 ()
+    {
+        return this.testEnum1;
+    }
+
+    public void setTestEnum1 ( final TestEnum testEnum1 )
+    {
+        this.testEnum1 = testEnum1;
+    }
 }

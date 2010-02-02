@@ -53,6 +53,7 @@ public class ObjectPoolTracker
 
             public void removedService ( final ServiceReference reference, final Object service )
             {
+                context.ungetService ( reference );
                 ObjectPoolTracker.this.removePool ( (ObjectPool)service );
             }
 

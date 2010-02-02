@@ -29,6 +29,7 @@ public class BeanMatcherTest
         this.bean2.setDoubleValue1 ( 1.234 );
         this.bean2.setIntegerValue1 ( 42 );
         this.bean2.setDateValue1 ( new GregorianCalendar ( 2000, 1, 1, 0, 0, 0 ).getTime () );
+        this.bean2.setTestEnum1 ( TestEnum.B );
     }
 
     @Test
@@ -45,8 +46,10 @@ public class BeanMatcherTest
     {
         testFilter ( "(integerValue1=42)", this.bean2, true );
         testFilter ( "(doubleValue1=1.234)", this.bean2, true );
+        testFilter ( "(testEnum1=B)", this.bean2, true );
         testFilter ( "(integerValue1=43)", this.bean2, false );
         testFilter ( "(doubleValue1=1.235)", this.bean2, false );
+        testFilter ( "(testEnum1=A)", this.bean2, false );
     }
 
     @Test
