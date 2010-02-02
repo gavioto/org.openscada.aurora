@@ -20,6 +20,7 @@
 package org.openscada.utils.osgi;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -58,6 +59,8 @@ public class SingleServiceTracker
 
     private final SingleServiceListener listener;
 
+    private ServiceReference currentRef;
+
     public SingleServiceTracker ( final BundleContext context, final Filter filter, final SingleServiceListener listener )
     {
         this.context = context;
@@ -88,6 +91,7 @@ public class SingleServiceTracker
         this.tracker.close ();
         if ( this.currentService != null )
         {
+            logger.warn ( "Should be null by the tracker#close call" );
             this.currentService = null;
             notifyService ( null, null );
         }
@@ -101,11 +105,45 @@ public class SingleServiceTracker
 
         if ( this.currentService == null )
         {
+            // take the first we have
             this.currentService = service;
-            notifyService ( reference, this.currentService );
+            this.currentRef = reference;
+
+            notifyService ( this.currentRef, this.currentService );
+        }
+        else if ( isHigher ( reference, this.currentRef ) )
+        {
+            this.currentRef = reference;
+            this.currentService = service;
+
+            notifyService ( this.currentRef, this.currentService );
         }
 
         return service;
+    }
+
+    private boolean isHigher ( final ServiceReference reference, final ServiceReference currentRef )
+    {
+        int ref1 = 0;
+        int ref2 = 0;
+
+        try
+        {
+            ref1 = (Integer)reference.getProperty ( Constants.SERVICE_RANKING );
+        }
+        catch ( final Exception e )
+        {
+        }
+
+        try
+        {
+            ref2 = (Integer)currentRef.getProperty ( Constants.SERVICE_RANKING );
+        }
+        catch ( final Exception e )
+        {
+        }
+
+        return ref1 > ref2;
     }
 
     protected void modifiedService ( final ServiceReference reference, final Object service )
@@ -123,13 +161,15 @@ public class SingleServiceTracker
             if ( ref != null )
             {
                 this.currentService = this.tracker.getService ( ref );
+                this.currentRef = ref;
                 logger.info ( "Setting next service: {} / {}", new Object[] { ref, this.currentService } );
-                notifyService ( ref, this.currentService );
+                notifyService ( this.currentRef, this.currentService );
             }
             else
             {
                 logger.info ( "no more services left" );
                 this.currentService = null;
+                this.currentRef = null;
                 notifyService ( null, null );
             }
         }
