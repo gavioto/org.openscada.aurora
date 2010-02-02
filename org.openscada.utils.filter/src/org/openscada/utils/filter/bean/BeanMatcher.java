@@ -23,29 +23,37 @@ public class BeanMatcher
 
     private final static Logger logger = LoggerFactory.getLogger ( BeanMatcher.class );
 
-    public static boolean matches ( final Filter filter, final Object object, final boolean ifEmpty, final PropertyEditorRegistry registry ) throws Exception
+    public static boolean matches ( final Filter filter, final Object object, final boolean ifEmpty, final PropertyEditorRegistry registry )
     {
         if ( filter == null )
         {
             return ifEmpty;
         }
 
-        if ( filter.isEmpty () )
+        try
         {
-            return ifEmpty;
+
+            if ( filter.isEmpty () )
+            {
+                return ifEmpty;
+            }
+            else if ( filter.isAssertion () )
+            {
+                return matchAssertion ( (FilterAssertion)filter, object, ifEmpty, registry );
+            }
+            else if ( filter.isExpression () )
+            {
+                return matchExpression ( (FilterExpression)filter, object, ifEmpty, registry );
+            }
+            else
+            {
+                logger.warn ( "Filter no none of: empty, assertion or expression" );
+                return ifEmpty;
+            }
         }
-        else if ( filter.isAssertion () )
+        catch ( final Exception e )
         {
-            return matchAssertion ( (FilterAssertion)filter, object, ifEmpty, registry );
-        }
-        else if ( filter.isExpression () )
-        {
-            return matchExpression ( (FilterExpression)filter, object, ifEmpty, registry );
-        }
-        else
-        {
-            logger.warn ( "Filter no none of: empty, assertion or expression" );
-            return ifEmpty;
+            throw new RuntimeException ( "Failed to filter", e );
         }
     }
 
@@ -210,6 +218,11 @@ public class BeanMatcher
         if ( clazz == String.class )
         {
             return stringValue;
+        }
+
+        if ( Enum.class.isAssignableFrom ( clazz ) )
+        {
+            return Enum.valueOf ( (Class<? extends Enum>)clazz, stringValue );
         }
 
         PropertyEditor editor = null;
