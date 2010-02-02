@@ -175,4 +175,44 @@ public class ConfigurationDataHelper
         return Double.parseDouble ( str );
     }
 
+    /**
+     * Get a boolean from the data or <code>null</code> if
+     * the parameter is not set or not a boolean
+     * @param name the name of the parameter
+     * @return the boolean or <code>null</code>
+     */
+    public Boolean getBoolean ( final String name )
+    {
+        final String str = this.data.get ( name );
+        if ( str == null )
+        {
+            return null;
+        }
+        try
+        {
+            return Boolean.parseBoolean ( str );
+        }
+        catch ( final NumberFormatException e )
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Get a boolean from the data or the default value if
+     * the parameter is not set or not a boolean
+     * @param name the name of the parameter
+     * @param defaultValue the default value
+     * @return the boolean or the default value
+     */
+    public boolean getBoolean ( final String name, final boolean defaultValue )
+    {
+        final Boolean result = getBoolean ( name );
+        if ( result == null )
+        {
+            return defaultValue;
+        }
+        return result;
+    }
+
 }
