@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.openscada.osgi.equinox.console</name>
+	<name>org.openscada.osgi.equinox.ircbot</name>
 	<comment></comment>
 	<projects>
 	</projects>

@@ -11,22 +11,24 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Queue;
 
-import org.apache.mina.core.session.IoSession;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.osgi.framework.Bundle;
 
 public class CommandInterpreterImpl implements CommandInterpreter
 {
 
-    private final static String NL = System.getProperty ( "line.separator", "\n" );
+    final static String NL = System.getProperty ( "line.separator", "\n" );
 
-    private final IoSession session;
+    private final String sender;
 
     private final Queue<String> args;
 
-    public CommandInterpreterImpl ( final IoSession session, final Queue<String> args )
+    private final ConsoleBot bot;
+
+    public CommandInterpreterImpl ( final ConsoleBot bot, final String sender, final Queue<String> args )
     {
-        this.session = session;
+        this.bot = bot;
+        this.sender = sender;
         this.args = args;
     }
 
@@ -47,19 +49,15 @@ public class CommandInterpreterImpl implements CommandInterpreter
 
     public void print ( final Object o )
     {
-        this.session.write ( "" + o );
+        this.bot.sendMessage ( this.sender, "" + o );
     }
 
     public void printBundleResource ( final Bundle bundle, final String resource )
     {
         final URL url = bundle.getResource ( resource );
-        try
-        {
-            this.session.write ( url.openStream () );
-        }
-        catch ( final IOException e )
-        {
-        }
+
+        // FIXME: sending file is missing
+        this.bot.sendMessage ( this.sender, "Receive: " + url );
     }
 
     @SuppressWarnings ( "unchecked" )
@@ -88,18 +86,18 @@ public class CommandInterpreterImpl implements CommandInterpreter
         }
         catch ( final IOException e )
         {
-            this.session.write ( sw.getBuffer ().toString () );
+            this.bot.sendMessage ( this.sender, sw.getBuffer ().toString () );
         }
     }
 
     public void println ()
     {
-        this.session.write ( NL );
+        // this.session.write ( NL );
     }
 
     public void println ( final Object o )
     {
-        this.session.write ( "" + o + NL );
+        this.bot.sendMessage ( this.sender, "" + o );
     }
 
 }

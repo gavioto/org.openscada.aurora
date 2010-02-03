@@ -1,12 +1,12 @@
 package org.openscada.osgi.equinox.console;
 
+import org.jibble.pircbot.PircBot;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator
 {
-
-    private ConsoleServerImpl server;
+    private PircBot bot;
 
     private static BundleContext context;
 
@@ -21,8 +21,8 @@ public class Activator implements BundleActivator
      */
     public void start ( final BundleContext context ) throws Exception
     {
-        this.server = new ConsoleServerImpl ( 1502 );
         Activator.context = context;
+        this.bot = new ConsoleBot ( "localhost", 6667 );
     }
 
     /*
@@ -31,7 +31,7 @@ public class Activator implements BundleActivator
      */
     public void stop ( BundleContext context ) throws Exception
     {
-        this.server.dispose ();
+        this.bot.dispose ();
         context = null;
     }
 
