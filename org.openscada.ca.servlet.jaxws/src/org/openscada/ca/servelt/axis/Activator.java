@@ -43,6 +43,7 @@ public class Activator implements BundleActivator
         final Dictionary<Object, Object> properties = new Hashtable<Object, Object> ();
         properties.put ( JaxWsExporter.EXPORT_ENABLED, Boolean.TRUE );
         properties.put ( Constants.SERVICE_PID, context.getBundle ().getSymbolicName () );
+
         context.registerService ( ConfigurationAdministratorService.class.getName (), this.service, properties );
     }
 
