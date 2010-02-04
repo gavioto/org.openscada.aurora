@@ -17,13 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.sec;
+package org.openscada.sec.osgi;
 
 import org.openscada.utils.statuscodes.SeverityLevel;
 import org.openscada.utils.statuscodes.StatusCode;
 
 public interface StatusCodes
 {
-    public static final StatusCode UNKNOWN_STATUS_CODE = new StatusCode ( "OSSEC", "CORE", 1, SeverityLevel.ERROR );
+    public static final StatusCode AUTHENTICATION_FAILED = new StatusCode ( "OSSEC", "OSGI", 1, SeverityLevel.ERROR );
 
 }

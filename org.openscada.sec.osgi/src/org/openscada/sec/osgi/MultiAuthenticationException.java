@@ -17,13 +17,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.sec;
+package org.openscada.sec.osgi;
 
-import org.openscada.utils.statuscodes.SeverityLevel;
-import org.openscada.utils.statuscodes.StatusCode;
+import org.openscada.sec.AuthenticationException;
 
-public interface StatusCodes
+public class MultiAuthenticationException extends AuthenticationException
 {
-    public static final StatusCode UNKNOWN_STATUS_CODE = new StatusCode ( "OSSEC", "CORE", 1, SeverityLevel.ERROR );
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6694894598825160903L;
+
+    private final AuthenticationException[] causes;
+
+    public MultiAuthenticationException ( final String message, final AuthenticationException[] causes )
+    {
+        super ( StatusCodes.AUTHENTICATION_FAILED, message );
+        this.causes = causes;
+
+    }
+
+    public AuthenticationException[] getCauses ()
+    {
+        return this.causes;
+    }
 
 }
