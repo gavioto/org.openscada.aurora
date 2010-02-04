@@ -26,4 +26,6 @@ public interface StatusCodes
 {
     public static final StatusCode UNKNOWN_STATUS_CODE = new StatusCode ( "OSSEC", "CORE", 1, SeverityLevel.ERROR );
 
+    public static final StatusCode INVALID_USER_OR_PASSWORD = new StatusCode ( "OSSEC", "CORE", 2, SeverityLevel.ERROR );
+
 }
