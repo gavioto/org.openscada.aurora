@@ -120,6 +120,7 @@
   	
   	<openscada.builder.copyPlugin id="org.openscada.sec" />
   	<openscada.builder.copyFeature id="org.openscada.sec" />
+  	<openscada.builder.copyFeature id="org.openscada.sec.sdk" />
   	
   	<openscada.builder.copyFeature id="org.openscada.aurora" />
   	<openscada.builder.copyFeature id="org.openscada.aurora.sdk" />
