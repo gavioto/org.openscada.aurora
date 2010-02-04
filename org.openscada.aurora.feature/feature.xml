@@ -25,6 +25,10 @@
          id="org.openscada.ca"
          version="0.0.0"/>
 
+   <includes
+         id="org.openscada.sec"
+         version="0.0.0"/>
+
    <requires>
       <import plugin="slf4j.api"/>
       <import plugin="org.eclipse.osgi"/>
