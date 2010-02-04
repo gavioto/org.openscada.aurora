@@ -21,5 +21,5 @@ package org.openscada.sec;
 
 public interface AuthorizationService
 {
-    public void authorize ( String objectId, String objectType, String action, UserInformation userInformation );
+    public AuthorizationResult authorize ( String objectId, String objectType, String action, UserInformation userInformation );
 }

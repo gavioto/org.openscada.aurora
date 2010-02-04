@@ -23,10 +23,18 @@ import org.openscada.utils.lang.Immutable;
 import org.openscada.utils.statuscodes.CodedExceptionBase;
 import org.openscada.utils.statuscodes.StatusCode;
 
+/**
+ * The result of an authentication request
+ * @author Jens Reimann
+ * @since 0.1.0
+ */
 @Immutable
 public class AuthorizationResult
 {
 
+    /**
+     * A static default constant for a granted result 
+     */
     public static AuthorizationResult GRANTED = new AuthorizationResult ();
 
     private final StatusCode errorCode;
