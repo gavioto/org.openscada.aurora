@@ -19,6 +19,8 @@
 
 package org.openscada.utils.filter.internal;
 
+import org.openscada.utils.filter.internal.Tokenizer.TokenizeException;
+
 public class Encoder
 {
 
@@ -49,13 +51,20 @@ public class Encoder
                 sb.append ( "\\" + String.format ( "%02x", new Object[] { b & 0xff } ) );
                 break;
             default:
-                sb.append ( new Character ( b ) );
+                if ( ( b < 0x32 ) || ( b > 127 ) )
+                {
+                    sb.append ( "\\" + String.format ( "%02x", new Object[] { b & 0xff } ) );
+                }
+                else
+                {
+                    sb.append ( new Character ( b ) );
+                }
             }
         }
         return sb.toString ();
     }
 
-    public static String decode ( final String toDecode )
+    public static String decode ( final String toDecode ) throws TokenizeException
     {
         final StringBuilder sb = new StringBuilder ();
         for ( int i = 0; i < toDecode.length (); i++ )
@@ -63,8 +72,19 @@ public class Encoder
             final char c = toDecode.charAt ( i );
             if ( c == '\\' )
             {
+                if ( i + 2 >= toDecode.length () )
+                {
+                    throw new TokenizeException ( "valid escape sequence expected" );
+                }
                 final String ec = "" + toDecode.charAt ( i + 1 ) + toDecode.charAt ( i + 2 );
-                sb.append ( String.valueOf ( (char)Integer.parseInt ( ec, 16 ) ) );
+                try
+                {
+                    sb.append ( String.valueOf ( (char)Integer.parseInt ( ec, 16 ) ) );
+                }
+                catch ( NumberFormatException e )
+                {
+                    throw new TokenizeException ( "valid escape sequence expected" );
+                }
                 i += 2;
             }
             else

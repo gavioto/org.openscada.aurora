@@ -20,6 +20,7 @@
 package org.openscada.utils.filter;
 
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Stack;
 
@@ -45,7 +46,7 @@ public class FilterParser
 
     public FilterParser ( final String filter ) throws FilterParseException
     {
-        if ( filter == null || "".equals ( filter.trim () ) )
+        if ( ( filter == null ) || "".equals ( filter.trim () ) )
         {
             this.filter = new FilterEmpty ();
             return;
@@ -152,7 +153,14 @@ public class FilterParser
                     }
                     else
                     {
-                        validate ( filterExpressions.pop () );
+                        try
+                        {
+                            validate ( filterExpressions.pop () );
+                        }
+                        catch ( EmptyStackException e )
+                        {
+                            throw new FilterParseException ( "expression expected" );
+                        }
                     }
                     continue;
                 }
@@ -163,6 +171,10 @@ public class FilterParser
             throw new FilterParseException ( e.getMessage () );
         }
         validate ( result );
+        if ( !result.toString ().equals ( filter ) )
+        {
+            throw new FilterParseException ( "expression ambiguos; expected " + result.toString () );
+        }
         this.filter = result;
     }
 
@@ -170,22 +182,22 @@ public class FilterParser
     {
         if ( toValidate == null )
         {
-            throw new FilterParseException ();
+            throw new FilterParseException ( "no filter given" );
         }
         if ( toValidate.isAssertion () )
         {
             final FilterAssertion assertion = (FilterAssertion)toValidate;
             if ( assertion.getAttribute () == null )
             {
-                throw new FilterParseException ();
+                throw new FilterParseException ( "no attribute given" );
             }
             if ( assertion.getAssertion () == null )
             {
-                throw new FilterParseException ();
+                throw new FilterParseException ( "no assertion given" );
             }
             if ( assertion.getValue () == null )
             {
-                throw new FilterParseException ();
+                throw new FilterParseException ( "no value given" );
             }
         }
         else if ( toValidate.isExpression () )
@@ -193,11 +205,11 @@ public class FilterParser
             final FilterExpression expression = (FilterExpression)toValidate;
             if ( expression.getOperator () == null )
             {
-                throw new FilterParseException ();
+                throw new FilterParseException ( "no operator given" );
             }
             if ( expression.getFilterSet ().size () == 0 )
             {
-                throw new FilterParseException ();
+                throw new FilterParseException ( "missing sub expression" );
             }
         }
     }
@@ -207,9 +219,9 @@ public class FilterParser
         return this.filter;
     }
 
-    private Object toValue ( final FilterAssertion currentAssertion, final String value )
+    private Object toValue ( final FilterAssertion currentAssertion, final String value ) throws TokenizeException
     {
-        if ( currentAssertion.getAssertion () == Assertion.EQUALITY && value.contains ( "*" ) )
+        if ( ( currentAssertion.getAssertion () == Assertion.EQUALITY ) && value.contains ( "*" ) )
         {
             currentAssertion.setAssertion ( Assertion.SUBSTRING );
             final List<String> result = new ArrayList<String> ();
