@@ -12,7 +12,11 @@
    <feature url="features/org.openscada.ca_0.15.0.qualifier.jar" id="org.openscada.ca" version="0.15.0.qualifier">
       <category name="org.openscada.aurora.ca"/>
    </feature>
+   <feature url="features/org.openscada.sec_0.1.0.qualifier.jar" id="org.openscada.sec" version="0.1.0.qualifier">
+      <category name="org.openscada.aurora.sec"/>
+   </feature>
    <category-def name="org.openscada.aurora.category" label="OpenSCADA Aurora"/>
    <category-def name="org.openscada.aurora.hsbd.category" label="OpenSCADA HSDB"/>
    <category-def name="org.openscada.aurora.ca" label="OpenSCADA CA"/>
+   <category-def name="org.openscada.aurora.sec" label="OpenSCADA Security"/>
 </site>
