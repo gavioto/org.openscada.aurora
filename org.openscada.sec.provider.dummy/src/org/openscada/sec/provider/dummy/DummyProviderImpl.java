@@ -23,8 +23,10 @@ import org.openscada.sec.AuthenticationService;
 import org.openscada.sec.UserInformation;
 
 /**
- * A dummy provider which always returns an anonymous
- * user information (<code>null</code>)
+ * A dummy provider which returns an anonymous 
+ * user information (<code>null</code>) if the username
+ * is not set and an authenticated user with no roles
+ * if the username is set
  *  
  * @author Jens Reimann
  *
@@ -34,7 +36,14 @@ public class DummyProviderImpl implements AuthenticationService
 
     public UserInformation authenticate ( final String username, final String password )
     {
-        return null;
+        if ( username != null )
+        {
+            return new UserInformation ( username, new String[0] );
+        }
+        else
+        {
+            return null;
+        }
     }
 
 }
