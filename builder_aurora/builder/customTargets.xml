@@ -119,6 +119,8 @@
   	<openscada.builder.copyPlugin id="org.openscada.hsdb.backend.file" />
   	
   	<openscada.builder.copyPlugin id="org.openscada.sec" />
+  	<openscada.builder.copyPlugin id="org.openscada.sec.osgi" />
+  	<openscada.builder.copyPlugin id="org.openscada.sec.plain.property" />
   	<openscada.builder.copyFeature id="org.openscada.sec" />
   	<openscada.builder.copyFeature id="org.openscada.sec.sdk" />
   	

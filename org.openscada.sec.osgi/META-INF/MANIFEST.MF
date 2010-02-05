@@ -7,5 +7,7 @@ Bundle-Vendor: inavare GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.openscada.sec;version="0.1.0",
  org.openscada.utils.statuscodes;version="0.15.0",
- org.osgi.framework;version="1.4.3",
- org.osgi.util.tracker;version="1.4.3"
+ org.osgi.framework,
+ org.osgi.util.tracker
+Export-Package: org.openscada.sec.osgi;version="0.1.0";uses:="org.openscada.sec,org.osgi.framework,org.openscada.utils.statuscodes",
+ org.openscada.sec.osgi.plain;version="0.1.0";uses:="org.openscada.sec"

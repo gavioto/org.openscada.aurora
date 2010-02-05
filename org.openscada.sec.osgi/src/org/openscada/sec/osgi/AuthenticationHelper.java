@@ -24,6 +24,7 @@ import java.util.LinkedList;
 
 import org.openscada.sec.AuthenticationException;
 import org.openscada.sec.AuthenticationService;
+import org.openscada.sec.UserInformation;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -46,7 +47,7 @@ public class AuthenticationHelper
         this.tracker.close ();
     }
 
-    public void authenticate ( final String username, final String password ) throws AuthenticationException
+    public UserInformation authenticate ( final String username, final String password ) throws AuthenticationException
     {
         final Collection<AuthenticationException> causes = new LinkedList<AuthenticationException> ();
 
@@ -62,8 +63,7 @@ public class AuthenticationHelper
             try
             {
                 services++;
-                ( (AuthenticationService)o ).authenticate ( username, password );
-                return;
+                return ( (AuthenticationService)o ).authenticate ( username, password );
             }
             catch ( final AuthenticationException e )
             {
