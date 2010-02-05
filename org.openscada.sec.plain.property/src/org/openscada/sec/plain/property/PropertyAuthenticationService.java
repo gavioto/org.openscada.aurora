@@ -36,7 +36,6 @@ import org.openscada.sec.osgi.plain.AbstractPlainAuthenticationService;
  * 
  * @author Jens Reimann
  * @since 0.1.0
- * @
  */
 public class PropertyAuthenticationService extends AbstractPlainAuthenticationService implements AuthenticationService
 {
