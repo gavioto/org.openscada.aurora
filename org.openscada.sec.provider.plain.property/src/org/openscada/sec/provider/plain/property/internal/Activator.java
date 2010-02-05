@@ -17,13 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.sec.plain.property.internal;
+package org.openscada.sec.provider.plain.property.internal;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.sec.AuthenticationService;
-import org.openscada.sec.plain.property.PropertyAuthenticationService;
+import org.openscada.sec.provider.plain.property.PropertyAuthenticationService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -31,7 +31,7 @@ import org.osgi.framework.Constants;
 public class Activator implements BundleActivator
 {
 
-    private final int priority = Integer.getInteger ( "org.openscada.sec.plain.property.priority", 0 );
+    private final int priority = Integer.getInteger ( "org.openscada.sec.provider.plain.property.priority", 0 );
 
     private PropertyAuthenticationService service;
 

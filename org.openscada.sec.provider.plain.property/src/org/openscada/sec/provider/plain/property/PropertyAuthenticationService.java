@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.sec.plain.property;
+package org.openscada.sec.provider.plain.property;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import org.openscada.sec.osgi.plain.AbstractPlainAuthenticationService;
 /**
  * A plain authentication provider
  * <p>Authentication data is stored in the following from
- * in the system property <code>org.openscada.sec.plain.property.data</code>:
+ * in the system property <code>org.openscada.sec.provider.plain.property.data</code>:
  * <code>username:password:ROLE1,ROLE2|username2:password2:ROLE1,ROLE2</code>
  * </p>
  * 
@@ -43,7 +43,7 @@ public class PropertyAuthenticationService extends AbstractPlainAuthenticationSe
 
     public PropertyAuthenticationService ()
     {
-        final String data = System.getProperty ( "org.openscada.sec.plain.property.data", "" );
+        final String data = System.getProperty ( "org.openscada.sec.provider.plain.property.data", "" );
 
         final StringTokenizer tok = new StringTokenizer ( data, "|" );
         while ( tok.hasMoreElements () )
