@@ -53,21 +53,25 @@ public class AuthenticationHelper
 
         int services = 0;
 
-        for ( final Object o : this.tracker.getServices () )
+        final Object[] s = this.tracker.getServices ();
+        if ( s != null )
         {
-            if ( ! ( o instanceof AuthenticationService ) )
+            for ( final Object o : s )
             {
-                continue;
-            }
+                if ( ! ( o instanceof AuthenticationService ) )
+                {
+                    continue;
+                }
 
-            try
-            {
-                services++;
-                return ( (AuthenticationService)o ).authenticate ( username, password );
-            }
-            catch ( final AuthenticationException e )
-            {
-                causes.add ( e );
+                try
+                {
+                    services++;
+                    return ( (AuthenticationService)o ).authenticate ( username, password );
+                }
+                catch ( final AuthenticationException e )
+                {
+                    causes.add ( e );
+                }
             }
         }
 
