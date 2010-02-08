@@ -74,6 +74,69 @@ public class ConfigurationDataHelper
         return Integer.parseInt ( str );
     }
 
+    /**
+     * Get a long from the data or <code>null</code> if
+     * the parameter is not set or not a long
+     * @param name the name of the parameter
+     * @return the long or <code>null</code>
+     */
+    public Long getLong ( final String name )
+    {
+        final String str = this.data.get ( name );
+        if ( str == null )
+        {
+            return null;
+        }
+        try
+        {
+            return Long.parseLong ( str );
+        }
+        catch ( final NumberFormatException e )
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Get a long from the data or the default value if
+     * the parameter is not set or not a long
+     * @param name the name of the parameter
+     * @param defaultValue the default value
+     * @return the long or the default value
+     */
+    public long getLong ( final String name, final long defaultValue )
+    {
+        final Long result = getLong ( name );
+        if ( result == null )
+        {
+            return defaultValue;
+        }
+        return result;
+    }
+
+    /**
+     * Get a long from the configuration data
+     * <p>
+     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If
+     * the data can not be parsed to a long a {@link NumberFormatException} will
+     * be thrown.
+     * </p>
+     * @param name the name of the parameter to get
+     * @param errorMessage the error message if the string is not set
+     * @return the value as long
+     * @throws NumberFormatException
+     * @throws IllegalArgumentException
+     */
+    public long getLongChecked ( final String name, final String errorMessage ) throws IllegalArgumentException, NumberFormatException
+    {
+        final String str = this.data.get ( name );
+        if ( str == null )
+        {
+            throw new IllegalArgumentException ( errorMessage );
+        }
+        return Long.parseLong ( str );
+    }
+
     public String getString ( final String name )
     {
         return this.data.get ( name );
@@ -214,5 +277,4 @@ public class ConfigurationDataHelper
         }
         return result;
     }
-
 }
