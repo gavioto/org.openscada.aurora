@@ -75,6 +75,7 @@ public class EndpointExporter implements ServiceListener
         if ( e != null )
         {
             e.stop ();
+            this.context.ungetService ( serviceReference );
         }
     }
 
@@ -82,10 +83,11 @@ public class EndpointExporter implements ServiceListener
     {
         logger.debug ( "Found new service: {}", reference );
 
-        final Object service = this.context.getService ( reference );
+        Object service = this.context.getService ( reference );
         try
         {
             exportService ( reference, service );
+            service = null;
         }
         finally
         {
