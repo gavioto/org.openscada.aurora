@@ -37,6 +37,14 @@ public class Configuration
     {
     }
 
+    public Configuration ( final String factoryId, final org.openscada.ca.Configuration configuration )
+    {
+        this.factoryId = factoryId;
+        this.id = configuration.getId ();
+        this.state = configuration.getState ();
+        this.data = configuration.getData ();
+    }
+
     public Configuration ( final Factory factory, final org.openscada.ca.Configuration configuration )
     {
         this.factoryId = factory.getId ();

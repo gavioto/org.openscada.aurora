@@ -18,7 +18,9 @@ public interface RemoteConfigurationAdministrator
 
     public abstract Factory[] getCompleteConfiguration ();
 
-    public abstract Factory getConfiguration ( String factoryId );
+    public abstract Factory getFactory ( String factoryId );
+
+    public abstract Configuration getConfiguration ( String factoryId, String configurationId );
 
     public abstract void purge ( final String factoryId, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
 

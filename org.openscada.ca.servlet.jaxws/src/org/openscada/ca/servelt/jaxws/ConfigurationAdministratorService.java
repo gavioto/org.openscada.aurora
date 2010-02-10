@@ -78,9 +78,16 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     @Override
-    public Factory getConfiguration ( final String factoryId )
+    public Factory getFactory ( final String factoryId )
     {
         return convertFactory ( this.service.getFactory ( factoryId ), true );
+    }
+
+    @Override
+    public Configuration getConfiguration ( final String factoryId, final String configurationId )
+    {
+        final org.openscada.ca.Configuration cfg = this.service.getConfiguration ( factoryId, configurationId );
+        return new Configuration ( factoryId, cfg );
     }
 
     /* (non-Javadoc)
