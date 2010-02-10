@@ -17,11 +17,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.ca.servelt.jaxws;
+package org.openscada.ca;
 
-import org.openscada.ca.FactoryState;
 
-public class Factory
+public class FactoryInformation
 {
     private String id;
 
@@ -29,16 +28,16 @@ public class Factory
 
     private FactoryState state;
 
-    private Configuration[] configurations;
+    private ConfigurationInformation[] configurations;
 
-    public Factory ( final org.openscada.ca.Factory factory )
+    public FactoryInformation ( final org.openscada.ca.Factory factory )
     {
         this.id = factory.getId ();
         this.description = factory.getDescription ();
         this.state = factory.getState ();
     }
 
-    public Factory ()
+    public FactoryInformation ()
     {
     }
 
@@ -72,12 +71,12 @@ public class Factory
         return this.state;
     }
 
-    public void setConfigurations ( final Configuration[] configurations )
+    public void setConfigurations ( final ConfigurationInformation[] configurations )
     {
         this.configurations = configurations;
     }
 
-    public Configuration[] getConfigurations ()
+    public ConfigurationInformation[] getConfigurations ()
     {
         return this.configurations;
     }

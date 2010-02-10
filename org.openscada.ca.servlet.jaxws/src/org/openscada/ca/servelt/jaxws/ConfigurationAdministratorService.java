@@ -30,6 +30,8 @@ import javax.jws.WebMethod;
 import javax.jws.WebService;
 
 import org.openscada.ca.ConfigurationAdministrator;
+import org.openscada.ca.ConfigurationInformation;
+import org.openscada.ca.FactoryInformation;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.SingleServiceTracker;
 import org.osgi.framework.BundleContext;
@@ -78,22 +80,22 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     @Override
-    public Factory getFactory ( final String factoryId )
+    public FactoryInformation getFactory ( final String factoryId )
     {
         return convertFactory ( this.service.getFactory ( factoryId ), true );
     }
 
     @Override
-    public Configuration getConfiguration ( final String factoryId, final String configurationId )
+    public ConfigurationInformation getConfiguration ( final String factoryId, final String configurationId )
     {
         final org.openscada.ca.Configuration cfg = this.service.getConfiguration ( factoryId, configurationId );
-        return new Configuration ( factoryId, cfg );
+        return new ConfigurationInformation ( factoryId, cfg );
     }
 
     /* (non-Javadoc)
      * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#getFactories()
      */
-    public Factory[] getFactories ()
+    public FactoryInformation[] getFactories ()
     {
         return getFactories ( false );
     }
@@ -101,19 +103,19 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#getCompleteConfiguration()
      */
-    public Factory[] getCompleteConfiguration ()
+    public FactoryInformation[] getCompleteConfiguration ()
     {
         return getFactories ( true );
     }
 
-    private Factory[] getFactories ( final boolean withConfiguration )
+    private FactoryInformation[] getFactories ( final boolean withConfiguration )
     {
         return convert ( this.service.getKnownFactories (), withConfiguration );
     }
 
-    private Factory[] convert ( final org.openscada.ca.Factory[] knownFactories, final boolean withConfiguration )
+    private FactoryInformation[] convert ( final org.openscada.ca.Factory[] knownFactories, final boolean withConfiguration )
     {
-        final Factory[] result = new Factory[knownFactories.length];
+        final FactoryInformation[] result = new FactoryInformation[knownFactories.length];
 
         for ( int i = 0; i < knownFactories.length; i++ )
         {
@@ -123,14 +125,14 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         return result;
     }
 
-    private Factory convertFactory ( final org.openscada.ca.Factory knownFactory, final boolean withConfiguration )
+    private FactoryInformation convertFactory ( final org.openscada.ca.Factory knownFactory, final boolean withConfiguration )
     {
         if ( knownFactory == null )
         {
             return null;
         }
 
-        final Factory factory = new Factory ( knownFactory );
+        final FactoryInformation factory = new FactoryInformation ( knownFactory );
 
         if ( withConfiguration )
         {
@@ -139,13 +141,13 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         return factory;
     }
 
-    private Configuration[] convert ( final Factory factory, final org.openscada.ca.Configuration[] configurations )
+    private ConfigurationInformation[] convert ( final FactoryInformation factory, final org.openscada.ca.Configuration[] configurations )
     {
-        final Configuration[] result = new Configuration[configurations.length];
+        final ConfigurationInformation[] result = new ConfigurationInformation[configurations.length];
 
         for ( int i = 0; i < configurations.length; i++ )
         {
-            result[i] = new Configuration ( factory, configurations[i] );
+            result[i] = new ConfigurationInformation ( factory, configurations[i] );
         }
 
         return result;
@@ -196,13 +198,13 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#update(java.lang.String, org.openscada.ca.servelt.jaxws.Configuration[], int)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#update(java.lang.String, org.openscada.ca.servelt.jaxws.ConfigurationInformation[], int)
      */
-    public void update ( final String factoryId, final Configuration[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
+    public void update ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
 
-        for ( final Configuration cfg : configurations )
+        for ( final ConfigurationInformation cfg : configurations )
         {
             jobs.add ( this.service.updateConfiguration ( factoryId, cfg.getId (), cfg.getData (), true ) );
         }
@@ -211,13 +213,13 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#create(java.lang.String, org.openscada.ca.servelt.jaxws.Configuration[], int)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#create(java.lang.String, org.openscada.ca.servelt.jaxws.ConfigurationInformation[], int)
      */
-    public void create ( final String factoryId, final Configuration[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
+    public void create ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
 
-        for ( final Configuration cfg : configurations )
+        for ( final ConfigurationInformation cfg : configurations )
         {
             jobs.add ( this.service.createConfiguration ( factoryId, cfg.getId (), cfg.getData () ) );
         }

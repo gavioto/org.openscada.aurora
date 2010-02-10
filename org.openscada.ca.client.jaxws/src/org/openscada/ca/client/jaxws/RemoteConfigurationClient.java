@@ -1,4 +1,4 @@
-package org.openscada.ca.servelt.jaxws;
+package org.openscada.ca.client.jaxws;
 
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -1,9 +1,9 @@
-package org.openscada.ca.servelt.jaxws;
+package org.openscada.ca.client.jaxws;
 
 import java.net.MalformedURLException;
 
-import org.openscada.ca.servelt.jaxws.Configuration;
-import org.openscada.ca.servelt.jaxws.Factory;
+import org.openscada.ca.ConfigurationInformation;
+import org.openscada.ca.FactoryInformation;
 import org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator;
 
 public class Application
@@ -19,11 +19,11 @@ public class Application
 
         System.out.println ( "Start request" );
 
-        for ( final Factory factory : port.getFactories () )
+        for ( final FactoryInformation factory : port.getFactories () )
         {
-            System.out.println ( String.format ( "Factory: %s", factory.getId () ) );
-            final Factory data = port.getFactory ( factory.getId () );
-            for ( final Configuration configuration : data.getConfigurations () )
+            System.out.println ( String.format ( "FactoryInformation: %s", factory.getId () ) );
+            final FactoryInformation data = port.getFactory ( factory.getId () );
+            for ( final ConfigurationInformation configuration : data.getConfigurations () )
             {
                 System.out.println ( configuration.getId () + " -> " + configuration.getData () );
             }
