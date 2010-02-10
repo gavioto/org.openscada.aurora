@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.ca.servelt.axis;
+package org.openscada.ca.servelt.jaxws;
 
 import java.util.Collection;
 import java.util.LinkedList;
