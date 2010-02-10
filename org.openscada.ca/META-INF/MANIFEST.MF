@@ -7,6 +7,7 @@ Bundle-Vendor: inavare GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.openscada.ca;version="0.15.0";uses:="org.openscada.utils.concurrent"
 Bundle-License: http://opensource.org/licenses/lgpl-2.1.php
-Import-Package: org.openscada.utils,
- org.openscada.utils.concurrent;version="0.14.0",
- org.openscada.utils.lang
+Import-Package: org.openscada.utils;version="0.15.0",
+ org.openscada.utils.concurrent;version="0.15.0",
+ org.openscada.utils.lang;version="0.15.0",
+ org.openscada.utils.propertyeditors;version="0.15.0"
