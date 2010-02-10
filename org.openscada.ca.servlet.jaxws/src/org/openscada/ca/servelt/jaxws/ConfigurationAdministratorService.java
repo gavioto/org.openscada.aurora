@@ -77,6 +77,12 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         return this.service != null;
     }
 
+    @Override
+    public Factory getConfiguration ( final String factoryId )
+    {
+        return convertFactory ( this.service.getFactory ( factoryId ), true );
+    }
+
     /* (non-Javadoc)
      * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#getFactories()
      */
@@ -104,14 +110,26 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 
         for ( int i = 0; i < knownFactories.length; i++ )
         {
-            result[i] = new Factory ( knownFactories[i] );
-            if ( withConfiguration )
-            {
-                result[i].setConfigurations ( convert ( result[i], this.service.getConfigurations ( knownFactories[i].getId () ) ) );
-            }
+            result[i] = convertFactory ( knownFactories[i], withConfiguration );
         }
 
         return result;
+    }
+
+    private Factory convertFactory ( final org.openscada.ca.Factory knownFactory, final boolean withConfiguration )
+    {
+        if ( knownFactory == null )
+        {
+            return null;
+        }
+
+        final Factory factory = new Factory ( knownFactory );
+
+        if ( withConfiguration )
+        {
+            factory.setConfigurations ( convert ( factory, this.service.getConfigurations ( knownFactory.getId () ) ) );
+        }
+        return factory;
     }
 
     private Configuration[] convert ( final Factory factory, final org.openscada.ca.Configuration[] configurations )

@@ -10,9 +10,15 @@ public interface RemoteConfigurationAdministrator
 {
     public abstract boolean hasService ();
 
+    /**
+     * Get factory information without content
+     * @return the factories without a content
+     */
     public abstract Factory[] getFactories ();
 
     public abstract Factory[] getCompleteConfiguration ();
+
+    public abstract Factory getConfiguration ( String factoryId );
 
     public abstract void purge ( final String factoryId, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
 
