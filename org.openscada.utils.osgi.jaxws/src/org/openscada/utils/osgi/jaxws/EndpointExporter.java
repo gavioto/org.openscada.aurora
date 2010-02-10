@@ -71,7 +71,7 @@ public class EndpointExporter implements ServiceListener
 
     private void removeService ( final ServiceReference serviceReference )
     {
-        final Endpoint e = this.endpoints.get ( serviceReference );
+        final Endpoint e = this.endpoints.remove ( serviceReference );
         if ( e != null )
         {
             e.stop ();
