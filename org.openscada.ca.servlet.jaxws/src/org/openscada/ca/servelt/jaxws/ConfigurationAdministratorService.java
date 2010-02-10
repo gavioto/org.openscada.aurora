@@ -37,10 +37,9 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@WebService
-public class ConfigurationAdministratorService
+@WebService ( endpointInterface = "org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator" )
+public class ConfigurationAdministratorService implements RemoteConfigurationAdministrator
 {
-
     private final static Logger logger = LoggerFactory.getLogger ( ConfigurationAdministratorService.class );
 
     private final SingleServiceTracker tracker;
@@ -70,16 +69,25 @@ public class ConfigurationAdministratorService
         this.tracker.close ();
     }
 
+    /* (non-Javadoc)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#hasService()
+     */
     public boolean hasService ()
     {
         return this.service != null;
     }
 
+    /* (non-Javadoc)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#getFactories()
+     */
     public Factory[] getFactories ()
     {
         return getFactories ( false );
     }
 
+    /* (non-Javadoc)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#getCompleteConfiguration()
+     */
     public Factory[] getCompleteConfiguration ()
     {
         return getFactories ( true );
@@ -118,6 +126,9 @@ public class ConfigurationAdministratorService
         return result;
     }
 
+    /* (non-Javadoc)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#purge(java.lang.String, int)
+     */
     public void purge ( final String factoryId, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         logger.info ( "Request purge: {}", factoryId );
@@ -129,6 +140,9 @@ public class ConfigurationAdministratorService
         complete ( timeout, jobs );
     }
 
+    /* (non-Javadoc)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#delete(java.lang.String, java.lang.String[], int)
+     */
     public void delete ( final String factoryId, final String[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
@@ -156,6 +170,9 @@ public class ConfigurationAdministratorService
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#update(java.lang.String, org.openscada.ca.servelt.jaxws.Configuration[], int)
+     */
     public void update ( final String factoryId, final Configuration[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
@@ -168,6 +185,9 @@ public class ConfigurationAdministratorService
         complete ( timeout, jobs );
     }
 
+    /* (non-Javadoc)
+     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#create(java.lang.String, org.openscada.ca.servelt.jaxws.Configuration[], int)
+     */
     public void create ( final String factoryId, final Configuration[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();

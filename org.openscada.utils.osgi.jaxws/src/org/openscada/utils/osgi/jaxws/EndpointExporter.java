@@ -106,20 +106,32 @@ public class EndpointExporter implements ServiceListener
 
         try
         {
-
-            final WebService webService = service.getClass ().getAnnotation ( WebService.class );
-
             Thread.currentThread ().setContextClassLoader ( service.getClass ().getClassLoader () );
 
-            if ( webService != null )
-            {
-                e = Endpoint.create ( service );
+            final String[] clazzes = (String[])reference.getProperty ( Constants.OBJECTCLASS );
 
-                final String address = makeAddress ( reference, service, webService );
-                e.publish ( address );
-                this.endpoints.put ( reference, e );
-                e = null;
+            for ( final String clazzName : clazzes )
+            {
+                final Class<?> clazz = reference.getBundle ().loadClass ( clazzName );
+
+                final WebService webService = clazz.getAnnotation ( WebService.class );
+
+                if ( webService != null )
+                {
+                    e = Endpoint.create ( service );
+
+                    final String address = makeAddress ( reference, service, webService );
+                    e.publish ( address );
+                    this.endpoints.put ( reference, e );
+                    e = null;
+                }
+                else
+                {
+                    logger.warn ( "No webservice annotation found on {}", clazz );
+                }
+
             }
+
         }
         catch ( final Exception ex )
         {
