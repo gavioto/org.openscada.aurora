@@ -4,13 +4,9 @@ import java.util.concurrent.Callable;
 
 import org.openscada.ca.ConfigurationInformation;
 import org.openscada.ca.client.jaxws.RemoteConfigurationClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LoadConfigurationFactory implements Callable<ConfigurationInformation>
 {
-
-    private final static Logger logger = LoggerFactory.getLogger ( LoadConfigurationFactory.class );
 
     private final RemoteConfigurationClient port;
 
