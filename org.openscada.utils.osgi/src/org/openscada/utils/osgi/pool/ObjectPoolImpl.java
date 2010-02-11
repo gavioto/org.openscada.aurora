@@ -31,6 +31,8 @@ public class ObjectPoolImpl implements ObjectPool
 
     private final ExecutorService executor;
 
+    private boolean disposed;
+
     public ObjectPoolImpl ()
     {
         this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( toString () ) );
@@ -38,6 +40,11 @@ public class ObjectPoolImpl implements ObjectPool
 
     public synchronized void addService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
+        if ( this.disposed )
+        {
+            return;
+        }
+
         logger.debug ( "Adding service: {} -> {} -> {}", new Object[] { id, service, properties } );
 
         Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
@@ -58,6 +65,11 @@ public class ObjectPoolImpl implements ObjectPool
 
     public synchronized void modifyService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
+        if ( this.disposed )
+        {
+            return;
+        }
+
         logger.debug ( "Modifing service: {} -> {} -> {}", new Object[] { id, service, properties } );
 
         final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
@@ -70,6 +82,11 @@ public class ObjectPoolImpl implements ObjectPool
 
     public synchronized void removeService ( final String id, final Object service )
     {
+        if ( this.disposed )
+        {
+            return;
+        }
+
         logger.debug ( "Removing service: {} -> {}", new Object[] { id, service } );
 
         final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
@@ -184,6 +201,8 @@ public class ObjectPoolImpl implements ObjectPool
 
                 }
             } );
+
+            this.disposed = true;
         }
 
         // wait for termination outside of sync
@@ -195,6 +214,11 @@ public class ObjectPoolImpl implements ObjectPool
      */
     public synchronized void addListener ( final String id, final ObjectPoolListener listener )
     {
+        if ( this.disposed )
+        {
+            return;
+        }
+
         logger.debug ( "Adding listener for {}", new Object[] { id } );
 
         if ( this.idListeners.put ( id, listener ) )
@@ -225,11 +249,21 @@ public class ObjectPoolImpl implements ObjectPool
      */
     public synchronized void removeListener ( final String id, final ObjectPoolListener listener )
     {
+        if ( this.disposed )
+        {
+            return;
+        }
+
         this.idListeners.remove ( id, listener );
     }
 
     public synchronized void addListener ( final ObjectPoolListener listener )
     {
+        if ( this.disposed )
+        {
+            return;
+        }
+
         logger.debug ( "Adding listener {}", listener );
 
         if ( this.anyListener.add ( listener ) )
@@ -255,6 +289,11 @@ public class ObjectPoolImpl implements ObjectPool
 
     public synchronized void removeListener ( final ObjectPoolListener listener )
     {
+        if ( this.disposed )
+        {
+            return;
+        }
+
         this.anyListener.remove ( listener );
     }
 }
