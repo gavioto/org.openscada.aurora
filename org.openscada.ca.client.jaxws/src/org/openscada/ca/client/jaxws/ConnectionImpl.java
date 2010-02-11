@@ -8,9 +8,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.openscada.ca.ConfigurationInformation;
 import org.openscada.ca.FactoryInformation;
 import org.openscada.ca.client.Connection;
 import org.openscada.ca.client.FactoriesListener;
+import org.openscada.ca.client.jaxws.impl.LoadConfigurationFactory;
 import org.openscada.ca.client.jaxws.impl.QueryFactory;
 import org.openscada.ca.client.jaxws.impl.QueryFactoryList;
 import org.openscada.core.ConnectionInformation;
@@ -217,7 +219,7 @@ public class ConnectionImpl implements Connection
     }
 
     @Override
-    public NotifyFuture<FactoryInformation> getFactoryWithData ( final String factoryId )
+    public synchronized NotifyFuture<FactoryInformation> getFactoryWithData ( final String factoryId )
     {
         if ( this.executor == null )
         {
@@ -227,6 +229,23 @@ public class ConnectionImpl implements Connection
         final QueryFactory call = new QueryFactory ( this.port, factoryId );
 
         final FutureTask<FactoryInformation> task = new FutureTask<FactoryInformation> ( call );
+
+        this.executor.execute ( task );
+
+        return task;
+    }
+
+    @Override
+    public synchronized NotifyFuture<ConfigurationInformation> getConfiguration ( final String factoryId, final String configurationId )
+    {
+        if ( this.executor == null )
+        {
+            return new InstantErrorFuture<ConfigurationInformation> ( new OperationException ( "Not connected" ) );
+        }
+
+        final LoadConfigurationFactory call = new LoadConfigurationFactory ( this.port, factoryId, configurationId );
+
+        final FutureTask<ConfigurationInformation> task = new FutureTask<ConfigurationInformation> ( call );
 
         this.executor.execute ( task );
 
