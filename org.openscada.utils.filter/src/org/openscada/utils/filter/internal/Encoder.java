@@ -51,7 +51,7 @@ public class Encoder
                 sb.append ( "\\" + String.format ( "%02x", new Object[] { b & 0xff } ) );
                 break;
             default:
-                if ( ( b < 0x32 ) || ( b > 127 ) )
+                if ( ( b < 32 ) || ( b > 127 ) )
                 {
                     sb.append ( "\\" + String.format ( "%02x", new Object[] { b & 0xff } ) );
                 }

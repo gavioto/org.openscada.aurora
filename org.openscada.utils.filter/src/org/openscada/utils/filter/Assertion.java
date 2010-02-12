@@ -67,6 +67,39 @@ public enum Assertion
         return null;
     }
 
+    public static Assertion fromString ( final String op )
+    {
+        if ( "=".equals ( op ) )
+        {
+            return EQUALITY;
+        }
+        else if ( "=*".equals ( op ) )
+        {
+            return PRESENCE;
+        }
+        else if ( ">=".equals ( op ) )
+        {
+            return GREATEREQ;
+        }
+        else if ( ">".equals ( op ) )
+        {
+            return GREATERTHAN;
+        }
+        else if ( "<=".equals ( op ) )
+        {
+            return LESSEQ;
+        }
+        else if ( "<".equals ( op ) )
+        {
+            return LESSTHAN;
+        }
+        else if ( "~=".equals ( op ) )
+        {
+            return APPROXIMATE;
+        }
+        return null;
+    }
+
     @Override
     public String toString ()
     {

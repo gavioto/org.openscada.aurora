@@ -82,4 +82,12 @@ public class FilterExpression implements Filter
     {
         return this.operator == null;
     }
+
+    public static FilterExpression negate ( final Filter expression )
+    {
+        FilterExpression negation = new FilterExpression ();
+        negation.setOperator ( Operator.NOT );
+        negation.getFilterSet ().add ( expression );
+        return negation;
+    }
 }
