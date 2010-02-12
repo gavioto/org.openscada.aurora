@@ -205,13 +205,13 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
     private void loadAll ( final File configurationRoot, final String factoryId )
     {
-        logger.info ( "Loading from: " + configurationRoot.getName () );
+        logger.info ( "Loading from: {}", configurationRoot.getName () );
 
         final List<ConfigurationImpl> configurations = new LinkedList<ConfigurationImpl> ();
 
         for ( final File file : configurationRoot.listFiles ( new DataFilenameFilter () ) )
         {
-            logger.info ( "Loading file: " + file.getName () );
+            logger.info ( "Loading file: {}", file.getName () );
             final ConfigurationImpl cfg = loadConfiguration ( factoryId, file );
 
             if ( cfg != null )
