@@ -23,8 +23,9 @@ authority.
       <import plugin="org.eclipse.osgi"/>
       <import plugin="slf4j.api"/>
       <import plugin="javax.servlet"/>
-      <import plugin="com.springsource.org.apache.log4j"/>
       <import plugin="org.eclipse.osgi.services"/>
+      <import plugin="org.openscada.utils.osgi"/>
+      <import plugin="org.openscada.utils.osgi.jaxws"/>
    </requires>
 
    <plugin
