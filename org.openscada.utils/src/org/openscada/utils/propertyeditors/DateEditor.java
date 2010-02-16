@@ -8,27 +8,41 @@ import java.util.Date;
 
 public class DateEditor extends PropertyEditorSupport
 {
-    private static final SimpleDateFormat dfDateTimeS = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss.S" );
-    private static final SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" );
-    private static final SimpleDateFormat dfDate = new SimpleDateFormat ( "yyyy-MM-dd" );
-    
+    private static final SimpleDateFormat dfDateTimeS = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss.S" ); // 23 
+
+    private static final SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" ); // 20
+
+    private static final SimpleDateFormat dfDate = new SimpleDateFormat ( "yyyy-MM-dd" ); // 10 
+
+    private static final SimpleDateFormat dfTimeS = new SimpleDateFormat ( "HH:mm:ss.S" ); // 12
+
+    private static final SimpleDateFormat dfTime = new SimpleDateFormat ( "HH:mm:ss" ); // 8
+
     @Override
-    public void setAsText ( String text ) throws IllegalArgumentException
+    public void setAsText ( final String text ) throws IllegalArgumentException
     {
         Date d = null;
         try
         {
-            if ( text.length () > 19 )
+            if ( text.length () == 23 )
             {
                 d = dfDateTimeS.parse ( text );
             }
-            else if ( text.length () > 10 )
+            else if ( text.length () == 20 )
             {
                 d = dfDateTime.parse ( text );
             }
-            else
+            else if ( text.length () == 10 )
             {
                 d = dfDate.parse ( text );
+            }
+            else if ( text.length () == 12 )
+            {
+                d = dfTimeS.parse ( text );
+            }
+            else if ( text.length () == 8 )
+            {
+                d = dfTime.parse ( text );
             }
         }
         catch ( ParseException e )
@@ -39,7 +53,7 @@ public class DateEditor extends PropertyEditorSupport
     }
 
     @Override
-    public void setValue ( Object value )
+    public void setValue ( final Object value )
     {
         Date v = null;
         if ( value instanceof Date )
