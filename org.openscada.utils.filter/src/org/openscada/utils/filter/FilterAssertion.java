@@ -19,8 +19,6 @@
 
 package org.openscada.utils.filter;
 
-import java.util.List;
-
 import org.openscada.utils.filter.internal.Encoder;
 
 public class FilterAssertion implements Filter
@@ -97,14 +95,14 @@ public class FilterAssertion implements Filter
         {
             return "";
         }
-        if ( value instanceof List )
+        if ( value instanceof String[] )
         {
-            final List valueList = (List)value;
+            final String[] valueList = (String[])value;
             final StringBuilder sb = new StringBuilder ();
             int i = 0;
             for ( final Object part : valueList )
             {
-                if ( i > 0 && i < valueList.size () )
+                if ( ( i > 0 ) && ( i < valueList.length ) )
                 {
                     sb.append ( "*" );
                 }

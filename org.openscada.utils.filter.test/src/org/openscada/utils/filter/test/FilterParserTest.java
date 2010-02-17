@@ -48,7 +48,7 @@ public class FilterParserTest
         checkCorrect ( "(field.id=value)" );
         checkCorrect ( "(field.id.bar=value)" );
         checkCorrect ( "(field=value\\2a)" );
-        
+
         checkFail ( "()" );
         checkFail ( "(&)" );
         checkFail ( "(" );
@@ -58,5 +58,13 @@ public class FilterParserTest
         checkFail ( "-" );
         checkFail ( "xxx" );
         checkFail ( "(&field=value)" );
+    }
+
+    @Test
+    public void testBug0001 () throws Exception
+    {
+        String fs = "(&(stockBalance.stockBalanceType=RECEIPT)(snapshotType=START)(tank.id=6906))";
+        Filter f = new FilterParser ( fs ).getFilter ();
+        System.out.println ( f );
     }
 }
