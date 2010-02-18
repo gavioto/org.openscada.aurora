@@ -98,13 +98,14 @@ public class ConnectionImpl implements Connection
         } );
     }
 
-    protected synchronized void setError ( final Exception e )
+    protected synchronized void setError ( final Throwable e )
     {
         if ( this.executor == null )
         {
             return;
         }
         setState ( ConnectionState.CLOSED, e );
+        setFactories ( null );
         this.port = null;
     }
 
@@ -114,8 +115,15 @@ public class ConnectionImpl implements Connection
         {
             return;
         }
-        setState ( ConnectionState.BOUND, null );
+
+        if ( port == null )
+        {
+            setError ( new IllegalArgumentException ( "No port set" ).fillInStackTrace () );
+            return;
+        }
+
         this.port = port;
+        setState ( ConnectionState.BOUND, null );
 
         final FutureTask<FactoryInformation[]> task = new FutureTask<FactoryInformation[]> ( new QueryFactoryList ( port ) );
 
@@ -143,19 +151,24 @@ public class ConnectionImpl implements Connection
 
     protected synchronized void setFactories ( final FactoryInformation[] factories )
     {
-        this.factories = factories;
+        if ( factories != null )
+        {
+            this.factories = factories;
+        }
+        else
+        {
+            this.factories = new FactoryInformation[0];
+        }
+
         for ( final FactoriesListener listener : this.factoriesListener )
         {
-            listener.updateFactories ( factories );
+            listener.updateFactories ( this.factories );
         }
     }
 
     protected RemoteConfigurationClient createPort () throws Exception
     {
-        RemoteConfigurationClient port;
-
-        port = new RemoteConfigurationClient ( this.connectionInformation.getTarget (), this.connectionInformation.getSecondaryTarget () );
-        return port;
+        return new RemoteConfigurationClient ( this.connectionInformation.getTarget (), this.connectionInformation.getSecondaryTarget () );
     }
 
     @Override
@@ -167,6 +180,7 @@ public class ConnectionImpl implements Connection
         }
 
         setState ( ConnectionState.CLOSED, null );
+        setFactories ( null );
         final List<Runnable> tasks = this.executor.shutdownNow ();
 
         // cancel all open tasks
