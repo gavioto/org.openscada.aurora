@@ -12,21 +12,21 @@ public class QueryFactory implements Callable<FactoryInformation>
 
     private final static Logger logger = LoggerFactory.getLogger ( QueryFactory.class );
 
-    private final RemoteConfigurationClient port;
+    private final RemoteConfigurationClient client;
 
     private final String factoryId;
 
-    public QueryFactory ( final RemoteConfigurationClient port, final String factoryId )
+    public QueryFactory ( final RemoteConfigurationClient client, final String factoryId )
     {
         this.factoryId = factoryId;
-        this.port = port;
+        this.client = client;
     }
 
     @Override
     public FactoryInformation call () throws Exception
     {
         logger.debug ( "Query data : {}", this.factoryId );
-        final FactoryInformation result = this.port.getPort ().getFactory ( this.factoryId );
+        final FactoryInformation result = this.client.getPort ().getFactory ( this.factoryId );
         logger.debug ( "Query data : {} -> {}", new Object[] { this.factoryId, result } );
         return result;
     }
