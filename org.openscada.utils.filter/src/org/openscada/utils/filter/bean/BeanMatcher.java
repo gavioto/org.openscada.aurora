@@ -5,6 +5,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 public class BeanMatcher
 {
-
     private final static PropertyEditorRegistry defaultRegistry = new PropertyEditorRegistry ( true );
 
     private final static Logger logger = LoggerFactory.getLogger ( BeanMatcher.class );
@@ -54,6 +54,24 @@ public class BeanMatcher
         catch ( final Exception e )
         {
             throw new RuntimeException ( "Failed to filter", e );
+        }
+    }
+
+    public static Collection<Object> filter ( final Filter filter, final Collection<Object> list, final boolean ifEmpty, final PropertyEditorRegistry registry )
+    {
+        ArrayList<Object> result = new ArrayList<Object> ();
+        filter ( filter, list, result, ifEmpty, registry );
+        return result;
+    }
+
+    public static void filter ( final Filter filter, final Collection<Object> list, final Collection<Object> targetCollection, final boolean ifEmpty, final PropertyEditorRegistry registry )
+    {
+        for ( Object object : list )
+        {
+            if ( matches ( filter, object, ifEmpty, registry ) )
+            {
+                targetCollection.add ( object );
+            }
         }
     }
 
