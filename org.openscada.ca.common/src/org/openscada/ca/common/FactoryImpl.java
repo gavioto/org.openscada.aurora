@@ -1,7 +1,7 @@
 package org.openscada.ca.common;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.openscada.ca.ConfigurationFactory;
 import org.openscada.ca.ConfigurationListener;
@@ -18,7 +18,7 @@ public class FactoryImpl implements Factory
 
     private FactoryState state;
 
-    private final Map<String, ConfigurationImpl> configurations = new HashMap<String, ConfigurationImpl> ();
+    private final Map<String, ConfigurationImpl> configurations = new TreeMap<String, ConfigurationImpl> ();
 
     private Object service;
 
