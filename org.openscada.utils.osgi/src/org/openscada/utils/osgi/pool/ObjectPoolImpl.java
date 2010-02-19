@@ -50,7 +50,7 @@ public class ObjectPoolImpl implements ObjectPool
         Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
         if ( serviceMap == null )
         {
-            serviceMap = new HashMap<Object, Dictionary<?, ?>> ();
+            serviceMap = new HashMap<Object, Dictionary<?, ?>> ( 1 );
             this.services.put ( id, serviceMap );
         }
 
