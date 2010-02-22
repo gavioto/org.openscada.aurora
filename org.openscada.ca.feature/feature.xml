@@ -21,11 +21,15 @@ authority.
    <requires>
       <import plugin="org.openscada.utils"/>
       <import plugin="org.eclipse.osgi"/>
-      <import plugin="slf4j.api"/>
       <import plugin="javax.servlet"/>
       <import plugin="org.eclipse.osgi.services"/>
       <import plugin="org.openscada.utils.osgi"/>
       <import plugin="org.openscada.utils.osgi.jaxws"/>
+      <import feature="org.openscada.external.spring" version="2.5.6.SEC01"/>
+      <import feature="org.openscada.external.spring.osgi" version="1.2.0"/>
+      <import feature="org.openscada.external.hibernate.feature" version="3.3.2.GA"/>
+      <import feature="org.openscada.external.slf4j" version="1.5.8.qualifier"/>
+      <import feature="org.openscada.external.spring.extended.feature" version="2.5.6.SEC01"/>
    </requires>
 
    <plugin
@@ -61,6 +65,21 @@ authority.
          download-size="0"
          install-size="0"
          version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.ca.jdbc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.ca.jdbc.default"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
          unpack="false"/>
 
 </feature>
