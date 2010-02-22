@@ -112,14 +112,14 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         } );
     }
 
-    public synchronized void start ()
+    public synchronized void start () throws Exception
     {
         this.listenerTracker.open ();
         this.serviceListener.open ();
         this.selfServiceListener.open ();
     }
 
-    public synchronized void stop ()
+    public synchronized void stop () throws Exception
     {
         this.serviceListener.close ();
         this.selfServiceListener.close ();

@@ -111,7 +111,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    public synchronized void start ()
+    public synchronized void start () throws Exception
     {
         super.start ();
         performInitialLoad ();

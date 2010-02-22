@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.openscada.ca.jdbc.internal">
+	<class name="Entry" table="data"
+		mutable="true" dynamic-insert="true" dynamic-update="true">
+
+		<composite-id>
+			<key-property name="factoryId" />
+			<key-property name="configurationId" />
+			<key-property name="key" />
+		</composite-id>
+		
+		<property name="value" type="java.sql.Clob">
+		</property>
+
+	</class>
+	
+</hibernate-mapping>
