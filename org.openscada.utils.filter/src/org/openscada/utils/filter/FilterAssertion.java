@@ -25,7 +25,6 @@ import org.openscada.utils.filter.internal.Encoder;
 
 public class FilterAssertion implements Filter
 {
-
     private String attribute;
 
     private Assertion assertion;
