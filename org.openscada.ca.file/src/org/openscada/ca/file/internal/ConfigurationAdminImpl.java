@@ -239,7 +239,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             }
         }
 
-        addStoredFactory ( factoryId, configurations.toArray ( new ConfigurationImpl[0] ) );
+        addStoredFactory ( factoryId, configurations.toArray ( new ConfigurationImpl[configurations.size ()] ) );
     }
 
     private ConfigurationImpl loadConfiguration ( final String factoryId, final File file )
