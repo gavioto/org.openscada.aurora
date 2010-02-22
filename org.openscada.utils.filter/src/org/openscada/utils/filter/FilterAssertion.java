@@ -19,6 +19,8 @@
 
 package org.openscada.utils.filter;
 
+import java.util.Collection;
+
 import org.openscada.utils.filter.internal.Encoder;
 
 public class FilterAssertion implements Filter
@@ -88,32 +90,43 @@ public class FilterAssertion implements Filter
         return this.assertion == null;
     }
 
-    @SuppressWarnings ( "unchecked" )
     private String nullSafeToString ( final Object value )
     {
         if ( value == null )
         {
             return "";
         }
-        if ( value instanceof String[] )
+        else if ( value instanceof Collection<?> )
         {
-            final String[] valueList = (String[])value;
-            final StringBuilder sb = new StringBuilder ();
-            int i = 0;
-            for ( final Object part : valueList )
-            {
-                if ( ( i > 0 ) && ( i < valueList.length ) )
-                {
-                    sb.append ( "*" );
-                }
-                sb.append ( part == null ? "" : Encoder.encode ( part.toString () ) );
-                i += 1;
-            }
-            return sb.toString ();
+            final Object[] valueList = ( (Collection<?>)value ).toArray ();
+            return stringFromArray ( valueList );
+        }
+        else if ( value instanceof String[] )
+        {
+            // I am not sure if we really need that, multi values should
+            // be provided in collections
+            final Object[] valueList = (String[])value;
+            return stringFromArray ( valueList );
         }
         else
         {
             return Encoder.encode ( value.toString () );
         }
+    }
+
+    private String stringFromArray ( final Object[] valueList )
+    {
+        final StringBuilder sb = new StringBuilder ();
+        int i = 0;
+        for ( final Object part : valueList )
+        {
+            if ( i > 0 && i < valueList.length )
+            {
+                sb.append ( "*" );
+            }
+            sb.append ( part == null ? "" : Encoder.encode ( part.toString () ) );
+            i += 1;
+        }
+        return sb.toString ();
     }
 }
