@@ -19,8 +19,9 @@
 
 package org.openscada.ca;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Map;
-
 
 public class ConfigurationInformation
 {
@@ -32,6 +33,8 @@ public class ConfigurationInformation
 
     private Map<String, String> data;
 
+    private String errorInformation;
+
     public ConfigurationInformation ()
     {
     }
@@ -42,6 +45,7 @@ public class ConfigurationInformation
         this.id = configuration.getId ();
         this.state = configuration.getState ();
         this.data = configuration.getData ();
+        this.errorInformation = convertError ( configuration.getErrorInformation () );
     }
 
     public ConfigurationInformation ( final FactoryInformation factory, final org.openscada.ca.Configuration configuration )
@@ -50,6 +54,7 @@ public class ConfigurationInformation
         this.id = configuration.getId ();
         this.state = configuration.getState ();
         this.data = configuration.getData ();
+        this.errorInformation = convertError ( configuration.getErrorInformation () );
     }
 
     public void setData ( final Map<String, String> data )
@@ -90,5 +95,30 @@ public class ConfigurationInformation
     public String getId ()
     {
         return this.id;
+    }
+
+    public void setErrorInformation ( final String errorInformation )
+    {
+        this.errorInformation = errorInformation;
+    }
+
+    public String getErrorInformation ()
+    {
+        return this.errorInformation;
+    }
+
+    private String convertError ( final Throwable errorInformation )
+    {
+        if ( errorInformation == null )
+        {
+            return null;
+        }
+
+        final StringWriter sw = new StringWriter ();
+        final PrintWriter pw = new PrintWriter ( sw );
+
+        errorInformation.printStackTrace ( pw );
+
+        return sw.toString ();
     }
 }
