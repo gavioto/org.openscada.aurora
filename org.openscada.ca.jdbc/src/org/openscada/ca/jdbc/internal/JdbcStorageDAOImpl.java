@@ -20,18 +20,20 @@
 package org.openscada.ca.jdbc.internal;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.lob.ClobImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorageDAO
 {
+    private static final String ENT_ENTRY = Entry.class.getName ();
+
     @SuppressWarnings ( { "unchecked" } )
     public List<Entry> loadAll ()
     {
@@ -41,7 +43,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
     @SuppressWarnings ( "unchecked" )
     public List<Entry> loadFactory ( final String factoryId )
     {
-        return find ( String.format ( "from %s where factoryId=?", "Entry" ), factoryId );
+        return find ( String.format ( "from %s where factoryId=?", ENT_ENTRY ), factoryId );
     }
 
     public List<Entry> purgeFactory ( final String factoryId )
@@ -51,27 +53,49 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
         return entries;
     }
 
-    public void storeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties )
+    @SuppressWarnings ( "unchecked" )
+    public Map<String, String> storeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
-        executeWithNativeSession ( new HibernateCallback () {
+        final List<Entry> entries = (List<Entry>)executeWithNativeSession ( new HibernateCallback () {
 
             public Object doInHibernate ( final Session session ) throws HibernateException, SQLException
             {
-                performDeleteConfiguration ( session, factoryId, configurationId );
+                if ( fullSet )
+                {
+                    performDeleteConfiguration ( session, factoryId, configurationId );
+                }
 
                 for ( final Map.Entry<String, String> entry : properties.entrySet () )
                 {
+                    final String key = entry.getKey ();
+                    final String value = entry.getValue ();
+
                     final Entry dataEntry = new Entry ();
                     dataEntry.setFactoryId ( factoryId );
                     dataEntry.setConfigurationId ( configurationId );
-                    dataEntry.setKey ( entry.getKey () );
-                    dataEntry.setValue ( new ClobImpl ( entry.getValue () ) );
-                    session.save ( dataEntry );
+                    dataEntry.setKey ( key );
+
+                    if ( value != null )
+                    {
+                        dataEntry.setValue ( value );
+                        session.save ( dataEntry );
+                    }
+                    else
+                    {
+                        session.delete ( dataEntry );
+                    }
                 }
-                return null;
+                return session.createQuery ( String.format ( "from %s where factoryId=:factoryId and configurationId=:configurationId", ENT_ENTRY ) ).setString ( "factoryId", factoryId ).setString ( "configurationId", configurationId ).list ();
             }
         } );
 
+        // map result
+        final Map<String, String> result = new HashMap<String, String> ();
+        for ( final Entry entry : entries )
+        {
+            result.put ( entry.getKey (), entry.getValue () );
+        }
+        return result;
     }
 
     public void deleteConfiguration ( final String factoryId, final String configurationId )
@@ -88,7 +112,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
 
     protected void performDeleteConfiguration ( final Session session, final String factoryId, final String configurationId )
     {
-        final Query q = session.createQuery ( String.format ( "delete %s where factoryId=:factoryId and configurationId=:configurationId", "Entry" ) );
+        final Query q = session.createQuery ( String.format ( "delete %s where factoryId=:factoryId and configurationId=:configurationId", ENT_ENTRY ) );
         prepareQuery ( q );
         q.setString ( "factoryId", factoryId );
         q.setString ( "configurationId", configurationId );

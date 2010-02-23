@@ -24,7 +24,7 @@ import java.util.Map;
 
 public interface JdbcStorageDAO
 {
-    public void storeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties );
+    public Map<String, String> storeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, boolean fullSet );
 
     public void deleteConfiguration ( final String factoryId, final String configurationId );
 

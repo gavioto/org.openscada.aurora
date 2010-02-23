@@ -3,9 +3,8 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="org.openscada.ca.jdbc.internal">
-	<class name="Entry" table="data"
-		mutable="true" dynamic-insert="true" dynamic-update="true">
+<hibernate-mapping>
+	<class name="org.openscada.ca.jdbc.internal.Entry" table="data">
 
 		<composite-id>
 			<key-property name="factoryId" />
@@ -13,8 +12,7 @@
 			<key-property name="key" />
 		</composite-id>
 		
-		<property name="value" type="java.sql.Clob">
-		</property>
+		<property name="value" type="text" />
 
 	</class>
 	

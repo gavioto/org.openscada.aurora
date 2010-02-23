@@ -31,7 +31,7 @@ public class Entry implements Serializable
 
     private String key;
 
-    private java.sql.Clob value;
+    private String value;
 
     public String getFactoryId ()
     {
@@ -63,12 +63,12 @@ public class Entry implements Serializable
         this.key = entry;
     }
 
-    public java.sql.Clob getValue ()
+    public String getValue ()
     {
         return this.value;
     }
 
-    public void setValue ( final java.sql.Clob data )
+    public void setValue ( final String data )
     {
         this.value = data;
     }

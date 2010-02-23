@@ -81,7 +81,7 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
                 cfg = new HashMap<String, String> ();
                 factory.put ( entry.getConfigurationId (), cfg );
             }
-            cfg.put ( entry.getKey (), entry.getValue ().getSubString ( 1, (int)entry.getValue ().length () ) );
+            cfg.put ( entry.getKey (), entry.getValue () );
         }
 
         // announce
@@ -130,9 +130,9 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
     @Override
     protected synchronized void performStoreConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws Exception
     {
-        this.jdbcStorageDAO.storeConfiguration ( factoryId, configurationId, properties );
+        final Map<String, String> resultProperties = this.jdbcStorageDAO.storeConfiguration ( factoryId, configurationId, properties, fullSet );
 
-        changeConfiguration ( factoryId, configurationId, properties, future );
+        changeConfiguration ( factoryId, configurationId, resultProperties, future );
     }
 
 }
