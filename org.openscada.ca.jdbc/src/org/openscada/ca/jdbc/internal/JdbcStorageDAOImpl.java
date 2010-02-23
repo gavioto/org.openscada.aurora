@@ -78,13 +78,14 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
                     if ( value != null )
                     {
                         dataEntry.setValue ( value );
-                        session.save ( dataEntry );
+                        session.saveOrUpdate ( dataEntry );
                     }
                     else
                     {
                         session.delete ( dataEntry );
                     }
                 }
+                session.flush ();
                 return session.createQuery ( String.format ( "from %s where factoryId=:factoryId and configurationId=:configurationId", ENT_ENTRY ) ).setString ( "factoryId", factoryId ).setString ( "configurationId", configurationId ).list ();
             }
         } );
