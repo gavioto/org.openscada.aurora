@@ -10,7 +10,7 @@ public class DateEditor extends PropertyEditorSupport
 {
     private static final SimpleDateFormat dfDateTimeS = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss.S" ); // 23 
 
-    private static final SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" ); // 20
+    private static final SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" ); // 19
 
     private static final SimpleDateFormat dfDate = new SimpleDateFormat ( "yyyy-MM-dd" ); // 10 
 
@@ -22,13 +22,18 @@ public class DateEditor extends PropertyEditorSupport
     public void setAsText ( final String text ) throws IllegalArgumentException
     {
         Date d = null;
+        if ( text == null )
+        {
+            setValue ( null );
+            return;
+        }
         try
         {
             if ( text.length () == 23 )
             {
                 d = dfDateTimeS.parse ( text );
             }
-            else if ( text.length () == 20 )
+            else if ( text.length () == 19 )
             {
                 d = dfDateTime.parse ( text );
             }
