@@ -52,7 +52,7 @@ final class ConsoleBot extends PircBot
         this.host = host;
         this.port = port;
 
-        setName ( "OSGiConsoleBot" );
+        setName ( System.getProperty ( "org.openscada.osgi.equinox.ircbot.name", "OSGiConsoleBot" ) );
 
         startConnect ();
     }
@@ -65,7 +65,7 @@ final class ConsoleBot extends PircBot
             {
                 ConsoleBot.this.connector ();
             }
-        }, "IrcBotWorker" );
+        }, "IrcBotWorker/" + getName () );
         this.connector.start ();
     }
 
@@ -116,7 +116,13 @@ final class ConsoleBot extends PircBot
     @Override
     protected void onConnect ()
     {
-        joinChannel ( "#servers" );
+        for ( final String channel : System.getProperty ( "org.openscada.osgi.equinox.ircbot.name", "#servers" ).split ( ",+" ) )
+        {
+            if ( channel.length () > 0 )
+            {
+                joinChannel ( channel );
+            }
+        }
     }
 
     @Override
