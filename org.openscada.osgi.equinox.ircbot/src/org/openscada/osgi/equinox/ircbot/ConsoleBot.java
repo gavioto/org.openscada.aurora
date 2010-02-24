@@ -53,6 +53,7 @@ final class ConsoleBot extends PircBot
         this.port = port;
 
         setName ( System.getProperty ( "org.openscada.osgi.equinox.ircbot.name", "OSGiConsoleBot" ) );
+        setMessageDelay ( Long.getLong ( "org.openscada.osgi.equinox.ircbot.messageDelay", 1000 ) );
 
         startConnect ();
     }
