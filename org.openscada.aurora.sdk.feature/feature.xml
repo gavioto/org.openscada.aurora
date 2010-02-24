@@ -29,4 +29,8 @@
          id="org.openscada.sec.sdk"
          version="0.0.0"/>
 
+   <includes
+         id="org.openscada.ds.sdk"
+         version="0.0.0"/>
+
 </feature>
