@@ -48,7 +48,7 @@ public class CommandInterpreterImpl implements CommandInterpreter
 
     public Object execute ( final String cmd )
     {
-        // TODO Auto-generated method stub
+        println ( "Remote execution not allowed" );
         return null;
     }
 
