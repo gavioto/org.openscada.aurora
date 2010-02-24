@@ -40,7 +40,7 @@ public class Activator implements BundleActivator
      */
     public void start ( final BundleContext context ) throws Exception
     {
-        this.server = new ConsoleServerImpl ( 1502 );
+        this.server = new ConsoleServerImpl ( Integer.getInteger ( "org.openscada.osgi.equinox.console.port", 1502 ) );
         Activator.context = context;
     }
 
