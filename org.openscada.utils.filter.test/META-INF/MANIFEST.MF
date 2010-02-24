@@ -10,4 +10,4 @@ Import-Package: junit.framework,
  org.junit.runners,
  org.openscada.utils.filter;version="0.15.0",
  org.openscada.utils.filter.bean;version="0.15.0",
- org.openscada.utils.propertyeditors
+ org.openscada.utils.propertyeditors;version="0.15.0"
