@@ -108,7 +108,7 @@ public class CommandInterpreterImpl implements CommandInterpreter
 
     public void println ()
     {
-        // this.session.write ( NL );
+        this.bot.sendMessage ( this.sender, "" );
     }
 
     public void println ( final Object o )
