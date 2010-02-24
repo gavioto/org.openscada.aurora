@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA Equinox Console
+Bundle-Name: OpenSCADA Equinox IRC bot
 Bundle-SymbolicName: org.openscada.osgi.equinox.ircbot
 Bundle-Version: 0.15.0.qualifier
-Bundle-Activator: org.openscada.osgi.equinox.console.Activator
+Bundle-Activator: org.openscada.osgi.equinox.ircbot.Activator
 Bundle-Vendor: inavare GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.eclipse.osgi.framework.console,

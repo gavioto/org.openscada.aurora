@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.osgi.equinox.console;
+package org.openscada.osgi.equinox.ircbot;
 
 public interface CommandExecutor
 {

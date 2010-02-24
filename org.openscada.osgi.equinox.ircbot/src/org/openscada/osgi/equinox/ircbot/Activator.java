@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.osgi.equinox.console;
+package org.openscada.osgi.equinox.ircbot;
 
 import org.jibble.pircbot.PircBot;
 import org.osgi.framework.BundleActivator;
@@ -41,7 +41,7 @@ public class Activator implements BundleActivator
     public void start ( final BundleContext context ) throws Exception
     {
         Activator.context = context;
-        this.bot = new ConsoleBot ( "localhost", 6667 );
+        this.bot = new ConsoleBot ( System.getProperty ( "org.openscada.osgi.equinox.ircbot.host", "localhost" ), Integer.getInteger ( "org.openscada.osgi.equinox.ircbot.port", 6667 ) );
     }
 
     /*
