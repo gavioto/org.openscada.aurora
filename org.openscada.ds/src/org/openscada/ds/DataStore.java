@@ -19,6 +19,8 @@
 
 package org.openscada.ds;
 
+import org.openscada.utils.concurrent.NotifyFuture;
+
 /**
  * A data store service interface
  * @author Jens Reimann
@@ -43,14 +45,15 @@ public interface DataStore
 
     public void detachListener ( String nodeId, DataListener listener );
 
-    public void deleteNode ( String nodeId );
+    public NotifyFuture<Void> deleteNode ( String nodeId );
 
-    public void storeNode ( DataNode node );
+    public NotifyFuture<Void> writeNode ( DataNode node );
 
     /**
      * Get the data node
      * @param nodeId the id of the node to get
-     * @return the node or <code>null</code> if the node does not exists
+     * @return the future to the read request. The future will
+     * return <code>null</code> if the node does not exists.
      */
-    public DataNode getNode ( String nodeId );
+    public NotifyFuture<DataNode> readNode ( String nodeId );
 }

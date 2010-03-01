@@ -21,6 +21,7 @@ package org.openscada.ds.file;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -29,6 +30,9 @@ import java.util.concurrent.Executor;
 
 import org.openscada.ds.DataNode;
 import org.openscada.ds.DataStore;
+import org.openscada.utils.concurrent.InstantErrorFuture;
+import org.openscada.utils.concurrent.InstantFuture;
+import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,16 +58,16 @@ public class StorageImpl extends AbstractStorage implements DataStore
     }
 
     @Override
-    public synchronized DataNode getNode ( final String nodeId )
+    public synchronized NotifyFuture<DataNode> readNode ( final String nodeId )
     {
         try
         {
-            return loadFile ( nodeId );
+            return new InstantFuture<DataNode> ( loadFile ( nodeId ) );
         }
         catch ( final Exception e )
         {
             logger.warn ( "Failed to load data node", e );
-            return null;
+            return new InstantErrorFuture<DataNode> ( e );
         }
     }
 
@@ -75,6 +79,10 @@ public class StorageImpl extends AbstractStorage implements DataStore
         try
         {
             return new DataNode ( nodeId, stream );
+        }
+        catch ( final FileNotFoundException e )
+        {
+            return null;
         }
         finally
         {
@@ -94,16 +102,18 @@ public class StorageImpl extends AbstractStorage implements DataStore
         }
     }
 
-    public synchronized void storeNode ( final DataNode node )
+    public synchronized NotifyFuture<Void> writeNode ( final DataNode node )
     {
         final File file = makeFile ( node.getId () );
         try
         {
             saveTo ( node, file );
+            return new InstantFuture<Void> ( null );
         }
         catch ( final IOException e )
         {
             logger.warn ( "Failed to store data node", e );
+            return new InstantErrorFuture<Void> ( e );
         }
     }
 
@@ -128,10 +138,10 @@ public class StorageImpl extends AbstractStorage implements DataStore
         }
     }
 
-    public synchronized void deleteNode ( final String nodeId )
+    public synchronized NotifyFuture<Void> deleteNode ( final String nodeId )
     {
         final File file = makeFile ( nodeId );
         file.delete ();
+        return new InstantFuture<Void> ( null );
     }
-
 }

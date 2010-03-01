@@ -23,12 +23,18 @@ import java.util.concurrent.Executor;
 
 import org.openscada.ds.DataListener;
 import org.openscada.ds.DataNode;
+import org.openscada.utils.concurrent.NotifyFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 public abstract class AbstractStorage
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( AbstractStorage.class );
+
     protected final Executor executor;
 
     private final Multimap<String, DataListener> listeners = HashMultimap.create ();
@@ -38,7 +44,7 @@ public abstract class AbstractStorage
         this.executor = executor;
     }
 
-    public abstract DataNode getNode ( final String nodeId );
+    public abstract NotifyFuture<DataNode> readNode ( final String nodeId );
 
     public synchronized void dispose ()
     {
@@ -59,14 +65,30 @@ public abstract class AbstractStorage
     {
         if ( this.listeners.put ( nodeId, listener ) )
         {
-            final DataNode node = getNode ( nodeId );
-            this.executor.execute ( new Runnable () {
+            final NotifyFuture<DataNode> task = readNode ( nodeId );
 
-                public void run ()
-                {
-                    listener.nodeChanged ( node );
-                }
-            } );
+            try
+            {
+                final DataNode node = task.get ();
+                this.executor.execute ( new Runnable () {
+
+                    public void run ()
+                    {
+                        listener.nodeChanged ( node );
+                    }
+                } );
+            }
+            catch ( final Exception e )
+            {
+                this.executor.execute ( new Runnable () {
+
+                    public void run ()
+                    {
+                        listener.nodeChanged ( null );
+                    }
+                } );
+                logger.warn ( "Failed to initially load data node", e );
+            }
         }
     }
 
