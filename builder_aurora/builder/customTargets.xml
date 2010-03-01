@@ -121,6 +121,7 @@
   	<openscada.builder.copyFeature id="org.openscada.ds" />
   	<openscada.builder.copyFeature id="org.openscada.ds.sdk" />
   	<openscada.builder.copyPlugin id="org.openscada.ds" />
+  	<openscada.builder.copyPlugin id="org.openscada.ds.file" />
   	
   	<openscada.builder.copyFeature id="org.openscada.hsdb" />
   	<openscada.builder.copyPlugin id="org.openscada.hsdb" />
