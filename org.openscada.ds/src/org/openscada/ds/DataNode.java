@@ -193,8 +193,16 @@ public class DataNode
         {
             final ByteArrayInputStream bin = new ByteArrayInputStream ( this.data );
             final ObjectInputStream ois = new ObjectInputStream ( bin );
-            ois.close ();
-            return ois.readObject ();
+
+            try
+            {
+                return ois.readObject ();
+            }
+            finally
+            {
+                ois.close ();
+            }
+
         }
     }
 
