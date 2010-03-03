@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.openscada.utils.concurrent.NamedThreadFactory;
+import org.openscada.utils.osgi.pool.internal.UnmodifyableDictionary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,8 @@ public class ObjectPoolImpl implements ObjectPool
 
     private final ExecutorService executor;
 
+    private static final Dictionary<?, ?> emptyHashtable = new UnmodifyableDictionary<Object, Object> ( new Hashtable<Object, Object> () );
+
     private boolean disposed;
 
     public ObjectPoolImpl ()
@@ -38,11 +42,21 @@ public class ObjectPoolImpl implements ObjectPool
         this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( toString () ) );
     }
 
-    public synchronized void addService ( final String id, final Object service, final Dictionary<?, ?> properties )
+    @SuppressWarnings ( "unchecked" )
+    public synchronized void addService ( final String id, final Object service, Dictionary<?, ?> properties )
     {
         if ( this.disposed )
         {
             return;
+        }
+
+        if ( properties == null || properties.isEmpty () )
+        {
+            properties = emptyHashtable;
+        }
+        else
+        {
+            properties = new UnmodifyableDictionary<Object, Object> ( (Dictionary<Object, Object>)properties );
         }
 
         logger.debug ( "Adding service: {} -> {} -> {}", new Object[] { id, service, properties } );
