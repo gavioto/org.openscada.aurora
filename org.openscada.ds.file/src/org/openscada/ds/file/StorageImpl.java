@@ -29,6 +29,7 @@ import java.net.URLEncoder;
 import java.util.concurrent.Executor;
 
 import org.openscada.ds.DataNode;
+import org.openscada.ds.storage.AbstractStorage;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.InstantFuture;
 import org.openscada.utils.concurrent.NotifyFuture;
