@@ -498,7 +498,14 @@ DAMAGES.
          unpack="false"/>
 
    <plugin
-         id="org.openscada.ds.file"
+         id="org.openscada.ds.storage.file"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.ds.storage"
          download-size="0"
          install-size="0"
          version="0.0.0"
