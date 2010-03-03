@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.ds.file;
+package org.openscada.ds.storage.file;
 
 import java.util.Dictionary;
 import java.util.Hashtable;

@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.ds.file;
+package org.openscada.ds.storage.file;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +46,7 @@ public class StorageImpl extends AbstractStorage
     public StorageImpl ( final Executor executor ) throws IOException
     {
         super ( executor );
-        this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.file.root", System.getProperty ( "user.dir" ) + File.pathSeparator + ".openscadaDS" ) );
+        this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.dir" ) + File.pathSeparator + ".openscadaDS" ) );
         if ( !this.rootFolder.exists () )
         {
             this.rootFolder.mkdirs ();
