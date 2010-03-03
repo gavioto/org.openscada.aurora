@@ -137,6 +137,26 @@ public class ConfigurationDataHelper
         return Long.parseLong ( str );
     }
 
+    /**
+     * Get a non-empty string from the configuration.
+     * @param name the name of the parameters to get
+     * @return returns <code>null</code> if the parameter is not set or is an empty string.
+     * Otherwise the string itself will be returned.
+     */
+    public String getStringNonEmpty ( final String name )
+    {
+        final String result = this.data.get ( name );
+        if ( result == null )
+        {
+            return null;
+        }
+        if ( "".equals ( result ) )
+        {
+            return null;
+        }
+        return result;
+    }
+
     public String getString ( final String name )
     {
         return this.data.get ( name );
