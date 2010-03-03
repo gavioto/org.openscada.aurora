@@ -171,18 +171,17 @@ public class ObjectPoolImpl implements ObjectPool
             final Multimap<String, ObjectPoolListener> idListeners = HashMultimap.create ( this.idListeners );
             final Map<String, Map<Object, Dictionary<?, ?>>> services = new HashMap<String, Map<Object, Dictionary<?, ?>>> ( this.services );
 
-            anyListener.clear ();
-            idListeners.clear ();
-            services.clear ();
+            this.anyListener.clear ();
+            this.idListeners.clear ();
+            this.services.clear ();
 
             this.executor.execute ( new Runnable () {
 
                 public void run ()
                 {
-
-                    for ( final ObjectPoolListener listener : ObjectPoolImpl.this.anyListener )
+                    for ( final ObjectPoolListener listener : anyListener )
                     {
-                        for ( final Map<Object, Dictionary<?, ?>> map : ObjectPoolImpl.this.services.values () )
+                        for ( final Map<Object, Dictionary<?, ?>> map : services.values () )
                         {
                             for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : map.entrySet () )
                             {
@@ -190,9 +189,9 @@ public class ObjectPoolImpl implements ObjectPool
                             }
                         }
                     }
-                    for ( final Map.Entry<String, ObjectPoolListener> entry : ObjectPoolImpl.this.idListeners.entries () )
+                    for ( final Map.Entry<String, ObjectPoolListener> entry : idListeners.entries () )
                     {
-                        final Map<Object, Dictionary<?, ?>> serviceMap = ObjectPoolImpl.this.services.get ( entry.getKey () );
+                        final Map<Object, Dictionary<?, ?>> serviceMap = services.get ( entry.getKey () );
                         for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
                         {
                             entry.getValue ().serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
