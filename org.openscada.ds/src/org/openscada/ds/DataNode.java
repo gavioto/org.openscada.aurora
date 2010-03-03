@@ -29,7 +29,10 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.openscada.ds.internal.BundleObjectInputStream;
+import org.openscada.ds.internal.ClassLoaderObjectInputStream;
 import org.openscada.utils.lang.Immutable;
+import org.osgi.framework.Bundle;
 
 /**
  * A data node used for storing data in a {@link DataStore}.
@@ -185,6 +188,30 @@ public class DataNode
 
     public Object getDataAsObject () throws IOException, ClassNotFoundException
     {
+        return getDataAsObject ( Thread.currentThread ().getContextClassLoader () );
+    }
+
+    protected Object getDataAsObject ( final ObjectInputStream stream ) throws IOException, ClassNotFoundException
+    {
+        try
+        {
+            if ( stream == null )
+            {
+                return null;
+            }
+            return stream.readObject ();
+        }
+        finally
+        {
+            if ( stream != null )
+            {
+                stream.close ();
+            }
+        }
+    }
+
+    public Object getDataAsObject ( final ClassLoader classLoader ) throws IOException, ClassNotFoundException
+    {
         if ( this.data == null )
         {
             return null;
@@ -192,17 +219,24 @@ public class DataNode
         else
         {
             final ByteArrayInputStream bin = new ByteArrayInputStream ( this.data );
-            final ObjectInputStream ois = new ObjectInputStream ( bin );
+            final ObjectInputStream ois = new ClassLoaderObjectInputStream ( bin, classLoader );
 
-            try
-            {
-                return ois.readObject ();
-            }
-            finally
-            {
-                ois.close ();
-            }
+            return getDataAsObject ( ois );
+        }
+    }
 
+    public Object getDataAsObject ( final Bundle bundle ) throws IOException, ClassNotFoundException
+    {
+        if ( this.data == null )
+        {
+            return null;
+        }
+        else
+        {
+            final ByteArrayInputStream bin = new ByteArrayInputStream ( this.data );
+            final ObjectInputStream ois = new BundleObjectInputStream ( bin, bundle );
+
+            return getDataAsObject ( ois );
         }
     }
 
@@ -211,6 +245,46 @@ public class DataNode
         try
         {
             final Object result = getDataAsObject ();
+            if ( result == null )
+            {
+                return defaultValue;
+            }
+            else
+            {
+                return result;
+            }
+        }
+        catch ( final Exception e )
+        {
+            return defaultValue;
+        }
+    }
+
+    public Object getDataAsObject ( final Bundle bundle, final Object defaultValue )
+    {
+        try
+        {
+            final Object result = getDataAsObject ( bundle );
+            if ( result == null )
+            {
+                return defaultValue;
+            }
+            else
+            {
+                return result;
+            }
+        }
+        catch ( final Exception e )
+        {
+            return defaultValue;
+        }
+    }
+
+    public Object getDataAsObject ( final ClassLoader classLoader, final Object defaultValue )
+    {
+        try
+        {
+            final Object result = getDataAsObject ( classLoader );
             if ( result == null )
             {
                 return defaultValue;

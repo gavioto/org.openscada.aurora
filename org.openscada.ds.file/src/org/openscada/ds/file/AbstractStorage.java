@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.openscada.ds.DataListener;
 import org.openscada.ds.DataNode;
+import org.openscada.ds.DataStore;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public abstract class AbstractStorage
+public abstract class AbstractStorage implements DataStore
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( AbstractStorage.class );
@@ -87,7 +88,7 @@ public abstract class AbstractStorage
                         listener.nodeChanged ( null );
                     }
                 } );
-                logger.warn ( "Failed to initially load data node", e );
+                logger.info ( "Failed to initially load data node", e );
             }
         }
     }

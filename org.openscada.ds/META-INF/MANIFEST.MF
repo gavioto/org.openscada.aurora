@@ -8,4 +8,5 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.openscada.ds;version="0.15.0"
 Import-Package: org.openscada.utils.concurrent;version="0.15.0",
  org.openscada.utils.concurrent.task;version="0.15.0",
- org.openscada.utils.lang;version="0.15.0"
+ org.openscada.utils.lang;version="0.15.0",
+ org.osgi.framework;version="1.4.2";resolution:=optional

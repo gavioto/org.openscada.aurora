@@ -48,7 +48,7 @@ public class Activator implements BundleActivator
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
         properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
         properties.put ( Constants.SERVICE_DESCRIPTION, "A file based data store implemenentation" );
-        context.registerService ( DataStore.class.getName (), context, properties );
+        context.registerService ( DataStore.class.getName (), this.service, properties );
     }
 
     /*

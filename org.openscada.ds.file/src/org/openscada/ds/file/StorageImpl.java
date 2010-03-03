@@ -29,14 +29,13 @@ import java.net.URLEncoder;
 import java.util.concurrent.Executor;
 
 import org.openscada.ds.DataNode;
-import org.openscada.ds.DataStore;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.InstantFuture;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StorageImpl extends AbstractStorage implements DataStore
+public class StorageImpl extends AbstractStorage
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( StorageImpl.class );
@@ -74,10 +73,11 @@ public class StorageImpl extends AbstractStorage implements DataStore
     private DataNode loadFile ( final String nodeId ) throws IOException
     {
         final File file = makeFile ( nodeId );
-        final FileInputStream stream = new FileInputStream ( file );
-
+        FileInputStream stream = null;
         try
         {
+            stream = new FileInputStream ( file );
+
             return new DataNode ( nodeId, stream );
         }
         catch ( final FileNotFoundException e )
@@ -86,7 +86,10 @@ public class StorageImpl extends AbstractStorage implements DataStore
         }
         finally
         {
-            stream.close ();
+            if ( stream != null )
+            {
+                stream.close ();
+            }
         }
     }
 
