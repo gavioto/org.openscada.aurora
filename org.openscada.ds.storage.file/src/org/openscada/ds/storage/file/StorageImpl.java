@@ -46,7 +46,7 @@ public class StorageImpl extends AbstractStorage
     public StorageImpl ( final Executor executor ) throws IOException
     {
         super ( executor );
-        this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.dir" ) + File.pathSeparator + ".openscadaDS" ) );
+        this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.dir" ) + File.separator + ".openscadaDS" ) );
         if ( !this.rootFolder.exists () )
         {
             this.rootFolder.mkdirs ();
