@@ -76,6 +76,13 @@ public class StorageImpl extends AbstractStorage
     private DataNode loadFile ( final String nodeId ) throws IOException
     {
         final File file = makeFile ( nodeId );
+
+        // quick check for existence
+        if ( !file.exists () || !file.canRead () )
+        {
+            return null;
+        }
+
         FileInputStream stream = null;
         try
         {
@@ -100,9 +107,9 @@ public class StorageImpl extends AbstractStorage
     {
         final String hash = String.format ( "%08X", nodeId.hashCode () );
         File root = this.rootFolder;
-        for ( int i = 0; i < SPLIT_PATH_DEPTH; i++ )
+        for ( int i = 1; i <= SPLIT_PATH_DEPTH; i++ )
         {
-            root = new File ( root, hash.substring ( i * 2, ( i + 1 ) * 2 ) );
+            root = new File ( root, hash.substring ( 0, i ) );
         }
 
         try
@@ -139,6 +146,8 @@ public class StorageImpl extends AbstractStorage
         {
             return;
         }
+
+        file.getParentFile ().mkdirs ();
 
         final FileOutputStream stream = new FileOutputStream ( file );
         try
