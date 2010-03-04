@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 public class StorageImpl extends AbstractStorage
 {
 
+    private static final int SPLIT_PATH_DEPTH = 2;
+
     private final static Logger logger = LoggerFactory.getLogger ( StorageImpl.class );
 
     private final File rootFolder;
@@ -46,7 +48,7 @@ public class StorageImpl extends AbstractStorage
     public StorageImpl ( final Executor executor ) throws IOException
     {
         super ( executor );
-        this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.dir" ) + File.separator + ".openscadaDS" ) );
+        this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.home" ) + File.separator + ".openscadaDS" ) );
         if ( !this.rootFolder.exists () )
         {
             this.rootFolder.mkdirs ();
@@ -96,13 +98,20 @@ public class StorageImpl extends AbstractStorage
 
     private File makeFile ( final String nodeId )
     {
+        final String hash = String.format ( "%08X", nodeId.hashCode () );
+        File root = this.rootFolder;
+        for ( int i = 0; i < SPLIT_PATH_DEPTH; i++ )
+        {
+            root = new File ( root, hash.substring ( i * 2, ( i + 1 ) * 2 ) );
+        }
+
         try
         {
-            return new File ( this.rootFolder, URLEncoder.encode ( nodeId, "UTF-8" ) );
+            return new File ( root, URLEncoder.encode ( nodeId, "UTF-8" ) );
         }
         catch ( final UnsupportedEncodingException e )
         {
-            return new File ( nodeId.replaceAll ( "[^a-zA-Z0-9]", "_" ) );
+            return new File ( root, nodeId.replaceAll ( "[^a-zA-Z0-9]", "_" ) );
         }
     }
 
