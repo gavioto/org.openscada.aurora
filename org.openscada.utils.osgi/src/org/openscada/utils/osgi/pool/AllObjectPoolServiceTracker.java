@@ -144,11 +144,17 @@ public class AllObjectPoolServiceTracker
         }
     }
 
+    /**
+     * Start the tracker
+     */
     public synchronized void open ()
     {
         this.poolTracker.addListener ( this.poolListener );
     }
 
+    /**
+     * Stop the tracker
+     */
     public synchronized void close ()
     {
         this.poolTracker.removeListener ( this.poolListener );
