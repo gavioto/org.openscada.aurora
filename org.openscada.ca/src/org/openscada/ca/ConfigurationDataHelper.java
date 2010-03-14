@@ -157,6 +157,11 @@ public class ConfigurationDataHelper
         return result;
     }
 
+    /**
+     * Get a string from the configuration
+     * @param name the name of the string to get
+     * @return the string data or <code>null</code> if the string was not set
+     */
     public String getString ( final String name )
     {
         return this.data.get ( name );
