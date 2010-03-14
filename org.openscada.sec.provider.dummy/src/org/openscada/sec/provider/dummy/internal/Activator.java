@@ -24,6 +24,7 @@ import java.util.Hashtable;
 
 import org.openscada.sec.AuthenticationService;
 import org.openscada.sec.provider.dummy.DummyAuthenticationProviderImpl;
+import org.openscada.sec.provider.dummy.DummyAuthorizationProviderImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -31,9 +32,15 @@ import org.osgi.framework.Constants;
 public class Activator implements BundleActivator
 {
 
-    private DummyAuthenticationProviderImpl service;
+    private DummyAuthenticationProviderImpl authenticationService;
 
     private final int priority = Integer.getInteger ( "org.openscada.sec.provider.dummy.priority", 0 );
+
+    private final int authenticationPriority = Integer.getInteger ( "org.openscada.sec.provider.dummy.authentication.priority", this.priority );
+
+    private final int authorizationPriority = Integer.getInteger ( "org.openscada.sec.provider.dummy.authorization.priority", this.priority );
+
+    private DummyAuthorizationProviderImpl authorizationService;
 
     /*
      * (non-Javadoc)
@@ -41,14 +48,28 @@ public class Activator implements BundleActivator
      */
     public void start ( final BundleContext context ) throws Exception
     {
-        this.service = new DummyAuthenticationProviderImpl ();
+        this.authenticationService = new DummyAuthenticationProviderImpl ();
 
-        final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
-        properties.put ( Constants.SERVICE_DESCRIPTION, "A plain authentication service based on a system property" );
-        properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
-        properties.put ( Constants.SERVICE_RANKING, this.priority );
+        {
+            final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
+            properties.put ( Constants.SERVICE_DESCRIPTION, "A dummy authentication service" );
+            properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
+            properties.put ( Constants.SERVICE_RANKING, this.authenticationPriority );
 
-        context.registerService ( AuthenticationService.class.getName (), this.service, properties );
+            context.registerService ( AuthenticationService.class.getName (), this.authenticationService, properties );
+        }
+
+        this.authorizationService = new DummyAuthorizationProviderImpl ();
+
+        {
+            final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
+            properties.put ( Constants.SERVICE_DESCRIPTION, "A dummy authorization service" );
+            properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
+            properties.put ( Constants.SERVICE_RANKING, this.authorizationPriority );
+
+            context.registerService ( AuthenticationService.class.getName (), this.authorizationService, properties );
+        }
+
     }
 
     /*
