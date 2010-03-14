@@ -26,4 +26,6 @@ public interface StatusCodes
 {
     public static final StatusCode AUTHENTICATION_FAILED = new StatusCode ( "OSSEC", "OSGI", 1, SeverityLevel.ERROR );
 
+    public static final StatusCode AUTHORIZATION_FAILED = new StatusCode ( "OSSEC", "OSGI", 2, SeverityLevel.ERROR );
+
 }
