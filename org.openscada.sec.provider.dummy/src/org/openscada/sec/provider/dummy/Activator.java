@@ -23,6 +23,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.sec.AuthenticationService;
+import org.openscada.sec.AuthorizationService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -65,7 +66,7 @@ public class Activator implements BundleActivator
             properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
             properties.put ( Constants.SERVICE_RANKING, this.authorizationPriority );
 
-            context.registerService ( AuthenticationService.class.getName (), this.authorizationService, properties );
+            context.registerService ( AuthorizationService.class.getName (), this.authorizationService, properties );
         }
 
     }
