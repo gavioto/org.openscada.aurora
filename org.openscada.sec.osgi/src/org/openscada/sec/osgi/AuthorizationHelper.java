@@ -19,6 +19,9 @@
 
 package org.openscada.sec.osgi;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.openscada.sec.AuthorizationResult;
 import org.openscada.sec.AuthorizationService;
 import org.openscada.sec.UserInformation;
@@ -27,6 +30,8 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class AuthorizationHelper
 {
+    private static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, "No authentication provider voted. Rejecting request!" );
+
     private final ServiceTracker tracker;
 
     public AuthorizationHelper ( final BundleContext context )
@@ -44,12 +49,24 @@ public class AuthorizationHelper
         this.tracker.close ();
     }
 
-    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation )
+    /**
+     * Check all authentication services for authorization.
+     * <p>
+     * This method calls {@link #authorize(String, String, String, UserInformation, AuthorizationResult)}
+     * with a default failure if there is not authorization provider or none voted.
+     * </p>
+     * @param objectId the id of the object to check for
+     * @param objectType the object type
+     * @param action the action to perform
+     * @param userInformation the user information or <code>null</code> if there is none
+     * @return always returns a result, never returns <code>null</code>
+     */
+    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context )
     {
-        return authorize ( objectId, objectType, action, userInformation, AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, "No authentication provider voted. Rejecting request!" ) );
+        return authorize ( objectId, objectType, action, userInformation, context, DEFAULT_RESULT );
     }
 
-    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final AuthorizationResult defaultResult )
+    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context, final AuthorizationResult defaultResult )
     {
         final Object[] s = this.tracker.getServices ();
 
@@ -58,13 +75,19 @@ public class AuthorizationHelper
             return defaultResult;
         }
 
+        Map<String, Object> unmodiContext = null;
+        if ( context != null )
+        {
+            unmodiContext = Collections.unmodifiableMap ( context );
+        }
+
         for ( final Object service : s )
         {
             if ( ! ( service instanceof AuthorizationService ) )
             {
                 continue;
             }
-            final AuthorizationResult result = ( (AuthorizationService)service ).authorize ( objectId, objectType, action, userInformation );
+            final AuthorizationResult result = ( (AuthorizationService)service ).authorize ( objectId, objectType, action, userInformation, unmodiContext );
             if ( result != null )
             {
                 return result;

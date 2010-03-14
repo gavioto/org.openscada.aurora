@@ -19,11 +19,20 @@
 
 package org.openscada.sec.provider.script;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
+import org.openscada.ca.ConfigurationAdministrator;
+import org.openscada.ca.ConfigurationFactory;
+import org.openscada.sec.AuthorizationService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 
 public class Activator implements BundleActivator
 {
+
+    private ScriptAuthorizationProvider service;
 
     /*
      * (non-Javadoc)
@@ -31,6 +40,15 @@ public class Activator implements BundleActivator
      */
     public void start ( final BundleContext context ) throws Exception
     {
+        this.service = new ScriptAuthorizationProvider ();
+
+        final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
+
+        properties.put ( Constants.SERVICE_DESCRIPTION, "A script based authorization service" );
+        properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
+        properties.put ( ConfigurationAdministrator.FACTORY_ID, context.getBundle ().getSymbolicName () + ".factory" );
+
+        context.registerService ( new String[] { AuthorizationService.class.getName (), ConfigurationFactory.class.getName () }, this.service, properties );
     }
 
     /*

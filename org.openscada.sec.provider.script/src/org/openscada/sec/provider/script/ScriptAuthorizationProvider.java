@@ -27,6 +27,7 @@ import java.util.PriorityQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Pattern;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -69,6 +70,12 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
         private CompiledScript compiledScript;
 
+        private Pattern objectId;
+
+        private Pattern objectType;
+
+        private Pattern action;
+
         public AuthorizationEntry ( final String id, final int priority )
         {
             this.id = id;
@@ -85,6 +92,22 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             return this.priority;
         }
 
+        public void setPreFilter ( final String idFilter, final String typeFilter, final String actionFilter )
+        {
+            if ( idFilter != null )
+            {
+                this.objectId = Pattern.compile ( idFilter );
+            }
+            if ( typeFilter != null )
+            {
+                this.objectType = Pattern.compile ( typeFilter );
+            }
+            if ( actionFilter != null )
+            {
+                this.action = Pattern.compile ( actionFilter );
+            }
+        }
+
         public void setScript ( final ScriptEngine engine, final String script ) throws ScriptException
         {
             this.engine = engine;
@@ -98,8 +121,23 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             }
         }
 
-        public AuthorizationResult run ( final String objectId, final String objectType, final String action, final UserInformation userInformation ) throws ScriptException
+        public AuthorizationResult run ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context ) throws ScriptException
         {
+            if ( this.objectId != null && !this.objectId.matcher ( objectId ).matches () )
+            {
+                return null;
+            }
+
+            if ( this.objectType != null && !this.objectType.matcher ( objectType ).matches () )
+            {
+                return null;
+            }
+
+            if ( this.action != null && !this.action.matcher ( action ).matches () )
+            {
+                return null;
+            }
+
             final Bindings bindings = this.engine.createBindings ();
 
             bindings.put ( "id", objectId );
@@ -107,6 +145,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             bindings.put ( "action", action );
             bindings.put ( "user", userInformation );
             bindings.put ( "GRANTED", AuthorizationResult.GRANTED );
+            bindings.put ( "context", context );
 
             if ( this.compiledScript != null )
             {
@@ -174,13 +213,19 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
                 return AuthorizationResult.create ( (Throwable)eval );
             }
 
+            if ( eval instanceof Result )
+            {
+                final Result result = (Result)eval;
+                return AuthorizationResult.create ( result.getCode (), result.getMessage () );
+            }
+
             // no more known results
             return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 4, SeverityLevel.ERROR ), String.format ( "Request rejected - unknown result type: %s", eval ) );
         }
 
     }
 
-    private final Collection<AuthorizationEntry> configuration = new PriorityQueue<AuthorizationEntry> ( 0, new PriorityComparator () );
+    private final Collection<AuthorizationEntry> configuration = new PriorityQueue<AuthorizationEntry> ( 1, new PriorityComparator () );
 
     private final Lock readLock;
 
@@ -211,7 +256,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
     }
 
     @Override
-    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation )
+    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context )
     {
         try
         {
@@ -219,7 +264,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
             for ( final AuthorizationEntry entry : this.configuration )
             {
-                final AuthorizationResult result = entry.run ( objectId, objectType, action, userInformation );
+                final AuthorizationResult result = entry.run ( objectId, objectType, action, userInformation, context );
                 if ( result != null )
                 {
                     return result;
@@ -291,9 +336,9 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             throw new IllegalArgumentException ( String.format ( "Script engine '%s' is unknown", engine ) );
         }
 
+        entry.setPreFilter ( cfg.getString ( "for.id" ), cfg.getString ( "for.type" ), cfg.getString ( "for.action" ) );
         entry.setScript ( engine, cfg.getString ( "script" ) );
 
         return entry;
     }
-
 }

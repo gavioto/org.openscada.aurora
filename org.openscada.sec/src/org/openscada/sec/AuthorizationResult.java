@@ -19,6 +19,8 @@
 
 package org.openscada.sec;
 
+import org.openscada.utils.concurrent.InstantErrorFuture;
+import org.openscada.utils.concurrent.NotifyFuture;
 import org.openscada.utils.lang.Immutable;
 import org.openscada.utils.statuscodes.CodedExceptionBase;
 import org.openscada.utils.statuscodes.StatusCode;
@@ -99,5 +101,18 @@ public class AuthorizationResult
     public String getMessage ()
     {
         return this.message;
+    }
+
+    public <T> NotifyFuture<T> asFuture ()
+    {
+        if ( this.errorCode == null )
+        {
+            return null;
+        }
+        else
+        {
+            return new InstantErrorFuture<T> ( new PermissionDeniedException ( this.errorCode, this.message ) );
+        }
+
     }
 }

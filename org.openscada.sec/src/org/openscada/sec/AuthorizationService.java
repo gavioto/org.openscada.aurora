@@ -19,6 +19,8 @@
 
 package org.openscada.sec;
 
+import java.util.Map;
+
 /**
  * An interface for a service authorizing an operation 
  * <p>
@@ -38,9 +40,12 @@ public interface AuthorizationService
      * @param action The action to be performed
      * @param userInformation The user information or <code>null</code> if
      * there is no user information the user is anonymous.
+     * @param context Additional information that can be used by the implementations.
+     * The content must not be modified. The context may be <code>null</code> if no data
+     * would be present.
      * @return Returns an authorization result if the implementation known something
      * about the requested authorization and <code>null</code> if the service can neither
      * approve or reject the request.
      */
-    public AuthorizationResult authorize ( String objectId, String objectType, String action, UserInformation userInformation );
+    public AuthorizationResult authorize ( String objectId, String objectType, String action, UserInformation userInformation, Map<String, Object> context );
 }

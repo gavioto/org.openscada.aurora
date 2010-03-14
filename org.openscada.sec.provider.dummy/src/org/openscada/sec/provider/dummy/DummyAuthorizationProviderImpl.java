@@ -19,6 +19,8 @@
 
 package org.openscada.sec.provider.dummy;
 
+import java.util.Map;
+
 import org.openscada.sec.AuthorizationResult;
 import org.openscada.sec.AuthorizationService;
 import org.openscada.sec.UserInformation;
@@ -30,11 +32,9 @@ import org.openscada.sec.UserInformation;
  */
 public class DummyAuthorizationProviderImpl implements AuthorizationService
 {
-
-    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation )
+    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context )
     {
-        // TODO Auto-generated method stub
-        return null;
+        return AuthorizationResult.GRANTED;
     }
 
 }
