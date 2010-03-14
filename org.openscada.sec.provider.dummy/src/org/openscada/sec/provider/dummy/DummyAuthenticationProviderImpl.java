@@ -31,7 +31,7 @@ import org.openscada.sec.UserInformation;
  * @author Jens Reimann
  *
  */
-public class DummyProviderImpl implements AuthenticationService
+public class DummyAuthenticationProviderImpl implements AuthenticationService
 {
 
     public UserInformation authenticate ( final String username, final String password )

@@ -23,7 +23,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.sec.AuthenticationService;
-import org.openscada.sec.provider.dummy.DummyProviderImpl;
+import org.openscada.sec.provider.dummy.DummyAuthenticationProviderImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -31,7 +31,7 @@ import org.osgi.framework.Constants;
 public class Activator implements BundleActivator
 {
 
-    private DummyProviderImpl service;
+    private DummyAuthenticationProviderImpl service;
 
     private final int priority = Integer.getInteger ( "org.openscada.sec.provider.dummy.priority", 0 );
 
@@ -41,7 +41,7 @@ public class Activator implements BundleActivator
      */
     public void start ( final BundleContext context ) throws Exception
     {
-        this.service = new DummyProviderImpl ();
+        this.service = new DummyAuthenticationProviderImpl ();
 
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
         properties.put ( Constants.SERVICE_DESCRIPTION, "A plain authentication service based on a system property" );
