@@ -17,14 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.sec.provider.dummy.internal;
+package org.openscada.sec.provider.dummy;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.sec.AuthenticationService;
-import org.openscada.sec.provider.dummy.DummyAuthenticationProviderImpl;
-import org.openscada.sec.provider.dummy.DummyAuthorizationProviderImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
