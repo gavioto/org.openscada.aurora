@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.openscada.sec.provider.dummy.internal</name>
+	<name>org.openscada.sec.provider.dummy</name>
 	<comment></comment>
 	<projects>
 	</projects>
