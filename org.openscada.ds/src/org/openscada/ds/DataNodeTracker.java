@@ -131,4 +131,24 @@ public class DataNodeTracker
             this.listeners.remove ( nodeId );
         }
     }
+
+    /**
+     * Write to the data node if there currently is a service attached
+     * @param node the node to write
+     * @return <code>true</code> if the service was attached an the request was
+     * passed on to the service, <code>false</code> otherwise.
+     */
+    public boolean write ( final DataNode node )
+    {
+        final DataStore store = this.service;
+        if ( store != null )
+        {
+            store.writeNode ( node );
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }
