@@ -4,9 +4,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                       http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 	
-	<osgi:service ref="jdbcStorage" interface="org.openscada.ca.ConfigurationAdministrator">
+	<osgi:service ref="jdbcStorage">
+		<osgi:interfaces>
+			<value>org.openscada.ca.ConfigurationAdministrator</value>
+			<value>org.openscada.ca.FreezableConfigurationAdministrator</value>
+		</osgi:interfaces>
 		<osgi:service-properties>
 			<description>A JDBC based configuration administrator</description>
+			<!-- don't remove the next line ... seems to a bug in spring DM -->
 			<entry key="foo" value="bar"/>
 		</osgi:service-properties>
 	</osgi:service>

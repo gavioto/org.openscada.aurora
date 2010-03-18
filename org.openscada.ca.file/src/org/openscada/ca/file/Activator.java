@@ -23,6 +23,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.openscada.ca.ConfigurationAdministrator;
+import org.openscada.ca.FreezableConfigurationAdministrator;
 import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.file.internal.ConfigurationAdminImpl;
 import org.osgi.framework.BundleActivator;
@@ -46,7 +47,7 @@ public class Activator implements BundleActivator
         properties.put ( Constants.SERVICE_VENDOR, "inavare GmbH" );
         properties.put ( Constants.SERVICE_DESCRIPTION, "An OpenSCADA CA File Implementation" );
 
-        this.handle = context.registerService ( ConfigurationAdministrator.class.getName (), this.service, properties );
+        this.handle = context.registerService ( new String[] { ConfigurationAdministrator.class.getName (), FreezableConfigurationAdministrator.class.getName () }, this.service, properties );
     }
 
     public void stop ( final BundleContext context ) throws Exception
