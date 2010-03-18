@@ -1,20 +1,20 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2009 inavare GmbH (http://inavare.com)
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
  *
- * This library is distributed in the hope that it will be useful,
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
-
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
  */
 
 package org.openscada.utils.str;
@@ -43,8 +43,8 @@ public class StringHelper
      */
     public static String join ( final Collection<?> items, final String delimiter )
     {
-        StringBuffer buffer = new StringBuffer ();
-        Iterator<?> iter = items.iterator ();
+        final StringBuffer buffer = new StringBuffer ();
+        final Iterator<?> iter = items.iterator ();
 
         while ( iter.hasNext () )
         {
@@ -58,16 +58,19 @@ public class StringHelper
         return buffer.toString ();
     }
 
-    public static String join ( final Collection<?> items, final String delimiter, final Apply<String> toApply)
+    public static String join ( final Collection<?> items, final String delimiter, final Apply<String> toApply )
     {
-        StringBuffer buffer = new StringBuffer ();
-        Iterator<?> iter = items.iterator ();
+        final StringBuffer buffer = new StringBuffer ();
+        final Iterator<?> iter = items.iterator ();
 
         while ( iter.hasNext () )
         {
-            if ( toApply != null ) {
+            if ( toApply != null )
+            {
                 buffer.append ( toApply.apply ( String.valueOf ( iter.next () ) ) );
-            } else {
+            }
+            else
+            {
                 buffer.append ( iter.next () );
             }
             if ( iter.hasNext () )
@@ -89,9 +92,9 @@ public class StringHelper
      * @param delimiter the delimiter to use
      * @return the result string
      */
-    public static String join ( Object[] items, String delimiter )
+    public static String join ( final Object[] items, final String delimiter )
     {
-        StringBuffer buffer = new StringBuffer ();
+        final StringBuffer buffer = new StringBuffer ();
 
         for ( int i = 0; i < items.length; i++ )
         {

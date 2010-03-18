@@ -1,20 +1,20 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2009 inavare GmbH (http://inavare.com)
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
  *
- * This library is distributed in the hope that it will be useful,
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
-
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
  */
 
 package org.openscada.utils.exec;
@@ -38,14 +38,14 @@ public abstract class SyncBasedOperation<R, T> implements Operation<R, T>
 
     private Executor executor = null;
 
-    private void performJob ( OperationResult<R> or, T arg0 )
+    private void performJob ( final OperationResult<R> or, final T arg0 )
     {
         try
         {
-            R result = execute ( arg0 );
+            final R result = execute ( arg0 );
             or.notifySuccess ( result );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             or.notifyFailure ( e );
         }
@@ -56,14 +56,14 @@ public abstract class SyncBasedOperation<R, T> implements Operation<R, T>
         this ( defaultExecutor );
     }
 
-    public SyncBasedOperation ( Executor executor )
+    public SyncBasedOperation ( final Executor executor )
     {
         this.executor = executor;
     }
 
     private void startExecute ( final OperationResult<R> or, final T arg0 )
     {
-        executor.execute ( new Runnable () {
+        this.executor.execute ( new Runnable () {
 
             public void run ()
             {
@@ -81,7 +81,7 @@ public abstract class SyncBasedOperation<R, T> implements Operation<R, T>
         return or;
     }
 
-    public OperationResult<R> startExecute ( OperationResultHandler<R> handler, T arg0 )
+    public OperationResult<R> startExecute ( final OperationResultHandler<R> handler, final T arg0 )
     {
         final OperationResult<R> or = new OperationResult<R> ( handler );
 
