@@ -9,4 +9,5 @@ Export-Package: org.openscada.ds;version="0.15.0";uses:="org.openscada.utils.con
 Import-Package: org.openscada.utils.concurrent;version="0.15.0",
  org.openscada.utils.concurrent.task;version="0.15.0",
  org.openscada.utils.lang;version="0.15.0",
+ org.openscada.utils.osgi;version="0.15.0",
  org.osgi.framework;version="1.4.2";resolution:=optional
