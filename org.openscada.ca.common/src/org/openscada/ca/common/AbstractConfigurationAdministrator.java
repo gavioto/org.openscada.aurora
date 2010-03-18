@@ -28,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.openscada.ca.Configuration;
-import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationAlreadyExistsException;
 import org.openscada.ca.ConfigurationEvent;
 import org.openscada.ca.ConfigurationFactory;
@@ -37,6 +36,7 @@ import org.openscada.ca.ConfigurationState;
 import org.openscada.ca.FactoryEvent;
 import org.openscada.ca.FactoryNotFoundException;
 import org.openscada.ca.FactoryState;
+import org.openscada.ca.FreezableConfigurationAdministrator;
 import org.openscada.ca.SelfManagedConfigurationFactory;
 import org.openscada.utils.concurrent.AbstractFuture;
 import org.openscada.utils.concurrent.FutureListener;
@@ -51,9 +51,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractConfigurationAdministrator implements ConfigurationAdministrator
+public abstract class AbstractConfigurationAdministrator implements FreezableConfigurationAdministrator
 {
-
     private final static Logger logger = LoggerFactory.getLogger ( AbstractConfigurationAdministrator.class );
 
     private final BundleContext context;
@@ -124,6 +123,16 @@ public abstract class AbstractConfigurationAdministrator implements Configuratio
         this.serviceListener.close ();
         this.selfServiceListener.close ();
         this.listenerTracker.close ();
+    }
+
+    public synchronized void freeze () throws Exception
+    {
+        stop ();
+    }
+
+    public synchronized void thaw () throws Exception
+    {
+        start ();
     }
 
     protected synchronized void addStoredFactory ( final String factoryId, final ConfigurationImpl[] configurations )
