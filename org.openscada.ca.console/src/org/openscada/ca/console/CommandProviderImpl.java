@@ -30,7 +30,7 @@ public class CommandProviderImpl implements CommandProvider
         this.reg = context.registerService ( CommandProvider.class.getName (), this, properties );
     }
 
-    public void stop ()
+    public void stop ( final BundleContext context )
     {
         this.caTracker.close ();
         this.caTracker = null;
