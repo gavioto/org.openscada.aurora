@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.utils.toggle.internal;
 
 import java.util.ArrayList;
@@ -11,9 +30,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.openscada.utils.toggle.ToggleCallback;
 import org.openscada.utils.toggle.ToggleError;
 import org.openscada.utils.toggle.ToggleService;
-import org.openscada.utils.toggle.ToggleCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,75 +54,75 @@ public class ToggleServiceImpl implements ToggleService, Runnable
 
     public void addListener ( final int interval, final ToggleCallback bc ) throws ToggleError
     {
-        synchronized ( addRemoveLock )
+        synchronized ( this.addRemoveLock )
         {
-            if ( !toggleInfos.containsKey ( interval ) )
+            if ( !this.toggleInfos.containsKey ( interval ) )
             {
-                toggleInfos.put ( interval, new ToggleInfo ( interval ) );
+                this.toggleInfos.put ( interval, new ToggleInfo ( interval ) );
             }
-            if ( !toggleCallbacks.containsKey ( interval ) )
+            if ( !this.toggleCallbacks.containsKey ( interval ) )
             {
-                toggleCallbacks.put ( interval, new CopyOnWriteArrayList<ToggleCallback> () );
+                this.toggleCallbacks.put ( interval, new CopyOnWriteArrayList<ToggleCallback> () );
             }
-            List<ToggleCallback> handlers = toggleCallbacks.get ( interval );
+            final List<ToggleCallback> handlers = this.toggleCallbacks.get ( interval );
             handlers.add ( bc );
         }
     }
 
     public void removeListener ( final ToggleCallback bc )
     {
-        synchronized ( addRemoveLock )
+        synchronized ( this.addRemoveLock )
         {
-            for ( List<ToggleCallback> bcs : toggleCallbacks.values () )
+            for ( final List<ToggleCallback> bcs : this.toggleCallbacks.values () )
             {
                 bcs.remove ( bc );
             }
-            List<Integer> toDelete = new ArrayList<Integer> ();
-            for ( Entry<Integer, List<ToggleCallback>> entry : toggleCallbacks.entrySet () )
+            final List<Integer> toDelete = new ArrayList<Integer> ();
+            for ( final Entry<Integer, List<ToggleCallback>> entry : this.toggleCallbacks.entrySet () )
             {
                 if ( entry.getValue ().size () == 0 )
                 {
                     toDelete.add ( entry.getKey () );
                 }
             }
-            for ( Integer integer : toDelete )
+            for ( final Integer integer : toDelete )
             {
-                toggleCallbacks.remove ( integer );
+                this.toggleCallbacks.remove ( integer );
             }
         }
     }
 
     public void start ()
     {
-        executor.scheduleAtFixedRate ( this, 0, delay, TimeUnit.MILLISECONDS );
+        this.executor.scheduleAtFixedRate ( this, 0, delay, TimeUnit.MILLISECONDS );
     }
 
     public void stop ()
     {
-        executor.shutdownNow ();
-        synchronized ( addRemoveLock )
+        this.executor.shutdownNow ();
+        synchronized ( this.addRemoveLock )
         {
-            toggleInfos.clear ();
-            toggleCallbacks.clear ();
+            this.toggleInfos.clear ();
+            this.toggleCallbacks.clear ();
         }
     }
 
     public void run ()
     {
-        final long c = counter.getAndAdd ( delay );
-        for ( final int toggle : toggleInfos.keySet () )
+        final long c = this.counter.getAndAdd ( delay );
+        for ( final int toggle : this.toggleInfos.keySet () )
         {
             if ( c % toggle == 0 )
             {
-                final ToggleInfo i = toggleInfos.get ( toggle );
+                final ToggleInfo i = this.toggleInfos.get ( toggle );
                 final boolean isOn = i.toggle ();
-                for ( ToggleCallback bc : toggleCallbacks.get ( toggle ) )
+                for ( final ToggleCallback bc : this.toggleCallbacks.get ( toggle ) )
                 {
                     try
                     {
                         bc.toggle ( isOn );
                     }
-                    catch ( Exception e )
+                    catch ( final Exception e )
                     {
                         logger.warn ( "call of toggle action failed", e );
                     }
