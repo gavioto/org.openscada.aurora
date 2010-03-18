@@ -5,12 +5,12 @@
       version="0.15.0.qualifier"
       provider-name="inavare GmbH">
 
-   <description>
+   <description url="http://openscada.org">
       The Aurora project contains a lot of tools.
    </description>
 
-   <copyright>
-   &lt;pre&gt;
+   <copyright url="http://opensource.org/licenses/lgpl-3.0.html">
+      &lt;pre&gt;
       This file is part of the OpenSCADA project
 Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
 
@@ -30,8 +30,8 @@ version 3 along with OpenSCADA. If not, see
 &lt;/pre&gt;
    </copyright>
 
-   <license>
-&lt;pre&gt;
+   <license url="http://opensource.org/licenses/lgpl-3.0.html">
+      &lt;pre&gt;
       GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
