@@ -52,14 +52,14 @@ public class CommandProviderImpl implements CommandProvider
     {
         final Object[] services = this.caTracker.getServices ();
         final int count = services != null ? services.length : 0;
-        cmd.print ( String.format ( "Freezing %s configuration administrators", count ) );
+        cmd.println ( String.format ( "Freezing %s configuration administrators", count ) );
         if ( services != null )
         {
             for ( final Object o : services )
             {
                 if ( o instanceof FreezableConfigurationAdministrator )
                 {
-                    cmd.println ( String.format ( "Freeze: {}", o ) );
+                    cmd.println ( String.format ( "Freeze: %s", o ) );
                     try
                     {
                         ( (FreezableConfigurationAdministrator)o ).freeze ();
@@ -78,14 +78,14 @@ public class CommandProviderImpl implements CommandProvider
     {
         final Object[] services = this.caTracker.getServices ();
         final int count = services != null ? services.length : 0;
-        cmd.print ( String.format ( "Thawing %s configuration administrators", count ) );
+        cmd.println ( String.format ( "Thawing %s configuration administrators", count ) );
         if ( services != null )
         {
             for ( final Object o : services )
             {
                 if ( o instanceof FreezableConfigurationAdministrator )
                 {
-                    cmd.println ( String.format ( "Thaw: {}", o ) );
+                    cmd.println ( String.format ( "Thaw: %s", o ) );
                     try
                     {
                         ( (FreezableConfigurationAdministrator)o ).thaw ();
