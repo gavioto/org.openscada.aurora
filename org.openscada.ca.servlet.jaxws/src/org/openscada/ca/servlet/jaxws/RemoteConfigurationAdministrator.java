@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.ca.servelt.jaxws;
+package org.openscada.ca.servlet.jaxws;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;

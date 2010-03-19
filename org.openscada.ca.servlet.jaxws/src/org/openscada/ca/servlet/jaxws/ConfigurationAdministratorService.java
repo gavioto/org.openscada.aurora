@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.openscada.ca.servelt.jaxws;
+package org.openscada.ca.servlet.jaxws;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -39,7 +39,7 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@WebService ( endpointInterface = "org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator" )
+@WebService ( endpointInterface = "org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator" )
 public class ConfigurationAdministratorService implements RemoteConfigurationAdministrator
 {
     private final static Logger logger = LoggerFactory.getLogger ( ConfigurationAdministratorService.class );
@@ -72,7 +72,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#hasService()
+     * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#hasService()
      */
     public boolean hasService ()
     {
@@ -91,7 +91,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#getFactories()
+     * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#getFactories()
      */
     public FactoryInformation[] getFactories ()
     {
@@ -99,7 +99,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#getCompleteConfiguration()
+     * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#getCompleteConfiguration()
      */
     public FactoryInformation[] getCompleteConfiguration ()
     {
@@ -152,7 +152,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#purge(java.lang.String, int)
+     * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#purge(java.lang.String, int)
      */
     public void purge ( final String factoryId, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
@@ -166,7 +166,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#delete(java.lang.String, java.lang.String[], int)
+     * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#delete(java.lang.String, java.lang.String[], int)
      */
     public void delete ( final String factoryId, final String[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
@@ -196,7 +196,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#update(java.lang.String, org.openscada.ca.servelt.jaxws.ConfigurationInformation[], int)
+     * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#update(java.lang.String, org.openscada.ca.servlet.jaxws.ConfigurationInformation[], int)
      */
     public void update ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
@@ -211,7 +211,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     }
 
     /* (non-Javadoc)
-     * @see org.openscada.ca.servelt.jaxws.RemoteConfigurationAdministrator#create(java.lang.String, org.openscada.ca.servelt.jaxws.ConfigurationInformation[], int)
+     * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#create(java.lang.String, org.openscada.ca.servlet.jaxws.ConfigurationInformation[], int)
      */
     public void create ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
