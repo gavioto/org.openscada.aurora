@@ -218,9 +218,12 @@ public class ObjectPoolImpl implements ObjectPool
                     for ( final Map.Entry<String, ObjectPoolListener> entry : ObjectPoolImpl.this.idListeners.entries () )
                     {
                         final Map<Object, Dictionary<?, ?>> serviceMap = ObjectPoolImpl.this.services.get ( entry.getKey () );
-                        for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
+                        if ( serviceMap != null )
                         {
-                            entry.getValue ().serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
+                            for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
+                            {
+                                entry.getValue ().serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
+                            }
                         }
                     }
 
