@@ -19,6 +19,7 @@
 
 package org.openscada.sec;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,8 +29,10 @@ import java.util.Set;
 import org.openscada.utils.lang.Immutable;
 
 @Immutable
-public class UserInformation
+public class UserInformation implements Serializable
 {
+    private static final long serialVersionUID = 4789496200821826617L;
+
     private final String name;
 
     private final Set<String> roles;
@@ -96,4 +99,70 @@ public class UserInformation
         return false;
     }
 
+    @Override
+    public int hashCode ()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( this.name == null ) ? 0 : this.name.hashCode () );
+        result = prime * result + ( ( this.roles == null ) ? 0 : this.roles.hashCode () );
+        return result;
+    }
+
+    @Override
+    public boolean equals ( final Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        if ( obj == null )
+        {
+            return false;
+        }
+        if ( getClass () != obj.getClass () )
+        {
+            return false;
+        }
+        UserInformation other = (UserInformation)obj;
+        if ( this.name == null )
+        {
+            if ( other.name != null )
+            {
+                return false;
+            }
+        }
+        else if ( !this.name.equals ( other.name ) )
+        {
+            return false;
+        }
+        if ( this.roles == null )
+        {
+            if ( other.roles != null )
+            {
+                return false;
+            }
+        }
+        else if ( !this.roles.equals ( other.roles ) )
+        {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString ()
+    {
+        StringBuilder sb = new StringBuilder ();
+        sb.append ( "UserInformation [name=" );
+        sb.append ( this.name );
+        sb.append ( ", roles=" );
+        for ( String role : this.roles )
+        {
+            sb.append ( "," );
+            sb.append ( role );
+        }
+        sb.append ( "]" );
+        return sb.toString ();
+    }
 }

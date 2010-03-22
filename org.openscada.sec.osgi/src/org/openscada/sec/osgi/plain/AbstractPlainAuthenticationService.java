@@ -19,6 +19,7 @@
 
 package org.openscada.sec.osgi.plain;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,8 +34,10 @@ public abstract class AbstractPlainAuthenticationService
 {
 
     @Immutable
-    protected static class UserEntry
+    protected static class UserEntry implements Serializable
     {
+        private static final long serialVersionUID = -6899786759766310861L;
+
         private final String password;
 
         private final Set<String> roles;
@@ -53,6 +56,73 @@ public abstract class AbstractPlainAuthenticationService
         public Set<String> getRoles ()
         {
             return Collections.unmodifiableSet ( this.roles );
+        }
+
+        @Override
+        public int hashCode ()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ( ( this.password == null ) ? 0 : this.password.hashCode () );
+            result = prime * result + ( ( this.roles == null ) ? 0 : this.roles.hashCode () );
+            return result;
+        }
+
+        @Override
+        public boolean equals ( final Object obj )
+        {
+            if ( this == obj )
+            {
+                return true;
+            }
+            if ( obj == null )
+            {
+                return false;
+            }
+            if ( getClass () != obj.getClass () )
+            {
+                return false;
+            }
+            UserEntry other = (UserEntry)obj;
+            if ( this.password == null )
+            {
+                if ( other.password != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.password.equals ( other.password ) )
+            {
+                return false;
+            }
+            if ( this.roles == null )
+            {
+                if ( other.roles != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.roles.equals ( other.roles ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString ()
+        {
+            StringBuilder sb = new StringBuilder ();
+            sb.append ( "UserEntry [password=" );
+            sb.append ( this.password );
+            sb.append ( ", roles=" );
+            for ( String role : this.roles )
+            {
+                sb.append ( "," );
+                sb.append ( role );
+            }
+            sb.append ( "]" );
+            return sb.toString ();
         }
     }
 
