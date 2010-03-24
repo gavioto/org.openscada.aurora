@@ -10,6 +10,7 @@
 			<key-property name="factoryId" />
 			<key-property name="configurationId" />
 			<key-property name="key" />
+			<key-property name="instance"/>
 		</composite-id>
 		
 		<property name="value" type="text" />

@@ -34,6 +34,8 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
 {
     private static final String ENT_ENTRY = Entry.class.getName ();
 
+    private static final String INSTANCE_ID = System.getProperty ( "org.openscada.ca.jdbc.instance", "default" );
+
     @SuppressWarnings ( { "unchecked" } )
     public List<Entry> loadAll ()
     {
@@ -43,7 +45,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
     @SuppressWarnings ( "unchecked" )
     public List<Entry> loadFactory ( final String factoryId )
     {
-        return find ( String.format ( "from %s where factoryId=?", ENT_ENTRY ), factoryId );
+        return find ( String.format ( "from %s where factoryId=? and instance=?", ENT_ENTRY ), new Object[] { factoryId, INSTANCE_ID } );
     }
 
     public List<Entry> purgeFactory ( final String factoryId )
@@ -74,6 +76,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
                     dataEntry.setFactoryId ( factoryId );
                     dataEntry.setConfigurationId ( configurationId );
                     dataEntry.setKey ( key );
+                    dataEntry.setInstance ( INSTANCE_ID );
 
                     if ( value != null )
                     {
@@ -86,7 +89,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
                     }
                 }
                 session.flush ();
-                return session.createQuery ( String.format ( "from %s where factoryId=:factoryId and configurationId=:configurationId", ENT_ENTRY ) ).setString ( "factoryId", factoryId ).setString ( "configurationId", configurationId ).list ();
+                return session.createQuery ( String.format ( "from %s where factoryId=:factoryId and configurationId=:configurationId and instance=:instance", ENT_ENTRY ) ).setString ( "factoryId", factoryId ).setString ( "configurationId", configurationId ).setString ( "instance", INSTANCE_ID ).list ();
             }
         } );
 
@@ -113,10 +116,11 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
 
     protected void performDeleteConfiguration ( final Session session, final String factoryId, final String configurationId )
     {
-        final Query q = session.createQuery ( String.format ( "delete %s where factoryId=:factoryId and configurationId=:configurationId", ENT_ENTRY ) );
+        final Query q = session.createQuery ( String.format ( "delete %s where factoryId=:factoryId and configurationId=:configurationId and instance=:instance", ENT_ENTRY ) );
         prepareQuery ( q );
         q.setString ( "factoryId", factoryId );
         q.setString ( "configurationId", configurationId );
+        q.setString ( "instance", INSTANCE_ID );
         q.executeUpdate ();
     }
 }

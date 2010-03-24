@@ -31,7 +31,19 @@ public class Entry implements Serializable
 
     private String key;
 
+    private String instance;
+
     private String value;
+
+    public String getInstance ()
+    {
+        return this.instance;
+    }
+
+    public void setInstance ( final String instance )
+    {
+        this.instance = instance;
+    }
 
     public String getFactoryId ()
     {
@@ -79,8 +91,9 @@ public class Entry implements Serializable
         final int prime = 31;
         int result = 1;
         result = prime * result + ( this.configurationId == null ? 0 : this.configurationId.hashCode () );
-        result = prime * result + ( this.key == null ? 0 : this.key.hashCode () );
         result = prime * result + ( this.factoryId == null ? 0 : this.factoryId.hashCode () );
+        result = prime * result + ( this.instance == null ? 0 : this.instance.hashCode () );
+        result = prime * result + ( this.key == null ? 0 : this.key.hashCode () );
         return result;
     }
 
@@ -111,17 +124,6 @@ public class Entry implements Serializable
         {
             return false;
         }
-        if ( this.key == null )
-        {
-            if ( other.key != null )
-            {
-                return false;
-            }
-        }
-        else if ( !this.key.equals ( other.key ) )
-        {
-            return false;
-        }
         if ( this.factoryId == null )
         {
             if ( other.factoryId != null )
@@ -130,6 +132,28 @@ public class Entry implements Serializable
             }
         }
         else if ( !this.factoryId.equals ( other.factoryId ) )
+        {
+            return false;
+        }
+        if ( this.instance == null )
+        {
+            if ( other.instance != null )
+            {
+                return false;
+            }
+        }
+        else if ( !this.instance.equals ( other.instance ) )
+        {
+            return false;
+        }
+        if ( this.key == null )
+        {
+            if ( other.key != null )
+            {
+                return false;
+            }
+        }
+        else if ( !this.key.equals ( other.key ) )
         {
             return false;
         }
