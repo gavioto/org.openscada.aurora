@@ -118,7 +118,6 @@
   	
   	<openscada.builder.copyPlugin id="org.openscada.ca.file" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.jdbc" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.jdbc.default" />
   	
   	<openscada.builder.copyFeature id="org.openscada.ds" />
   	<openscada.builder.copyFeature id="org.openscada.ds.sdk" />
