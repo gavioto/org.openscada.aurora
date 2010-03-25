@@ -627,6 +627,9 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     private NotifyFuture<Configuration> invokeStore ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final ConfigurationFuture future = new ConfigurationFuture ();
+
+        // don't store the "id" key
+        properties.remove ( "id" );
         this.executor.execute ( new Runnable () {
 
             public void run ()

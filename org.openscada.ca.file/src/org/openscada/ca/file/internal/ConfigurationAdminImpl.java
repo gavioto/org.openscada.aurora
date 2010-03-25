@@ -268,6 +268,9 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             {
                 return null;
             }
+
+            // remove id from loaded data
+            result.remove ( "id" );
             return new ConfigurationImpl ( id, factoryId, result );
         }
         catch ( final Throwable e )
