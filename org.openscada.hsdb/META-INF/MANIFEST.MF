@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenSCADA Historical Values Archive Core Component
 Bundle-SymbolicName: org.openscada.hsdb
-Bundle-Version: 0.14.0.qualifier
+Bundle-Version: 0.15.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.openscada.hsdb;version="0.14.0",
  org.openscada.hsdb.backend;version="0.14.0",
@@ -14,3 +14,4 @@ Export-Package: org.openscada.hsdb;version="0.14.0",
  org.openscada.hsdb.utils;version="0.14.0"
 Import-Package: org.openscada.utils.str;version="0.14.0",
  org.slf4j;version="1.5.8"
+Bundle-Vendor: inavare GmbH
