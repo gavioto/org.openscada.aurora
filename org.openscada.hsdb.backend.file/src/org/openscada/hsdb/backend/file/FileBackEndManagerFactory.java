@@ -51,7 +51,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
      */
     public String getConfigurationFileName ( final String encodedConfigurationId )
     {
-        return new File ( new File ( fileBackEndFactory.getFileRoot (), encodedConfigurationId ), encodedConfigurationId + CONTROL_FILE_SUFFIX ).getPath ();
+        return new File ( new File ( this.fileBackEndFactory.getFileRoot (), encodedConfigurationId ), encodedConfigurationId + CONTROL_FILE_SUFFIX ).getPath ();
     }
 
     /**
@@ -121,7 +121,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
         {
             final File file = new File ( fileName );
             final File parent = file.getParentFile ();
-            if ( ( parent != null ) && !parent.exists () )
+            if ( parent != null && !parent.exists () )
             {
                 parent.mkdirs ();
             }
@@ -140,7 +140,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
      */
     public FileBackEndManager[] getBackEndManagers ()
     {
-        final File root = new File ( fileBackEndFactory.getFileRoot () );
+        final File root = new File ( this.fileBackEndFactory.getFileRoot () );
         if ( !root.exists () )
         {
             return EMPTY_FILE_BACKEND_MANAGER_ARRAY;
@@ -155,11 +155,15 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
                     final Configuration configuration = loadConfiguration ( file.getName () );
                     if ( configuration != null )
                     {
-                        final FileBackEndManager manager = new FileBackEndManager ( configuration, this, fileBackEndFactory );
+                        final FileBackEndManager manager = new FileBackEndManager ( configuration, this, this.fileBackEndFactory );
                         if ( manager != null )
                         {
                             managers.add ( manager );
                         }
+                    }
+                    else
+                    {
+                        logger.error ( "Failed to load archive from: " + file );
                     }
                 }
                 catch ( final Exception e )
@@ -193,7 +197,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
             }
             if ( loadedConfiguration != null )
             {
-                return new FileBackEndManager ( loadedConfiguration, this, fileBackEndFactory );
+                return new FileBackEndManager ( loadedConfiguration, this, this.fileBackEndFactory );
             }
         }
         catch ( final Exception e )
