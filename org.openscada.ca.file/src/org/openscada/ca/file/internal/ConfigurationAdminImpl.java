@@ -1,20 +1,20 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2008-2010 inavare GmbH (http://inavare.com)
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
  *
- * This library is distributed in the hope that it will be useful,
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
-
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
  */
 
 package org.openscada.ca.file.internal;
@@ -25,6 +25,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +44,8 @@ import org.slf4j.LoggerFactory;
 
 public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 {
+    private static final String URI_CHARSET = "UTF-8";
+
     private final static class DataFilenameFilter implements FilenameFilter
     {
         public boolean accept ( final File dir, final String name )
@@ -127,16 +132,23 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
         for ( final String pathName : this.root.list () )
         {
-            final File path = new File ( this.root, pathName );
-            if ( path.isDirectory () )
+            try
             {
-                logger.debug ( "Checking for path: " + path.getName () );
-                final String factoryId = detectFactory ( path );
-                if ( factoryId != null )
+                final File path = new File ( this.root, pathName );
+                if ( path.isDirectory () )
                 {
-                    logger.debug ( String.format ( "Path %s is a possible factory (%s). Adding...", path.getName (), factoryId ) );
-                    performLoadFactory ( factoryId );
+                    logger.debug ( "Checking for path: " + path.getName () );
+                    final String factoryId = detectFactory ( path );
+                    if ( factoryId != null )
+                    {
+                        logger.debug ( String.format ( "Path %s is a possible factory (%s). Adding...", path.getName (), factoryId ) );
+                        performLoadFactory ( factoryId );
+                    }
                 }
+            }
+            catch ( final Exception e )
+            {
+                logger.warn ( "Failed to load factory: " + pathName, e );
             }
         }
     }
@@ -172,7 +184,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         return p.getProperty ( "id" );
     }
 
-    protected void performLoadFactory ( final String factoryId )
+    protected void performLoadFactory ( final String factoryId ) throws Exception
     {
         if ( this.root == null )
         {
@@ -280,20 +292,24 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
     }
 
-    private String getPath ( final String factoryId )
+    private String getPath ( final String factoryId ) throws UnsupportedEncodingException
     {
         return encode ( factoryId );
     }
 
-    private String encode ( String path )
+    private String encode ( final String path ) throws UnsupportedEncodingException
     {
-        path = path.replace ( "_", "__" );
-        path = path.replaceAll ( "[^a-zA-Z0-9_-]", "_" );
-        return path;
+        return URLEncoder.encode ( path, URI_CHARSET );
+    }
+
+    private String idFromFile ( final String factoryId, final File file ) throws UnsupportedEncodingException
+    {
+        final String name = file.getName ();
+        return URLDecoder.decode ( name, URI_CHARSET );
     }
 
     @Override
-    protected void performPurge ( final String factoryId, final PurgeFuture future )
+    protected void performPurge ( final String factoryId, final PurgeFuture future ) throws Exception
     {
         logger.info ( "Request to delete: {}", factoryId );
 
@@ -302,7 +318,6 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             logger.warn ( "Unable to store : no root" );
             return;
         }
-
         final File path = getFactoryPath ( factoryId );
 
         for ( final File file : path.listFiles ( new DataFilenameFilter () ) )
@@ -325,11 +340,6 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
         logger.debug ( "Delete factory root: {}", path );
         path.delete ();
-    }
-
-    private String idFromFile ( final String factoryId, final File file )
-    {
-        return loadConfiguration ( factoryId, file ).getData ().get ( "id" );
     }
 
     @Override
@@ -394,7 +404,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         changeConfiguration ( factoryId, configurationId, newProperties, future );
     }
 
-    private File getFactoryPath ( final String factoryId )
+    private File getFactoryPath ( final String factoryId ) throws UnsupportedEncodingException
     {
         final File path = new File ( this.root, getPath ( factoryId ) );
         if ( !path.exists () )
@@ -406,7 +416,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    protected void performDeleteConfiguration ( final String factoryId, final String configurationId, final ConfigurationFuture future )
+    protected void performDeleteConfiguration ( final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
     {
         final File path = getFactoryPath ( factoryId );
 
