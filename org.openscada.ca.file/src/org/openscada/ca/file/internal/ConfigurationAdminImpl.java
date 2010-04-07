@@ -338,10 +338,10 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         final File metaFile = new File ( path, ".meta" );
         metaFile.delete ();
 
-        future.setComplete ();
-
         logger.debug ( "Delete factory root: {}", path );
         path.delete ();
+
+        future.setComplete ();
     }
 
     @Override
