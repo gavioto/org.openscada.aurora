@@ -124,6 +124,8 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
     protected void performInitialLoad ()
     {
+        logger.info ( "Loading initial set from: {}", this.root );
+
         if ( this.root == null )
         {
             logger.warn ( "No root found" );
