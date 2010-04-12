@@ -1,41 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="org.openscada.ds.sdk"
-      label="OpenSCADA DS SDK"
-      version="0.15.0.qualifier"
-      provider-name="inavare GmbH">
-
-   <description>
-      The OpenSCADA DS (DataStore) SDK
-   </description>
-
-   <copyright url="http://opensource.org/licenses/lgpl-3.0.html">
-      &lt;pre&gt;
-      This file is part of the OpenSCADA project
-Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
-
-OpenSCADA is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License version 3
-only, as published by the Free Software Foundation.
-
-OpenSCADA is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License version 3 for more details
-(a copy is included in the LICENSE file that accompanied this code).
-
-You should have received a copy of the GNU Lesser General Public License
-version 3 along with OpenSCADA. If not, see
-&lt;http://opensource.org/licenses/lgpl-3.0.html&gt; for a copy of the LGPLv3 License.
-&lt;/pre&gt;
-   </copyright>
-
-   <license url="http://opensource.org/licenses/lgpl-3.0.html">
-      &lt;pre&gt;
-      GNU LESSER GENERAL PUBLIC LICENSE
+	   GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
- Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
@@ -46,29 +12,29 @@ License, supplemented by the additional permissions listed below.
 
   0. Additional Definitions.
 
-  As used herein, &quot;this License&quot; refers to version 3 of the GNU Lesser
-General Public License, and the &quot;GNU GPL&quot; refers to version 3 of the GNU
+  As used herein, "this License" refers to version 3 of the GNU Lesser
+General Public License, and the "GNU GPL" refers to version 3 of the GNU
 General Public License.
 
-  &quot;The Library&quot; refers to a covered work governed by this License,
+  "The Library" refers to a covered work governed by this License,
 other than an Application or a Combined Work as defined below.
 
-  An &quot;Application&quot; is any work that makes use of an interface provided
+  An "Application" is any work that makes use of an interface provided
 by the Library, but which is not otherwise based on the Library.
 Defining a subclass of a class defined by the Library is deemed a mode
 of using an interface provided by the Library.
 
-  A &quot;Combined Work&quot; is a work produced by combining or linking an
+  A "Combined Work" is a work produced by combining or linking an
 Application with the Library.  The particular version of the Library
-with which the Combined Work was made is also called the &quot;Linked
-Version&quot;.
+with which the Combined Work was made is also called the "Linked
+Version".
 
-  The &quot;Minimal Corresponding Source&quot; for a Combined Work means the
+  The "Minimal Corresponding Source" for a Combined Work means the
 Corresponding Source for the Combined Work, excluding any source code
 for portions of the Combined Work that, considered in isolation, are
 based on the Application, and not on the Linked Version.
 
-  The &quot;Corresponding Application Code&quot; for a Combined Work means the
+  The "Corresponding Application Code" for a Combined Work means the
 object code and/or source code for the Application, including any data
 and utility programs needed for reproducing the Combined Work from the
 Application, but excluding the System Libraries of the Combined Work.
@@ -142,7 +108,7 @@ the following:
 
        1) Use a suitable shared library mechanism for linking with the
        Library.  A suitable mechanism is one that (a) uses at run time
-       a copy of the Library already present on the user&apos;s computer
+       a copy of the Library already present on the user's computer
        system, and (b) will operate properly with a modified version
        of the Library that is interface-compatible with the Linked
        Version.
@@ -184,7 +150,7 @@ differ in detail to address new problems or concerns.
 
   Each version is given a distinguishing version number. If the
 Library as you received it specifies that a certain numbered version
-of the GNU Lesser General Public License &quot;or any later version&quot;
+of the GNU Lesser General Public License "or any later version"
 applies to it, you have the option of following the terms and
 conditions either of that published version or of any later version
 published by the Free Software Foundation. If the Library as you
@@ -194,19 +160,6 @@ General Public License ever published by the Free Software Foundation.
 
   If the Library as you received it specifies that a proxy can decide
 whether future versions of the GNU Lesser General Public License shall
-apply, that proxy&apos;s public statement of acceptance of any version is
+apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.
-&lt;/pre&gt;
-   </license>
-
-
-   <includes
-         id="org.openscada.ds"
-         version="0.0.0"/>
-
-   <includes
-         id="org.openscada.ds.source"
-         version="0.0.0"/>
-
-</feature>
