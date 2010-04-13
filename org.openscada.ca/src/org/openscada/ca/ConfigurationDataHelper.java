@@ -1,5 +1,7 @@
 package org.openscada.ca;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigurationDataHelper
@@ -300,6 +302,38 @@ public class ConfigurationDataHelper
         {
             return defaultValue;
         }
+        return result;
+    }
+
+    /**
+     * Extracts attributes that start with a prefix and return the matching entries
+     * only with the key truncated by the prefix.
+     * @param prefix the prefix to use
+     * @return the result map
+     */
+    public Map<String, String> getPrefixed ( final String prefix )
+    {
+        if ( prefix == null )
+        {
+            return Collections.emptyMap ();
+        }
+
+        final int prefixLen = prefix.length ();
+
+        final Map<String, String> result = new HashMap<String, String> ( 8 );
+
+        for ( final Map.Entry<String, String> entry : this.data.entrySet () )
+        {
+            final String key = entry.getKey ();
+            if ( key == null || !key.startsWith ( prefix ) )
+            {
+                continue;
+            }
+
+            final String subKey = key.substring ( prefixLen );
+            result.put ( subKey, entry.getValue () );
+        }
+
         return result;
     }
 }
