@@ -42,7 +42,7 @@ public class HsdbHelper
         {
             return emptyResultArray;
         }
-        if ( ( values == null ) || ( values.length == 0 ) || ( startIndex >= values.length ) )
+        if ( values == null || values.length == 0 || startIndex >= values.length )
         {
             if ( emptyResultArray instanceof LongValue[] )
             {
@@ -137,11 +137,11 @@ public class HsdbHelper
         {
             return;
         }
-        if ( ( inputChannel == null ) || ( outputChannel == null ) || ( inputCalculationLogicProvider == null ) || ( outputCalculationLogicProvider == null ) )
+        if ( inputChannel == null || outputChannel == null || inputCalculationLogicProvider == null || outputCalculationLogicProvider == null )
         {
             final String message = "insufficient input data: parameters must not be null";
             logger.error ( message );
-            throw new Exception ( message );
+            throw new IllegalArgumentException ( message );
         }
         final DataType inputDataType = inputCalculationLogicProvider.getOutputType ();
         final DataType outputDataType = outputCalculationLogicProvider.getOutputType ();
@@ -149,7 +149,7 @@ public class HsdbHelper
         {
             final String message = "input datatype does not match expected datatype";
             logger.error ( message );
-            throw new Exception ( message );
+            throw new IllegalArgumentException ( message );
         }
         final long inputTimespan = inputCalculationLogicProvider.getRequiredTimespanForCalculation ();
         final long outputTimespan = outputCalculationLogicProvider.getRequiredTimespanForCalculation ();
@@ -185,7 +185,7 @@ public class HsdbHelper
                     }
                     final long lastFilledValueTime = inputValues[inputValues.length - 1].getTime ();
                     final long size = inputValues.length;
-                    while ( ( startIndex + 1 < size ) && ( inputValues[startIndex + 1].getTime () < lastFilledValueTime ) )
+                    while ( startIndex + 1 < size && inputValues[startIndex + 1].getTime () < lastFilledValueTime )
                     {
                         startIndex++;
                     }
@@ -230,15 +230,15 @@ public class HsdbHelper
         {
             return newValue != null;
         }
-        if ( ( oldValue.getQualityIndicator () != newValue.getQualityIndicator () ) || ( oldValue.getManualIndicator () != newValue.getManualIndicator () ) )
+        if ( oldValue.getQualityIndicator () != newValue.getQualityIndicator () || oldValue.getManualIndicator () != newValue.getManualIndicator () )
         {
             return true;
         }
-        if ( ( oldValue instanceof LongValue ) && ( newValue instanceof LongValue ) && ( ( (LongValue)oldValue ).getValue () != ( (LongValue)newValue ).getValue () ) )
+        if ( oldValue instanceof LongValue && newValue instanceof LongValue && ( (LongValue)oldValue ).getValue () != ( (LongValue)newValue ).getValue () )
         {
             return true;
         }
-        if ( ( oldValue instanceof DoubleValue ) && ( newValue instanceof DoubleValue ) && ( ( (DoubleValue)oldValue ).getValue () != ( (DoubleValue)newValue ).getValue () ) )
+        if ( oldValue instanceof DoubleValue && newValue instanceof DoubleValue && ( (DoubleValue)oldValue ).getValue () != ( (DoubleValue)newValue ).getValue () )
         {
             return true;
         }
