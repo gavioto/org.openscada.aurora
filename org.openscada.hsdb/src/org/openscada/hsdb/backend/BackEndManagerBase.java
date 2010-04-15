@@ -18,10 +18,10 @@ import org.openscada.hsdb.StorageChannelMetaData;
 import org.openscada.hsdb.calculation.CalculationLogicProvider;
 import org.openscada.hsdb.calculation.CalculationLogicProviderFactoryImpl;
 import org.openscada.hsdb.calculation.CalculationMethod;
-import org.openscada.hsdb.concurrent.HsdbThreadFactory;
 import org.openscada.hsdb.configuration.Configuration;
 import org.openscada.hsdb.configuration.Conversions;
 import org.openscada.hsdb.utils.HsdbHelper;
+import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,10 +103,10 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         this.storageChannelTreeBackEnds = new ArrayList<BackEnd> ();
         final Map<String, String> data = configuration.getData ();
         this.maximumCompressionLevel = data == null ? 0 : Conversions.parseLong ( data.get ( Configuration.MAX_COMPRESSION_LEVEL ), 0 );
-        this.repairTask = Executors.newSingleThreadExecutor ( HsdbThreadFactory.createFactory ( REPAIR_THREAD_ID ) );
-        lock = new ReentrantReadWriteLock ();
-        cachedBackEnds = new HashMap<Object, Map<B, BackEndFragmentInformation>> ();
-        initialized = false;
+        this.repairTask = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( this.REPAIR_THREAD_ID ) );
+        this.lock = new ReentrantReadWriteLock ();
+        this.cachedBackEnds = new HashMap<Object, Map<B, BackEndFragmentInformation>> ();
+        this.initialized = false;
     }
 
     /**
@@ -116,7 +116,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     protected void flushConfiguration ()
     {
         // remove existing entries in the configuration that have to be created again
-        final Map<String, String> data = configuration.getData ();
+        final Map<String, String> data = this.configuration.getData ();
         final List<String> keysToRemove = new ArrayList<String> ();
         for ( final String key : data.keySet () )
         {
@@ -158,7 +158,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
 
         // build new configuration structure
         final List<BackEndFragmentInformation> backEndFragmentInformations = new ArrayList<BackEndFragmentInformation> ();
-        for ( long i = 0; i <= maximumCompressionLevel; i++ )
+        for ( long i = 0; i <= this.maximumCompressionLevel; i++ )
         {
             if ( i == 0 )
             {
@@ -166,7 +166,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             }
             else
             {
-                for ( final CalculationMethod calculationMethod : calculationMethods )
+                for ( final CalculationMethod calculationMethod : this.calculationMethods )
                 {
                     backEndFragmentInformations.addAll ( getBackEndInformations ( i, calculationMethod, Long.MIN_VALUE, Long.MAX_VALUE, true ) );
                 }
@@ -176,7 +176,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         // prepare new configuration
         final int size = backEndFragmentInformations.size ();
         data.put ( Configuration.MANAGER_KNOWN_FRAGMENTS_COUNT, "" + size );
-        corruptFilesExist = false;
+        this.corruptFilesExist = false;
         for ( int i = 0; i < size; i++ )
         {
             final BackEndFragmentInformation backendInformation = backEndFragmentInformations.get ( i );
@@ -186,11 +186,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_END_TIME_PREFIX + i, "" + backendInformation.getEndTime () );
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_CORRUPT_STATUS_PREFIX + i, "" + backendInformation.getIsCorrupt () );
             data.put ( Configuration.MANAGER_KNOWN_FRAGMENT_NAME_PREFIX + i, backendInformation.getFragmentName () );
-            corruptFilesExist |= ( backendInformation.getDetailLevelId () > 0 ) && backendInformation.getIsCorrupt ();
+            this.corruptFilesExist |= backendInformation.getDetailLevelId () > 0 && backendInformation.getIsCorrupt ();
         }
 
         // save configuration
-        backEndManagerFactory.save ( configuration );
+        this.backEndManagerFactory.save ( this.configuration );
     }
 
     /**
@@ -198,13 +198,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public void initialize () throws Exception
     {
-        final Map<String, String> data = configuration.getData ();
+        final Map<String, String> data = this.configuration.getData ();
         if ( data == null )
         {
             throw new Exception ( "configuration is not initialized!" );
         }
         final long fragmentCount = Conversions.parseLong ( data.get ( Configuration.MANAGER_KNOWN_FRAGMENTS_COUNT ), 0 );
-        final String configurationId = configuration.getId ();
+        final String configurationId = this.configuration.getId ();
         boolean updateConfiguration = false;
         for ( long i = 0; i < fragmentCount; i++ )
         {
@@ -228,7 +228,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 {
                     throw new Exception ( String.format ( "invalid start/end time specified for file with index %s", i ) );
                 }
-                if ( ( fragmentName == null ) || ( fragmentName.trim ().length () == 0 ) )
+                if ( fragmentName == null || fragmentName.trim ().length () == 0 )
                 {
                     throw new Exception ( String.format ( "invalid file name specified for file with index %s", i ) );
                 }
@@ -241,7 +241,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 backEndFragmentInformation.setEndTime ( endTime );
                 backEndFragmentInformation.setFragmentName ( fragmentName );
                 final boolean mergedCorruptFlag = isCorrupt || checkIsBackEndCorrupt ( backEndFragmentInformation );
-                corruptFilesExist |= ( detailLevelId > 0 ) && mergedCorruptFlag;
+                this.corruptFilesExist |= detailLevelId > 0 && mergedCorruptFlag;
                 backEndFragmentInformation.setIsCorrupt ( mergedCorruptFlag );
                 addBackEndFragmentInformation ( backEndFragmentInformation, i == fragmentCount - 1 );
                 if ( !isCorrupt && mergedCorruptFlag )
@@ -259,7 +259,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             flushConfiguration ();
         }
-        initialized = true;
+        this.initialized = true;
     }
 
     /**
@@ -267,11 +267,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public void deinitialize () throws Exception
     {
-        lock.writeLock ().lock ();
-        initialized = false;
+        this.lock.writeLock ().lock ();
+        this.initialized = false;
         try
         {
-            for ( final Map<B, BackEndFragmentInformation> entry : cachedBackEnds.values () )
+            for ( final Map<B, BackEndFragmentInformation> entry : this.cachedBackEnds.values () )
             {
                 for ( final B backEnd : entry.keySet () )
                 {
@@ -281,15 +281,15 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     }
                     catch ( final Exception e )
                     {
-                        logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", configuration.getId () ), e );
+                        logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", this.configuration.getId () ), e );
                     }
                 }
             }
-            cachedBackEnds.clear ();
+            this.cachedBackEnds.clear ();
         }
         finally
         {
-            lock.writeLock ().unlock ();
+            this.lock.writeLock ().unlock ();
         }
     }
 
@@ -301,11 +301,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     protected void addBackEndFragmentInformation ( final BackEndFragmentInformation backEndFragmentInformation, final boolean sort )
     {
         final long detailLevelId = backEndFragmentInformation.getDetailLevelId ();
-        Map<CalculationMethod, List<BackEndFragmentInformation>> map = masterBackEnds.get ( detailLevelId );
+        Map<CalculationMethod, List<BackEndFragmentInformation>> map = this.masterBackEnds.get ( detailLevelId );
         if ( map == null )
         {
             map = new HashMap<CalculationMethod, List<BackEndFragmentInformation>> ();
-            masterBackEnds.put ( detailLevelId, map );
+            this.masterBackEnds.put ( detailLevelId, map );
         }
         final CalculationMethod calculationMethod = backEndFragmentInformation.getCalculationMethod ();
         List<BackEndFragmentInformation> list = map.get ( detailLevelId == 0 ? CalculationMethod.NATIVE : calculationMethod );
@@ -345,7 +345,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public Configuration getConfiguration ()
     {
-        return new Configuration ( configuration );
+        return new Configuration ( this.configuration );
     }
 
     /**
@@ -353,7 +353,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public BackEndManagerFactory getBackEndManagerFactory ()
     {
-        return backEndManagerFactory;
+        return this.backEndManagerFactory;
     }
 
     /**
@@ -361,7 +361,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public BackEndFactory getBackEndFactory ()
     {
-        return backEndFactory;
+        return this.backEndFactory;
     }
 
     /**
@@ -369,7 +369,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public long getMaximumCompressionLevel ()
     {
-        return maximumCompressionLevel;
+        return this.maximumCompressionLevel;
     }
 
     /**
@@ -377,7 +377,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public CalculationMethod[] getCalculationMethods ()
     {
-        return calculationMethods.clone ();
+        return this.calculationMethods.clone ();
     }
 
     /**
@@ -418,13 +418,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public CalculatingStorageChannel buildStorageChannelTree ()
     {
-        lock.writeLock ().lock ();
+        this.lock.writeLock ().lock ();
         try
         {
             // optimize calculation
-            if ( ( storageChannels != null ) && ( storageChannels.length > 0 ) )
+            if ( this.storageChannels != null && this.storageChannels.length > 0 )
             {
-                return storageChannels[0];
+                return this.storageChannels[0];
             }
 
             // create back end objects 
@@ -432,57 +432,57 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             try
             {
                 // create back end objects
-                final StorageChannelMetaData[] metaDatas = Conversions.convertConfigurationToMetaDatas ( configuration );
-                if ( ( metaDatas == null ) || ( metaDatas.length == 0 ) )
+                final StorageChannelMetaData[] metaDatas = Conversions.convertConfigurationToMetaDatas ( this.configuration );
+                if ( metaDatas == null || metaDatas.length == 0 )
                 {
-                    final String message = String.format ( "invalid configuration (%s)", configuration.getId () );
+                    final String message = String.format ( "invalid configuration (%s)", this.configuration.getId () );
                     logger.error ( message );
                     throw new Exception ( message );
                 }
                 for ( final StorageChannelMetaData metaData : metaDatas )
                 {
                     final BackEndMultiplexer backEnd = new BackEndMultiplexer ( this );
-                    storageChannelTreeBackEnds.add ( backEnd );
+                    this.storageChannelTreeBackEnds.add ( backEnd );
                     backEnd.initialize ( metaData );
                 }
 
                 // create hierarchical storage channel structure
-                storageChannels = new CalculatingStorageChannel[storageChannelTreeBackEnds.size ()];
-                for ( int i = 0; i < storageChannelTreeBackEnds.size (); i++ )
+                this.storageChannels = new CalculatingStorageChannel[this.storageChannelTreeBackEnds.size ()];
+                for ( int i = 0; i < this.storageChannelTreeBackEnds.size (); i++ )
                 {
-                    final BackEnd backEnd = storageChannelTreeBackEnds.get ( i );
+                    final BackEnd backEnd = this.storageChannelTreeBackEnds.get ( i );
                     final CalculationMethod calculationMethod = backEnd.getMetaData ().getCalculationMethod ();
                     int superBackEndIndex = -1;
                     for ( int j = i - 1; j >= 0; j-- )
                     {
-                        final BackEnd superBackEndCandidate = storageChannelTreeBackEnds.get ( j );
+                        final BackEnd superBackEndCandidate = this.storageChannelTreeBackEnds.get ( j );
                         final CalculationMethod superCalculationMethod = superBackEndCandidate.getMetaData ().getCalculationMethod ();
-                        if ( ( superCalculationMethod == calculationMethod ) || ( superCalculationMethod == CalculationMethod.NATIVE ) )
+                        if ( superCalculationMethod == calculationMethod || superCalculationMethod == CalculationMethod.NATIVE )
                         {
                             superBackEndIndex = j;
                             break;
                         }
                     }
-                    storageChannels[i] = new CalculatingStorageChannel ( new ExtendedStorageChannelAdapter ( backEnd ), superBackEndIndex >= 0 ? storageChannels[superBackEndIndex] : null, calculationLogicProviderFactory.getCalculationLogicProvider ( backEnd.getMetaData () ) );
+                    this.storageChannels[i] = new CalculatingStorageChannel ( new ExtendedStorageChannelAdapter ( backEnd ), superBackEndIndex >= 0 ? this.storageChannels[superBackEndIndex] : null, this.calculationLogicProviderFactory.getCalculationLogicProvider ( backEnd.getMetaData () ) );
                     if ( superBackEndIndex >= 0 )
                     {
-                        storageChannels[superBackEndIndex].registerStorageChannel ( storageChannels[i] );
+                        this.storageChannels[superBackEndIndex].registerStorageChannel ( this.storageChannels[i] );
                     }
                 }
-                return storageChannels[0];
+                return this.storageChannels[0];
             }
             catch ( final Exception e )
             {
                 exception = e;
             }
-            final String message = String.format ( "could not create all back ends required for configuration '%s'", configuration.getId () );
+            final String message = String.format ( "could not create all back ends required for configuration '%s'", this.configuration.getId () );
             logger.error ( message, exception );
             releaseStorageChannelTree ();
             throw new RuntimeException ( message, exception );
         }
         finally
         {
-            lock.writeLock ().unlock ();
+            this.lock.writeLock ().unlock ();
         }
     }
 
@@ -491,15 +491,15 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public void releaseStorageChannelTree ()
     {
-        lock.writeLock ().lock ();
+        this.lock.writeLock ().lock ();
         try
         {
-            storageChannelTreeBackEnds.clear ();
-            storageChannels = null;
+            this.storageChannelTreeBackEnds.clear ();
+            this.storageChannels = null;
         }
         finally
         {
-            lock.writeLock ().unlock ();
+            this.lock.writeLock ().unlock ();
         }
     }
 
@@ -508,11 +508,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> buildStorageChannelStructure ()
     {
-        lock.readLock ().lock ();
+        this.lock.readLock ().lock ();
         try
         {
             // build the storage channel tree structure if it does not yet exist
-            final boolean storageChannelTreeExists = storageChannels != null;
+            final boolean storageChannelTreeExists = this.storageChannels != null;
             if ( !storageChannelTreeExists )
             {
                 buildStorageChannelTree ();
@@ -522,13 +522,13 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             final Map<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> resultMap = new HashMap<Long, Map<CalculationMethod, Map<ExtendedStorageChannel, CalculationLogicProvider>>> ();
             try
             {
-                for ( final CalculatingStorageChannel calculatingStorageChannel : storageChannels )
+                for ( final CalculatingStorageChannel calculatingStorageChannel : this.storageChannels )
                 {
                     // collect data for map entry
                     final StorageChannelMetaData metaData = new StorageChannelMetaData ( calculatingStorageChannel.getMetaData () );
                     final long detailLevelId = metaData.getDetailLevelId ();
                     final CalculationMethod calculationMethod = metaData.getCalculationMethod ();
-                    final CalculationLogicProvider calculationLogicProvider = calculationLogicProviderFactory.getCalculationLogicProvider ( metaData );
+                    final CalculationLogicProvider calculationLogicProvider = this.calculationLogicProviderFactory.getCalculationLogicProvider ( metaData );
                     final BackEndMultiplexer backEnd = new BackEndMultiplexer ( this );
                     backEnd.initialize ( metaData );
                     final ExtendedStorageChannel storageChannel = new ExtendedStorageChannelAdapter ( backEnd );
@@ -563,7 +563,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         finally
         {
-            lock.readLock ().unlock ();
+            this.lock.readLock ().unlock ();
         }
     }
 
@@ -572,14 +572,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public void delete ()
     {
-        lock.writeLock ().lock ();
+        this.lock.writeLock ().lock ();
         try
         {
-            backEndManagerFactory.delete ( configuration );
+            this.backEndManagerFactory.delete ( this.configuration );
         }
         finally
         {
-            lock.writeLock ().unlock ();
+            this.lock.writeLock ().unlock ();
         }
     }
 
@@ -597,7 +597,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     protected List<BackEndFragmentInformation> getBackEndInformations ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime, final boolean addIfEmpty )
     {
         final List<BackEndFragmentInformation> result = new ArrayList<BackEndFragmentInformation> ();
-        final Map<CalculationMethod, List<BackEndFragmentInformation>> map = masterBackEnds.get ( detailLevelId );
+        final Map<CalculationMethod, List<BackEndFragmentInformation>> map = this.masterBackEnds.get ( detailLevelId );
         if ( map == null )
         {
             return result;
@@ -611,7 +611,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             final long metaDataStartTime = backEndFragmentInformation.getStartTime ();
             final long metaDataEndTime = backEndFragmentInformation.getEndTime ();
-            if ( ( startTime <= metaDataEndTime ) && ( endTime > metaDataStartTime ) )
+            if ( startTime <= metaDataEndTime && endTime > metaDataStartTime )
             {
                 try
                 {
@@ -620,14 +620,14 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                         result.add ( backEndFragmentInformation );
                     }
                     final Long earliestTime = updateBackEndEarliestTimeInformation ( backEndFragmentInformation );
-                    if ( ( earliestTime != null ) && ( earliestTime <= startTime ) )
+                    if ( earliestTime != null && earliestTime <= startTime )
                     {
                         break;
                     }
                 }
                 catch ( final Exception e )
                 {
-                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), configuration.getId () ) );
+                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), this.configuration.getId () ) );
                     backEndFragmentInformation.setIsCorrupt ( true );
                     flushConfiguration ();
                 }
@@ -644,7 +644,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 }
                 catch ( final Exception e )
                 {
-                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), configuration.getId () ) );
+                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndFragmentInformation.getFragmentName (), this.configuration.getId () ) );
                     backEndFragmentInformation.setIsCorrupt ( true );
                     flushConfiguration ();
                 }
@@ -658,7 +658,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public B getBackEndForInsert ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp ) throws Exception
     {
-        lock.writeLock ().lock ();
+        this.lock.writeLock ().lock ();
         try
         {
             final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1, true );
@@ -671,7 +671,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             else
             {
                 final BackEndFragmentInformation existingBackEndInformation = backEndInformations.get ( 0 );
-                if ( ( existingBackEndInformation.getStartTime () <= timestamp ) && ( existingBackEndInformation.getEndTime () > timestamp ) )
+                if ( existingBackEndInformation.getStartTime () <= timestamp && existingBackEndInformation.getEndTime () > timestamp )
                 {
                     // all is good. the current back end object can be used
                     result = existingBackEndInformation;
@@ -687,7 +687,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         finally
         {
-            lock.writeLock ().unlock ();
+            this.lock.writeLock ().unlock ();
         }
     }
 
@@ -702,7 +702,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     private BackEndFragmentInformation addNewBackEndObjects ( final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long time ) throws Exception
     {
-        final Map<String, String> data = configuration.getData ();
+        final Map<String, String> data = this.configuration.getData ();
         long timespan = Conversions.decodeTimeSpan ( data.get ( Configuration.MANAGER_FRAGMENT_TIMESPAN_PER_LEVEL_PREFIX + detailLevelId ) );
         if ( timespan < 1 )
         {
@@ -713,7 +713,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         {
             final BackEndFragmentInformation backEndFragmentInformation = new BackEndFragmentInformation ();
             backEndFragmentInformation.setCalculationMethod ( calculationMethod );
-            backEndFragmentInformation.setConfigurationId ( configuration.getId () );
+            backEndFragmentInformation.setConfigurationId ( this.configuration.getId () );
             backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
             backEndFragmentInformation.setDetailLevelId ( detailLevelId );
             backEndFragmentInformation.setIsCorrupt ( false );
@@ -725,7 +725,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         final BackEndFragmentInformation backEndFragmentInformation = new BackEndFragmentInformation ();
         backEndFragmentInformation.setCalculationMethod ( calculationMethod );
-        backEndFragmentInformation.setConfigurationId ( configuration.getId () );
+        backEndFragmentInformation.setConfigurationId ( this.configuration.getId () );
         backEndFragmentInformation.setLock ( new ReentrantReadWriteLock () );
         backEndFragmentInformation.setDetailLevelId ( detailLevelId );
         backEndFragmentInformation.setIsCorrupt ( false );
@@ -743,17 +743,17 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public B[] getExistingBackEnds ( final Object user, final long detailLevelId, final CalculationMethod calculationMethod, final long startTime, final long endTime ) throws Exception
     {
-        lock.readLock ().lock ();
+        this.lock.readLock ().lock ();
         try
         {
             final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, startTime, endTime, false );
             final List<B> result = new ArrayList<B> ();
-            final Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
+            final Map<B, BackEndFragmentInformation> cachedBackEnd = this.cachedBackEnds.get ( user );
             final B cachedBackEndFragment = cachedBackEnd == null || cachedBackEnd.isEmpty () ? null : cachedBackEnd.keySet ().iterator ().next ();
             final BackEndFragmentInformation cachedBackEndFragmentInformation = cachedBackEnd == null || cachedBackEnd.isEmpty () ? null : cachedBackEnd.values ().iterator ().next ();
             for ( final BackEndFragmentInformation backEndInformation : backEndInformations )
             {
-                if ( ( cachedBackEndFragmentInformation != null ) && ( cachedBackEndFragmentInformation.compareTo ( backEndInformation ) == 0 ) )
+                if ( cachedBackEndFragmentInformation != null && cachedBackEndFragmentInformation.compareTo ( backEndInformation ) == 0 )
                 {
                     result.add ( cachedBackEndFragment );
                 }
@@ -762,11 +762,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     result.add ( createBackEnd ( backEndInformation, true, true ) );
                 }
             }
-            return result.toArray ( emptyBackEndArray );
+            return result.toArray ( this.emptyBackEndArray );
         }
         finally
         {
-            lock.readLock ().unlock ();
+            this.lock.readLock ().unlock ();
         }
     }
 
@@ -782,15 +782,15 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     private B checkReplaceExistingWriteBackEnd ( final Object user, final BackEndFragmentInformation backEndFragmentInformation ) throws Exception
     {
-        if ( !initialized )
+        if ( !this.initialized )
         {
             return createBackEnd ( backEndFragmentInformation, false, false );
         }
-        Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
+        Map<B, BackEndFragmentInformation> cachedBackEnd = this.cachedBackEnds.get ( user );
         if ( cachedBackEnd == null )
         {
             cachedBackEnd = new HashMap<B, BackEndFragmentInformation> ( 3 );
-            cachedBackEnds.put ( user, cachedBackEnd );
+            this.cachedBackEnds.put ( user, cachedBackEnd );
         }
         if ( !cachedBackEnd.isEmpty () )
         {
@@ -805,7 +805,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             }
             catch ( final Exception e )
             {
-                logger.error ( String.format ( "could not deinitialize back end fragment for configuration with id '%s'", configuration.getId () ), e );
+                logger.error ( String.format ( "could not deinitialize back end fragment for configuration with id '%s'", this.configuration.getId () ), e );
             }
         }
         cachedBackEnd.clear ();
@@ -821,15 +821,15 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
     {
         try
         {
-            final Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.get ( user );
-            if ( ( cachedBackEnd == null ) || !cachedBackEnd.keySet ().contains ( backEnd ) )
+            final Map<B, BackEndFragmentInformation> cachedBackEnd = this.cachedBackEnds.get ( user );
+            if ( cachedBackEnd == null || !cachedBackEnd.keySet ().contains ( backEnd ) )
             {
                 backEnd.deinitialize ();
             }
         }
         catch ( final Exception e )
         {
-            logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", configuration.getId () ), e );
+            logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", this.configuration.getId () ), e );
         }
     }
 
@@ -838,10 +838,10 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public void freeRelatedResourced ( final Object user )
     {
-        lock.writeLock ().lock ();
+        this.lock.writeLock ().lock ();
         try
         {
-            final Map<B, BackEndFragmentInformation> cachedBackEnd = cachedBackEnds.remove ( user );
+            final Map<B, BackEndFragmentInformation> cachedBackEnd = this.cachedBackEnds.remove ( user );
             if ( cachedBackEnd != null )
             {
                 for ( final B backEnd : cachedBackEnd.keySet () )
@@ -852,7 +852,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     }
                     catch ( final Exception e )
                     {
-                        logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", configuration.getId () ), e );
+                        logger.error ( String.format ( "could not deinitialize back end for configuration with id '%s'", this.configuration.getId () ), e );
                     }
                 }
                 cachedBackEnd.clear ();
@@ -860,7 +860,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         finally
         {
-            lock.writeLock ().unlock ();
+            this.lock.writeLock ().unlock ();
         }
     }
 
@@ -869,11 +869,11 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public void deleteOldBackEnds ( final long detailLevelId, final CalculationMethod calculationMethod, final long endTime )
     {
-        lock.writeLock ().lock ();
+        this.lock.writeLock ().lock ();
         try
         {
             final List<BackEndFragmentInformation> backEndFragmentInformationToDelete = new ArrayList<BackEndFragmentInformation> ();
-            final Map<CalculationMethod, List<BackEndFragmentInformation>> map = masterBackEnds.get ( detailLevelId );
+            final Map<CalculationMethod, List<BackEndFragmentInformation>> map = this.masterBackEnds.get ( detailLevelId );
             if ( map == null )
             {
                 return;
@@ -899,7 +899,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         finally
         {
-            lock.writeLock ().unlock ();
+            this.lock.writeLock ().unlock ();
         }
     }
 
@@ -908,7 +908,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public void markBackEndAsCorrupt ( final long detailLevelId, final CalculationMethod calculationMethod, final long timestamp )
     {
-        lock.readLock ().lock ();
+        this.lock.readLock ().lock ();
         try
         {
             final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, timestamp, timestamp + 1, true );
@@ -917,7 +917,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             {
                 if ( !backEndInformation.getIsCorrupt () )
                 {
-                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndInformation.getFragmentName (), configuration.getId () ) );
+                    logger.error ( String.format ( "marking back end fragment (%s) of configuration with id '%s' as corrupt", backEndInformation.getFragmentName (), this.configuration.getId () ) );
                     backEndInformation.setIsCorrupt ( true );
                     statusChanged = true;
                 }
@@ -929,7 +929,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
         }
         finally
         {
-            lock.readLock ().unlock ();
+            this.lock.readLock ().unlock ();
         }
     }
 
@@ -938,15 +938,15 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
      */
     public boolean repairBackEndFragmentsIfRequired ( final AbortNotificator abortNotificator )
     {
-        if ( corruptFilesExist )
+        if ( this.corruptFilesExist )
         {
             // collect information of all corrupt back end object
             logger.info ( "collecting data required for repair action..." );
             final long now = System.currentTimeMillis ();
             final List<BackEndFragmentInformation> corruptBackEndFragmentInformations = new ArrayList<BackEndFragmentInformation> ();
-            for ( long i = 1; i <= maximumCompressionLevel; i++ )
+            for ( long i = 1; i <= this.maximumCompressionLevel; i++ )
             {
-                for ( final CalculationMethod calculationMethod : calculationMethods )
+                for ( final CalculationMethod calculationMethod : this.calculationMethods )
                 {
                     final List<BackEndFragmentInformation> backEndInformations = getBackEndInformations ( i, calculationMethod, Long.MIN_VALUE, Long.MAX_VALUE, false );
                     for ( final BackEndFragmentInformation backEndInformation : backEndInformations )
@@ -959,7 +959,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                             }
                             else
                             {
-                                logger.error ( String.format ( "corrupt back end fragment '%s' for configuration '%s' is not ready for being repaired!", backEndInformation.getFragmentName (), configuration.getId () ) );
+                                logger.error ( String.format ( "corrupt back end fragment '%s' for configuration '%s' is not ready for being repaired!", backEndInformation.getFragmentName (), this.configuration.getId () ) );
                             }
                         }
                     }
@@ -974,7 +974,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                 for ( final BackEndFragmentInformation backEndInformation : corruptBackEndFragmentInformations )
                 {
                     // abort if abort is requested
-                    if ( ( abortNotificator != null ) && abortNotificator.getAbort () )
+                    if ( abortNotificator != null && abortNotificator.getAbort () )
                     {
                         break;
                     }
@@ -987,7 +987,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
 
                     // check whether the corrupt fragment is the latest of its detail level and calculation method or whether it is needed by other such corrupt fragments for input
                     final List<BackEndFragmentInformation> existingBackEndInformations = getBackEndInformations ( detailLevelId, calculationMethod, Long.MAX_VALUE - 1, Long.MAX_VALUE, false );
-                    final boolean urgentlyNeededBackEndFragment = existingBackEndInformations.isEmpty () || ( existingBackEndInformations.get ( 0 ).getStartTime () == startTime ) || getIsDependingRequiredBackEndFragment ( backEndInformation );
+                    final boolean urgentlyNeededBackEndFragment = existingBackEndInformations.isEmpty () || existingBackEndInformations.get ( 0 ).getStartTime () == startTime || getIsDependingRequiredBackEndFragment ( backEndInformation );
 
                     // search for the storage channel that is responsible for the corrupt back end fragment
                     try
@@ -995,7 +995,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                         for ( final CalculatingStorageChannel outputCalculatingStorageChannel : storageChannels )
                         {
                             final StorageChannelMetaData metaData = outputCalculatingStorageChannel.getMetaData ();
-                            if ( ( metaData.getDetailLevelId () == detailLevelId ) && ( metaData.getCalculationMethod () == calculationMethod ) )
+                            if ( metaData.getDetailLevelId () == detailLevelId && metaData.getCalculationMethod () == calculationMethod )
                             {
                                 // process the data for the corrupt time span
                                 final CalculatingStorageChannel inputCalculatingStorageChannel = (CalculatingStorageChannel)outputCalculatingStorageChannel.getInputStorageChannel ();
@@ -1005,7 +1005,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                 final ExtendedStorageChannel inputChannel = inputCalculatingStorageChannel.getBaseStorageChannel ();
                                 if ( urgentlyNeededBackEndFragment )
                                 {
-                                    if ( ( abortNotificator == null ) || !abortNotificator.getAbort () )
+                                    if ( abortNotificator == null || !abortNotificator.getAbort () )
                                     {
                                         logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
                                         deleteBackEnd ( backEndInformation );
@@ -1015,12 +1015,12 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                 }
                                 else
                                 {
-                                    repairTask.submit ( new Runnable () {
+                                    this.repairTask.submit ( new Runnable () {
                                         public void run ()
                                         {
                                             try
                                             {
-                                                if ( ( abortNotificator == null ) || !abortNotificator.getAbort () )
+                                                if ( abortNotificator == null || !abortNotificator.getAbort () )
                                                 {
                                                     logger.info ( String.format ( "processing [%s]...", backEndInformation.getFragmentName () ) );
                                                     deleteBackEnd ( backEndInformation );
@@ -1031,7 +1031,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                                             }
                                             catch ( final Exception e )
                                             {
-                                                final String message = String.format ( "problem while repairing corrupt back end fragment (%s) for configuration '%s'", backEndInformation.getFragmentName (), configuration.getId () );
+                                                final String message = String.format ( "problem while repairing corrupt back end fragment (%s) for configuration '%s'", backEndInformation.getFragmentName (), BackEndManagerBase.this.configuration.getId () );
                                                 logger.error ( message, e );
                                             }
                                         }
@@ -1043,7 +1043,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
                     }
                     catch ( final Exception e )
                     {
-                        logger.error ( String.format ( "unable to access meta data for storage channel of configuration '%s'", configuration.getId () ) );
+                        logger.error ( String.format ( "unable to access meta data for storage channel of configuration '%s'", this.configuration.getId () ) );
                     }
                 }
                 flushConfiguration ();
@@ -1051,7 +1051,7 @@ public abstract class BackEndManagerBase<B extends BackEnd> implements BackEndMa
             }
             releaseStorageChannelTree ();
         }
-        return !corruptFilesExist;
+        return !this.corruptFilesExist;
     }
 
     /**
