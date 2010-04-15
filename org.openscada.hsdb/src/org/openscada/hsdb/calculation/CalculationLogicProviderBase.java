@@ -28,7 +28,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     /** Data type of the output values. */
     private final DataType outputDataType;
 
-    /** Parameters further specifying the behaviour. */
+    /** Parameters further specifying the behavior. */
     private final long[] parameters;
 
     /**
@@ -56,11 +56,11 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
      */
     protected long getParameterValue ( final int index, final long defaultValue )
     {
-        if ( ( parameters == null ) || ( index < 0 ) || ( parameters.length <= index ) )
+        if ( this.parameters == null || index < 0 || this.parameters.length <= index )
         {
             return defaultValue;
         }
-        return parameters[index];
+        return this.parameters[index];
     }
 
     /**
@@ -76,7 +76,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
      */
     public DataType getInputType ()
     {
-        return inputDataType;
+        return this.inputDataType;
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
      */
     public DataType getOutputType ()
     {
-        return outputDataType;
+        return this.outputDataType;
     }
 
     /**
@@ -121,7 +121,7 @@ public abstract class CalculationLogicProviderBase implements CalculationLogicPr
     public BaseValue generateValue ( final BaseValue[] values )
     {
         // check input
-        if ( ( values == null ) || ( values.length == 0 ) )
+        if ( values == null || values.length == 0 )
         {
             return null;
         }
