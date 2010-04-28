@@ -29,7 +29,7 @@ public class DoubleValue extends BaseValue
      */
     public double getValue ()
     {
-        return value;
+        return this.value;
     }
 
     /**
@@ -46,6 +46,12 @@ public class DoubleValue extends BaseValue
      */
     public boolean equals ( final Object baseValue )
     {
-        return ( baseValue instanceof DoubleValue ) && super.equals ( baseValue ) && ( value == ( (DoubleValue)baseValue ).getValue () );
+        return baseValue instanceof DoubleValue && super.equals ( baseValue ) && this.value == ( (DoubleValue)baseValue ).getValue ();
+    }
+
+    @Override
+    public String toString ()
+    {
+        return String.format ( "DOUBLE: %s (q: %s, m: %s, @:%s, t: %s)", this.value, getQualityIndicator (), getManualIndicator (), getBaseValueCount (), getTime () );
     }
 }
