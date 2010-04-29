@@ -39,7 +39,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
     @SuppressWarnings ( { "unchecked" } )
     public List<Entry> loadAll ()
     {
-        return loadAll ( Entry.class );
+        return find ( String.format ( "from %s where instance=?", ENT_ENTRY ), INSTANCE_ID );
     }
 
     @SuppressWarnings ( "unchecked" )
