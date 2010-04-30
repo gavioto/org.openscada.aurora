@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb;
 
 import org.openscada.hsdb.calculation.CalculationMethod;
@@ -76,7 +95,7 @@ public class StorageChannelMetaData
      */
     public String getConfigurationId ()
     {
-        return configurationId;
+        return this.configurationId;
     }
 
     /**
@@ -94,7 +113,7 @@ public class StorageChannelMetaData
      */
     public CalculationMethod getCalculationMethod ()
     {
-        return calculationMethod;
+        return this.calculationMethod;
     }
 
     /**
@@ -112,7 +131,7 @@ public class StorageChannelMetaData
      */
     public long[] getCalculationMethodParameters ()
     {
-        return calculationMethodParameters;
+        return this.calculationMethodParameters;
     }
 
     /**
@@ -130,7 +149,7 @@ public class StorageChannelMetaData
      */
     public long getDetailLevelId ()
     {
-        return detailLevelId;
+        return this.detailLevelId;
     }
 
     /**
@@ -148,7 +167,7 @@ public class StorageChannelMetaData
      */
     public long getStartTime ()
     {
-        return startTime;
+        return this.startTime;
     }
 
     /**
@@ -166,7 +185,7 @@ public class StorageChannelMetaData
      */
     public long getEndTime ()
     {
-        return endTime;
+        return this.endTime;
     }
 
     /**
@@ -184,7 +203,7 @@ public class StorageChannelMetaData
      */
     public long getProposedDataAge ()
     {
-        return proposedDataAge;
+        return this.proposedDataAge;
     }
 
     /**
@@ -202,7 +221,7 @@ public class StorageChannelMetaData
      */
     public long getAcceptedTimeDelta ()
     {
-        return acceptedTimeDelta;
+        return this.acceptedTimeDelta;
     }
 
     /**
@@ -220,7 +239,7 @@ public class StorageChannelMetaData
      */
     public DataType getDataType ()
     {
-        return dataType;
+        return this.dataType;
     }
 
     /**
@@ -239,6 +258,6 @@ public class StorageChannelMetaData
     @Override
     public String toString ()
     {
-        return String.format ( "configurationId: %s; calculationMethod: %s; detailLevel: %s; startTime: %s; endTime: %s; proposedDataAge: %s; acceptedFutureTime: %s; datatype: %s", configurationId, CalculationMethod.convertCalculationMethodToString ( calculationMethod ), detailLevelId, startTime, endTime, proposedDataAge, acceptedTimeDelta, dataType );
+        return String.format ( "configurationId: %s; calculationMethod: %s; detailLevel: %s; startTime: %s; endTime: %s; proposedDataAge: %s; acceptedFutureTime: %s; datatype: %s", this.configurationId, CalculationMethod.convertCalculationMethodToString ( this.calculationMethod ), this.detailLevelId, this.startTime, this.endTime, this.proposedDataAge, this.acceptedTimeDelta, this.dataType );
     }
 }

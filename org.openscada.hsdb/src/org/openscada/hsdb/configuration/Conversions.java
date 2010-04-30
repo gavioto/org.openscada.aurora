@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb.configuration;
 
 import java.util.ArrayList;
@@ -77,25 +96,25 @@ public class Conversions
         {
             return timeSpan + MILLISECOND_SPAN_SUFFIX;
         }
-        if ( ( timeSpan % YEAR_SPAN ) == 0 )
+        if ( timeSpan % YEAR_SPAN == 0 )
         {
-            return ( timeSpan / YEAR_SPAN ) + YEAR_SPAN_SUFFIX;
+            return timeSpan / YEAR_SPAN + YEAR_SPAN_SUFFIX;
         }
-        if ( ( timeSpan % DAY_SPAN ) == 0 )
+        if ( timeSpan % DAY_SPAN == 0 )
         {
-            return ( timeSpan / DAY_SPAN ) + DAY_SPAN_SUFFIX;
+            return timeSpan / DAY_SPAN + DAY_SPAN_SUFFIX;
         }
-        if ( ( timeSpan % HOUR_SPAN ) == 0 )
+        if ( timeSpan % HOUR_SPAN == 0 )
         {
-            return ( timeSpan / HOUR_SPAN ) + HOUR_SPAN_SUFFIX;
+            return timeSpan / HOUR_SPAN + HOUR_SPAN_SUFFIX;
         }
-        if ( ( timeSpan % MINUTE_SPAN ) == 0 )
+        if ( timeSpan % MINUTE_SPAN == 0 )
         {
-            return ( timeSpan / MINUTE_SPAN ) + MINUTE_SPAN_SUFFIX;
+            return timeSpan / MINUTE_SPAN + MINUTE_SPAN_SUFFIX;
         }
-        if ( ( timeSpan % SECOND_SPAN ) == 0 )
+        if ( timeSpan % SECOND_SPAN == 0 )
         {
-            return ( timeSpan / SECOND_SPAN ) + SECOND_SPAN_SUFFIX;
+            return timeSpan / SECOND_SPAN + SECOND_SPAN_SUFFIX;
         }
         return timeSpan + MILLISECOND_SPAN_SUFFIX;
     }
@@ -147,7 +166,7 @@ public class Conversions
     public static Configuration convertMetaDatasToConfiguration ( final StorageChannelMetaData[] metaDatas ) throws Exception
     {
         // assure valid input
-        if ( ( metaDatas == null ) || metaDatas.length == 0 )
+        if ( metaDatas == null || metaDatas.length == 0 )
         {
             final String message = "no or invalid meta data objects were passed to configuration factory method";
             logger.error ( message );
@@ -296,7 +315,7 @@ public class Conversions
         if ( data != null )
         {
             final String calculationMethodsValue = data.get ( Configuration.CALCULATION_METHODS );
-            if ( ( calculationMethodsValue != null ) && ( calculationMethodsValue.trim ().length () != 0 ) )
+            if ( calculationMethodsValue != null && calculationMethodsValue.trim ().length () != 0 )
             {
                 for ( final String s : calculationMethodsValue.split ( LIST_SEPARATOR ) )
                 {
@@ -431,7 +450,7 @@ public class Conversions
      */
     public static long getFragmentStartTime ( final long now, final long timespan )
     {
-        return now - ( now % timespan );
+        return now - now % timespan;
     }
 
     /**

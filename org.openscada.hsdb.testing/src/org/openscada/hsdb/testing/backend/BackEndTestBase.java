@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb.testing.backend;
 
 import org.junit.After;
@@ -44,7 +63,7 @@ public abstract class BackEndTestBase
     @Before
     public void testFileCreate () throws Exception
     {
-        backEnd = createBackEnd ( new StorageChannelMetaData ( CONFIGURATION_ID, CalculationMethod.NATIVE, new long[0], 0, 0, MAX_COUNT, Long.MAX_VALUE, Long.MAX_VALUE, DataType.LONG_VALUE ) );
+        this.backEnd = createBackEnd ( new StorageChannelMetaData ( CONFIGURATION_ID, CalculationMethod.NATIVE, new long[0], 0, 0, MAX_COUNT, Long.MAX_VALUE, Long.MAX_VALUE, DataType.LONG_VALUE ) );
     }
 
     /**
@@ -54,8 +73,8 @@ public abstract class BackEndTestBase
     @Test
     public void testAddLong1Data () throws Exception
     {
-        backEnd.updateLong ( new LongValue ( 200, 100, 0, 1, 42 ) );
-        backEnd.updateLongs ( new LongValue[] { new LongValue ( 204, 100, 0, 1, 46 ), new LongValue ( 202, 100, 0, 1, 44 ), new LongValue ( 203, 100, 0, 1, 45 ), new LongValue ( 201, 100, 0, 1, 43 ) } );
+        this.backEnd.updateLong ( new LongValue ( 200, 100, 0, 1, 42 ) );
+        this.backEnd.updateLongs ( new LongValue[] { new LongValue ( 204, 100, 0, 1, 46 ), new LongValue ( 202, 100, 0, 1, 44 ), new LongValue ( 203, 100, 0, 1, 45 ), new LongValue ( 201, 100, 0, 1, 43 ) } );
     }
 
     /**
@@ -66,10 +85,10 @@ public abstract class BackEndTestBase
     public void testSelectLong1Data () throws Exception
     {
         testAddLong1Data ();
-        Assert.assertEquals ( 1, backEnd.getLongValues ( 200, 201 ).length );
-        Assert.assertEquals ( 4, backEnd.getLongValues ( 201, 205 ).length );
-        Assert.assertEquals ( 2, backEnd.getLongValues ( 201, 203 ).length );
-        Assert.assertEquals ( 1, backEnd.getLongValues ( 210, 220 ).length );
+        Assert.assertEquals ( 1, this.backEnd.getLongValues ( 200, 201 ).length );
+        Assert.assertEquals ( 4, this.backEnd.getLongValues ( 201, 205 ).length );
+        Assert.assertEquals ( 2, this.backEnd.getLongValues ( 201, 203 ).length );
+        Assert.assertEquals ( 1, this.backEnd.getLongValues ( 210, 220 ).length );
     }
 
     /**
@@ -81,9 +100,9 @@ public abstract class BackEndTestBase
     {
         for ( long i = 0; i < MAX_COUNT; i++ )
         {
-            backEnd.updateLong ( new LongValue ( i, 100, 0, 1, i ) );
+            this.backEnd.updateLong ( new LongValue ( i, 100, 0, 1, i ) );
         }
-        Assert.assertEquals ( MAX_COUNT, backEnd.getLongValues ( 0, MAX_COUNT ).length );
+        Assert.assertEquals ( MAX_COUNT, this.backEnd.getLongValues ( 0, MAX_COUNT ).length );
     }
 
     /**
@@ -98,9 +117,9 @@ public abstract class BackEndTestBase
         {
             valuesToInsert[i] = new LongValue ( i, 100, 0, 1, i );
         }
-        backEnd.updateLongs ( valuesToInsert );
-        Assert.assertEquals ( 4, backEnd.getLongValues ( 201, 205 ).length );
-        Assert.assertEquals ( MAX_COUNT, backEnd.getLongValues ( 0, MAX_COUNT + 1 ).length );
+        this.backEnd.updateLongs ( valuesToInsert );
+        Assert.assertEquals ( 4, this.backEnd.getLongValues ( 201, 205 ).length );
+        Assert.assertEquals ( MAX_COUNT, this.backEnd.getLongValues ( 0, MAX_COUNT + 1 ).length );
     }
 
     /**
@@ -112,9 +131,9 @@ public abstract class BackEndTestBase
     {
         if ( PERFORM_CLEANUP )
         {
-            if ( backEnd != null )
+            if ( this.backEnd != null )
             {
-                backEnd.deinitialize ();
+                this.backEnd.deinitialize ();
             }
         }
     }

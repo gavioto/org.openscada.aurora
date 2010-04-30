@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb;
 
 import org.openscada.hsdb.datatypes.DoubleValue;
@@ -36,7 +55,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized StorageChannel getStorageChannel ()
     {
-        return storageChannel;
+        return this.storageChannel;
     }
 
     /**
@@ -53,13 +72,13 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public StorageChannelMetaData getMetaData () throws Exception
     {
-        if ( storageChannel == null )
+        if ( this.storageChannel == null )
         {
             final String message = "no storage channel available for extended storage channel adapter! unable to retrieve meta data";
             logger.error ( message );
             throw new Exception ( message );
         }
-        return storageChannel.getMetaData ();
+        return this.storageChannel.getMetaData ();
     }
 
     /**
@@ -67,9 +86,9 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized void updateDouble ( final DoubleValue doubleValue ) throws Exception
     {
-        if ( ( storageChannel != null ) && ( doubleValue != null ) )
+        if ( this.storageChannel != null && doubleValue != null )
         {
-            storageChannel.updateLong ( new LongValue ( doubleValue.getTime (), doubleValue.getQualityIndicator (), doubleValue.getManualIndicator (), doubleValue.getBaseValueCount (), Double.doubleToLongBits ( doubleValue.getValue () ) ) );
+            this.storageChannel.updateLong ( new LongValue ( doubleValue.getTime (), doubleValue.getQualityIndicator (), doubleValue.getManualIndicator (), doubleValue.getBaseValueCount (), Double.doubleToLongBits ( doubleValue.getValue () ) ) );
         }
     }
 
@@ -78,7 +97,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized void updateDoubles ( final DoubleValue[] doubleValues ) throws Exception
     {
-        if ( ( storageChannel != null ) && ( doubleValues != null ) )
+        if ( this.storageChannel != null && doubleValues != null )
         {
             final LongValue[] longValues = new LongValue[doubleValues.length];
             for ( int i = 0; i < doubleValues.length; i++ )
@@ -86,7 +105,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
                 final DoubleValue doubleValue = doubleValues[i];
                 longValues[i] = new LongValue ( doubleValue.getTime (), doubleValue.getQualityIndicator (), doubleValue.getManualIndicator (), doubleValue.getBaseValueCount (), Double.doubleToLongBits ( doubleValue.getValue () ) );
             }
-            storageChannel.updateLongs ( longValues );
+            this.storageChannel.updateLongs ( longValues );
         }
     }
 
@@ -95,7 +114,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized DoubleValue[] getDoubleValues ( final long startTime, final long endTime ) throws Exception
     {
-        final LongValue[] longValues = storageChannel != null ? storageChannel.getLongValues ( startTime, endTime ) : EMPTY_LONGVALUE_ARRAY;
+        final LongValue[] longValues = this.storageChannel != null ? this.storageChannel.getLongValues ( startTime, endTime ) : EMPTY_LONGVALUE_ARRAY;
         final DoubleValue[] doubleValues = new DoubleValue[longValues.length];
         for ( int i = 0; i < longValues.length; i++ )
         {
@@ -110,7 +129,7 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized LongValue[] getLongValues ( final long startTime, final long endTime ) throws Exception
     {
-        return storageChannel != null ? storageChannel.getLongValues ( startTime, endTime ) : EMPTY_LONGVALUE_ARRAY;
+        return this.storageChannel != null ? this.storageChannel.getLongValues ( startTime, endTime ) : EMPTY_LONGVALUE_ARRAY;
     }
 
     /**
@@ -118,9 +137,9 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
     {
-        if ( storageChannel != null )
+        if ( this.storageChannel != null )
         {
-            storageChannel.updateLong ( longValue );
+            this.storageChannel.updateLong ( longValue );
         }
     }
 
@@ -129,9 +148,9 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
-        if ( storageChannel != null )
+        if ( this.storageChannel != null )
         {
-            storageChannel.updateLongs ( longValues );
+            this.storageChannel.updateLongs ( longValues );
         }
     }
 
@@ -140,9 +159,9 @@ public class ExtendedStorageChannelAdapter implements ExtendedStorageChannel
      */
     public synchronized void cleanupRelicts () throws Exception
     {
-        if ( storageChannel != null )
+        if ( this.storageChannel != null )
         {
-            storageChannel.cleanupRelicts ();
+            this.storageChannel.cleanupRelicts ();
         }
     }
 }

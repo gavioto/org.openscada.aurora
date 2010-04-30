@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb;
 
 import java.util.ArrayList;
@@ -28,7 +47,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public SimpleStorageChannelManager ()
     {
-        storageChannels = new LinkedList<ExtendedStorageChannel> ();
+        this.storageChannels = new LinkedList<ExtendedStorageChannel> ();
     }
 
     /**
@@ -36,7 +55,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void registerStorageChannel ( final ExtendedStorageChannel storageChannel )
     {
-        storageChannels.add ( storageChannel );
+        this.storageChannels.add ( storageChannel );
     }
 
     /**
@@ -44,7 +63,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void unregisterStorageChannel ( final ExtendedStorageChannel storageChannel )
     {
-        storageChannels.remove ( storageChannel );
+        this.storageChannels.remove ( storageChannel );
     }
 
     /**
@@ -53,7 +72,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateLong ( final LongValue longValue ) throws Exception
     {
         Exception innerException = null;
-        for ( final ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : this.storageChannels )
         {
             try
             {
@@ -81,7 +100,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
         Exception innerException = null;
-        for ( final ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : this.storageChannels )
         {
             try
             {
@@ -109,14 +128,14 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized LongValue[] getLongValues ( final long startTime, final long endTime ) throws Exception
     {
         // optimization if exactly one storage channel is currently managed
-        if ( storageChannels.size () == 1 )
+        if ( this.storageChannels.size () == 1 )
         {
-            return storageChannels.get ( 0 ).getLongValues ( startTime, endTime );
+            return this.storageChannels.get ( 0 ).getLongValues ( startTime, endTime );
         }
 
         // default method logic
         final List<LongValue> longValues = new ArrayList<LongValue> ();
-        for ( final StorageChannel storageChannel : storageChannels )
+        for ( final StorageChannel storageChannel : this.storageChannels )
         {
             longValues.addAll ( Arrays.asList ( storageChannel.getLongValues ( startTime, endTime ) ) );
         }
@@ -129,7 +148,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateDouble ( final DoubleValue doubleValue ) throws Exception
     {
         Exception innerException = null;
-        for ( final ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : this.storageChannels )
         {
             try
             {
@@ -157,7 +176,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized void updateDoubles ( final DoubleValue[] doubleValues ) throws Exception
     {
         Exception innerException = null;
-        for ( final ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : this.storageChannels )
         {
             try
             {
@@ -185,14 +204,14 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
     public synchronized DoubleValue[] getDoubleValues ( final long startTime, final long endTime ) throws Exception
     {
         // optimization if exactly one storage channel is currently managed
-        if ( storageChannels.size () == 1 )
+        if ( this.storageChannels.size () == 1 )
         {
-            return storageChannels.get ( 0 ).getDoubleValues ( startTime, endTime );
+            return this.storageChannels.get ( 0 ).getDoubleValues ( startTime, endTime );
         }
 
         // default method logic
         final List<DoubleValue> doubleValues = new ArrayList<DoubleValue> ();
-        for ( final ExtendedStorageChannel storageChannel : storageChannels )
+        for ( final ExtendedStorageChannel storageChannel : this.storageChannels )
         {
             doubleValues.addAll ( Arrays.asList ( storageChannel.getDoubleValues ( startTime, endTime ) ) );
         }
@@ -204,7 +223,7 @@ public abstract class SimpleStorageChannelManager implements StorageChannelManag
      */
     public synchronized void cleanupRelicts () throws Exception
     {
-        for ( final StorageChannel storageChannel : storageChannels )
+        for ( final StorageChannel storageChannel : this.storageChannels )
         {
             storageChannel.cleanupRelicts ();
         }

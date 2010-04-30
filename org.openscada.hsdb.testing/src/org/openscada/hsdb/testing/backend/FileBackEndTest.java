@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb.testing.backend;
 
 import java.io.File;
@@ -65,18 +84,18 @@ public class FileBackEndTest extends BackEndTestBase
     @Test
     public void testLongBounds () throws Exception
     {
-        backEnd.updateLong ( new LongValue ( -1, 100, 0, 1, 0 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT - 2, 100, 0, 1, 1 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT - 1, 100, 0, 1, 2 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT, 100, 0, 1, 3 ) );
-        backEnd.updateLong ( new LongValue ( MAX_COUNT + 1, 100, 0, 1, 4 ) );
-        final LongValue[] result = backEnd.getLongValues ( -10, MAX_COUNT + 10 );
+        this.backEnd.updateLong ( new LongValue ( -1, 100, 0, 1, 0 ) );
+        this.backEnd.updateLong ( new LongValue ( MAX_COUNT - 2, 100, 0, 1, 1 ) );
+        this.backEnd.updateLong ( new LongValue ( MAX_COUNT - 1, 100, 0, 1, 2 ) );
+        this.backEnd.updateLong ( new LongValue ( MAX_COUNT, 100, 0, 1, 3 ) );
+        this.backEnd.updateLong ( new LongValue ( MAX_COUNT + 1, 100, 0, 1, 4 ) );
+        final LongValue[] result = this.backEnd.getLongValues ( -10, MAX_COUNT + 10 );
         Assert.assertEquals ( 2, result.length );
         Assert.assertEquals ( 1, result[0].getValue () );
         Assert.assertEquals ( 2, result[1].getValue () );
-        final LongValue[] result2 = backEnd.getLongValues ( MAX_COUNT - 1, MAX_COUNT - 1 );
+        final LongValue[] result2 = this.backEnd.getLongValues ( MAX_COUNT - 1, MAX_COUNT - 1 );
         Assert.assertEquals ( 0, result2.length );
-        final LongValue[] result3 = backEnd.getLongValues ( MAX_COUNT - 2, MAX_COUNT - 1 );
+        final LongValue[] result3 = this.backEnd.getLongValues ( MAX_COUNT - 2, MAX_COUNT - 1 );
         Assert.assertEquals ( 1, result3.length );
         Assert.assertEquals ( 1, result3[0].getValue () );
     }
@@ -88,9 +107,9 @@ public class FileBackEndTest extends BackEndTestBase
     @Override
     public void cleanup () throws Exception
     {
-        if ( backEnd instanceof FileBackEnd )
+        if ( this.backEnd instanceof FileBackEnd )
         {
-            final String fileName = ( (FileBackEnd)backEnd ).getFileName ();
+            final String fileName = ( (FileBackEnd)this.backEnd ).getFileName ();
             super.cleanup ();
             new File ( fileName ).delete ();
         }

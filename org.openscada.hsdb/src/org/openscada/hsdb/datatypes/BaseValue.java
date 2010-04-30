@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb.datatypes;
 
 /**
@@ -40,7 +59,7 @@ public abstract class BaseValue implements Comparable<BaseValue>
      */
     public long getTime ()
     {
-        return time;
+        return this.time;
     }
 
     /**
@@ -58,7 +77,7 @@ public abstract class BaseValue implements Comparable<BaseValue>
      */
     public double getQualityIndicator ()
     {
-        return qualityIndicator;
+        return this.qualityIndicator;
     }
 
     /**
@@ -76,7 +95,7 @@ public abstract class BaseValue implements Comparable<BaseValue>
      */
     public double getManualIndicator ()
     {
-        return manualIndicator;
+        return this.manualIndicator;
     }
 
     /**
@@ -94,7 +113,7 @@ public abstract class BaseValue implements Comparable<BaseValue>
      */
     public long getBaseValueCount ()
     {
-        return baseValueCount;
+        return this.baseValueCount;
     }
 
     /**
@@ -111,7 +130,7 @@ public abstract class BaseValue implements Comparable<BaseValue>
      */
     public int hashCode ()
     {
-        return (int) ( time ^ ( time >>> 32 ) );
+        return (int) ( this.time ^ this.time >>> 32 );
     }
 
     /**
@@ -122,7 +141,7 @@ public abstract class BaseValue implements Comparable<BaseValue>
         if ( obj instanceof BaseValue )
         {
             final BaseValue baseValue = (BaseValue)obj;
-            return ( time == baseValue.getTime () ) && ( qualityIndicator == baseValue.getQualityIndicator () ) && ( baseValueCount == baseValue.getBaseValueCount () );
+            return this.time == baseValue.getTime () && this.qualityIndicator == baseValue.getQualityIndicator () && this.baseValueCount == baseValue.getBaseValueCount ();
         }
         return false;
     }
@@ -137,11 +156,11 @@ public abstract class BaseValue implements Comparable<BaseValue>
             return 1;
         }
         final long t2 = o2.getTime ();
-        if ( time < t2 )
+        if ( this.time < t2 )
         {
             return -1;
         }
-        if ( time > t2 )
+        if ( this.time > t2 )
         {
             return 1;
         }

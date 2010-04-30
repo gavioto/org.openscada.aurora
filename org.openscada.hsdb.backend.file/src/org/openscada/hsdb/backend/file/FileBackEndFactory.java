@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb.backend.file;
 
 import java.io.File;
@@ -81,9 +100,9 @@ public class FileBackEndFactory implements BackEndFactory
     {
         this.fileRoot = fileRoot;
         this.maximumDetailLevelToKeepFileConnectionsOpen = maximumDetailLevelToKeepFileConnectionsOpen;
-        configurationIdPattern = Pattern.compile ( String.format ( FILE_MASK, "(" + CONFIGURATION_ID_REGEX_PATTERN + ")", CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
-        calculationMethodPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, "(" + CALCULATION_METHOD_REGEX_PATTERN + ")", DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
-        detailLevelIdPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, CALCULATION_METHOD_REGEX_PATTERN, "(" + DETAIL_LEVEL_ID_REGEX_PATTERN + ")", START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
+        this.configurationIdPattern = Pattern.compile ( String.format ( FILE_MASK, "(" + CONFIGURATION_ID_REGEX_PATTERN + ")", CALCULATION_METHOD_REGEX_PATTERN, DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
+        this.calculationMethodPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, "(" + CALCULATION_METHOD_REGEX_PATTERN + ")", DETAIL_LEVEL_ID_REGEX_PATTERN, START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
+        this.detailLevelIdPattern = Pattern.compile ( String.format ( FILE_MASK, CONFIGURATION_ID_REGEX_PATTERN, CALCULATION_METHOD_REGEX_PATTERN, "(" + DETAIL_LEVEL_ID_REGEX_PATTERN + ")", START_TIME_REGEX_PATTERN, END_TIME_REGEX_PATTERN ), Pattern.CASE_INSENSITIVE );
     }
 
     /**
@@ -92,7 +111,7 @@ public class FileBackEndFactory implements BackEndFactory
      */
     public String getFileRoot ()
     {
-        return fileRoot;
+        return this.fileRoot;
     }
 
     /**
@@ -162,14 +181,14 @@ public class FileBackEndFactory implements BackEndFactory
     private static String extractDataFromFileName ( final Pattern pattern, final String fileName, final String defaultValue )
     {
         // check input
-        if ( ( pattern == null ) || ( fileName == null ) )
+        if ( pattern == null || fileName == null )
         {
             return defaultValue;
         }
 
         // parse filename
         final Matcher matcher = pattern.matcher ( fileName );
-        if ( !matcher.matches () || ( matcher.groupCount () != 1 ) )
+        if ( !matcher.matches () || matcher.groupCount () != 1 )
         {
             return defaultValue;
         }
@@ -197,7 +216,7 @@ public class FileBackEndFactory implements BackEndFactory
      */
     private boolean getKeepFileConnectionOpen ( final long detailLevelId )
     {
-        return detailLevelId <= maximumDetailLevelToKeepFileConnectionsOpen;
+        return detailLevelId <= this.maximumDetailLevelToKeepFileConnectionsOpen;
     }
 
     /**
@@ -219,7 +238,7 @@ public class FileBackEndFactory implements BackEndFactory
             final String configurationId = encodeFileNamePart ( metaData.getConfigurationId () );
             final String calculationMethod = CalculationMethod.convertCalculationMethodToShortString ( metaData.getCalculationMethod () );
             final long detailLevelId = metaData.getDetailLevelId ();
-            if ( ( configurationId == null ) || !extractDataFromFileName ( configurationIdPattern, fileName, configurationId ).equals ( configurationId ) || ( !extractDataFromFileName ( calculationMethodPattern, fileName, calculationMethod ).equals ( calculationMethod ) ) || ( extractDataFromFileName ( detailLevelIdPattern, fileName, detailLevelId ) != detailLevelId ) )
+            if ( configurationId == null || !extractDataFromFileName ( this.configurationIdPattern, fileName, configurationId ).equals ( configurationId ) || !extractDataFromFileName ( this.calculationMethodPattern, fileName, calculationMethod ).equals ( calculationMethod ) || extractDataFromFileName ( this.detailLevelIdPattern, fileName, detailLevelId ) != detailLevelId )
             {
                 fileBackEnd = null;
                 logger.warn ( String.format ( "file content does not match expected content due to file name (%s) (expected data: %s). file will be ignored", file.getPath (), metaData ) );
@@ -248,7 +267,7 @@ public class FileBackEndFactory implements BackEndFactory
     private StorageChannelMetaData[] getExistingBackEndsMetaDataInDirectory ( final String directory, final boolean merge )
     {
         // check if root folder exists
-        final File root = new File ( fileRoot );
+        final File root = new File ( this.fileRoot );
         if ( !root.exists () || !root.isDirectory () )
         {
             return emptyMetaDataArray;
@@ -275,12 +294,12 @@ public class FileBackEndFactory implements BackEndFactory
                                 for ( final StorageChannelMetaData entry : metaDatas )
                                 {
                                     final String storedConfigurationId = entry.getConfigurationId ();
-                                    if ( ( storedConfigurationId != null ) && !storedConfigurationId.equals ( metaData.getConfigurationId () ) )
+                                    if ( storedConfigurationId != null && !storedConfigurationId.equals ( metaData.getConfigurationId () ) )
                                     {
                                         // since the list is ordered by directory and therefore by configuration id, it can be assumed that no more suitable entry exists in the list
                                         break;
                                     }
-                                    if ( ( entry.getDetailLevelId () == metaData.getDetailLevelId () ) && ( entry.getCalculationMethod () == metaData.getCalculationMethod () ) )
+                                    if ( entry.getDetailLevelId () == metaData.getDetailLevelId () && entry.getCalculationMethod () == metaData.getCalculationMethod () )
                                     {
                                         // adapt the current entry in the list and expand the time span
                                         entry.setStartTime ( Math.min ( entry.getStartTime (), metaData.getStartTime () ) );
@@ -349,7 +368,7 @@ public class FileBackEndFactory implements BackEndFactory
         }
 
         // check if root folder exists
-        final File root = new File ( fileRoot );
+        final File root = new File ( this.fileRoot );
         if ( !root.exists () || !root.isDirectory () )
         {
             return EMTPY_BACKEND_ARRAY;
@@ -388,7 +407,7 @@ public class FileBackEndFactory implements BackEndFactory
     public String generateFileName ( final StorageChannelMetaData storageChannelMetaData )
     {
         final String configurationId = encodeFileNamePart ( storageChannelMetaData.getConfigurationId () );
-        return new File ( new File ( fileRoot, configurationId ), String.format ( FILE_MASK, configurationId, CalculationMethod.convertCalculationMethodToShortString ( storageChannelMetaData.getCalculationMethod () ), storageChannelMetaData.getDetailLevelId (), encodeFileNamePart ( storageChannelMetaData.getStartTime () ), encodeFileNamePart ( storageChannelMetaData.getEndTime () ) ) ).getPath ();
+        return new File ( new File ( this.fileRoot, configurationId ), String.format ( FILE_MASK, configurationId, CalculationMethod.convertCalculationMethodToShortString ( storageChannelMetaData.getCalculationMethod () ), storageChannelMetaData.getDetailLevelId (), encodeFileNamePart ( storageChannelMetaData.getStartTime () ), encodeFileNamePart ( storageChannelMetaData.getEndTime () ) ) ).getPath ();
     }
 
     /**
@@ -420,7 +439,7 @@ public class FileBackEndFactory implements BackEndFactory
         }
 
         // check if root folder exists
-        final File root = new File ( fileRoot );
+        final File root = new File ( this.fileRoot );
         if ( !root.exists () || !root.isDirectory () )
         {
             return;

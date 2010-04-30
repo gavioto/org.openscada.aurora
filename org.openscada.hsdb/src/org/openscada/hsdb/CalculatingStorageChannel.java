@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.hsdb;
 
 import java.util.Arrays;
@@ -52,10 +71,10 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         this.baseStorageChannel = baseStorageChannel;
         this.inputStorageChannel = inputStorageChannel;
         this.calculationLogicProvider = calculationLogicProvider;
-        blockTimeSpan = calculationLogicProvider.getRequiredTimespanForCalculation ();
+        this.blockTimeSpan = calculationLogicProvider.getRequiredTimespanForCalculation ();
 
         // calculate values of the past
-        latestProcessedTime = getLatestProcessedValueTime ();
+        this.latestProcessedTime = getLatestProcessedValueTime ();
     }
 
     /**
@@ -64,7 +83,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public ExtendedStorageChannel getBaseStorageChannel ()
     {
-        return baseStorageChannel;
+        return this.baseStorageChannel;
     }
 
     /**
@@ -73,7 +92,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public ExtendedStorageChannel getInputStorageChannel ()
     {
-        return inputStorageChannel;
+        return this.inputStorageChannel;
     }
 
     /**
@@ -82,7 +101,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public CalculationLogicProvider getCalculationLogicProvider ()
     {
-        return calculationLogicProvider;
+        return this.calculationLogicProvider;
     }
 
     /**
@@ -147,7 +166,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     private long getTimeSpanStart ( final long time )
     {
-        return time - time % calculationLogicProvider.getRequiredTimespanForCalculation ();
+        return time - time % this.calculationLogicProvider.getRequiredTimespanForCalculation ();
     }
 
     /**
@@ -157,13 +176,13 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     private long getLatestProcessedValueTime ()
     {
-        lastValue = null;
-        if ( baseStorageChannel != null )
+        this.lastValue = null;
+        if ( this.baseStorageChannel != null )
         {
-            final BaseValue[] values = getValues ( baseStorageChannel, calculationLogicProvider.getOutputType (), Long.MAX_VALUE - 1, Long.MAX_VALUE );
-            lastValue = ( values != null ) && ( values.length > 0 ) ? values[0] : null;
+            final BaseValue[] values = getValues ( this.baseStorageChannel, this.calculationLogicProvider.getOutputType (), Long.MAX_VALUE - 1, Long.MAX_VALUE );
+            this.lastValue = values != null && values.length > 0 ? values[0] : null;
         }
-        return ( lastValue == null ) ? Long.MIN_VALUE : lastValue.getTime ();
+        return this.lastValue == null ? Long.MIN_VALUE : this.lastValue.getTime ();
     }
 
     /**
@@ -175,11 +194,11 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     private void calculateOldValues ( final long startTime, final long endTime ) throws Exception
     {
-        if ( inputStorageChannel != null )
+        if ( this.inputStorageChannel != null )
         {
-            final DataType inputType = calculationLogicProvider.getInputType ();
-            final BaseValue[] values = getValues ( inputStorageChannel, inputType, startTime, endTime );
-            if ( ( values != null ) && ( values.length > 0 ) )
+            final DataType inputType = this.calculationLogicProvider.getInputType ();
+            final BaseValue[] values = getValues ( this.inputStorageChannel, inputType, startTime, endTime );
+            if ( values != null && values.length > 0 )
             {
                 processValues ( values, startTime, endTime );
             }
@@ -220,17 +239,17 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         {
             return false;
         }
-        if ( lastValue == null )
+        if ( this.lastValue == null )
         {
-            lastValue = newValue;
+            this.lastValue = newValue;
             return true;
         }
-        if ( newValue.getTime () < lastValue.getTime () )
+        if ( newValue.getTime () < this.lastValue.getTime () )
         {
             return true;
         }
-        final boolean result = HsdbHelper.valueChanged ( lastValue, newValue );
-        lastValue = newValue;
+        final boolean result = HsdbHelper.valueChanged ( this.lastValue, newValue );
+        this.lastValue = newValue;
         return result;
     }
 
@@ -243,24 +262,24 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
     public synchronized void notifyNewValues ( final long[] times ) throws Exception
     {
         // return if no times have been passed to method
-        if ( ( times == null ) || ( times.length == 0 ) )
+        if ( times == null || times.length == 0 )
         {
             return;
         }
 
         // assure that at least one value exists
-        if ( latestProcessedTime == Long.MIN_VALUE )
+        if ( this.latestProcessedTime == Long.MIN_VALUE )
         {
-            latestProcessedTime = getTimeSpanStart ( times[0] );
+            this.latestProcessedTime = getTimeSpanStart ( times[0] );
         }
 
         // collect all time span blocks that have to be updated
         final Set<Long> startTimes = new HashSet<Long> ();
         final long timeOfInterest = getTimeSpanStart ( times[times.length - 1] );
-        final long futureLatestProcessedTime = Math.max ( latestProcessedTime, timeOfInterest );
+        final long futureLatestProcessedTime = Math.max ( this.latestProcessedTime, timeOfInterest );
 
         // add blocks for which real values are available
-        final long requiredTimespanForCalculation = calculationLogicProvider.getRequiredTimespanForCalculation ();
+        final long requiredTimespanForCalculation = this.calculationLogicProvider.getRequiredTimespanForCalculation ();
         for ( final long time : times )
         {
             if ( time < futureLatestProcessedTime )
@@ -276,15 +295,15 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
         }
 
         // add blocks that have not yet been processed
-        if ( latestProcessedTime < futureLatestProcessedTime )
+        if ( this.latestProcessedTime < futureLatestProcessedTime )
         {
-            startTimes.add ( latestProcessedTime );
-            final long nextTime = latestProcessedTime + requiredTimespanForCalculation;
+            startTimes.add ( this.latestProcessedTime );
+            final long nextTime = this.latestProcessedTime + requiredTimespanForCalculation;
             if ( nextTime < futureLatestProcessedTime )
             {
                 startTimes.add ( nextTime );
             }
-            latestProcessedTime = futureLatestProcessedTime;
+            this.latestProcessedTime = futureLatestProcessedTime;
         }
 
         // process time spans
@@ -309,9 +328,9 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized void processValues ( final BaseValue[] values, final long minStartTime, final long maxEndTime ) throws Exception
     {
-        if ( ( values != null ) && ( values.length > 0 ) )
+        if ( values != null && values.length > 0 )
         {
-            final BaseValue[] emptyArray = getEmptyArray ( calculationLogicProvider.getInputType () );
+            final BaseValue[] emptyArray = getEmptyArray ( this.calculationLogicProvider.getInputType () );
             final long blockMid = Math.max ( minStartTime, values[0].getTime () );
             if ( blockMid >= getTimeSpanStart ( System.currentTimeMillis () ) )
             {
@@ -320,7 +339,7 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
             long blockStart = getTimeSpanStart ( blockMid );
             while ( blockStart < maxEndTime )
             {
-                final long blockEnd = blockStart + blockTimeSpan;
+                final long blockEnd = blockStart + this.blockTimeSpan;
                 final BaseValue[] valueBlock = HsdbHelper.extractSubArray ( values, blockStart, blockEnd, 0, emptyArray );
                 if ( valueBlock.length == 0 )
                 {
@@ -328,17 +347,17 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                 }
                 try
                 {
-                    final DataType dt = calculationLogicProvider.getOutputType ();
+                    final DataType dt = this.calculationLogicProvider.getOutputType ();
                     switch ( dt )
                     {
                     case LONG_VALUE:
                     {
-                        final LongValue newValue = (LongValue)calculationLogicProvider.generateValue ( valueBlock );
-                        if ( baseStorageChannel != null )
+                        final LongValue newValue = (LongValue)this.calculationLogicProvider.generateValue ( valueBlock );
+                        if ( this.baseStorageChannel != null )
                         {
                             if ( processNewValue ( newValue ) )
                             {
-                                baseStorageChannel.updateLong ( newValue );
+                                this.baseStorageChannel.updateLong ( newValue );
                             }
                         }
                         super.updateLong ( newValue );
@@ -346,12 +365,12 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
                     }
                     case DOUBLE_VALUE:
                     {
-                        final DoubleValue newValue = (DoubleValue)calculationLogicProvider.generateValue ( valueBlock );
-                        if ( baseStorageChannel != null )
+                        final DoubleValue newValue = (DoubleValue)this.calculationLogicProvider.generateValue ( valueBlock );
+                        if ( this.baseStorageChannel != null )
                         {
                             if ( processNewValue ( newValue ) )
                             {
-                                baseStorageChannel.updateDouble ( newValue );
+                                this.baseStorageChannel.updateDouble ( newValue );
                             }
                         }
                         super.updateDouble ( newValue );
@@ -375,13 +394,13 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public StorageChannelMetaData getMetaData () throws Exception
     {
-        if ( baseStorageChannel == null )
+        if ( this.baseStorageChannel == null )
         {
             final String message = "no base storage channel available for calculating storage channel! unable to retrieve meta data";
             logger.error ( message );
             throw new Exception ( message );
         }
-        return baseStorageChannel.getMetaData ();
+        return this.baseStorageChannel.getMetaData ();
     }
 
     /**
@@ -397,11 +416,11 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized void updateLongs ( final LongValue[] longValues ) throws Exception
     {
-        if ( calculationLogicProvider.getPassThroughValues () )
+        if ( this.calculationLogicProvider.getPassThroughValues () )
         {
-            if ( baseStorageChannel != null )
+            if ( this.baseStorageChannel != null )
             {
-                baseStorageChannel.updateLongs ( longValues );
+                this.baseStorageChannel.updateLongs ( longValues );
             }
             super.updateLongs ( longValues );
         }
@@ -416,9 +435,9 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized LongValue[] getLongValues ( final long startTime, final long endTime ) throws Exception
     {
-        if ( baseStorageChannel != null )
+        if ( this.baseStorageChannel != null )
         {
-            return baseStorageChannel.getLongValues ( startTime, endTime );
+            return this.baseStorageChannel.getLongValues ( startTime, endTime );
         }
         return EMPTY_LONGVALUE_ARRAY;
     }
@@ -436,11 +455,11 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized void updateDoubles ( final DoubleValue[] doubleValues ) throws Exception
     {
-        if ( calculationLogicProvider.getPassThroughValues () )
+        if ( this.calculationLogicProvider.getPassThroughValues () )
         {
-            if ( baseStorageChannel != null )
+            if ( this.baseStorageChannel != null )
             {
-                baseStorageChannel.updateDoubles ( doubleValues );
+                this.baseStorageChannel.updateDoubles ( doubleValues );
             }
             super.updateDoubles ( doubleValues );
         }
@@ -455,9 +474,9 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized DoubleValue[] getDoubleValues ( final long startTime, final long endTime ) throws Exception
     {
-        if ( baseStorageChannel != null )
+        if ( this.baseStorageChannel != null )
         {
-            return baseStorageChannel.getDoubleValues ( startTime, endTime );
+            return this.baseStorageChannel.getDoubleValues ( startTime, endTime );
         }
         return EMPTY_DOUBLEVALUE_ARRAY;
     }
@@ -467,15 +486,15 @@ public class CalculatingStorageChannel extends SimpleStorageChannelManager
      */
     public synchronized void cleanupRelicts () throws Exception
     {
-        if ( lastValue != null )
+        if ( this.lastValue != null )
         {
-            final long nextTimeSpan = getTimeSpanStart ( lastValue.getTime () + blockTimeSpan );
+            final long nextTimeSpan = getTimeSpanStart ( this.lastValue.getTime () + this.blockTimeSpan );
             if ( nextTimeSpan <= System.currentTimeMillis () )
             {
                 notifyNewValues ( new long[] { nextTimeSpan } );
             }
         }
         super.cleanupRelicts ();
-        baseStorageChannel.cleanupRelicts ();
+        this.baseStorageChannel.cleanupRelicts ();
     }
 }
