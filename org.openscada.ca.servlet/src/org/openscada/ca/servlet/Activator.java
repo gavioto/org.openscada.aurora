@@ -86,7 +86,7 @@ public class Activator implements BundleActivator, ServiceListener
     private void unconfigureService ()
     {
         this.service.unregister ( "/ca" );
-        this.service.unregister ( "/ca/resource" );
+        this.service.unregister ( "/ca/resources" );
 
         this.servlet.destroy ();
         this.servlet = null;
