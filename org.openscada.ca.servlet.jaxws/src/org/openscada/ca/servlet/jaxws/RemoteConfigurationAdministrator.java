@@ -19,12 +19,14 @@
 
 package org.openscada.ca.servlet.jaxws;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import javax.jws.WebService;
 
 import org.openscada.ca.ConfigurationInformation;
+import org.openscada.ca.DiffEntry;
 import org.openscada.ca.FactoryInformation;
 
 @WebService
@@ -51,5 +53,7 @@ public interface RemoteConfigurationAdministrator
     public abstract void update ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
 
     public abstract void create ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
+
+    public abstract void applyDiff ( Collection<DiffEntry> changeSet, int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
 
 }

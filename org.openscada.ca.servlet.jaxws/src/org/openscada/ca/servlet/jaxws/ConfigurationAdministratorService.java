@@ -31,7 +31,9 @@ import javax.jws.WebService;
 
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationInformation;
+import org.openscada.ca.DiffEntry;
 import org.openscada.ca.FactoryInformation;
+import org.openscada.utils.concurrent.NotifyFuture;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.SingleServiceTracker;
 import org.osgi.framework.BundleContext;
@@ -180,7 +182,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         complete ( timeout, jobs );
     }
 
-    private void complete ( final int timeout, final Collection<Future<?>> jobs ) throws InterruptedException, ExecutionException, TimeoutException
+    private void complete ( final int timeout, final Collection<? extends Future<?>> jobs ) throws InterruptedException, ExecutionException, TimeoutException
     {
         for ( final Future<?> future : jobs )
         {
@@ -223,6 +225,17 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         }
 
         complete ( timeout, jobs );
+    }
+
+    @Override
+    public void applyDiff ( final Collection<DiffEntry> changeSet, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
+    {
+        final NotifyFuture<Void> future = this.service.applyDiff ( changeSet );
+
+        final Collection<NotifyFuture<Void>> result = new LinkedList<NotifyFuture<Void>> ();
+        result.add ( future );
+
+        complete ( timeout, result );
     }
 
 }
