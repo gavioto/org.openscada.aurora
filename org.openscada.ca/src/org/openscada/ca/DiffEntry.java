@@ -24,9 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openscada.utils.lang.Immutable;
-
-@Immutable
 public class DiffEntry implements Serializable
 {
     private static final long serialVersionUID = -3327628959921694038L;
@@ -38,13 +35,17 @@ public class DiffEntry implements Serializable
         UPDATE
     }
 
-    private final String factoryId;
+    private String factoryId;
 
-    private final String configurationId;
+    private String configurationId;
 
-    private final Operation operation;
+    private Operation operation;
 
-    private final Map<String, String> data;
+    private Map<String, String> data;
+
+    public DiffEntry ()
+    {
+    }
 
     public DiffEntry ( final String factoryId, final String configurationId, final Operation operation, final Map<String, String> data )
     {
@@ -73,6 +74,26 @@ public class DiffEntry implements Serializable
     public Operation getOperation ()
     {
         return this.operation;
+    }
+
+    public void setConfigurationId ( final String configurationId )
+    {
+        this.configurationId = configurationId;
+    }
+
+    public void setData ( final Map<String, String> data )
+    {
+        this.data = data;
+    }
+
+    public void setFactoryId ( final String factoryId )
+    {
+        this.factoryId = factoryId;
+    }
+
+    public void setOperation ( final Operation operation )
+    {
+        this.operation = operation;
     }
 
     @Override
