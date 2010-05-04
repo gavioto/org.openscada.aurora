@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Xxx
 Bundle-SymbolicName: org.openscada.ca.servlet.json
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.15.0.qualifier
 Bundle-Activator: org.openscada.ca.servlet.json.Activator
 Import-Package: com.google.gson;version="1.4.0",
  com.google.gson.annotations;version="1.4.0",
