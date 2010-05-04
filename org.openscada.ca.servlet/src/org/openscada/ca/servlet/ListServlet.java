@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
@@ -46,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.Factory;
+import org.openscada.utils.concurrent.NotifyFuture;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -192,7 +192,7 @@ public class ListServlet extends HttpServlet
         stream.print ( "</div>" );
     }
 
-    private void waitForFuture ( final PrintWriter stream, final Future<?> future ) throws IOException
+    private void waitForFuture ( final PrintWriter stream, final NotifyFuture<?> future ) throws IOException
     {
         try
         {
