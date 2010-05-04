@@ -641,14 +641,15 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         final ConfigurationFuture future = new ConfigurationFuture ();
 
         // don't store the "id" key
-        properties.remove ( "id" );
+        final Map<String, String> mutableProperties = new HashMap<String, String> ( properties );
+        mutableProperties.remove ( "id" );
         this.executor.execute ( new Runnable () {
 
             public void run ()
             {
                 try
                 {
-                    performStoreConfiguration ( factoryId, configurationId, properties, fullSet, future );
+                    performStoreConfiguration ( factoryId, configurationId, mutableProperties, fullSet, future );
                 }
                 catch ( final Throwable e )
                 {
