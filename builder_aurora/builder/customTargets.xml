@@ -113,6 +113,7 @@
   	<openscada.builder.copyPlugin id="org.openscada.ca" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.servlet" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.servlet.jaxws" />
+  	<openscada.builder.copyPlugin id="org.openscada.ca.servlet.json" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.common" />
 	<openscada.builder.copyPlugin id="org.openscada.ca.console" />
   	
