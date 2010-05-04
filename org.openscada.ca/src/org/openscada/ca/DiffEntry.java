@@ -19,14 +19,18 @@
 
 package org.openscada.ca;
 
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.openscada.utils.lang.Immutable;
 
 @Immutable
-public class DiffEntry
+public class DiffEntry implements Serializable
 {
+    private static final long serialVersionUID = -3327628959921694038L;
+
     public static enum Operation
     {
         ADD,
@@ -48,7 +52,7 @@ public class DiffEntry
         this.factoryId = factoryId;
         this.configurationId = configurationId;
         this.operation = operation;
-        this.data = data;
+        this.data = new HashMap<String, String> ( data );
     }
 
     public String getConfigurationId ()
@@ -77,4 +81,55 @@ public class DiffEntry
         return String.format ( "%s/%s/%s", this.factoryId, this.configurationId, this.operation );
     }
 
+    @Override
+    public int hashCode ()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( configurationId == null ) ? 0 : configurationId.hashCode () );
+        result = prime * result + ( ( factoryId == null ) ? 0 : factoryId.hashCode () );
+        result = prime * result + ( ( operation == null ) ? 0 : operation.hashCode () );
+        return result;
+    }
+
+    @Override
+    public boolean equals ( Object obj )
+    {
+        if ( this == obj )
+            return true;
+        if ( obj == null )
+            return false;
+        if ( getClass () != obj.getClass () )
+            return false;
+        DiffEntry other = (DiffEntry)obj;
+        if ( configurationId == null )
+        {
+            if ( other.configurationId != null )
+                return false;
+        }
+        else if ( !configurationId.equals ( other.configurationId ) )
+            return false;
+        if ( data == null )
+        {
+            if ( other.data != null )
+                return false;
+        }
+        else if ( !data.equals ( other.data ) )
+            return false;
+        if ( factoryId == null )
+        {
+            if ( other.factoryId != null )
+                return false;
+        }
+        else if ( !factoryId.equals ( other.factoryId ) )
+            return false;
+        if ( operation == null )
+        {
+            if ( other.operation != null )
+                return false;
+        }
+        else if ( !operation.equals ( other.operation ) )
+            return false;
+        return true;
+    }
 }
