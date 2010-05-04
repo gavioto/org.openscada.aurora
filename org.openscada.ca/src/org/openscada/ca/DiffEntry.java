@@ -20,8 +20,6 @@
 package org.openscada.ca;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class DiffEntry implements Serializable
@@ -53,7 +51,7 @@ public class DiffEntry implements Serializable
         this.factoryId = factoryId;
         this.configurationId = configurationId;
         this.operation = operation;
-        this.data = new HashMap<String, String> ( data );
+        this.data = data;
     }
 
     public String getConfigurationId ()
@@ -63,7 +61,7 @@ public class DiffEntry implements Serializable
 
     public Map<String, String> getData ()
     {
-        return Collections.unmodifiableMap ( this.data );
+        return this.data;
     }
 
     public String getFactoryId ()
@@ -107,50 +105,72 @@ public class DiffEntry implements Serializable
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ( ( configurationId == null ) ? 0 : configurationId.hashCode () );
-        result = prime * result + ( ( factoryId == null ) ? 0 : factoryId.hashCode () );
-        result = prime * result + ( ( operation == null ) ? 0 : operation.hashCode () );
+        result = prime * result + ( this.configurationId == null ? 0 : this.configurationId.hashCode () );
+        result = prime * result + ( this.factoryId == null ? 0 : this.factoryId.hashCode () );
+        result = prime * result + ( this.operation == null ? 0 : this.operation.hashCode () );
         return result;
     }
 
     @Override
-    public boolean equals ( Object obj )
+    public boolean equals ( final Object obj )
     {
         if ( this == obj )
+        {
             return true;
+        }
         if ( obj == null )
+        {
             return false;
+        }
         if ( getClass () != obj.getClass () )
+        {
             return false;
-        DiffEntry other = (DiffEntry)obj;
-        if ( configurationId == null )
+        }
+        final DiffEntry other = (DiffEntry)obj;
+        if ( this.configurationId == null )
         {
             if ( other.configurationId != null )
+            {
                 return false;
+            }
         }
-        else if ( !configurationId.equals ( other.configurationId ) )
+        else if ( !this.configurationId.equals ( other.configurationId ) )
+        {
             return false;
-        if ( data == null )
+        }
+        if ( this.data == null )
         {
             if ( other.data != null )
+            {
                 return false;
+            }
         }
-        else if ( !data.equals ( other.data ) )
+        else if ( !this.data.equals ( other.data ) )
+        {
             return false;
-        if ( factoryId == null )
+        }
+        if ( this.factoryId == null )
         {
             if ( other.factoryId != null )
+            {
                 return false;
+            }
         }
-        else if ( !factoryId.equals ( other.factoryId ) )
+        else if ( !this.factoryId.equals ( other.factoryId ) )
+        {
             return false;
-        if ( operation == null )
+        }
+        if ( this.operation == null )
         {
             if ( other.operation != null )
+            {
                 return false;
+            }
         }
-        else if ( !operation.equals ( other.operation ) )
+        else if ( !this.operation.equals ( other.operation ) )
+        {
             return false;
+        }
         return true;
     }
 }
