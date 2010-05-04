@@ -227,7 +227,6 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         complete ( timeout, jobs );
     }
 
-    @Override
     public void applyDiff ( final Collection<DiffEntry> changeSet, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final NotifyFuture<Void> future = this.service.applyDiff ( changeSet );
