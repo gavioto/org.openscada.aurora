@@ -19,6 +19,7 @@
 
 package org.openscada.ca.common;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,6 +34,7 @@ import org.openscada.ca.ConfigurationEvent;
 import org.openscada.ca.ConfigurationFactory;
 import org.openscada.ca.ConfigurationListener;
 import org.openscada.ca.ConfigurationState;
+import org.openscada.ca.DiffEntry;
 import org.openscada.ca.FactoryEvent;
 import org.openscada.ca.FactoryNotFoundException;
 import org.openscada.ca.FactoryState;
@@ -447,7 +449,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized Future<Void> purgeFactory ( final String factoryId )
+    public synchronized NotifyFuture<Void> purgeFactory ( final String factoryId )
     {
         logger.info ( "Request to purge: {}", factoryId );
 
@@ -467,7 +469,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized Future<Configuration> createConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties )
+    public synchronized NotifyFuture<Configuration> createConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -491,7 +493,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized Future<Configuration> updateConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
+    public synchronized NotifyFuture<Configuration> updateConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -515,7 +517,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized Future<Configuration> deleteConfiguration ( final String factoryId, final String configurationId )
+    public synchronized NotifyFuture<Configuration> deleteConfiguration ( final String factoryId, final String configurationId )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -558,11 +560,20 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    protected static final class PurgeFuture extends AbstractFuture<Void>
+    protected static class PatchFuture extends CompositeFuture<Configuration>
+    {
+
+    }
+
+    protected static class PurgeFuture extends CompositeFuture<Configuration>
+    {
+    }
+
+    protected static class CompositeFuture<T> extends AbstractFuture<Void>
     {
         private final static Logger logger = LoggerFactory.getLogger ( AbstractConfigurationAdministrator.PurgeFuture.class );
 
-        private final Set<ConfigurationFuture> futures = new HashSet<ConfigurationFuture> ();
+        private final Set<NotifyFuture<T>> futures = new HashSet<NotifyFuture<T>> ();
 
         private boolean complete = false;
 
@@ -572,25 +583,25 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             checkComplete ();
         }
 
-        public synchronized void addChild ( final ConfigurationFuture future )
+        public synchronized void addChild ( final NotifyFuture<T> future )
         {
             this.futures.add ( future );
 
             logger.debug ( "Added future: {} - {} entries", new Object[] { future, this.futures.size () } );
 
-            future.addListener ( new FutureListener<Configuration> () {
+            future.addListener ( new FutureListener<T> () {
 
-                public void complete ( final Future<Configuration> xfuture )
+                public void complete ( final Future<T> xfuture )
                 {
-                    PurgeFuture.this.removed ( future );
+                    CompositeFuture.this.removed ( future );
                 }
             } );
         }
 
-        protected synchronized void removed ( final ConfigurationFuture future )
+        protected synchronized void removed ( final NotifyFuture<T> future )
         {
-            PurgeFuture.this.futures.remove ( future );
-            logger.debug ( "Removed future: {} - {} entries remain", new Object[] { future, PurgeFuture.this.futures.size () } );
+            this.futures.remove ( future );
+            logger.debug ( "Removed future: {} - {} entries remain", new Object[] { future, CompositeFuture.this.futures.size () } );
             checkComplete ();
         }
 
@@ -804,4 +815,27 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return factoryId;
     }
 
+    public synchronized NotifyFuture<Void> applyDiff ( final Collection<DiffEntry> changeSet )
+    {
+        final PatchFuture future = new PatchFuture ();
+
+        for ( final DiffEntry entry : changeSet )
+        {
+            switch ( entry.getOperation () )
+            {
+            case ADD:
+                future.addChild ( createConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getData () ) );
+                break;
+            case DELETE:
+                future.addChild ( deleteConfiguration ( entry.getFactoryId (), entry.getConfigurationId () ) );
+                break;
+            case UPDATE:
+                future.addChild ( updateConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getData (), true ) );
+                break;
+            }
+        }
+
+        future.setComplete ();
+        return future;
+    }
 }

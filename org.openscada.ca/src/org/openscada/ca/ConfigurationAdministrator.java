@@ -19,8 +19,10 @@
 
 package org.openscada.ca;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.Future;
+
+import org.openscada.utils.concurrent.NotifyFuture;
 
 public interface ConfigurationAdministrator
 {
@@ -28,13 +30,27 @@ public interface ConfigurationAdministrator
 
     /* modifiers */
 
-    public Future<Configuration> createConfiguration ( String factoryId, String configurationId, Map<String, String> initialProperties );
+    public NotifyFuture<Configuration> createConfiguration ( String factoryId, String configurationId, Map<String, String> initialProperties );
 
-    public Future<Configuration> updateConfiguration ( String factoryId, String configurationId, Map<String, String> newProperties, boolean fullSet );
+    public NotifyFuture<Configuration> updateConfiguration ( String factoryId, String configurationId, Map<String, String> newProperties, boolean fullSet );
 
-    public Future<Configuration> deleteConfiguration ( String factoryId, String configurationId );
+    public NotifyFuture<Configuration> deleteConfiguration ( String factoryId, String configurationId );
 
-    public Future<Void> purgeFactory ( String factoryId );
+    public NotifyFuture<Void> purgeFactory ( String factoryId );
+
+    /**
+     * Applies a change set to an existing configuration manager.
+     * <p>
+     * The operation must be atomic to the configuration system.
+     * </p>
+     * <p>
+     * Note that there are two or more entries for one factory/configuration combination it is
+     * unspecified which entry will be applied. 
+     * </p>
+     * @param changeSet the change set to apply
+     * @return a future which notifies the end of the operation
+     */
+    public NotifyFuture<Void> applyDiff ( Collection<DiffEntry> changeSet );
 
     /* readers */
 
