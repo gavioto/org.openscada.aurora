@@ -9,7 +9,7 @@
       OpenSCADA Security Framework
    </description>
 
-    <copyright url="http://opensource.org/licenses/lgpl-3.0.html">
+   <copyright url="http://opensource.org/licenses/lgpl-3.0.html">
       &lt;pre&gt;
       This file is part of the OpenSCADA project
 Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
@@ -223,6 +223,13 @@ Library.
 
    <plugin
          id="org.openscada.sec.provider.dummy"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.sec.provider.script"
          download-size="0"
          install-size="0"
          version="0.0.0"
