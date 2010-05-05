@@ -28,11 +28,24 @@ import java.util.Set;
 
 import org.openscada.utils.lang.Immutable;
 
+/**
+ * A user information object
+ * 
+ * @author Jens Reimann
+ * @since 0.1.0
+ *
+ */
 @Immutable
 public class UserInformation implements Serializable
 {
     private static final long serialVersionUID = 4789496200821826617L;
 
+    public final static UserInformation ANONYMOUS = new UserInformation ( null, Collections.<String> emptySet () );
+
+    /**
+     * The name of the user or <code>null</code> if it is an anonymous
+     * user information.
+     */
     private final String name;
 
     private final Set<String> roles;
@@ -40,15 +53,39 @@ public class UserInformation implements Serializable
     public UserInformation ( final String name, final Set<String> roles )
     {
         this.name = name;
-        this.roles = new HashSet<String> ( roles );
+        if ( roles != null )
+        {
+            this.roles = Collections.unmodifiableSet ( new HashSet<String> ( roles ) );
+        }
+        else
+        {
+            this.roles = Collections.emptySet ();
+        }
     }
 
     public UserInformation ( final String name, final String[] roles )
     {
         this.name = name;
-        this.roles = Collections.unmodifiableSet ( new HashSet<String> ( Arrays.asList ( roles ) ) );
+        if ( roles != null )
+        {
+            this.roles = Collections.unmodifiableSet ( new HashSet<String> ( Arrays.asList ( roles ) ) );
+        }
+        else
+        {
+            this.roles = Collections.emptySet ();
+        }
     }
 
+    public boolean isAnonymous ()
+    {
+        return this.name == null;
+    }
+
+    /**
+     * Get the name of the user 
+     * @return the name of the user or <code>null</code> if it
+     * an anonymous user information
+     */
     public String getName ()
     {
         return this.name;
@@ -104,8 +141,8 @@ public class UserInformation implements Serializable
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ( ( this.name == null ) ? 0 : this.name.hashCode () );
-        result = prime * result + ( ( this.roles == null ) ? 0 : this.roles.hashCode () );
+        result = prime * result + ( this.name == null ? 0 : this.name.hashCode () );
+        result = prime * result + ( this.roles == null ? 0 : this.roles.hashCode () );
         return result;
     }
 
@@ -124,7 +161,7 @@ public class UserInformation implements Serializable
         {
             return false;
         }
-        UserInformation other = (UserInformation)obj;
+        final UserInformation other = (UserInformation)obj;
         if ( this.name == null )
         {
             if ( other.name != null )
@@ -153,11 +190,18 @@ public class UserInformation implements Serializable
     @Override
     public String toString ()
     {
-        StringBuilder sb = new StringBuilder ();
+        final StringBuilder sb = new StringBuilder ();
         sb.append ( "UserInformation [name=" );
-        sb.append ( this.name );
+        if ( this.name != null )
+        {
+            sb.append ( this.name );
+        }
+        else
+        {
+            sb.append ( "<anonymous>" );
+        }
         sb.append ( ", roles=" );
-        for ( String role : this.roles )
+        for ( final String role : this.roles )
         {
             sb.append ( "," );
             sb.append ( role );

@@ -19,9 +19,6 @@
 
 package org.openscada.sec.osgi;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 import org.openscada.sec.AuthenticationException;
 import org.openscada.sec.AuthenticationService;
 import org.openscada.sec.UserInformation;
@@ -49,8 +46,6 @@ public class AuthenticationHelper
 
     public UserInformation authenticate ( final String username, final String password ) throws AuthenticationException
     {
-        final Collection<AuthenticationException> causes = new LinkedList<AuthenticationException> ();
-
         int services = 0;
 
         final Object[] s = this.tracker.getServices ();
@@ -63,18 +58,15 @@ public class AuthenticationHelper
                     continue;
                 }
 
-                try
+                services++;
+                final UserInformation user = ( (AuthenticationService)o ).authenticate ( username, password );
+                if ( user != null )
                 {
-                    services++;
-                    return ( (AuthenticationService)o ).authenticate ( username, password );
-                }
-                catch ( final AuthenticationException e )
-                {
-                    causes.add ( e );
+                    return user;
                 }
             }
         }
 
-        throw new MultiAuthenticationException ( String.format ( "All of the %s authentication services rejected", services ), causes.toArray ( new AuthenticationException[causes.size ()] ) );
+        return null;
     }
 }

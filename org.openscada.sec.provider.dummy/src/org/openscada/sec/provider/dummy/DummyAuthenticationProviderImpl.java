@@ -36,14 +36,7 @@ public class DummyAuthenticationProviderImpl implements AuthenticationService
 
     public UserInformation authenticate ( final String username, final String password )
     {
-        if ( username != null )
-        {
-            return new UserInformation ( username, new String[0] );
-        }
-        else
-        {
-            return null;
-        }
+        return new UserInformation ( username, new String[0] );
     }
 
 }

@@ -63,8 +63,8 @@ public abstract class AbstractPlainAuthenticationService
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ( ( this.password == null ) ? 0 : this.password.hashCode () );
-            result = prime * result + ( ( this.roles == null ) ? 0 : this.roles.hashCode () );
+            result = prime * result + ( this.password == null ? 0 : this.password.hashCode () );
+            result = prime * result + ( this.roles == null ? 0 : this.roles.hashCode () );
             return result;
         }
 
@@ -83,7 +83,7 @@ public abstract class AbstractPlainAuthenticationService
             {
                 return false;
             }
-            UserEntry other = (UserEntry)obj;
+            final UserEntry other = (UserEntry)obj;
             if ( this.password == null )
             {
                 if ( other.password != null )
@@ -112,11 +112,11 @@ public abstract class AbstractPlainAuthenticationService
         @Override
         public String toString ()
         {
-            StringBuilder sb = new StringBuilder ();
+            final StringBuilder sb = new StringBuilder ();
             sb.append ( "UserEntry [password=" );
             sb.append ( this.password );
             sb.append ( ", roles=" );
-            for ( String role : this.roles )
+            for ( final String role : this.roles )
             {
                 sb.append ( "," );
                 sb.append ( role );
@@ -147,8 +147,8 @@ public abstract class AbstractPlainAuthenticationService
 
         if ( user == null )
         {
-            // user is unknown .. but don't tell that to the client ;-)
-            throw new AuthenticationException ( StatusCodes.INVALID_USER_OR_PASSWORD );
+            // user is unknown ... so we don't vote
+            return null;
         }
 
         if ( user.getPassword () == null )
