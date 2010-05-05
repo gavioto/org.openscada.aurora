@@ -375,11 +375,6 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         {
             final ConfigurationImpl applyConfiguration = configuration;
 
-            // quick fix the "id" property
-            if ( applyConfiguration.getData () != null )
-            {
-                applyConfiguration.getData ().put ( "id", configurationId );
-            }
             setConfigurationStatus ( configuration, ConfigurationState.APPLYING, null );
 
             this.executor.execute ( new Runnable () {
