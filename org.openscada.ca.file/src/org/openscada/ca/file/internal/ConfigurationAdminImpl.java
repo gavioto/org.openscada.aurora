@@ -236,7 +236,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
     }
 
-    private void loadAll ( final File configurationRoot, final String factoryId )
+    private void loadAll ( final File configurationRoot, final String factoryId ) throws UnsupportedEncodingException
     {
         logger.info ( "Loading from: {}", configurationRoot.getName () );
 
@@ -245,7 +245,8 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         for ( final File file : configurationRoot.listFiles ( new DataFilenameFilter () ) )
         {
             logger.info ( "Loading file: {}", file.getName () );
-            final ConfigurationImpl cfg = loadConfiguration ( factoryId, file );
+            final String id = idFromFile ( file );
+            final ConfigurationImpl cfg = loadConfiguration ( factoryId, id, file );
 
             if ( cfg != null )
             {
@@ -256,7 +257,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         addStoredFactory ( factoryId, configurations.toArray ( new ConfigurationImpl[configurations.size ()] ) );
     }
 
-    private ConfigurationImpl loadConfiguration ( final String factoryId, final File file )
+    private ConfigurationImpl loadConfiguration ( final String factoryId, final String configurationId, final File file )
     {
         try
         {
@@ -277,15 +278,8 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             {
                 result.put ( entry.getKey ().toString (), entry.getValue ().toString () );
             }
-            final String id = result.get ( "id" );
-            if ( id == null )
-            {
-                return null;
-            }
 
-            // remove id from loaded data
-            result.remove ( "id" );
-            return new ConfigurationImpl ( id, factoryId, result );
+            return new ConfigurationImpl ( configurationId, factoryId, result );
         }
         catch ( final Throwable e )
         {
@@ -304,7 +298,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         return URLEncoder.encode ( path, URI_CHARSET );
     }
 
-    private String idFromFile ( final String factoryId, final File file ) throws UnsupportedEncodingException
+    private String idFromFile ( final File file ) throws UnsupportedEncodingException
     {
         final String name = file.getName ();
         return URLDecoder.decode ( name, URI_CHARSET );
@@ -325,7 +319,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         for ( final File file : path.listFiles ( new DataFilenameFilter () ) )
         {
             logger.info ( "Delete file: " + file.getName () );
-            final String id = idFromFile ( factoryId, file );
+            final String id = idFromFile ( file );
 
             final ConfigurationFuture subFuture = new ConfigurationFuture ();
             changeConfiguration ( factoryId, id, null, subFuture );
@@ -364,7 +358,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         // if this is differential, load in old data first
         if ( !fullSet )
         {
-            final ConfigurationImpl oldConfig = loadConfiguration ( factoryId, file );
+            final ConfigurationImpl oldConfig = loadConfiguration ( factoryId, configurationId, file );
             if ( oldConfig != null )
             {
                 newProperties.putAll ( oldConfig.getData () );
@@ -389,7 +383,6 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         // convert to properties and store
         final Properties p = new Properties ();
         p.putAll ( newProperties );
-        p.put ( "id", configurationId );
 
         final FileOutputStream stream = new FileOutputStream ( file );
         try
