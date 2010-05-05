@@ -26,11 +26,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openscada.sec.AuthenticationException;
+import org.openscada.sec.AuthenticationService;
 import org.openscada.sec.StatusCodes;
 import org.openscada.sec.UserInformation;
 import org.openscada.utils.lang.Immutable;
 
-public abstract class AbstractPlainAuthenticationService
+public abstract class AbstractPlainAuthenticationService implements AuthenticationService
 {
 
     @Immutable
