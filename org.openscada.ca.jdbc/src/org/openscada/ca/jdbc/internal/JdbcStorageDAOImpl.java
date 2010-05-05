@@ -36,21 +36,41 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
 
     private static final String INSTANCE_ID = System.getProperty ( "org.openscada.ca.jdbc.instance", "default" );
 
+    private static final boolean FIX_NULL = Boolean.getBoolean ( "org.openscada.ca.jdbc.fixNull" );
+
     @SuppressWarnings ( { "unchecked" } )
     public List<Entry> loadAll ()
     {
-        return find ( String.format ( "from %s where instance=?", ENT_ENTRY ), INSTANCE_ID );
+        return fixNulls ( find ( String.format ( "from %s where instance=?", ENT_ENTRY ), INSTANCE_ID ) );
+    }
+
+    protected List<Entry> fixNulls ( final List<Entry> data )
+    {
+        if ( !FIX_NULL )
+        {
+            return data;
+        }
+
+        for ( final Entry entry : data )
+        {
+            if ( entry.getValue () == null )
+            {
+                entry.setValue ( "" );
+            }
+        }
+
+        return data;
     }
 
     @SuppressWarnings ( "unchecked" )
     public List<Entry> loadFactory ( final String factoryId )
     {
-        return find ( String.format ( "from %s where factoryId=? and instance=?", ENT_ENTRY ), new Object[] { factoryId, INSTANCE_ID } );
+        return fixNulls ( find ( String.format ( "from %s where factoryId=? and instance=?", ENT_ENTRY ), new Object[] { factoryId, INSTANCE_ID } ) );
     }
 
     public List<Entry> purgeFactory ( final String factoryId )
     {
-        final List<Entry> entries = loadFactory ( factoryId );
+        final List<Entry> entries = fixNulls ( loadFactory ( factoryId ) );
         deleteAll ( entries );
         return entries;
     }
@@ -58,7 +78,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
     @SuppressWarnings ( "unchecked" )
     public Map<String, String> storeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
-        final List<Entry> entries = (List<Entry>)executeWithNativeSession ( new HibernateCallback () {
+        final List<Entry> entries = fixNulls ( (List<Entry>)executeWithNativeSession ( new HibernateCallback () {
 
             public Object doInHibernate ( final Session session ) throws HibernateException, SQLException
             {
@@ -91,7 +111,7 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
                 session.flush ();
                 return session.createQuery ( String.format ( "from %s where factoryId=:factoryId and configurationId=:configurationId and instance=:instance", ENT_ENTRY ) ).setString ( "factoryId", factoryId ).setString ( "configurationId", configurationId ).setString ( "instance", INSTANCE_ID ).list ();
             }
-        } );
+        } ) );
 
         // map result
         final Map<String, String> result = new HashMap<String, String> ();
