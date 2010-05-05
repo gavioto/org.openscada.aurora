@@ -49,7 +49,6 @@ public class Activator implements BundleActivator
     private ServiceTrackerCustomizer createConfigurationAdminCustomizer ()
     {
         return new ServiceTrackerCustomizer () {
-            @Override
             public Object addingService ( ServiceReference reference )
             {
                 Object service = context.getService ( reference );
@@ -64,13 +63,11 @@ public class Activator implements BundleActivator
                 return service;
             }
 
-            @Override
             public void modifiedService ( ServiceReference reference, Object service )
             {
                 // pass
             }
 
-            @Override
             public void removedService ( ServiceReference reference, Object service )
             {
                 synchronized ( Activator.this )
@@ -90,7 +87,6 @@ public class Activator implements BundleActivator
     private ServiceTrackerCustomizer createHttpServiceCustomizer ()
     {
         return new ServiceTrackerCustomizer () {
-            @Override
             public Object addingService ( ServiceReference reference )
             {
                 Object service = context.getService ( reference );
@@ -105,13 +101,11 @@ public class Activator implements BundleActivator
                 return service;
             }
 
-            @Override
             public void modifiedService ( ServiceReference reference, Object service )
             {
                 // pass
             }
 
-            @Override
             public void removedService ( ServiceReference reference, Object service )
             {
                 synchronized ( Activator.this )

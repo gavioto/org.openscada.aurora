@@ -37,7 +37,6 @@ public class JsonServlet extends HttpServlet
 {
     private class FactorySerializer implements JsonSerializer<Factory>
     {
-        @Override
         public JsonElement serialize ( Factory factory, Type typeOfFactory, JsonSerializationContext context )
         {
             JsonObject obj = new JsonObject ();
@@ -50,7 +49,6 @@ public class JsonServlet extends HttpServlet
 
     private class DiffEntrySerializer implements JsonSerializer<DiffEntry>, JsonDeserializer<DiffEntry>
     {
-        @Override
         public JsonElement serialize ( DiffEntry config, Type typeOfDiffEntry, JsonSerializationContext context )
         {
             JsonObject obj = new JsonObject ();
@@ -66,7 +64,6 @@ public class JsonServlet extends HttpServlet
             return obj;
         }
 
-        @Override
         public DiffEntry deserialize ( JsonElement element, Type type, JsonDeserializationContext context ) throws JsonParseException
         {
             final String factoryId = element.getAsJsonObject ().get ( "factoryId" ).getAsString ();
