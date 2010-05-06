@@ -67,7 +67,7 @@ public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTra
 
     private final Map<Object, Dictionary<?, ?>> services = new HashMap<Object, Dictionary<?, ?>> ();
 
-    private Object currentService;
+    private volatile Object currentService;
 
     @Override
     protected synchronized void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties )
@@ -121,7 +121,14 @@ public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTra
 
     private void fireServiceChange ( final Object bestService, final Dictionary<?, ?> bestProperties )
     {
-        this.listener.serviceChange ( bestService, bestProperties );
+        if ( this.listener != null )
+        {
+            this.listener.serviceChange ( bestService, bestProperties );
+        }
     }
 
+    public Object getCurrentService ()
+    {
+        return this.currentService;
+    }
 }
