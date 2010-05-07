@@ -677,12 +677,20 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     public synchronized Configuration getConfiguration ( final String factoryId, final String configurationId )
     {
         final FactoryImpl factory = getFactory ( factoryId );
+        if ( factory == null )
+        {
+            return null;
+        }
         return factory.getConfiguration ( configurationId );
     }
 
     public synchronized Configuration[] getConfigurations ( final String factoryId )
     {
         final FactoryImpl factory = getFactory ( factoryId );
+        if ( factory == null )
+        {
+            return null;
+        }
         return factory.getConfigurations ();
     }
 
