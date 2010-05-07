@@ -43,7 +43,7 @@ public class StringHelper
      */
     public static String join ( final Collection<?> items, final String delimiter )
     {
-        final StringBuffer buffer = new StringBuffer ();
+        final StringBuilder buffer = new StringBuilder ();
         final Iterator<?> iter = items.iterator ();
 
         while ( iter.hasNext () )
@@ -60,7 +60,7 @@ public class StringHelper
 
     public static String join ( final Collection<?> items, final String delimiter, final Apply<String> toApply )
     {
-        final StringBuffer buffer = new StringBuffer ();
+        final StringBuilder buffer = new StringBuilder ();
         final Iterator<?> iter = items.iterator ();
 
         while ( iter.hasNext () )
@@ -94,7 +94,7 @@ public class StringHelper
      */
     public static String join ( final Object[] items, final String delimiter )
     {
-        final StringBuffer buffer = new StringBuffer ();
+        final StringBuilder buffer = new StringBuilder ();
 
         for ( int i = 0; i < items.length; i++ )
         {
