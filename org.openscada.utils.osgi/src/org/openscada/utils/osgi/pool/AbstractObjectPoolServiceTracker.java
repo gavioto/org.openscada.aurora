@@ -159,12 +159,12 @@ public abstract class AbstractObjectPoolServiceTracker
         }
     }
 
-    public synchronized void open ()
+    public void open ()
     {
         this.poolTracker.addListener ( this.poolListener );
     }
 
-    public synchronized void close ()
+    public void close ()
     {
         this.poolTracker.removeListener ( this.poolListener );
     }
