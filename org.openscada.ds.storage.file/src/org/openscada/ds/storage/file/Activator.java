@@ -29,9 +29,13 @@ import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( Activator.class );
 
     private ExecutorService executor;
 
@@ -43,6 +47,8 @@ public class Activator implements BundleActivator
      */
     public void start ( final BundleContext context ) throws Exception
     {
+        logger.info ( "Starting file based DS" );
+
         this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
         this.service = new StorageImpl ( this.executor );
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
