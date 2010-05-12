@@ -148,8 +148,8 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
 
         if ( user == null )
         {
-            // user is unknown ... so we don't vote
-            return null;
+            // user is unknown
+            throw new AuthenticationException ( StatusCodes.INVALID_USER_OR_PASSWORD );
         }
 
         if ( user.getPassword () == null )
