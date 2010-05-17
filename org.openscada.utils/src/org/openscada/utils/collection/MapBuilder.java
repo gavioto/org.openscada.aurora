@@ -62,6 +62,17 @@ public class MapBuilder<Key, Value>
     }
 
     /**
+     * Add all entries from the provided map
+     * @param values the values to add
+     * @return the current instance of the map builder
+     */
+    public final MapBuilder<Key, Value> putAll ( final Map<Key, Value> values )
+    {
+        this.map.putAll ( values );
+        return this;
+    }
+
+    /**
      * Clean the map held by the map builder
      * @return the current instance of the map builder
      */
