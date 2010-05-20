@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.ca.servlet.json;
 
 import java.io.IOException;
@@ -37,9 +56,9 @@ public class JsonServlet extends HttpServlet
 {
     private class FactorySerializer implements JsonSerializer<Factory>
     {
-        public JsonElement serialize ( Factory factory, Type typeOfFactory, JsonSerializationContext context )
+        public JsonElement serialize ( final Factory factory, final Type typeOfFactory, final JsonSerializationContext context )
         {
-            JsonObject obj = new JsonObject ();
+            final JsonObject obj = new JsonObject ();
             obj.addProperty ( "id", factory.getId () );
             obj.addProperty ( "description", factory.getDescription () );
             obj.addProperty ( "state", factory.getState ().toString () );
@@ -49,14 +68,14 @@ public class JsonServlet extends HttpServlet
 
     private class DiffEntrySerializer implements JsonSerializer<DiffEntry>, JsonDeserializer<DiffEntry>
     {
-        public JsonElement serialize ( DiffEntry config, Type typeOfDiffEntry, JsonSerializationContext context )
+        public JsonElement serialize ( final DiffEntry config, final Type typeOfDiffEntry, final JsonSerializationContext context )
         {
-            JsonObject obj = new JsonObject ();
+            final JsonObject obj = new JsonObject ();
             obj.addProperty ( "factoryId", config.getFactoryId () );
             obj.addProperty ( "configurationId", config.getConfigurationId () );
             obj.addProperty ( "operation", config.getOperation ().toString () );
-            JsonObject map = new JsonObject ();
-            for ( Entry<?, ?> entry : config.getData ().entrySet () )
+            final JsonObject map = new JsonObject ();
+            for ( final Entry<?, ?> entry : config.getData ().entrySet () )
             {
                 map.addProperty ( String.valueOf ( entry.getKey () ), String.valueOf ( entry.getValue () ) );
             }
@@ -64,7 +83,7 @@ public class JsonServlet extends HttpServlet
             return obj;
         }
 
-        public DiffEntry deserialize ( JsonElement element, Type type, JsonDeserializationContext context ) throws JsonParseException
+        public DiffEntry deserialize ( final JsonElement element, final Type type, final JsonDeserializationContext context ) throws JsonParseException
         {
             final String factoryId = element.getAsJsonObject ().get ( "factoryId" ).getAsString ();
             final String configurationId = element.getAsJsonObject ().get ( "configurationId" ).getAsString ();
@@ -82,13 +101,13 @@ public class JsonServlet extends HttpServlet
 
     private final ObjectMapper mapper = new ObjectMapper ();
 
-    public JsonServlet ( ConfigurationAdministrator configurationAdmin )
+    public JsonServlet ( final ConfigurationAdministrator configurationAdmin )
     {
         this.configurationAdmin = configurationAdmin;
     }
 
     @Override
-    protected void doGet ( HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException
+    protected void doGet ( final HttpServletRequest req, final HttpServletResponse resp ) throws ServletException, IOException
     {
         if ( req.getPathInfo () == null || "/".equals ( req.getPathInfo () ) )
         {
@@ -118,7 +137,7 @@ public class JsonServlet extends HttpServlet
     }
 
     @Override
-    protected void doPost ( HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException
+    protected void doPost ( final HttpServletRequest req, final HttpServletResponse resp ) throws ServletException, IOException
     {
         if ( req.getPathInfo ().startsWith ( "/createConfiguration" ) )
         {
@@ -150,68 +169,68 @@ public class JsonServlet extends HttpServlet
         }
     }
 
-    private void defaultContentType ( HttpServletResponse resp )
+    private void defaultContentType ( final HttpServletResponse resp )
     {
         resp.setContentType ( "text/javascript" );
     }
 
-    private void send404Error ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void send404Error ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         resp.sendError ( HttpServletResponse.SC_NOT_FOUND, "Not Found" );
     }
 
-    private void redirectToFactoryList ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void redirectToFactoryList ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         resp.setHeader ( "Location", req.getServletPath () + "/knownFactories" );
         resp.sendError ( HttpServletResponse.SC_MOVED_PERMANENTLY, "Moved Permanently" );
     }
 
-    private void getFactory ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void getFactory ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
-        String factoryId = getRequiredString ( req, resp, "factory.id" );
-        gson.toJson ( configurationAdmin.getFactory ( factoryId ), Factory.class, resp.getWriter () );
+        final String factoryId = getRequiredString ( req, resp, "factory.id" );
+        this.gson.toJson ( this.configurationAdmin.getFactory ( factoryId ), Factory.class, resp.getWriter () );
     }
 
-    private void getKnownFactories ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void getKnownFactories ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
-        gson.toJson ( configurationAdmin.getKnownFactories (), Factory[].class, resp.getWriter () );
+        this.gson.toJson ( this.configurationAdmin.getKnownFactories (), Factory[].class, resp.getWriter () );
     }
 
-    private void getConfigurations ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void getConfigurations ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
-        String factoryId = getRequiredString ( req, resp, "factory.id" );
-        gson.toJson ( configurationAdmin.getConfigurations ( factoryId ), resp.getWriter () );
+        final String factoryId = getRequiredString ( req, resp, "factory.id" );
+        this.gson.toJson ( this.configurationAdmin.getConfigurations ( factoryId ), resp.getWriter () );
     }
 
-    private void getConfiguration ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void getConfiguration ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
-        String factoryId = getRequiredString ( req, resp, "factory.id" );
-        String id = getRequiredString ( req, resp, "id" );
-        gson.toJson ( configurationAdmin.getConfiguration ( factoryId, id ), resp.getWriter () );
+        final String factoryId = getRequiredString ( req, resp, "factory.id" );
+        final String id = getRequiredString ( req, resp, "id" );
+        this.gson.toJson ( this.configurationAdmin.getConfiguration ( factoryId, id ), resp.getWriter () );
     }
 
-    private void createConfiguration ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void createConfiguration ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
         try
         {
             final String factoryId = getRequiredString ( req, resp, "factory.id" );
             final String id = getRequiredString ( req, resp, "id" );
-            final Map<String, String> properties = gson.fromJson ( req.getReader (), new TypeToken<Map<String, String>> () {}.getType () );
-            final Future<Configuration> future = configurationAdmin.createConfiguration ( factoryId, id, properties );
-            gson.toJson ( future.get (), resp.getWriter () );
+            final Map<String, String> properties = this.gson.fromJson ( req.getReader (), new TypeToken<Map<String, String>> () {}.getType () );
+            final Future<Configuration> future = this.configurationAdmin.createConfiguration ( factoryId, id, properties );
+            this.gson.toJson ( future.get (), resp.getWriter () );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             throw new ServletException ( e );
         }
     }
 
-    private void updateConfiguration ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void updateConfiguration ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
         try
@@ -219,78 +238,78 @@ public class JsonServlet extends HttpServlet
             final String factoryId = getRequiredString ( req, resp, "factory.id" );
             final String id = getRequiredString ( req, resp, "id" );
             final String full = getOptionalString ( req, resp, "full", "" );
-            final Map<String, String> properties = gson.fromJson ( req.getReader (), new TypeToken<Map<String, String>> () {}.getType () );
-            final Future<Configuration> future = configurationAdmin.updateConfiguration ( factoryId, id, properties, "full".equals ( full ) );
-            gson.toJson ( future.get (), resp.getWriter () );
+            final Map<String, String> properties = this.gson.fromJson ( req.getReader (), new TypeToken<Map<String, String>> () {}.getType () );
+            final Future<Configuration> future = this.configurationAdmin.updateConfiguration ( factoryId, id, properties, "full".equals ( full ) );
+            this.gson.toJson ( future.get (), resp.getWriter () );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             throw new ServletException ( e );
         }
     }
 
-    private void deleteConfiguration ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void deleteConfiguration ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
         try
         {
             final String factoryId = getRequiredString ( req, resp, "factory.id" );
             final String id = getRequiredString ( req, resp, "id" );
-            final Future<Configuration> future = configurationAdmin.deleteConfiguration ( factoryId, id );
-            gson.toJson ( future.get (), resp.getWriter () );
+            final Future<Configuration> future = this.configurationAdmin.deleteConfiguration ( factoryId, id );
+            this.gson.toJson ( future.get (), resp.getWriter () );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             throw new ServletException ( e );
         }
     }
 
-    private void purgeFactory ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void purgeFactory ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
         try
         {
             final String factoryId = getRequiredString ( req, resp, "factory.id" );
-            final Future<Void> future = configurationAdmin.purgeFactory ( factoryId );
-            gson.toJson ( future.get (), resp.getWriter () );
+            final Future<Void> future = this.configurationAdmin.purgeFactory ( factoryId );
+            this.gson.toJson ( future.get (), resp.getWriter () );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             throw new ServletException ( e );
         }
     }
 
     @SuppressWarnings ( "unchecked" )
-    private void createDiff ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void createDiff ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
 
-        Map newConfiguration = mapper.readValue ( req.getReader (), HashMap.class );
+        final Map newConfiguration = this.mapper.readValue ( req.getReader (), HashMap.class );
 
-        Map existingConfiguration = new HashMap ();
+        final Map existingConfiguration = new HashMap ();
         // convert existing configuration to same format as new one
-        for ( final Factory factory : configurationAdmin.getKnownFactories () )
+        for ( final Factory factory : this.configurationAdmin.getKnownFactories () )
         {
-            Map config = new HashMap ();
+            final Map config = new HashMap ();
             existingConfiguration.put ( factory.getId (), config );
-            for ( Configuration configuration : configurationAdmin.getConfigurations ( factory.getId () ) )
+            for ( final Configuration configuration : this.configurationAdmin.getConfigurations ( factory.getId () ) )
             {
                 config.put ( configuration.getId (), new HashMap ( configuration.getData () ) );
             }
         }
 
         // create diff
-        List<DiffEntry> diff = new ArrayList<DiffEntry> ();
+        final List<DiffEntry> diff = new ArrayList<DiffEntry> ();
 
         // 1. find added
-        for ( Entry<String, Map<String, Map<String, String>>> factory : ( (Map<String, Map<String, Map<String, String>>>)newConfiguration ).entrySet () )
+        for ( final Entry<String, Map<String, Map<String, String>>> factory : ( (Map<String, Map<String, Map<String, String>>>)newConfiguration ).entrySet () )
         {
-            String factoryId = factory.getKey ();
-            Map<String, Map<String, String>> existingConfigs = (Map<String, Map<String, String>>)existingConfiguration.get ( factoryId );
+            final String factoryId = factory.getKey ();
+            final Map<String, Map<String, String>> existingConfigs = (Map<String, Map<String, String>>)existingConfiguration.get ( factoryId );
             for ( final Entry<String, Map<String, String>> config : ( (Map<String, Map<String, String>>)newConfiguration.get ( factoryId ) ).entrySet () )
             {
-                String id = config.getKey ();
-                Map<String, String> data = config.getValue ();
+                final String id = config.getKey ();
+                final Map<String, String> data = config.getValue ();
                 if ( existingConfigs == null )
                 {
                     diff.add ( new DiffEntry ( factoryId, id, DiffEntry.Operation.ADD, new HashMap ( data ) ) );
@@ -306,13 +325,13 @@ public class JsonServlet extends HttpServlet
             }
         }
         // find deleted
-        for ( Entry<String, Map<String, Map<String, String>>> factory : ( (Map<String, Map<String, Map<String, String>>>)existingConfiguration ).entrySet () )
+        for ( final Entry<String, Map<String, Map<String, String>>> factory : ( (Map<String, Map<String, Map<String, String>>>)existingConfiguration ).entrySet () )
         {
-            String factoryId = factory.getKey ();
-            Map<String, Map<String, String>> newConfigs = (Map<String, Map<String, String>>)newConfiguration.get ( factoryId );
-            for ( Entry<String, Map<String, String>> config : ( (Map<String, Map<String, String>>)existingConfiguration.get ( factoryId ) ).entrySet () )
+            final String factoryId = factory.getKey ();
+            final Map<String, Map<String, String>> newConfigs = (Map<String, Map<String, String>>)newConfiguration.get ( factoryId );
+            for ( final Entry<String, Map<String, String>> config : ( (Map<String, Map<String, String>>)existingConfiguration.get ( factoryId ) ).entrySet () )
             {
-                String id = config.getKey ();
+                final String id = config.getKey ();
                 if ( newConfigs == null )
                 {
                     diff.add ( new DiffEntry ( factoryId, id, DiffEntry.Operation.DELETE, new HashMap () ) );
@@ -323,28 +342,28 @@ public class JsonServlet extends HttpServlet
                 }
             }
         }
-        gson.toJson ( diff, resp.getWriter () );
+        this.gson.toJson ( diff, resp.getWriter () );
     }
 
-    private void applyDiff ( HttpServletRequest req, HttpServletResponse resp ) throws IOException, ServletException
+    private void applyDiff ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
         try
         {
-            Collection<DiffEntry> changeSet = gson.fromJson ( req.getReader (), new TypeToken<Collection<DiffEntry>> () {}.getType () );
-            Future<Void> future = configurationAdmin.applyDiff ( changeSet );
+            final Collection<DiffEntry> changeSet = this.gson.fromJson ( req.getReader (), new TypeToken<Collection<DiffEntry>> () {}.getType () );
+            final Future<Void> future = this.configurationAdmin.applyDiff ( changeSet );
             future.get ();
             resp.getWriter ().print ( changeSet.size () + " applied" );
         }
-        catch ( Exception e )
+        catch ( final Exception e )
         {
             throw new ServletException ( e );
         }
     }
 
-    private String getRequiredString ( HttpServletRequest req, HttpServletResponse resp, String key ) throws ServletException, IOException
+    private String getRequiredString ( final HttpServletRequest req, final HttpServletResponse resp, final String key ) throws ServletException, IOException
     {
-        Object o = req.getParameterMap ().get ( key );
+        final Object o = req.getParameterMap ().get ( key );
         if ( o == null )
         {
             resp.getWriter ().print ( "parameter " + key + " must not be null" );
@@ -353,9 +372,9 @@ public class JsonServlet extends HttpServlet
         return ( (String[])o )[0];
     }
 
-    private String getOptionalString ( HttpServletRequest req, HttpServletResponse resp, String key, String def )
+    private String getOptionalString ( final HttpServletRequest req, final HttpServletResponse resp, final String key, final String def )
     {
-        Object o = req.getParameterMap ().get ( key );
+        final Object o = req.getParameterMap ().get ( key );
         if ( o == null )
         {
             return def;

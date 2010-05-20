@@ -1,3 +1,22 @@
+/*
+ * This file is part of the OpenSCADA project
+ * Copyright (C) 2006-2010 inavare GmbH (http://inavare.com)
+ *
+ * OpenSCADA is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License version 3
+ * only, as published by the Free Software Foundation.
+ *
+ * OpenSCADA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3 for more details
+ * (a copy is included in the LICENSE file that accompanied this code).
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * version 3 along with OpenSCADA. If not, see
+ * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
+ */
+
 package org.openscada.ca.servlet.json;
 
 import javax.servlet.ServletException;
@@ -33,25 +52,25 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
-    public void start ( BundleContext context ) throws Exception
+    public void start ( final BundleContext context ) throws Exception
     {
         this.context = context;
 
-        ServiceTrackerCustomizer configurationAdminCustomizer = createConfigurationAdminCustomizer ();
-        configurationAdminTracker = new ServiceTracker ( context, ConfigurationAdministrator.class.getName (), configurationAdminCustomizer );
-        ServiceTrackerCustomizer httpServiceCustomizer = createHttpServiceCustomizer ();
-        httpServiceTracker = new ServiceTracker ( context, HttpService.class.getName (), httpServiceCustomizer );
+        final ServiceTrackerCustomizer configurationAdminCustomizer = createConfigurationAdminCustomizer ();
+        this.configurationAdminTracker = new ServiceTracker ( context, ConfigurationAdministrator.class.getName (), configurationAdminCustomizer );
+        final ServiceTrackerCustomizer httpServiceCustomizer = createHttpServiceCustomizer ();
+        this.httpServiceTracker = new ServiceTracker ( context, HttpService.class.getName (), httpServiceCustomizer );
 
-        configurationAdminTracker.open ();
-        httpServiceTracker.open ();
+        this.configurationAdminTracker.open ();
+        this.httpServiceTracker.open ();
     }
 
     private ServiceTrackerCustomizer createConfigurationAdminCustomizer ()
     {
         return new ServiceTrackerCustomizer () {
-            public Object addingService ( ServiceReference reference )
+            public Object addingService ( final ServiceReference reference )
             {
-                Object service = context.getService ( reference );
+                final Object service = Activator.this.context.getService ( reference );
                 synchronized ( Activator.this )
                 {
                     if ( Activator.this.configurationAdmin == null )
@@ -63,12 +82,12 @@ public class Activator implements BundleActivator
                 return service;
             }
 
-            public void modifiedService ( ServiceReference reference, Object service )
+            public void modifiedService ( final ServiceReference reference, final Object service )
             {
                 // pass
             }
 
-            public void removedService ( ServiceReference reference, Object service )
+            public void removedService ( final ServiceReference reference, final Object service )
             {
                 synchronized ( Activator.this )
                 {
@@ -87,9 +106,9 @@ public class Activator implements BundleActivator
     private ServiceTrackerCustomizer createHttpServiceCustomizer ()
     {
         return new ServiceTrackerCustomizer () {
-            public Object addingService ( ServiceReference reference )
+            public Object addingService ( final ServiceReference reference )
             {
-                Object service = context.getService ( reference );
+                final Object service = Activator.this.context.getService ( reference );
                 synchronized ( Activator.this )
                 {
                     if ( Activator.this.httpService == null )
@@ -101,12 +120,12 @@ public class Activator implements BundleActivator
                 return service;
             }
 
-            public void modifiedService ( ServiceReference reference, Object service )
+            public void modifiedService ( final ServiceReference reference, final Object service )
             {
                 // pass
             }
 
-            public void removedService ( ServiceReference reference, Object service )
+            public void removedService ( final ServiceReference reference, final Object service )
             {
                 synchronized ( Activator.this )
                 {
@@ -159,9 +178,9 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
-    public void stop ( BundleContext context ) throws Exception
+    public void stop ( final BundleContext context ) throws Exception
     {
-        httpServiceTracker.close ();
-        configurationAdminTracker.close ();
+        this.httpServiceTracker.close ();
+        this.configurationAdminTracker.close ();
     }
 }
