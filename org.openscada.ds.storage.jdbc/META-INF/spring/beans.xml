@@ -20,7 +20,7 @@
 		destroy-method="close">
 		<property name="driverClassName"
 			value="${org.openscada.ds.storage.jdbc.driver}" />
-		<property name="url" value="${org.openscada.ca.jdbc.url}" />
+		<property name="url" value="${org.openscada.ds.jdbc.url}" />
 		<property name="username"
 			value="${org.openscada.ds.storage.jdbc.username}" />
 		<property name="password"
