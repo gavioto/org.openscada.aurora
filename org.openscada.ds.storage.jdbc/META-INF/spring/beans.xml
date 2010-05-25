@@ -74,11 +74,9 @@
 		<property name="target" ref="jdbcStorageDAOTarget" />
 		<property name="transactionAttributes">
 			<props>
-				<prop key="storeConfiguration">PROPAGATION_REQUIRED</prop>
-				<prop key="deleteConfiguration">PROPAGATION_REQUIRED</prop>
-				<prop key="loadFactory">PROPAGATION_REQUIRED</prop>
-				<prop key="loadAll">PROPAGATION_REQUIRED</prop>
-				<prop key="purgeFactory">PROPAGATION_REQUIRED</prop>
+				<prop key="readNode">PROPAGATION_REQUIRED</prop>
+				<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
+				<prop key="writeNode">PROPAGATION_REQUIRED</prop>
 			</props>
 		</property>
 	</bean>
