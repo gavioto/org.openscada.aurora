@@ -24,13 +24,14 @@ import java.util.Map;
 
 public class DiffEntry implements Serializable
 {
-    private static final long serialVersionUID = -3327628959921694038L;
+    private static final long serialVersionUID = 9030999002792898317L;
 
     public static enum Operation
     {
         ADD,
         DELETE,
-        UPDATE
+        UPDATE_SET,
+        UPDATE_DIFF
     }
 
     private String factoryId;
@@ -39,29 +40,31 @@ public class DiffEntry implements Serializable
 
     private Operation operation;
 
-    private Map<String, String> data;
+    private Map<String, String> oldData;
+
+    private Map<String, String> newData;
 
     public DiffEntry ()
     {
     }
 
-    public DiffEntry ( final String factoryId, final String configurationId, final Operation operation, final Map<String, String> data )
+    public DiffEntry ( final String factoryId, final String configurationId, final Operation operation, final Map<String, String> newData )
     {
-        super ();
+        this ( factoryId, configurationId, operation, null, newData );
+    }
+
+    public DiffEntry ( final String factoryId, final String configurationId, final Operation operation, final Map<String, String> oldData, final Map<String, String> newData )
+    {
         this.factoryId = factoryId;
         this.configurationId = configurationId;
         this.operation = operation;
-        this.data = data;
+        this.oldData = oldData;
+        this.newData = newData;
     }
 
     public String getConfigurationId ()
     {
         return this.configurationId;
-    }
-
-    public Map<String, String> getData ()
-    {
-        return this.data;
     }
 
     public String getFactoryId ()
@@ -79,11 +82,6 @@ public class DiffEntry implements Serializable
         this.configurationId = configurationId;
     }
 
-    public void setData ( final Map<String, String> data )
-    {
-        this.data = data;
-    }
-
     public void setFactoryId ( final String factoryId )
     {
         this.factoryId = factoryId;
@@ -92,6 +90,26 @@ public class DiffEntry implements Serializable
     public void setOperation ( final Operation operation )
     {
         this.operation = operation;
+    }
+
+    public Map<String, String> getOldData ()
+    {
+        return this.oldData;
+    }
+
+    public void setOldData ( final Map<String, String> oldData )
+    {
+        this.oldData = oldData;
+    }
+
+    public Map<String, String> getNewData ()
+    {
+        return this.newData;
+    }
+
+    public void setNewData ( final Map<String, String> newData )
+    {
+        this.newData = newData;
     }
 
     @Override
@@ -122,7 +140,7 @@ public class DiffEntry implements Serializable
         {
             return false;
         }
-        if ( getClass () != obj.getClass () )
+        if ( ! ( obj instanceof DiffEntry ) )
         {
             return false;
         }
@@ -135,17 +153,6 @@ public class DiffEntry implements Serializable
             }
         }
         else if ( !this.configurationId.equals ( other.configurationId ) )
-        {
-            return false;
-        }
-        if ( this.data == null )
-        {
-            if ( other.data != null )
-            {
-                return false;
-            }
-        }
-        else if ( !this.data.equals ( other.data ) )
         {
             return false;
         }
@@ -173,4 +180,5 @@ public class DiffEntry implements Serializable
         }
         return true;
     }
+
 }

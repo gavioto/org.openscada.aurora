@@ -825,13 +825,16 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             switch ( entry.getOperation () )
             {
             case ADD:
-                future.addChild ( createConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getData () ) );
+                future.addChild ( createConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData () ) );
                 break;
             case DELETE:
                 future.addChild ( deleteConfiguration ( entry.getFactoryId (), entry.getConfigurationId () ) );
                 break;
-            case UPDATE:
-                future.addChild ( updateConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getData (), true ) );
+            case UPDATE_SET:
+                future.addChild ( updateConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), true ) );
+                break;
+            case UPDATE_DIFF:
+                future.addChild ( updateConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), false ) );
                 break;
             }
         }

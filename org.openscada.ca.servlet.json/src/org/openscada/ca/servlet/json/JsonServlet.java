@@ -75,7 +75,7 @@ public class JsonServlet extends HttpServlet
             obj.addProperty ( "configurationId", config.getConfigurationId () );
             obj.addProperty ( "operation", config.getOperation ().toString () );
             final JsonObject map = new JsonObject ();
-            for ( final Entry<?, ?> entry : config.getData ().entrySet () )
+            for ( final Entry<?, ?> entry : config.getNewData ().entrySet () )
             {
                 map.addProperty ( String.valueOf ( entry.getKey () ), String.valueOf ( entry.getValue () ) );
             }
@@ -320,7 +320,7 @@ public class JsonServlet extends HttpServlet
                 }
                 else if ( !data.equals ( existingConfigs.get ( id ) ) )
                 {
-                    diff.add ( new DiffEntry ( factoryId, id, DiffEntry.Operation.UPDATE, new HashMap ( data ) ) );
+                    diff.add ( new DiffEntry ( factoryId, id, DiffEntry.Operation.UPDATE_SET, new HashMap ( data ) ) );
                 }
             }
         }
