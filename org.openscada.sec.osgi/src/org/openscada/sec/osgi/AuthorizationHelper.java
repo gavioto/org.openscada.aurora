@@ -30,7 +30,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class AuthorizationHelper
 {
-    private static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, "No authentication provider voted. Rejecting request!" );
+    protected static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, "No authentication provider voted. Rejecting request!" );
 
     private final ServiceTracker tracker;
 
