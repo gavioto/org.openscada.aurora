@@ -128,18 +128,18 @@ public class AllObjectPoolServiceTracker
         };
     }
 
-    protected synchronized void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties )
+    protected void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties )
     {
         logger.debug ( "Service added {} -> {}", new Object[] { service, properties } );
         this.serviceListener.serviceAdded ( service, properties );
     }
 
-    protected synchronized void handleServiceModified ( final Object service, final Dictionary<?, ?> properties )
+    protected void handleServiceModified ( final Object service, final Dictionary<?, ?> properties )
     {
         this.serviceListener.serviceModified ( service, properties );
     }
 
-    protected synchronized void handleServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
+    protected void handleServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
     {
         this.serviceListener.serviceRemoved ( service, properties );
     }
