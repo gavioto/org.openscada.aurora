@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class ObjectPoolImpl implements ObjectPool
+public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( ObjectPoolImpl.class );
