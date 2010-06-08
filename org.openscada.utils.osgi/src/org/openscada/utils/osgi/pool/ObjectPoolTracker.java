@@ -190,7 +190,7 @@ public class ObjectPoolTracker
 
     public void removeListener ( final ObjectPoolServiceListener listener )
     {
-        Set<ObjectPool> pools;
+        final Set<ObjectPool> pools;
 
         synchronized ( this )
         {
