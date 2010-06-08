@@ -151,13 +151,21 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
      * @param configurationId the configuration id for which the service should be created
      * @param context the bundle context
      * @param parameters the initial parameters
-     * @return a new entry instance which holds the service
+     * @return a new entry instance which holds the service. This method must never return <code>null</code>
      * @throws Exception if anything goes wrong
      */
     protected abstract Entry<T> createService ( String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
 
     protected abstract void disposeService ( String configurationId, T service );
 
+    /**
+     * Update a service configuration
+     * @param configurationId the configuration to update
+     * @param entry the original service entry
+     * @param parameters the new parameters
+     * @return the new service entry or <code>null</code> if the entry did not change
+     * @throws Exception if anything goes wrong
+     */
     protected abstract Entry<T> updateService ( String configurationId, Entry<T> entry, Map<String, String> parameters ) throws Exception;
 
     protected synchronized Entry<T> getService ( final String configurationId )
