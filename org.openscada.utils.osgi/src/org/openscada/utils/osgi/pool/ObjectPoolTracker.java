@@ -188,8 +188,22 @@ public class ObjectPoolTracker
         }
     }
 
-    public synchronized void removeListener ( final ObjectPoolServiceListener listener )
+    public void removeListener ( final ObjectPoolServiceListener listener )
     {
-        this.listeners.remove ( listener );
+        Set<ObjectPool> pools;
+
+        synchronized ( this )
+        {
+            if ( !this.listeners.remove ( listener ) )
+            {
+                return;
+            }
+            pools = new HashSet<ObjectPool> ( this.poolMap.keySet () );
+        }
+
+        for ( final ObjectPool pool : pools )
+        {
+            listener.poolRemoved ( pool );
+        }
     }
 }
