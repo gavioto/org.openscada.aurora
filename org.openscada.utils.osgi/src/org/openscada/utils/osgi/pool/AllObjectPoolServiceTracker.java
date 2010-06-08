@@ -166,7 +166,7 @@ public class AllObjectPoolServiceTracker
     /**
      * Start the tracker
      */
-    public synchronized void open ()
+    public void open ()
     {
         this.poolTracker.addListener ( this.poolListener );
     }
@@ -174,7 +174,7 @@ public class AllObjectPoolServiceTracker
     /**
      * Stop the tracker
      */
-    public synchronized void close ()
+    public void close ()
     {
         this.poolTracker.removeListener ( this.poolListener );
     }
