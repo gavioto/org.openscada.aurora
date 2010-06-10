@@ -19,19 +19,19 @@
 
 package org.openscada.ds.storage.jdbc.internal;
 
-import java.sql.SQLException;
 import java.util.List;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.openscada.ds.DataNode;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorageDAO
+public class JdbcStorageDAOBlobImpl extends HibernateTemplate implements JdbcStorageDAO
 {
-    private static final String ENT_ENTRY = Entry.class.getName ();
+
+    private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBlobImpl.class );
+
+    private static final String ENT_ENTRY = EntryBlob.class.getName ();
 
     private static final String INSTANCE_ID = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
 
@@ -45,33 +45,25 @@ public class JdbcStorageDAOImpl extends HibernateTemplate implements JdbcStorage
         }
         else
         {
-            return (DataNode)result.get ( 0 );
+            final EntryBlob entry = (EntryBlob)result.get ( 0 );
+            final DataNode node = new DataNode ( entry.getNodeId (), entry.getData () );
+            return node;
         }
     }
 
     public void deleteNode ( final String nodeId )
     {
-        executeWithNativeSession ( new HibernateCallback () {
-
-            public Object doInHibernate ( final Session session ) throws HibernateException, SQLException
-            {
-                performDeleteNode ( session, nodeId );
-                return null;
-            }
-        } );
-    }
-
-    protected void performDeleteNode ( final Session session, final String nodeId )
-    {
-        final Query q = session.createQuery ( String.format ( "delete %s where nodeId=:nodeId and instance=:instance", ENT_ENTRY ) );
-        prepareQuery ( q );
-        q.setString ( "nodeId", nodeId );
-        q.setString ( "instance", INSTANCE_ID );
-        q.executeUpdate ();
+        delete ( readNode ( nodeId ) );
     }
 
     public void writeNode ( final DataNode node )
     {
-        saveOrUpdate ( node );
+        logger.debug ( "Write data node: {}", node );
+
+        final EntryBlob entry = new EntryBlob ();
+        entry.setNodeId ( node.getId () );
+        entry.setInstance ( INSTANCE_ID );
+        entry.setData ( node.getData () );
+        saveOrUpdate ( entry );
     }
 }

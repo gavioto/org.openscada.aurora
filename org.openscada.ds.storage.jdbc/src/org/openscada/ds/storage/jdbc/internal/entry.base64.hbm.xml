@@ -4,15 +4,16 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.openscada.ds.storage.jdbc.internal.Entry" table="datastore">
+	<class name="org.openscada.ds.storage.jdbc.internal.EntryBase64" table="datastore64">
 
 		<composite-id>
 			<key-property name="nodeId"></key-property>
 			<key-property name="instance"></key-property>
+			<key-property name="sequence"></key-property>
 			<generator class="assigned"/>
 		</composite-id>
 		
-		<property name="data" type="binary" />
+		<property name="data" type="text" />
 
 	</class>
 	

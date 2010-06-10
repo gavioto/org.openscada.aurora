@@ -28,6 +28,7 @@ import org.openscada.ds.DataNode;
 import org.openscada.ds.storage.AbstractStorage;
 import org.openscada.utils.concurrent.FutureTask;
 import org.openscada.utils.concurrent.InstantErrorFuture;
+import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class StorageImpl extends AbstractStorage
 
     public StorageImpl ()
     {
-        super ( Executors.newFixedThreadPool ( 1 ) );
+        super ( Executors.newSingleThreadExecutor ( new NamedThreadFactory ( StorageImpl.class.getName () ) ) );
     }
 
     @Override
@@ -93,7 +94,16 @@ public class StorageImpl extends AbstractStorage
 
                 public Void call () throws Exception
                 {
-                    StorageImpl.this.storage.writeNode ( node );
+                    try
+                    {
+                        StorageImpl.this.storage.writeNode ( node );
+                        fireUpdate ( node );
+                    }
+                    catch ( final Exception e )
+                    {
+                        logger.warn ( "Failed to write node", e );
+                        throw new RuntimeException ( "Failed to write node", e );
+                    }
                     return null;
                 }
             } );

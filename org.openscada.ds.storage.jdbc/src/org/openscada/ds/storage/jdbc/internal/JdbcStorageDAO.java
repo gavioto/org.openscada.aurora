@@ -23,7 +23,6 @@ import org.openscada.ds.DataNode;
 
 public interface JdbcStorageDAO
 {
-
     public DataNode readNode ( String nodeId );
 
     public void writeNode ( DataNode node );

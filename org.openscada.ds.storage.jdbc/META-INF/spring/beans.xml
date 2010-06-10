@@ -9,6 +9,7 @@
 		<property name="properties">
 			<props>
 				<prop key="org.openscada.ds.storage.jdbc.schema"></prop>
+				<prop key="org.openscada.ds.storage.jdbc.encoder">base64</prop>
 			</props>
 		</property>
 		<property name="location"
@@ -20,7 +21,7 @@
 		destroy-method="close">
 		<property name="driverClassName"
 			value="${org.openscada.ds.storage.jdbc.driver}" />
-		<property name="url" value="${org.openscada.ds.jdbc.url}" />
+		<property name="url" value="${org.openscada.ds.storage.jdbc.url}" />
 		<property name="username"
 			value="${org.openscada.ds.storage.jdbc.username}" />
 		<property name="password"
@@ -44,8 +45,8 @@
 		<property name="hibernateProperties" ref="hibernateProperties" />
 		<property name="mappingResources">
 			<list>
-				<value>org/openscada/ds/storage/jdbc/internal/entry.hbm.xml
-				</value>
+				<value>org/openscada/ds/storage/jdbc/internal/entry.blob.hbm.xml</value>
+				<value>org/openscada/ds/storage/jdbc/internal/entry.base64.hbm.xml</value>
 			</list>
 		</property>
 	</bean>
@@ -55,23 +56,38 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 
-	<bean name="jdbcStorageDAOTarget"
-		class="org.openscada.ca.jdbc.internal.JdbcStorageDAOImpl">
+	<bean name="jdbcStorage" class="org.openscada.ds.storage.jdbc.internal.StorageImpl"
+		destroy-method="dispose">
+		<property name="storage" ref="jdbcStorageDAO.${org.openscada.ds.storage.jdbc.encoder}" />
+	</bean>
+	
+	<bean name="jdbcStorageDAOBlobTarget"
+		class="org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBlobImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 
-	<bean name="jdbcStorage" class="org.openscada.ca.jdbc.internal.ConfigurationAdministratorImpl"
-		init-method="start" destroy-method="stop">
-		<constructor-arg>
-			<ref bean="bundleContext"/>
-		</constructor-arg>
-		<property name="jdbcStorageDAO" ref="jdbcStorageDAO" />
-	</bean>
-
-	<bean id="jdbcStorageDAO"
+	<bean id="jdbcStorageDAO.blob"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="txManager" />
-		<property name="target" ref="jdbcStorageDAOTarget" />
+		<property name="target" ref="jdbcStorageDAOBlobTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="readNode">PROPAGATION_REQUIRED</prop>
+				<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
+				<prop key="writeNode">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean name="jdbcStorageDAOBase64Target"
+		class="org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBase64Impl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="jdbcStorageDAO.base64"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="txManager" />
+		<property name="target" ref="jdbcStorageDAOBase64Target" />
 		<property name="transactionAttributes">
 			<props>
 				<prop key="readNode">PROPAGATION_REQUIRED</prop>

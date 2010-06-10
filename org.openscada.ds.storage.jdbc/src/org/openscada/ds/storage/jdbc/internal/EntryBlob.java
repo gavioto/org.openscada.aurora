@@ -21,9 +21,8 @@ package org.openscada.ds.storage.jdbc.internal;
 
 import java.io.Serializable;
 
-public class Entry implements Serializable
+public class EntryBlob implements Serializable
 {
-
     private static final long serialVersionUID = -5115602881866753356L;
 
     private String nodeId;
@@ -83,11 +82,11 @@ public class Entry implements Serializable
         {
             return false;
         }
-        if ( ! ( obj instanceof Entry ) )
+        if ( ! ( obj instanceof EntryBlob ) )
         {
             return false;
         }
-        final Entry other = (Entry)obj;
+        final EntryBlob other = (EntryBlob)obj;
         if ( this.instance == null )
         {
             if ( other.instance != null )
