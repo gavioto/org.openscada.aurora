@@ -8,8 +8,8 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="properties">
 			<props>
-				<prop key="org.openscada.ds.storage.jdbc.table">DATASTORE64</prop>
-				<prop key="org.openscada.ds.storage.jdbc.encoder">base64</prop>
+				<prop key="org.openscada.ds.storage.jdbc.table">DATASTORE</prop>
+				<prop key="org.openscada.ds.storage.jdbc.encoder">blob</prop>
 				<prop key="org.openscada.ds.storage.jdbc.instance">default</prop>
 			</props>
 		</property>
