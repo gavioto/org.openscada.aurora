@@ -21,7 +21,7 @@ package org.openscada.ca.jdbc.internal;
 
 import java.io.Serializable;
 
-public class Entry implements Serializable
+public class Entry implements Serializable, Cloneable
 {
     private static final long serialVersionUID = -4409482881200779138L;
 
@@ -35,6 +35,21 @@ public class Entry implements Serializable
 
     private String value;
 
+    private Integer seq = 0;
+
+    public Entry ()
+    {
+    }
+ 
+    public Entry(Entry entry) {
+        this.setInstance ( entry.instance );
+        this.setFactoryId ( entry.factoryId );
+        this.setConfigurationId ( entry.configurationId );
+        this.setKey ( entry.key );
+        this.setValue ( entry.value );
+        this.setSeq ( entry.seq );
+    }
+    
     public String getInstance ()
     {
         return this.instance;
@@ -85,79 +100,88 @@ public class Entry implements Serializable
         this.value = data;
     }
 
+    public Integer getSeq ()
+    {
+        return seq;
+    }
+
+    public void setSeq ( Integer seq )
+    {
+        this.seq = seq;
+    }
+
     @Override
     public int hashCode ()
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ( this.configurationId == null ? 0 : this.configurationId.hashCode () );
-        result = prime * result + ( this.factoryId == null ? 0 : this.factoryId.hashCode () );
-        result = prime * result + ( this.instance == null ? 0 : this.instance.hashCode () );
-        result = prime * result + ( this.key == null ? 0 : this.key.hashCode () );
+        result = prime * result + ( ( configurationId == null ) ? 0 : configurationId.hashCode () );
+        result = prime * result + ( ( factoryId == null ) ? 0 : factoryId.hashCode () );
+        result = prime * result + ( ( instance == null ) ? 0 : instance.hashCode () );
+        result = prime * result + ( ( key == null ) ? 0 : key.hashCode () );
+        result = prime * result + ( ( seq == null ) ? 0 : seq.hashCode () );
+        result = prime * result + ( ( value == null ) ? 0 : value.hashCode () );
         return result;
     }
 
     @Override
-    public boolean equals ( final Object obj )
+    public boolean equals ( Object obj )
     {
         if ( this == obj )
-        {
             return true;
-        }
         if ( obj == null )
-        {
             return false;
-        }
-        if ( ! ( obj instanceof Entry ) )
-        {
+        if ( getClass () != obj.getClass () )
             return false;
-        }
-        final Entry other = (Entry)obj;
-        if ( this.configurationId == null )
+        Entry other = (Entry)obj;
+        if ( configurationId == null )
         {
             if ( other.configurationId != null )
-            {
                 return false;
-            }
         }
-        else if ( !this.configurationId.equals ( other.configurationId ) )
-        {
+        else if ( !configurationId.equals ( other.configurationId ) )
             return false;
-        }
-        if ( this.factoryId == null )
+        if ( factoryId == null )
         {
             if ( other.factoryId != null )
-            {
                 return false;
-            }
         }
-        else if ( !this.factoryId.equals ( other.factoryId ) )
-        {
+        else if ( !factoryId.equals ( other.factoryId ) )
             return false;
-        }
-        if ( this.instance == null )
+        if ( instance == null )
         {
             if ( other.instance != null )
-            {
                 return false;
-            }
         }
-        else if ( !this.instance.equals ( other.instance ) )
-        {
+        else if ( !instance.equals ( other.instance ) )
             return false;
-        }
-        if ( this.key == null )
+        if ( key == null )
         {
             if ( other.key != null )
-            {
                 return false;
-            }
         }
-        else if ( !this.key.equals ( other.key ) )
-        {
+        else if ( !key.equals ( other.key ) )
             return false;
+        if ( seq == null )
+        {
+            if ( other.seq != null )
+                return false;
         }
+        else if ( !seq.equals ( other.seq ) )
+            return false;
+        if ( value == null )
+        {
+            if ( other.value != null )
+                return false;
+        }
+        else if ( !value.equals ( other.value ) )
+            return false;
         return true;
     }
-
+    
+    @Override
+    protected Object clone () throws CloneNotSupportedException
+    {
+        return new Entry(this);
+    }
 }
