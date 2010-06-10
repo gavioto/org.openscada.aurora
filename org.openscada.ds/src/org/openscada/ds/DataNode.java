@@ -339,4 +339,10 @@ public class DataNode
         return true;
     }
 
+    @Override
+    public String toString ()
+    {
+        return String.format ( "[DataNode - id: %s, data-len: %s]", this.id, this.data != null ? this.data.length : "null" );
+    }
+
 }
