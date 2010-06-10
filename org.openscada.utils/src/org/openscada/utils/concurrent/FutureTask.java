@@ -26,7 +26,7 @@ import org.openscada.utils.concurrent.internal.FutureTaskNotifier;
 public class FutureTask<T> extends java.util.concurrent.FutureTask<T> implements NotifyFuture<T>
 {
 
-    private FutureTaskNotifier<T> notifier;
+    private final FutureTaskNotifier<T> notifier;
 
     public FutureTask ( final Callable<T> callable )
     {
@@ -37,6 +37,7 @@ public class FutureTask<T> extends java.util.concurrent.FutureTask<T> implements
     public FutureTask ( final Runnable runnable, final T result )
     {
         super ( runnable, result );
+        this.notifier = new FutureTaskNotifier<T> ( this );
     }
 
     public void addListener ( final FutureListener<T> listener )
