@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.openscada.ds.DataNode;
+import org.openscada.utils.codec.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
