@@ -19,51 +19,62 @@
 
 package org.openscada.ds.storage.jdbc.internal;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.openscada.ds.DataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
-public class JdbcStorageDAOBlobImpl extends HibernateTemplate implements JdbcStorageDAO
+public class JdbcStorageDAOBlobImpl extends JdbcTemplate implements JdbcStorageDAO
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBlobImpl.class );
 
-    private static final String ENT_ENTRY = EntryBlob.class.getName ();
-
     private static final String INSTANCE_ID = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
 
-    @SuppressWarnings ( "unchecked" )
+    private static final String TABLE = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
+
     public DataNode readNode ( final String nodeId )
     {
-        final List result = find ( String.format ( "from %s where nodeId=? and instance=?", ENT_ENTRY ), new Object[] { nodeId, INSTANCE_ID } );
+        final List<DataNode> result = new LinkedList<DataNode> ();
+        query ( String.format ( "select node_id,data from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, INSTANCE_ID }, new RowCallbackHandler () {
+
+            public void processRow ( final ResultSet rs ) throws SQLException
+            {
+                result.add ( new DataNode ( rs.getString ( "node_id" ), rs.getBytes ( "data" ) ) );
+            }
+        } );
+
         if ( result.isEmpty () )
         {
             return null;
         }
         else
         {
-            final EntryBlob entry = (EntryBlob)result.get ( 0 );
-            final DataNode node = new DataNode ( entry.getNodeId (), entry.getData () );
-            return node;
+            return result.get ( 0 );
         }
+    }
+
+    protected String dataStoreName ()
+    {
+        return TABLE;
     }
 
     public void deleteNode ( final String nodeId )
     {
-        delete ( readNode ( nodeId ) );
+        update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, INSTANCE_ID } );
     }
 
     public void writeNode ( final DataNode node )
     {
         logger.debug ( "Write data node: {}", node );
 
-        final EntryBlob entry = new EntryBlob ();
-        entry.setNodeId ( node.getId () );
-        entry.setInstance ( INSTANCE_ID );
-        entry.setData ( node.getData () );
-        saveOrUpdate ( entry );
+        deleteNode ( node.getId () );
+        update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), new Object[] { node.getId (), INSTANCE_ID, node.getData () } );
     }
 }
