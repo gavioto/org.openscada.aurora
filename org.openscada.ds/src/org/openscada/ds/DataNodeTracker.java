@@ -94,7 +94,6 @@ public class DataNodeTracker
      */
     public synchronized void addListener ( final String nodeId, final DataListener listener )
     {
-
         Set<DataListener> set = this.listeners.get ( nodeId );
         if ( set == null )
         {
