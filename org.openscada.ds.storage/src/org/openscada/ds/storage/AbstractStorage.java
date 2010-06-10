@@ -68,34 +68,42 @@ public abstract class AbstractStorage implements DataStore
         {
             final NotifyFuture<DataNode> task = readNode ( nodeId );
 
-            try
-            {
-                final DataNode node = task.get ();
-                this.executor.execute ( new Runnable () {
+            this.executor.execute ( new Runnable () {
 
-                    public void run ()
+                public void run ()
+                {
+                    try
                     {
-                        listener.nodeChanged ( node );
+                        listener.nodeChanged ( task.get () );
                     }
-                } );
-            }
-            catch ( final Exception e )
-            {
-                this.executor.execute ( new Runnable () {
-
-                    public void run ()
+                    catch ( final Exception e )
                     {
                         listener.nodeChanged ( null );
+                        logger.info ( "Failed to initially load data node", e );
                     }
-                } );
-                logger.info ( "Failed to initially load data node", e );
-            }
+                }
+            } );
+
         }
     }
 
     public synchronized void detachListener ( final String nodeId, final DataListener listener )
     {
         this.listeners.remove ( nodeId, listener );
+    }
+
+    protected synchronized void fireUpdate ( final DataNode node )
+    {
+        for ( final DataListener listener : this.listeners.get ( node.getId () ) )
+        {
+            this.executor.execute ( new Runnable () {
+
+                public void run ()
+                {
+                    listener.nodeChanged ( node );
+                }
+            } );
+        }
     }
 
 }

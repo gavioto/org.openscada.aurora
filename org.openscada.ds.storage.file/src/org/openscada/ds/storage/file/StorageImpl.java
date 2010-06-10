@@ -128,6 +128,7 @@ public class StorageImpl extends AbstractStorage
         try
         {
             saveTo ( node, file );
+            fireUpdate ( node );
             return new InstantFuture<Void> ( null );
         }
         catch ( final IOException e )
