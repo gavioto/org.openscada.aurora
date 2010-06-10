@@ -8,27 +8,15 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="properties">
 			<props>
-				<prop key="org.openscada.ds.storage.jdbc.table">DATASTORE</prop>
-				<prop key="org.openscada.ds.storage.jdbc.encoder">blob</prop>
+				<prop key="org.openscada.ds.storage.jdbc.table">DATASTORE64</prop>
+				<prop key="org.openscada.ds.storage.jdbc.encoder">base64</prop>
+				<prop key="org.openscada.ds.storage.jdbc.instance">default</prop>
 			</props>
 		</property>
 		<property name="location"
 			value="osgibundle:/META-INF/db.properties" />
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
 	</bean>
-
-<!-- 
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
-		<property name="driverClassName"
-			value="${org.openscada.ds.storage.jdbc.driver}" />
-		<property name="url" value="${org.openscada.ds.storage.jdbc.url}" />
-		<property name="username"
-			value="${org.openscada.ds.storage.jdbc.username}" />
-		<property name="password"
-			value="${org.openscada.ds.storage.jdbc.password}" />
-	</bean>
--->
 
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
 		<property name="driverClass"
@@ -39,32 +27,6 @@
 		<property name="password"
 			value="${org.openscada.ds.storage.jdbc.password}" />
 	</bean>
-
-	<!-- 
-
-	<bean id="hibernateProperties"
-		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="hibernate.default_schema">${org.openscada.ds.storage.jdbc.schema}</prop>
-			</props>
-		</property>
-		<property name="location"
-			value="osgibundle:/META-INF/hibernate.properties" />
-	</bean>
-	
-
-	<bean id="sessionFactory"
-		class="org.openscada.ds.storage.jdbc.internal.CustomSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="hibernateProperties" ref="hibernateProperties" />
-		<property name="mappingResources">
-			<list>
-				<value>org/openscada/ds/storage/jdbc/internal/entry.base64.hbm.xml</value>
-			</list>
-		</property>
-	</bean>
-	-->
 
 	<bean id="txManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -79,6 +41,8 @@
 	<bean name="jdbcStorageDAOBlobTarget"
 		class="org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBlobImpl">
 		<property name="dataSource" ref="dataSource" />
+		<property name="tableName" value="${org.openscada.ds.storage.jdbc.table}"/>
+		<property name="instanceId" value="${org.openscada.ds.storage.jdbc.instance}"/>
 	</bean>
 
 	<bean id="jdbcStorageDAO.blob"
@@ -94,10 +58,12 @@
 		</property>
 	</bean>
 	
-	<!-- 
 	<bean name="jdbcStorageDAOBase64Target"
 		class="org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBase64Impl">
-		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="tableName" value="${org.openscada.ds.storage.jdbc.table}"/>
+		<property name="instanceId" value="${org.openscada.ds.storage.jdbc.instance}"/>
+		<property name="chunkSize" value="${org.openscada.ds.storage.jdbc.chunkSize}"/>
 	</bean>
 
 	<bean id="jdbcStorageDAO.base64"
@@ -112,5 +78,5 @@
 			</props>
 		</property>
 	</bean>
- -->
+ 
 </beans>

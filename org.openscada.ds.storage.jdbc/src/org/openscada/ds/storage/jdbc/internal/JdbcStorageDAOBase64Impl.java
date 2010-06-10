@@ -25,23 +25,54 @@ import java.util.List;
 import org.openscada.ds.DataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.Assert;
 
-public class JdbcStorageDAOBase64Impl extends HibernateTemplate implements JdbcStorageDAO
+public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorageDAO, InitializingBean
 {
-
-    private final static int CHUNK_SIZE = Integer.getInteger ( "org.openscada.ds.storage.jdbc.chunkSize", 10 );
 
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBase64Impl.class );
 
-    private static final String ENT_ENTRY = EntryBase64.class.getName ();
+    private String instanceId = "default";
 
-    private static final String INSTANCE_ID = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
+    public void setInstanceId ( final String instanceId )
+    {
+        this.instanceId = instanceId;
+    }
 
-    @SuppressWarnings ( "unchecked" )
+    private int chunkSize = 0;
+
+    public void setChunkSize ( final int chunkSize )
+    {
+        if ( chunkSize <= 0 )
+        {
+            this.chunkSize = Integer.MAX_VALUE;
+        }
+        else
+        {
+            this.chunkSize = chunkSize;
+        }
+    }
+
+    private String tableName = "datastore";
+
+    public void setTableName ( final String tableName )
+    {
+        this.tableName = tableName;
+    }
+
+    @Override
+    public void afterPropertiesSet ()
+    {
+        Assert.hasText ( this.tableName, "'tableName' must be set" );
+
+        super.afterPropertiesSet ();
+    }
+
     public DataNode readNode ( final String nodeId )
     {
-        final List result = findAll ( nodeId );
+        final List<String> result = findAll ( nodeId );
         if ( result.isEmpty () )
         {
             return null;
@@ -50,13 +81,15 @@ public class JdbcStorageDAOBase64Impl extends HibernateTemplate implements JdbcS
         {
             // merge node
             final StringBuilder sb = new StringBuilder ();
-            for ( final EntryBase64 entry : (List<EntryBase64>)result )
+            for ( final String entry : result )
             {
-                sb.append ( entry.getData () );
+                sb.append ( entry );
             }
             try
             {
-                return new DataNode ( nodeId, Base64.decode ( sb.toString () ) );
+                final String data = sb.toString ();
+                logger.debug ( "Read: {}", data );
+                return new DataNode ( nodeId, Base64.decode ( data ) );
             }
             catch ( final IOException e )
             {
@@ -66,43 +99,56 @@ public class JdbcStorageDAOBase64Impl extends HibernateTemplate implements JdbcS
         }
     }
 
-    private List<?> findAll ( final String nodeId )
+    @SuppressWarnings ( "unchecked" )
+    private List<String> findAll ( final String nodeId )
     {
         logger.debug ( "Find node: {}", nodeId );
-        final List result = find ( String.format ( "from %s where nodeId=? and instance=? order by sequence", ENT_ENTRY ), new Object[] { nodeId, INSTANCE_ID } );
-        logger.debug ( "Found entries: {}", result.size () );
+        final List result = queryForList ( String.format ( "select data from %s where node_id=? and instance_id=? order by sequence_nr", dataStoreName () ), new Object[] { nodeId, this.instanceId }, String.class );
         return result;
+    }
+
+    protected String dataStoreName ()
+    {
+        return this.tableName;
     }
 
     public void deleteNode ( final String nodeId )
     {
-        deleteAll ( findAll ( nodeId ) );
+        update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, this.instanceId } );
     }
 
     public void writeNode ( final DataNode node )
     {
-        final String data = Base64.encodeBytes ( node.getData () );
+        final String data;
 
-        final int len = data.length ();
+        if ( node != null && node.getData () != null )
+        {
+            data = Base64.encodeBytes ( node.getData () );
+        }
+        else
+        {
+            data = null;
+        }
+
+        logger.debug ( "Write data node: {} -> {}", node, data );
 
         deleteNode ( node.getId () );
-        flush ();
-        clear ();
 
-        for ( int i = 0; i < len / CHUNK_SIZE; i++ )
+        if ( data != null )
         {
-            final EntryBase64 entry = new EntryBase64 ();
-            entry.setInstance ( INSTANCE_ID );
-            entry.setNodeId ( node.getId () );
+            final int len = data.length ();
 
-            int end = ( i + 1 ) * CHUNK_SIZE;
-            if ( end > len )
+            for ( int i = 0; i <= len / this.chunkSize; i++ )
             {
-                end = len;
+                int end = ( i + 1 ) * this.chunkSize;
+                if ( end > len )
+                {
+                    end = len;
+                }
+
+                final String chunk = data.substring ( i * this.chunkSize, end );
+                update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ? , ?, ?, ? )", dataStoreName () ), new Object[] { node.getId (), this.instanceId, i, chunk } );
             }
-            entry.setData ( data.substring ( i * CHUNK_SIZE, end ) );
-            save ( entry );
         }
-        flush ();
     }
 }

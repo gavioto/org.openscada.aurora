@@ -27,22 +27,41 @@ import java.util.List;
 import org.openscada.ds.DataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.util.Assert;
 
-public class JdbcStorageDAOBlobImpl extends JdbcTemplate implements JdbcStorageDAO
+public class JdbcStorageDAOBlobImpl extends JdbcTemplate implements JdbcStorageDAO, InitializingBean
 {
-
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBlobImpl.class );
 
-    private static final String INSTANCE_ID = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
+    private String tableName = "datastore";
 
-    private static final String TABLE = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
+    private String instanceId = "default";
+
+    @Override
+    public void afterPropertiesSet ()
+    {
+        Assert.hasText ( this.tableName, "'tableName' must be set" );
+
+        super.afterPropertiesSet ();
+    }
+
+    public void setTableName ( final String tableName )
+    {
+        this.tableName = tableName;
+    }
+
+    public void setInstanceId ( final String instanceId )
+    {
+        this.instanceId = instanceId;
+    }
 
     public DataNode readNode ( final String nodeId )
     {
         final List<DataNode> result = new LinkedList<DataNode> ();
-        query ( String.format ( "select node_id,data from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, INSTANCE_ID }, new RowCallbackHandler () {
+        query ( String.format ( "select node_id,data from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, this.instanceId }, new RowCallbackHandler () {
 
             public void processRow ( final ResultSet rs ) throws SQLException
             {
@@ -62,12 +81,12 @@ public class JdbcStorageDAOBlobImpl extends JdbcTemplate implements JdbcStorageD
 
     protected String dataStoreName ()
     {
-        return TABLE;
+        return this.tableName;
     }
 
     public void deleteNode ( final String nodeId )
     {
-        update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, INSTANCE_ID } );
+        update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, this.instanceId } );
     }
 
     public void writeNode ( final DataNode node )
@@ -75,6 +94,6 @@ public class JdbcStorageDAOBlobImpl extends JdbcTemplate implements JdbcStorageD
         logger.debug ( "Write data node: {}", node );
 
         deleteNode ( node.getId () );
-        update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), new Object[] { node.getId (), INSTANCE_ID, node.getData () } );
+        update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), new Object[] { node.getId (), this.instanceId, node.getData () } );
     }
 }
