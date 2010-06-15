@@ -41,10 +41,10 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
 
     private String instanceId = "default";
 
-    private RowMapper mapper = new RowMapper () {
-        public Object mapRow ( ResultSet rs, int rowNum ) throws SQLException
+    private final RowMapper mapper = new RowMapper () {
+        public Object mapRow ( final ResultSet rs, final int rowNum ) throws SQLException
         {
-            Entry entry = new Entry ();
+            final Entry entry = new Entry ();
             entry.setInstance ( rs.getString ( "instance_id" ) );
             entry.setFactoryId ( rs.getString ( "factory_id" ) );
             entry.setConfigurationId ( rs.getString ( "configuration_id" ) );
@@ -58,21 +58,21 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
     @SuppressWarnings ( { "unchecked" } )
     public List<Entry> loadAll ()
     {
-        List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? %s", tableName, defaultOrder ), new Object[] { instanceId }, mapper );
+        final List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId }, this.mapper );
         return deChunk ( fixNulls ( result ) );
     }
 
     @SuppressWarnings ( "unchecked" )
     public List<Entry> loadFactory ( final String factoryId )
     {
-        List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", tableName, defaultOrder ), new Object[] { instanceId, factoryId }, mapper );
+        final List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId }, this.mapper );
         return deChunk ( fixNulls ( result ) );
     }
 
     @SuppressWarnings ( "unchecked" )
     public List<Entry> loadConfiguration ( final String factoryId, final String configurationId )
     {
-        List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", tableName, defaultOrder ), new Object[] { instanceId, factoryId, configurationId }, mapper );
+        final List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId, configurationId }, this.mapper );
         return deChunk ( fixNulls ( result ) );
     }
 
@@ -82,19 +82,21 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         {
             deleteConfiguration ( factoryId, configurationId );
         }
-        List<Entry> toStore = new ArrayList<Entry> ();
+        final List<Entry> toStore = new ArrayList<Entry> ();
         for ( final Map.Entry<String, String> entry : properties.entrySet () )
         {
             final Entry dataEntry = new Entry ();
-            dataEntry.setInstance ( instanceId );
+            dataEntry.setInstance ( this.instanceId );
             dataEntry.setFactoryId ( factoryId );
             dataEntry.setConfigurationId ( configurationId );
             dataEntry.setKey ( entry.getKey () );
             dataEntry.setValue ( entry.getValue () );
             toStore.add ( dataEntry );
+
+            update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ? and ca_key=?", this.tableName ), new Object[] { this.instanceId, factoryId, configurationId, entry.getKey () } );
         }
 
-        for ( Entry entry : chunk ( toStore ) )
+        for ( final Entry entry : chunk ( toStore ) )
         {
             storeEntry ( entry );
         }
@@ -108,27 +110,27 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         return result;
     }
 
-    private void storeEntry ( Entry entry )
+    private void storeEntry ( final Entry entry )
     {
         final Object[] params = new Object[] { entry.getInstance (), entry.getFactoryId (), entry.getConfigurationId (), entry.getKey (), entry.getValue (), entry.getSeq () };
-        update ( String.format ( "INSERT INTO %s (instance_id, factory_id, configuration_id, ca_key, ca_value, chunk_seq) VALUES (?, ?, ?, ?, ?, ?)", tableName ), params );
+        update ( String.format ( "INSERT INTO %s (instance_id, factory_id, configuration_id, ca_key, ca_value, chunk_seq) VALUES (?, ?, ?, ?, ?, ?)", this.tableName ), params );
     }
 
     public List<Entry> purgeFactory ( final String factoryId )
     {
         final List<Entry> entries = fixNulls ( loadFactory ( factoryId ) );
-        update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ?", tableName ), new Object[] { instanceId, factoryId } );
+        update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ?", this.tableName ), new Object[] { this.instanceId, factoryId } );
         return entries;
     }
 
     public void deleteConfiguration ( final String factoryId, final String configurationId )
     {
-        update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ?", tableName ), new Object[] { instanceId, factoryId, configurationId } );
+        update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ?", this.tableName ), new Object[] { this.instanceId, factoryId, configurationId } );
     }
 
     protected List<Entry> fixNulls ( final List<Entry> data )
     {
-        if ( !fixNull )
+        if ( !this.fixNull )
         {
             return data;
         }
@@ -147,22 +149,22 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
     protected List<Entry> chunk ( final List<Entry> data )
     {
         // shortcut: we don't need to chunk
-        if ( chunkSize == 0 )
+        if ( this.chunkSize == 0 )
         {
             return data;
         }
-        List<Entry> result = new ArrayList<Entry> ();
-        for ( Entry entry : data )
+        final List<Entry> result = new ArrayList<Entry> ();
+        for ( final Entry entry : data )
         {
             // shortcut: we don't need to chunk
-            if ( entry.getValue () == null || entry.getValue ().length () <= chunkSize )
+            if ( entry.getValue () == null || entry.getValue ().length () <= this.chunkSize )
             {
                 result.add ( entry );
                 continue;
             }
             // loop over string
             int from = 0;
-            int to = chunkSize;
+            int to = this.chunkSize;
             int seq = 1;
             do
             {
@@ -172,13 +174,13 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
                     to = entry.getValue ().length ();
                 }
                 // create new entry and add to result
-                Entry newEntry = new Entry ( entry );
+                final Entry newEntry = new Entry ( entry );
                 newEntry.setValue ( entry.getValue ().substring ( from, to ) );
                 newEntry.setSeq ( seq );
                 result.add ( newEntry );
                 // runtime variables
-                from += chunkSize;
-                to += chunkSize;
+                from += this.chunkSize;
+                to += this.chunkSize;
                 seq += 1;
             } while ( from < entry.getValue ().length () );
         }
@@ -187,9 +189,9 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
 
     protected List<Entry> deChunk ( final List<Entry> data )
     {
-        List<Entry> result = new ArrayList<Entry> ();
+        final List<Entry> result = new ArrayList<Entry> ();
         Entry newEntry = new Entry ();
-        for ( Entry entry : data )
+        for ( final Entry entry : data )
         {
             // if there is only one, add it to result and continue
             if ( entry.getSeq () == 0 )
@@ -222,40 +224,40 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
 
     public String getTableName ()
     {
-        return tableName;
+        return this.tableName;
     }
 
-    public void setTableName ( String tableName )
+    public void setTableName ( final String tableName )
     {
         this.tableName = tableName;
     }
 
     public int getChunkSize ()
     {
-        return chunkSize;
+        return this.chunkSize;
     }
 
-    public void setChunkSize ( int chunkSize )
+    public void setChunkSize ( final int chunkSize )
     {
         this.chunkSize = chunkSize;
     }
 
     public boolean isFixNull ()
     {
-        return fixNull;
+        return this.fixNull;
     }
 
-    public void setFixNull ( boolean fixNull )
+    public void setFixNull ( final boolean fixNull )
     {
         this.fixNull = fixNull;
     }
 
     public String getInstanceId ()
     {
-        return instanceId;
+        return this.instanceId;
     }
 
-    public void setInstanceId ( String instanceId )
+    public void setInstanceId ( final String instanceId )
     {
         this.instanceId = instanceId;
     }
