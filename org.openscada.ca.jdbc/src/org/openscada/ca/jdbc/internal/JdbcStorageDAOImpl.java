@@ -82,26 +82,33 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         {
             deleteConfiguration ( factoryId, configurationId );
         }
+
         final List<Entry> toStore = new ArrayList<Entry> ();
         for ( final Map.Entry<String, String> entry : properties.entrySet () )
         {
-            final Entry dataEntry = new Entry ();
-            dataEntry.setInstance ( this.instanceId );
-            dataEntry.setFactoryId ( factoryId );
-            dataEntry.setConfigurationId ( configurationId );
-            dataEntry.setKey ( entry.getKey () );
-            dataEntry.setValue ( entry.getValue () );
-            toStore.add ( dataEntry );
+            // add to store list if we have data
+            if ( entry.getValue () != null )
+            {
+                final Entry dataEntry = new Entry ();
+                dataEntry.setInstance ( this.instanceId );
+                dataEntry.setFactoryId ( factoryId );
+                dataEntry.setConfigurationId ( configurationId );
+                dataEntry.setKey ( entry.getKey () );
+                dataEntry.setValue ( entry.getValue () );
+                toStore.add ( dataEntry );
+            }
 
+            // always delete
             update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ? and ca_key=?", this.tableName ), new Object[] { this.instanceId, factoryId, configurationId, entry.getKey () } );
         }
 
+        // split up entries and store
         for ( final Entry entry : chunk ( toStore ) )
         {
             storeEntry ( entry );
         }
 
-        // map result
+        // fetch result and return it
         final Map<String, String> result = new HashMap<String, String> ();
         for ( final Entry entry : deChunk ( fixNulls ( loadConfiguration ( factoryId, configurationId ) ) ) )
         {
