@@ -3,7 +3,7 @@
       id="org.openscada.pde.maven.target"
       label="PDE Maven Target Provisioner Feature"
       version="1.0.2"
-      provider-name="inavare GmbH"
+      provider-name="TH4 SYSTEMS GmbH"
       plugin="org.openscada.pde.maven.target">
 
    <description url="http://openscada.org">
@@ -11,7 +11,7 @@
    </description>
 
    <copyright>
-      Copyright (c) 2009, inavare GmbH and others
+      Copyright (c) 2009, TH4 SYSTEMS GmbH and others
 The code, documentation and other materials contained herein have been
 licensed under the Eclipse Public License - v 1.0 by the copyright holder
 listed above, as the Initial Contributor under such license. The text of
