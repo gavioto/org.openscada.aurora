@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OpenSCADA DS Storage
 Bundle-SymbolicName: org.openscada.ds.storage
 Bundle-Version: 0.15.0.qualifier
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.openscada.ds.storage;version="0.15.0";uses:="org.openscada.utils.concurrent,org.openscada.ds"
 Import-Package: com.google.common.collect;version="1.0.0",

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OpenSCADA Utils Testing
 Bundle-SymbolicName: org.openscada.utils.test
 Bundle-Version: 0.15.0.qualifier
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Fragment-Host: org.openscada.utils
 Require-Bundle: org.junit4;bundle-version="4.5.0"

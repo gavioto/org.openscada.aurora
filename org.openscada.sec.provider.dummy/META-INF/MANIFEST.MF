@@ -4,7 +4,7 @@ Bundle-Name: OpenSCADA Security Dummy Provider
 Bundle-SymbolicName: org.openscada.sec.provider.dummy
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.openscada.sec.provider.dummy.Activator
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.openscada.sec;version="0.1.0",
  org.osgi.framework;version="1.3.0"

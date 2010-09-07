@@ -20,5 +20,5 @@ Bundle-Description: Utility classes for use throughout the OpenSCADA p
  roject
 Bundle-DocURL: http://www.inavare.com
 Bundle-ManifestVersion: 2
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-SymbolicName: org.openscada.utils
