@@ -12,4 +12,4 @@ Import-Package: org.openscada.hsdb;version="0.14.0",
  org.openscada.hsdb.configuration;version="0.14.0",
  org.openscada.hsdb.datatypes;version="0.14.0",
  org.slf4j;version="1.5.8"
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH

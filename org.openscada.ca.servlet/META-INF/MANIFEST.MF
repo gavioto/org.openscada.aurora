@@ -4,7 +4,7 @@ Bundle-Name: OpenSCADA CA Servlet Console Plug-in
 Bundle-SymbolicName: org.openscada.ca.servlet
 Bundle-Version: 0.15.0.qualifier
 Bundle-Activator: org.openscada.ca.servlet.Activator
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: javax.servlet;version="2.4.0",
  javax.servlet.http;version="2.4.0",

@@ -4,7 +4,7 @@ Bundle-Name: OpenSCADA CA WS Interface
 Bundle-SymbolicName: org.openscada.ca.servlet.jaxws
 Bundle-Version: 0.15.0.qualifier
 Bundle-Activator: org.openscada.ca.servlet.jaxws.Activator
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.jws,
  javax.xml.ws,

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OpenSCADA CA Common
 Bundle-SymbolicName: org.openscada.ca.common
 Bundle-Version: 0.15.0.qualifier
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.openscada.ca.common;version="0.15.0";uses:="org.openscada.utils.concurrent,org.openscada.ca,org.osgi.framework",
  org.openscada.ca.common.factory;version="0.15.0";uses:="org.openscada.utils.lang,org.openscada.ca,org.osgi.framework"

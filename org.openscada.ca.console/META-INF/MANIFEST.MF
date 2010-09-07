@@ -4,7 +4,7 @@ Bundle-Name: OpenSCADA CA Equinox Console Handler
 Bundle-SymbolicName: org.openscada.ca.console
 Bundle-Version: 0.15.0.qualifier
 Bundle-Activator: org.openscada.ca.console.Activator
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.eclipse.osgi.framework.console;version="1.0.0",
  org.openscada.ca;version="0.15.0",

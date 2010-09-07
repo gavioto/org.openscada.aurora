@@ -4,7 +4,7 @@ Bundle-Name: Maven Repository Target Platform Provisoner
 Bundle-SymbolicName: org.openscada.pde.maven.target;singleton:=true
 Bundle-Version: 1.0.2
 Bundle-Activator: com.inavare.maven.platform.Activator
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.pde.ui

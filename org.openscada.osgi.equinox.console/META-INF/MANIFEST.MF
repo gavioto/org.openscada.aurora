@@ -4,7 +4,7 @@ Bundle-Name: OpenSCADA Equinox Console
 Bundle-SymbolicName: org.openscada.osgi.equinox.console
 Bundle-Version: 0.14.0.qualifier
 Bundle-Activator: org.openscada.osgi.equinox.console.Activator
-Bundle-Vendor: inavare GmbH
+Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.eclipse.osgi.framework.console,
  org.osgi.framework;version="1.3.0",
