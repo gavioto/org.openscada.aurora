@@ -18,7 +18,6 @@ Bundle-Version: 0.15.0.qualifier
 Bundle-Name: OpenSCADA Common Utilities
 Bundle-Description: Utility classes for use throughout the OpenSCADA p
  roject
-Bundle-DocURL: http://www.inavare.com
 Bundle-ManifestVersion: 2
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-SymbolicName: org.openscada.utils
