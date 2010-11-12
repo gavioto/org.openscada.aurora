@@ -41,7 +41,6 @@ public class Pair<T1, T2>
         return result;
     }
 
-    @SuppressWarnings ( "unchecked" )
     @Override
     public boolean equals ( final Object obj )
     {
@@ -57,6 +56,7 @@ public class Pair<T1, T2>
         {
             return false;
         }
+        @SuppressWarnings ( "rawtypes" )
         final Pair other = (Pair)obj;
         if ( this.first == null )
         {
@@ -82,4 +82,5 @@ public class Pair<T1, T2>
         }
         return true;
     }
+
 }
