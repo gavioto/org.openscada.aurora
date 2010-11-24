@@ -78,8 +78,7 @@ public class PropertyEditorRegistry
      * @param propertyPath
      * @return
      */
-    @SuppressWarnings ( "unchecked" )
-    public PropertyEditor findCustomEditor ( final Class requiredType, final String propertyPath )
+    public PropertyEditor findCustomEditor ( final Class<?> requiredType, final String propertyPath )
     {
         // first try to find exact match
         String key = requiredType.getCanonicalName () + ":" + propertyPath;
@@ -102,8 +101,7 @@ public class PropertyEditorRegistry
      * @param requiredType
      * @return
      */
-    @SuppressWarnings ( "unchecked" )
-    public PropertyEditor findCustomEditor ( final Class requiredType )
+    public PropertyEditor findCustomEditor ( final Class<?> requiredType )
     {
         return findCustomEditor ( requiredType, "" );
     }
@@ -112,8 +110,7 @@ public class PropertyEditorRegistry
      * @param requiredType
      * @param propertyEditor
      */
-    @SuppressWarnings ( "unchecked" )
-    public void registerCustomEditor ( final Class requiredType, final PropertyEditor propertyEditor )
+    public void registerCustomEditor ( final Class<?> requiredType, final PropertyEditor propertyEditor )
     {
         registerCustomEditor ( requiredType, "", propertyEditor );
     }
@@ -123,8 +120,7 @@ public class PropertyEditorRegistry
      * @param propertyPath
      * @param propertyEditor
      */
-    @SuppressWarnings ( "unchecked" )
-    public void registerCustomEditor ( final Class requiredType, final String propertyPath, final PropertyEditor propertyEditor )
+    public void registerCustomEditor ( final Class<?> requiredType, final String propertyPath, final PropertyEditor propertyEditor )
     {
         final String key = requiredType.getCanonicalName () + ":" + propertyPath;
         this.propertyEditors.put ( key, propertyEditor );
