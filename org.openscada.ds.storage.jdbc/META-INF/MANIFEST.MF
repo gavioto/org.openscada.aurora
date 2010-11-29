@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openscada.ds.storage.jdbc
 Bundle-Version: 0.15.0.qualifier
 Bundle-Activator: org.openscada.ds.storage.jdbc.Activator
 Bundle-Vendor: TH4 SYSTEMS GmbH
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javassist.util.proxy;version="[3.9.0,4.0.0)",
  javax.transaction;version="1.1.0",
  javax.transaction.xa;version="1.1.0",

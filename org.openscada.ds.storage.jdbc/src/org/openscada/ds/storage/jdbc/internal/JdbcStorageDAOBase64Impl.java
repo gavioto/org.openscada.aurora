@@ -71,6 +71,7 @@ public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorag
         super.afterPropertiesSet ();
     }
 
+    @Override
     public DataNode readNode ( final String nodeId )
     {
         final List<String> result = findAll ( nodeId );
@@ -104,7 +105,7 @@ public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorag
     private List<String> findAll ( final String nodeId )
     {
         logger.debug ( "Find node: {}", nodeId );
-        final List result = queryForList ( String.format ( "select data from %s where node_id=? and instance_id=? order by sequence_nr", dataStoreName () ), new Object[] { nodeId, this.instanceId }, String.class );
+        final List<String> result = queryForList ( String.format ( "select data from %s where node_id=? and instance_id=? order by sequence_nr", dataStoreName () ), new Object[] { nodeId, this.instanceId }, String.class );
         return result;
     }
 
@@ -113,11 +114,13 @@ public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorag
         return this.tableName;
     }
 
+    @Override
     public void deleteNode ( final String nodeId )
     {
         update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, this.instanceId } );
     }
 
+    @Override
     public void writeNode ( final DataNode node )
     {
         final String data;
