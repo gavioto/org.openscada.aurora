@@ -4,7 +4,7 @@ Bundle-Name: OpenSCADA DA
 Bundle-SymbolicName: org.openscada.ds
 Bundle-Version: 0.15.0.qualifier
 Bundle-Vendor: TH4 SYSTEMS GmbH
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.openscada.ds;version="0.15.0";uses:="org.openscada.utils.concurrent,org.osgi.framework"
 Import-Package: org.openscada.utils.concurrent;version="0.15.0",
  org.openscada.utils.concurrent.task;version="0.15.0",
