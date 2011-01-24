@@ -46,12 +46,14 @@ public class CommandInterpreterImpl implements CommandInterpreter
         this.args = args;
     }
 
+    @Override
     public Object execute ( final String cmd )
     {
         println ( "Remote execution not allowed" );
         return null;
     }
 
+    @Override
     public String nextArgument ()
     {
         if ( this.args.isEmpty () )
@@ -61,11 +63,13 @@ public class CommandInterpreterImpl implements CommandInterpreter
         return this.args.remove ();
     }
 
+    @Override
     public void print ( final Object o )
     {
         this.session.write ( "" + o );
     }
 
+    @Override
     public void printBundleResource ( final Bundle bundle, final String resource )
     {
         final URL url = bundle.getResource ( resource );
@@ -78,7 +82,8 @@ public class CommandInterpreterImpl implements CommandInterpreter
         }
     }
 
-    @SuppressWarnings ( "unchecked" )
+    @Override
+    @SuppressWarnings ( "rawtypes" )
     public void printDictionary ( final Dictionary dic, final String title )
     {
         println ( title );
@@ -91,6 +96,7 @@ public class CommandInterpreterImpl implements CommandInterpreter
         }
     }
 
+    @Override
     public void printStackTrace ( final Throwable t )
     {
         final StringWriter sw = new StringWriter ();
@@ -108,11 +114,13 @@ public class CommandInterpreterImpl implements CommandInterpreter
         }
     }
 
+    @Override
     public void println ()
     {
         this.session.write ( NL );
     }
 
+    @Override
     public void println ( final Object o )
     {
         this.session.write ( "" + o + NL );
