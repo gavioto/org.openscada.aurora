@@ -38,7 +38,7 @@ import org.openscada.utils.lang.Immutable;
 @Immutable
 public class UserInformation implements Serializable
 {
-    private static final long serialVersionUID = 4789496200821826617L;
+    private static final long serialVersionUID = 1L;
 
     public final static UserInformation ANONYMOUS = new UserInformation ( null, Collections.<String> emptySet () );
 
@@ -49,6 +49,12 @@ public class UserInformation implements Serializable
     private final String name;
 
     private final Set<String> roles;
+
+    public UserInformation ( final String name )
+    {
+        this.name = name;
+        this.roles = Collections.emptySet ();
+    }
 
     public UserInformation ( final String name, final Set<String> roles )
     {

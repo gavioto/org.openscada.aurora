@@ -28,4 +28,8 @@ public interface StatusCodes
 
     public static final StatusCode INVALID_USER_OR_PASSWORD = new StatusCode ( "OSSEC", "CORE", 2, SeverityLevel.ERROR );
 
+    public static final StatusCode AUTHENTICATION_FAILED = new StatusCode ( "OSSEC", "AUTH", 1, SeverityLevel.ERROR );
+
+    public static final StatusCode AUTHORIZATION_FAILED = new StatusCode ( "OSSEC", "AUTH", 2, SeverityLevel.ERROR );
+
 }
