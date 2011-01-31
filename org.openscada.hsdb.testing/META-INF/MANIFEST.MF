@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: org.openscada.hsdb.testing
 Bundle-Version: 0.14.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.junit;version="4.5.0",
  org.junit.runner;version="4.5.0",
  org.junit.runners;version="4.5.0",
