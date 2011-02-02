@@ -72,8 +72,10 @@ public class EndpointExporter implements ServiceListener
         {
             e.stop ();
         }
+        this.endpoints.clear ();
     }
 
+    @Override
     public synchronized void serviceChanged ( final ServiceEvent event )
     {
         switch ( event.getType () )
@@ -93,7 +95,10 @@ public class EndpointExporter implements ServiceListener
         final Endpoint e = this.endpoints.remove ( serviceReference );
         if ( e != null )
         {
-            e.stop ();
+            if ( e.isPublished () )
+            {
+                e.stop ();
+            }
             this.context.ungetService ( serviceReference );
         }
     }
