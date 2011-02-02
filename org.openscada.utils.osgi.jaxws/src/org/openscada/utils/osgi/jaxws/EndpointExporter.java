@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,7 +19,9 @@
 
 package org.openscada.utils.osgi.jaxws;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.jws.WebService;
@@ -68,11 +70,18 @@ public class EndpointExporter implements ServiceListener
     public void dispose ()
     {
         this.context.removeServiceListener ( this );
-        for ( final Endpoint e : this.endpoints.values () )
+
+        List<Endpoint> endpoints;
+        synchronized ( this )
+        {
+            endpoints = new ArrayList<Endpoint> ( this.endpoints.values () );
+            this.endpoints.clear ();
+        }
+
+        for ( final Endpoint e : endpoints )
         {
             e.stop ();
         }
-        this.endpoints.clear ();
     }
 
     @Override
@@ -92,12 +101,24 @@ public class EndpointExporter implements ServiceListener
 
     private void removeService ( final ServiceReference serviceReference )
     {
-        final Endpoint e = this.endpoints.remove ( serviceReference );
+        final Endpoint e;
+        synchronized ( this )
+        {
+            e = this.endpoints.remove ( serviceReference );
+        }
+
         if ( e != null )
         {
             if ( e.isPublished () )
             {
-                e.stop ();
+                try
+                {
+                    e.stop ();
+                }
+                catch ( final Exception ex )
+                {
+                    logger.warn ( "Failed to stop export", ex );
+                }
             }
             this.context.ungetService ( serviceReference );
         }
@@ -146,8 +167,21 @@ public class EndpointExporter implements ServiceListener
 
                     final String address = makeAddress ( reference, service, webService );
                     e.publish ( address );
-                    this.endpoints.put ( reference, e );
-                    e = null;
+                    e = this.endpoints.put ( reference, e );
+
+                    if ( e != null )
+                    {
+                        try
+                        {
+                            e.stop ();
+                        }
+                        catch ( final Throwable e2 )
+                        {
+                            logger.warn ( "Failed to stop previous export", e2 );
+                        }
+                        e = null;
+                    }
+
                 }
                 else
                 {
