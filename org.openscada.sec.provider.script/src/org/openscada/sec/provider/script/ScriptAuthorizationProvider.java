@@ -43,9 +43,13 @@ import org.openscada.sec.AuthorizationService;
 import org.openscada.sec.UserInformation;
 import org.openscada.utils.statuscodes.SeverityLevel;
 import org.openscada.utils.statuscodes.StatusCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScriptAuthorizationProvider implements AuthorizationService, ConfigurationFactory
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( ScriptAuthorizationProvider.class );
 
     private static final class PriorityComparator implements Comparator<AuthorizationEntry>
     {
@@ -123,6 +127,9 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
         public AuthorizationResult run ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context ) throws ScriptException
         {
+            logger.debug ( "Checking authentication - objectType: {}, objectId: {}, action: {}, user: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } );
+            logger.debug ( "Pre-Filter - objectType: {}, objectId: {}, action: {}", new Object[] { this.objectType, this.objectId, this.action } );
+
             if ( this.objectId != null && !this.objectId.matcher ( objectId ).matches () )
             {
                 return null;
@@ -149,16 +156,20 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
             if ( this.compiledScript != null )
             {
+                logger.debug ( "Running pre-compiled script" );
                 return generateResult ( this.compiledScript.eval ( bindings ) );
             }
             else
             {
+                logger.debug ( "Running script" );
                 return generateResult ( this.engine.eval ( this.script, bindings ) );
             }
         }
 
         private AuthorizationResult generateResult ( final Object eval )
         {
+            logger.debug ( "Authentication result: {}", eval );
+
             if ( eval == null )
             {
                 return null;
