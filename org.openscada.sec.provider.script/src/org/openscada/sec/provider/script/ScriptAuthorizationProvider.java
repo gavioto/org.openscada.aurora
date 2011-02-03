@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -49,6 +49,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
     private static final class PriorityComparator implements Comparator<AuthorizationEntry>
     {
+        @Override
         public int compare ( final AuthorizationEntry o1, final AuthorizationEntry o2 )
         {
             final int thisVal = o1.getPriority ();
@@ -254,6 +255,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         }
     }
 
+    @Override
     public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context )
     {
         try
@@ -282,6 +284,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         return null;
     }
 
+    @Override
     public void delete ( final String configurationId ) throws Exception
     {
         try
@@ -307,6 +310,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         }
     }
 
+    @Override
     public void update ( final String configurationId, final Map<String, String> properties ) throws Exception
     {
         final AuthorizationEntry entry = createEntry ( configurationId, new ConfigurationDataHelper ( properties ) );
