@@ -47,5 +47,5 @@ public interface AuthorizationService
      * about the requested authorization and <code>null</code> if the service can neither
      * approve or reject the request.
      */
-    public AuthorizationResult authorize ( String objectId, String objectType, String action, UserInformation userInformation, Map<String, Object> context );
+    public AuthorizationResult authorize ( String objectType, String objectId, String action, UserInformation userInformation, Map<String, Object> context );
 }

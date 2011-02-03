@@ -125,7 +125,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             }
         }
 
-        public AuthorizationResult run ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context ) throws ScriptException
+        public AuthorizationResult run ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context ) throws ScriptException
         {
             logger.debug ( "Checking authentication - objectType: {}, objectId: {}, action: {}, user: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } );
             logger.debug ( "Pre-Filter - objectType: {}, objectId: {}, action: {}", new Object[] { this.objectType, this.objectId, this.action } );
@@ -267,7 +267,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
     }
 
     @Override
-    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context )
+    public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context )
     {
         try
         {
@@ -275,7 +275,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
             for ( final AuthorizationEntry entry : this.configuration )
             {
-                final AuthorizationResult result = entry.run ( objectId, objectType, action, userInformation, context );
+                final AuthorizationResult result = entry.run ( objectType, objectId, action, userInformation, context );
                 if ( result != null )
                 {
                     return result;

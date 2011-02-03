@@ -66,12 +66,12 @@ public class AuthorizationHelper
      * @param userInformation the user information or <code>null</code> if there is none
      * @return always returns a result, never returns <code>null</code>
      */
-    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context )
+    public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context )
     {
-        return authorize ( objectId, objectType, action, userInformation, context, DEFAULT_RESULT );
+        return authorize ( objectType, objectId, action, userInformation, context, DEFAULT_RESULT );
     }
 
-    public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context, final AuthorizationResult defaultResult )
+    public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context, final AuthorizationResult defaultResult )
     {
         logger.debug ( "Authorizing - objectType: {}, objectId: {}, action: {}, userInformation: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } );
 
@@ -100,7 +100,7 @@ public class AuthorizationHelper
                 logger.info ( "Service does not implement AuthorizationService" );
                 continue;
             }
-            final AuthorizationResult result = ( (AuthorizationService)service ).authorize ( objectId, objectType, action, userInformation, unmodiContext );
+            final AuthorizationResult result = ( (AuthorizationService)service ).authorize ( objectType, objectId, action, userInformation, unmodiContext );
             if ( result != null )
             {
                 logger.debug ( "Got result ({}). Returning ... ", result );
