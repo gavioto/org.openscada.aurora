@@ -28,10 +28,14 @@ import org.openscada.sec.StatusCodes;
 import org.openscada.sec.UserInformation;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthorizationHelper
 {
     protected static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, "No authentication provider voted. Rejecting request!" );
+
+    private final static Logger logger = LoggerFactory.getLogger ( AuthorizationHelper.class );
 
     private final ServiceTracker tracker;
 
@@ -69,28 +73,37 @@ public class AuthorizationHelper
 
     public AuthorizationResult authorize ( final String objectId, final String objectType, final String action, final UserInformation userInformation, final Map<String, Object> context, final AuthorizationResult defaultResult )
     {
+        logger.debug ( "Authorizing - objectType: {}, objectId: {}, action: {}, userInformation: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } );
+
         final Object[] s = this.tracker.getServices ();
 
         if ( s == null )
         {
+            logger.debug ( "No authencation services" );
             return defaultResult;
         }
 
-        Map<String, Object> unmodiContext = null;
+        final Map<String, Object> unmodiContext;
         if ( context != null )
         {
             unmodiContext = Collections.unmodifiableMap ( context );
+        }
+        else
+        {
+            unmodiContext = null;
         }
 
         for ( final Object service : s )
         {
             if ( ! ( service instanceof AuthorizationService ) )
             {
+                logger.info ( "Service does not implement AuthorizationService" );
                 continue;
             }
             final AuthorizationResult result = ( (AuthorizationService)service ).authorize ( objectId, objectType, action, userInformation, unmodiContext );
             if ( result != null )
             {
+                logger.debug ( "Got result ({}). Returning ... ", result );
                 return result;
             }
         }
