@@ -52,6 +52,11 @@ public class StringReplacer
 
     public static String replace ( final String string, final ReplaceSource replaceSource, final Pattern pattern )
     {
+        if ( string == null )
+        {
+            return null;
+        }
+
         final Matcher m = pattern.matcher ( string );
 
         boolean result = m.find ();
