@@ -32,11 +32,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.common.ConfigurationImpl;
+import org.openscada.utils.str.StringReplacer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
     private final static class DataFilenameFilter implements FilenameFilter
     {
+        @Override
         public boolean accept ( final File dir, final String name )
         {
             if ( ".meta".equals ( name ) )
@@ -77,7 +79,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
     protected File getRootFile ()
     {
-        final String rootDir = System.getProperty ( "org.openscada.ca.file.root", null );
+        final String rootDir = getRootFileName ();
 
         if ( rootDir == null || rootDir.length () == 0 )
         {
@@ -87,6 +89,11 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         {
             return new File ( rootDir );
         }
+    }
+
+    private String getRootFileName ()
+    {
+        return StringReplacer.replace ( System.getProperty ( "org.openscada.ca.file.root", null ), System.getProperties () );
     }
 
     private File initRoot ()
