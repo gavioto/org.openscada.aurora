@@ -31,7 +31,7 @@ public class StringReplacer
         public String replace ( String context, String key );
     }
 
-    public static final Pattern DEFAULT_PATTERN = Pattern.compile ( "${(.*?)}" );
+    public static final Pattern DEFAULT_PATTERN = Pattern.compile ( "\\$\\{(.*?)\\}" );
 
     public static String replace ( final String string, final Hashtable<?, ?> properties )
     {
@@ -67,7 +67,7 @@ public class StringReplacer
             {
 
                 final String key;
-                if ( m.groupCount () > 1 )
+                if ( m.groupCount () > 0 )
                 {
                     key = m.group ( 1 );
                 }
