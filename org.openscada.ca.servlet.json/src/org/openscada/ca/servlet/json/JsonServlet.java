@@ -38,8 +38,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.DiffEntry;
-import org.openscada.ca.Factory;
 import org.openscada.ca.DiffEntry.Operation;
+import org.openscada.ca.Factory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -56,6 +56,7 @@ public class JsonServlet extends HttpServlet
 {
     private class FactorySerializer implements JsonSerializer<Factory>
     {
+        @Override
         public JsonElement serialize ( final Factory factory, final Type typeOfFactory, final JsonSerializationContext context )
         {
             final JsonObject obj = new JsonObject ();
@@ -68,6 +69,7 @@ public class JsonServlet extends HttpServlet
 
     private class DiffEntrySerializer implements JsonSerializer<DiffEntry>, JsonDeserializer<DiffEntry>
     {
+        @Override
         public JsonElement serialize ( final DiffEntry config, final Type typeOfDiffEntry, final JsonSerializationContext context )
         {
             final JsonObject obj = new JsonObject ();
@@ -83,6 +85,7 @@ public class JsonServlet extends HttpServlet
             return obj;
         }
 
+        @Override
         public DiffEntry deserialize ( final JsonElement element, final Type type, final JsonDeserializationContext context ) throws JsonParseException
         {
             final String factoryId = element.getAsJsonObject ().get ( "factoryId" ).getAsString ();
@@ -279,7 +282,7 @@ public class JsonServlet extends HttpServlet
         }
     }
 
-    @SuppressWarnings ( "unchecked" )
+    @SuppressWarnings ( { "unchecked", "rawtypes" } )
     private void createDiff ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException
     {
         defaultContentType ( resp );
