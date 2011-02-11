@@ -42,6 +42,7 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
     private String instanceId = "default";
 
     private final RowMapper mapper = new RowMapper () {
+        @Override
         public Object mapRow ( final ResultSet rs, final int rowNum ) throws SQLException
         {
             final Entry entry = new Entry ();
@@ -55,27 +56,30 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         }
     };
 
-    @SuppressWarnings ( { "unchecked" } )
+    @SuppressWarnings ( "unchecked" )
+    @Override
     public List<Entry> loadAll ()
     {
-        final List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId }, this.mapper );
+        final List<Entry> result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId }, this.mapper );
         return deChunk ( fixNulls ( result ) );
     }
 
     @SuppressWarnings ( "unchecked" )
+    @Override
     public List<Entry> loadFactory ( final String factoryId )
     {
-        final List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId }, this.mapper );
+        final List<Entry> result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId }, this.mapper );
         return deChunk ( fixNulls ( result ) );
     }
 
     @SuppressWarnings ( "unchecked" )
     public List<Entry> loadConfiguration ( final String factoryId, final String configurationId )
     {
-        final List result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId, configurationId }, this.mapper );
+        final List<Entry> result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId, configurationId }, this.mapper );
         return deChunk ( fixNulls ( result ) );
     }
 
+    @Override
     public Map<String, String> storeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         if ( fullSet )
@@ -123,6 +127,7 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         update ( String.format ( "INSERT INTO %s (instance_id, factory_id, configuration_id, ca_key, ca_value, chunk_seq) VALUES (?, ?, ?, ?, ?, ?)", this.tableName ), params );
     }
 
+    @Override
     public List<Entry> purgeFactory ( final String factoryId )
     {
         final List<Entry> entries = fixNulls ( loadFactory ( factoryId ) );
@@ -130,6 +135,7 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         return entries;
     }
 
+    @Override
     public void deleteConfiguration ( final String factoryId, final String configurationId )
     {
         update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ?", this.tableName ), new Object[] { this.instanceId, factoryId, configurationId } );
