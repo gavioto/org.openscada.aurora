@@ -233,7 +233,7 @@ public class BeanMatcher
         return m.find ();
     }
 
-    @SuppressWarnings ( "unchecked" )
+    @SuppressWarnings ( { "unchecked", "rawtypes" } )
     private static int compare ( final Object value, final String stringValue, final PropertyEditorRegistry registry )
     {
         final Object cvtValue = convert ( stringValue, value.getClass (), registry );
@@ -249,7 +249,7 @@ public class BeanMatcher
         return value.toString ().compareTo ( cvtValue.toString () );
     }
 
-    @SuppressWarnings ( "unchecked" )
+    @SuppressWarnings ( { "rawtypes", "unchecked" } )
     private static Object convert ( final String stringValue, final Class<? extends Object> clazz, final PropertyEditorRegistry registry )
     {
         if ( clazz == String.class )
