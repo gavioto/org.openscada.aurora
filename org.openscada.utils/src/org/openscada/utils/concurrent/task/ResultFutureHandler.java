@@ -23,9 +23,14 @@ import java.util.concurrent.Future;
 
 import org.openscada.utils.concurrent.FutureListener;
 import org.openscada.utils.concurrent.ResultHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResultFutureHandler<T> implements FutureListener<T>
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( ResultFutureHandler.class );
+
     private final ResultHandler<T> resultHandler;
 
     public ResultFutureHandler ( final ResultHandler<T> resultHandler )
@@ -33,6 +38,7 @@ public class ResultFutureHandler<T> implements FutureListener<T>
         this.resultHandler = resultHandler;
     }
 
+    @Override
     public void complete ( final Future<T> future )
     {
         try
@@ -41,6 +47,7 @@ public class ResultFutureHandler<T> implements FutureListener<T>
         }
         catch ( final Throwable e )
         {
+            logger.debug ( "Failed to complete", e );
             this.resultHandler.failed ( e );
         }
     }
