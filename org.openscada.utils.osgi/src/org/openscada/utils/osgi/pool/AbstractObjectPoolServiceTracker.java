@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -45,7 +45,7 @@ public abstract class AbstractObjectPoolServiceTracker
 
         private final String serviceId;
 
-        private final Map<Object, Dictionary<?, ?>> services = new HashMap<Object, Dictionary<?, ?>> ();
+        private final Map<Object, Dictionary<?, ?>> services = new HashMap<Object, Dictionary<?, ?>> ( 1 );
 
         public PoolHandler ( final ObjectPool pool, final String serviceId )
         {
@@ -69,6 +69,7 @@ public abstract class AbstractObjectPoolServiceTracker
             this.services.clear ();
         }
 
+        @Override
         public synchronized void serviceAdded ( final Object service, final Dictionary<?, ?> properties )
         {
             this.services.put ( service, properties );
@@ -78,9 +79,10 @@ public abstract class AbstractObjectPoolServiceTracker
         private void fireServiceAdded ( final Object service, final Dictionary<?, ?> properties )
         {
             logger.debug ( "Service added to pool: {} -> {}", new Object[] { this.serviceId, service } );
-            AbstractObjectPoolServiceTracker.this.handleServiceAdded ( service, properties );
+            handleServiceAdded ( service, properties );
         }
 
+        @Override
         public synchronized void serviceModified ( final Object service, final Dictionary<?, ?> properties )
         {
             this.services.put ( service, properties );
@@ -89,9 +91,10 @@ public abstract class AbstractObjectPoolServiceTracker
 
         private void fireServiceModified ( final Object service, final Dictionary<?, ?> properties )
         {
-            AbstractObjectPoolServiceTracker.this.handleServiceModified ( service, properties );
+            handleServiceModified ( service, properties );
         }
 
+        @Override
         public synchronized void serviceRemoved ( final Object service, final Dictionary<?, ?> properties )
         {
             final Dictionary<?, ?> oldProperties = this.services.remove ( service );
@@ -103,7 +106,7 @@ public abstract class AbstractObjectPoolServiceTracker
 
         private void fireServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
         {
-            AbstractObjectPoolServiceTracker.this.handleServiceRemoved ( service, properties );
+            handleServiceRemoved ( service, properties );
         }
     }
 
@@ -114,16 +117,19 @@ public abstract class AbstractObjectPoolServiceTracker
 
         this.poolListener = new ObjectPoolServiceListener () {
 
+            @Override
             public void poolRemoved ( final ObjectPool objectPool )
             {
                 AbstractObjectPoolServiceTracker.this.handlePoolRemove ( objectPool );
             }
 
+            @Override
             public void poolModified ( final ObjectPool objectPool, final int newPriority )
             {
                 AbstractObjectPoolServiceTracker.this.handlePoolModified ( objectPool, newPriority );
             }
 
+            @Override
             public void poolAdded ( final ObjectPool objectPool, final int priority )
             {
                 AbstractObjectPoolServiceTracker.this.handlePoolAdd ( objectPool, priority );
