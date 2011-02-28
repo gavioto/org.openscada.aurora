@@ -21,7 +21,7 @@ package org.openscada.ca.jdbc.internal;
 
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -59,6 +59,8 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 
     private static final int INITIAL_CFG_SIZE = Integer.getInteger ( "org.openscada.ca.jdbc.initialConfigurationHashSize", 4 );
 
+    private final boolean disableIntern = Boolean.getBoolean ( "org.openscada.ca.jdbc.disableIntern" );
+
     private JdbcStorageDAO jdbcStorageDAO;
 
     public ConfigurationAdministratorImpl ( final BundleContext context )
@@ -90,7 +92,7 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 
         for ( final Entry entry : result )
         {
-            if ( entry.getFactoryId () == null || entry.getConfigurationId () == null )
+            if ( entry.getFactoryId () == null || entry.getConfigurationId () == null || entry.getKey () == null )
             {
                 continue;
             }
@@ -107,14 +109,11 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
                 cfg = new HashMap<String, String> ( INITIAL_CFG_SIZE );
                 factory.put ( entry.getConfigurationId (), cfg );
             }
-            if ( entry.getKey () != null )
-            {
-                cfg.put ( entry.getKey ().intern (), entry.getValue () );
-            }
-            else
-            {
-                cfg.put ( null, entry.getValue () );
-            }
+
+            final String value = intern ( entry.getValue () );
+            final String key = intern ( entry.getKey () );
+
+            cfg.put ( key, value );
         }
 
         // announce
@@ -130,6 +129,19 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 
             addStoredFactory ( factory.getKey (), configurations.toArray ( new ConfigurationImpl[configurations.size ()] ) );
         }
+    }
+
+    private String intern ( final String string )
+    {
+        if ( !this.disableIntern )
+        {
+            return string;
+        }
+        if ( string == null )
+        {
+            return null;
+        }
+        return string.intern ();
     }
 
     @Override
