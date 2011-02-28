@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -46,13 +46,13 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
     private final Multimap<String, ObjectPoolListener> idListeners = HashMultimap.create ();
 
-    private final Set<ObjectPoolListener> anyListener = new HashSet<ObjectPoolListener> ();
+    private final Set<ObjectPoolListener> anyListener = new HashSet<ObjectPoolListener> ( 1 );
 
-    private final Map<String, Map<Object, Dictionary<?, ?>>> services = new HashMap<String, Map<Object, Dictionary<?, ?>>> ();
+    private final Map<String, Map<Object, Dictionary<?, ?>>> services = new HashMap<String, Map<Object, Dictionary<?, ?>>> ( 1 );
 
     private final ExecutorService executor;
 
-    private static final Dictionary<?, ?> emptyHashtable = new UnmodifyableDictionary<Object, Object> ( new Hashtable<Object, Object> () );
+    private static final Dictionary<?, ?> emptyHashtable = new UnmodifyableDictionary<Object, Object> ( new Hashtable<Object, Object> ( 1 ) );
 
     private boolean disposed;
 
@@ -61,6 +61,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( toString () ) );
     }
 
+    @Override
     @SuppressWarnings ( "unchecked" )
     public synchronized void addService ( final String id, final Object service, Dictionary<?, ?> properties )
     {
@@ -96,6 +97,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         fireAddedService ( id, service, properties );
     }
 
+    @Override
     public synchronized void modifyService ( final String id, final Object service, final Dictionary<?, ?> properties )
     {
         if ( this.disposed )
@@ -113,6 +115,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         }
     }
 
+    @Override
     public synchronized void removeService ( final String id, final Object service )
     {
         if ( this.disposed )
@@ -146,6 +149,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
         this.executor.execute ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 for ( final ObjectPoolListener listener : listeners )
@@ -158,8 +162,9 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
     protected Collection<ObjectPoolListener> cloneListeners ( final String id )
     {
-        final List<ObjectPoolListener> listeners = new ArrayList<ObjectPoolListener> ();
-        listeners.addAll ( this.idListeners.get ( id ) );
+        final Collection<ObjectPoolListener> localListeners = this.idListeners.get ( id );
+        final List<ObjectPoolListener> listeners = new ArrayList<ObjectPoolListener> ( localListeners.size () + this.anyListener.size () );
+        listeners.addAll ( localListeners );
         listeners.addAll ( this.anyListener );
         return listeners;
     }
@@ -170,6 +175,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
         this.executor.execute ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 for ( final ObjectPoolListener listener : listeners )
@@ -186,6 +192,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
         this.executor.execute ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 for ( final ObjectPoolListener listener : listeners )
@@ -203,6 +210,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
             this.executor.execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     for ( final ObjectPoolListener listener : ObjectPoolImpl.this.anyListener )
@@ -244,6 +252,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
     /* (non-Javadoc)
      * @see org.openscada.da.datasource.ObjectPool#addListener(java.lang.String, org.openscada.da.datasource.ObjectPoolListener)
      */
+    @Override
     public synchronized void addListener ( final String id, final ObjectPoolListener listener )
     {
         if ( this.disposed )
@@ -263,6 +272,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
                 final Map<Object, Dictionary<?, ?>> serviceMapClone = new HashMap<Object, Dictionary<?, ?>> ( serviceMap );
                 this.executor.execute ( new Runnable () {
 
+                    @Override
                     public void run ()
                     {
                         for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMapClone.entrySet () )
@@ -279,6 +289,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
     /* (non-Javadoc)
      * @see org.openscada.da.datasource.ObjectPool#removeListener(java.lang.String, org.openscada.da.datasource.ObjectPoolListener)
      */
+    @Override
     public synchronized void removeListener ( final String id, final ObjectPoolListener listener )
     {
         if ( this.disposed )
@@ -289,6 +300,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         this.idListeners.remove ( id, listener );
     }
 
+    @Override
     public synchronized void addListener ( final ObjectPoolListener listener )
     {
         if ( this.disposed )
@@ -304,6 +316,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
             this.executor.execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     for ( final Map<Object, Dictionary<?, ?>> serviceMap : servicesClone )
@@ -319,6 +332,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         }
     }
 
+    @Override
     public synchronized void removeListener ( final ObjectPoolListener listener )
     {
         if ( this.disposed )
