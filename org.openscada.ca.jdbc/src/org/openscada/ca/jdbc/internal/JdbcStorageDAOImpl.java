@@ -113,7 +113,7 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         }
 
         // fetch result and return it
-        final Map<String, String> result = new HashMap<String, String> ();
+        final Map<String, String> result = new HashMap<String, String> ( 4 );
         for ( final Entry entry : deChunk ( fixNulls ( loadConfiguration ( factoryId, configurationId ) ) ) )
         {
             if ( entry.getKey () != null )
