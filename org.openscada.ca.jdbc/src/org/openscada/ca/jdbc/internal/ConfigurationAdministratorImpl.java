@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2008-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2008-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -57,6 +57,8 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 {
     private final static Logger logger = LoggerFactory.getLogger ( ConfigurationAdministratorImpl.class );
 
+    private static final int INITIAL_CFG_SIZE = Integer.getInteger ( "org.openscada.ca.jdbc.initialConfigurationHashSize", 4 );
+
     private JdbcStorageDAO jdbcStorageDAO;
 
     public ConfigurationAdministratorImpl ( final BundleContext context )
@@ -88,6 +90,11 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 
         for ( final Entry entry : result )
         {
+            if ( entry.getFactoryId () == null || entry.getConfigurationId () == null )
+            {
+                continue;
+            }
+
             Map<String, Map<String, String>> factory = factories.get ( entry.getFactoryId () );
             if ( factory == null )
             {
@@ -97,10 +104,17 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
             Map<String, String> cfg = factory.get ( entry.getConfigurationId () );
             if ( cfg == null )
             {
-                cfg = new HashMap<String, String> ();
+                cfg = new HashMap<String, String> ( INITIAL_CFG_SIZE );
                 factory.put ( entry.getConfigurationId (), cfg );
             }
-            cfg.put ( entry.getKey (), entry.getValue () );
+            if ( entry.getKey () != null )
+            {
+                cfg.put ( entry.getKey ().intern (), entry.getValue () );
+            }
+            else
+            {
+                cfg.put ( null, entry.getValue () );
+            }
         }
 
         // announce
