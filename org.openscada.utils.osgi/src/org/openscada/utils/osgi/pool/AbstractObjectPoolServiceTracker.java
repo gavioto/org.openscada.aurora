@@ -37,7 +37,7 @@ public abstract class AbstractObjectPoolServiceTracker
 
     protected final String serviceId;
 
-    private final Map<ObjectPool, PoolHandler> poolMap = new HashMap<ObjectPool, PoolHandler> ();
+    private final Map<ObjectPool, PoolHandler> poolMap = new HashMap<ObjectPool, PoolHandler> ( 1 );
 
     protected class PoolHandler implements ObjectPoolListener
     {
