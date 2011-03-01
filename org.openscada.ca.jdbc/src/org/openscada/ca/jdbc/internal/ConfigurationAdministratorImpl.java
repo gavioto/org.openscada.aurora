@@ -133,7 +133,7 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 
     private String intern ( final String string )
     {
-        if ( !this.disableIntern )
+        if ( this.disableIntern )
         {
             return string;
         }
