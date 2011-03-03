@@ -27,7 +27,6 @@ import org.openscada.utils.lang.Apply;
 /**
  * A helper class for string operations
  * @author Jens Reimann
- *
  */
 public class StringHelper
 {
