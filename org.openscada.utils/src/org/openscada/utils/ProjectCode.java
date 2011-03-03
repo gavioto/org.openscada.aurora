@@ -19,7 +19,7 @@
 
 package org.openscada.utils;
 
-public class ProjectCode
+public interface ProjectCode
 {
     public static final String CODE = "OSU";
 }
