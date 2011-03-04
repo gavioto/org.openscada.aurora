@@ -4,10 +4,10 @@ Bundle-Name: Filter Test
 Bundle-SymbolicName: org.openscada.utils.filter.test
 Bundle-Version: 0.15.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: junit.framework,
- org.junit,
- org.junit.runner,
- org.junit.runners,
+Import-Package: junit.framework;version="4.0.0",
+ org.junit;version="4.0.0",
+ org.junit.runner;version="4.0.0",
+ org.junit.runners;version="4.0.0",
  org.openscada.utils.filter;version="0.15.0",
  org.openscada.utils.filter.bean;version="0.15.0",
  org.openscada.utils.propertyeditors;version="0.15.0"
