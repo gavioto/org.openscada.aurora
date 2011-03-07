@@ -22,7 +22,7 @@ package org.openscada.utils.concurrent;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class NamedThreadFactory implements ThreadFactory
+public class NamedThreadFactory implements ThreadFactory
 {
     private final AtomicLong counter;
 
