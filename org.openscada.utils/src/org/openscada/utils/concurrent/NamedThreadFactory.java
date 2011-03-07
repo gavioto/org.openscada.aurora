@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -28,14 +28,34 @@ public final class NamedThreadFactory implements ThreadFactory
 
     private final String name;
 
+    private final boolean daemon;
+
     public NamedThreadFactory ( final String name )
+    {
+        this ( name, false );
+    }
+
+    public NamedThreadFactory ( final String name, final boolean daemon )
     {
         this.counter = new AtomicLong ();
         this.name = name;
+        this.daemon = daemon;
+        if ( name == null )
+        {
+            throw new NullPointerException ( String.format ( "'name' must not be null" ) );
+        }
     }
 
+    @Override
     public Thread newThread ( final Runnable r )
     {
-        return new Thread ( r, String.format ( "%s/%s", this.name, this.counter.incrementAndGet () ) );
+        final Thread t = new Thread ( r, createName () );
+        t.setDaemon ( this.daemon );
+        return t;
+    }
+
+    protected String createName ()
+    {
+        return String.format ( "%s/%s", this.name, this.counter.incrementAndGet () );
     }
 }
