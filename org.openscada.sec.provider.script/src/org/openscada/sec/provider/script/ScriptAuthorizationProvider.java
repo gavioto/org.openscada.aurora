@@ -125,7 +125,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             }
         }
 
-        public AuthorizationResult run ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context ) throws ScriptException
+        public AuthorizationResult run ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context, final ClassLoader classLoader ) throws ScriptException
         {
             logger.debug ( "Checking authentication - objectType: {}, objectId: {}, action: {}, user: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } );
             logger.debug ( "Pre-Filter - objectType: {}, objectId: {}, action: {}", new Object[] { this.objectType, this.objectId, this.action } );
@@ -154,15 +154,24 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             bindings.put ( "GRANTED", AuthorizationResult.GRANTED );
             bindings.put ( "context", context );
 
-            if ( this.compiledScript != null )
+            final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
+            try
             {
-                logger.debug ( "Running pre-compiled script" );
-                return generateResult ( this.compiledScript.eval ( bindings ) );
+                Thread.currentThread ().setContextClassLoader ( classLoader );
+                if ( this.compiledScript != null )
+                {
+                    logger.debug ( "Running pre-compiled script" );
+                    return generateResult ( this.compiledScript.eval ( bindings ) );
+                }
+                else
+                {
+                    logger.debug ( "Running script" );
+                    return generateResult ( this.engine.eval ( this.script, bindings ) );
+                }
             }
-            else
+            finally
             {
-                logger.debug ( "Running script" );
-                return generateResult ( this.engine.eval ( this.script, bindings ) );
+                Thread.currentThread ().setContextClassLoader ( currentClassLoader );
             }
         }
 
@@ -275,7 +284,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
             for ( final AuthorizationEntry entry : this.configuration )
             {
-                final AuthorizationResult result = entry.run ( objectType, objectId, action, userInformation, context );
+                final AuthorizationResult result = entry.run ( objectType, objectId, action, userInformation, context, this.classLoader );
                 if ( result != null )
                 {
                     return result;
@@ -339,17 +348,28 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
     private AuthorizationEntry createEntry ( final String id, final ConfigurationDataHelper cfg ) throws Exception
     {
-        final AuthorizationEntry entry = new AuthorizationEntry ( id, cfg.getIntegerChecked ( "priority", "'priority' must be set" ) );
+        final ClassLoader classLoader = Thread.currentThread ().getContextClassLoader ();
 
-        final ScriptEngine engine = this.manager.getEngineByName ( cfg.getString ( "engine", "JavaScript" ) );
-        if ( engine == null )
+        try
         {
-            throw new IllegalArgumentException ( String.format ( "Script engine '%s' is unknown", engine ) );
+            Thread.currentThread ().setContextClassLoader ( classLoader );
+
+            final AuthorizationEntry entry = new AuthorizationEntry ( id, cfg.getIntegerChecked ( "priority", "'priority' must be set" ) );
+
+            final ScriptEngine engine = this.manager.getEngineByName ( cfg.getString ( "engine", "JavaScript" ) );
+            if ( engine == null )
+            {
+                throw new IllegalArgumentException ( String.format ( "Script engine '%s' is unknown", engine ) );
+            }
+
+            entry.setPreFilter ( cfg.getString ( "for.id" ), cfg.getString ( "for.type" ), cfg.getString ( "for.action" ) );
+            entry.setScript ( engine, cfg.getString ( "script" ) );
+
+            return entry;
         }
-
-        entry.setPreFilter ( cfg.getString ( "for.id" ), cfg.getString ( "for.type" ), cfg.getString ( "for.action" ) );
-        entry.setScript ( engine, cfg.getString ( "script" ) );
-
-        return entry;
+        finally
+        {
+            Thread.currentThread ().setContextClassLoader ( classLoader );
+        }
     }
 }
