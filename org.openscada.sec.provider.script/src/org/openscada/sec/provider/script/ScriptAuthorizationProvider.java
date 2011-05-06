@@ -115,7 +115,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         public void setScript ( final ScriptEngine engine, final String script ) throws ScriptException
         {
             this.engine = engine;
-            if ( engine instanceof Compilable )
+            if ( engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.sec.provider.scrip.disableCompile" ) )
             {
                 this.compiledScript = ( (Compilable)engine ).compile ( script );
             }
