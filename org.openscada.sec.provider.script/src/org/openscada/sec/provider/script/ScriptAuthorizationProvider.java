@@ -117,10 +117,12 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             this.engine = engine;
             if ( engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.sec.provider.script.disableCompile" ) )
             {
+                logger.debug ( "Pre-compiling script" );
                 this.compiledScript = ( (Compilable)engine ).compile ( script );
             }
             else
             {
+                logger.debug ( "Not pre-compiling script" );
                 this.script = script;
             }
         }
