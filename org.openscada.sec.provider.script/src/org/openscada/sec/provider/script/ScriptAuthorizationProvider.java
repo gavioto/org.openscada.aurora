@@ -19,11 +19,12 @@
 
 package org.openscada.sec.provider.script;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -247,7 +248,9 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
     }
 
-    private final Collection<AuthorizationEntry> configuration = new PriorityQueue<AuthorizationEntry> ( 1, new PriorityComparator () );
+    private final List<AuthorizationEntry> configuration = new ArrayList<AuthorizationEntry> ( 1 );
+
+    private final PriorityComparator comparator = new PriorityComparator ();
 
     private final Lock readLock;
 
@@ -313,6 +316,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         {
             this.writeLock.lock ();
             internalDelete ( configurationId );
+            Collections.sort ( this.configuration, this.comparator );
         }
         finally
         {
@@ -341,6 +345,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             this.writeLock.lock ();
             internalDelete ( configurationId );
             this.configuration.add ( entry );
+            Collections.sort ( this.configuration, this.comparator );
         }
         finally
         {
