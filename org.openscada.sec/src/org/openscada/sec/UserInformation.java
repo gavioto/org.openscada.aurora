@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openscada.utils.lang.Immutable;
+import org.openscada.utils.str.StringHelper;
 
 /**
  * A user information object
@@ -207,11 +208,7 @@ public class UserInformation implements Serializable
             sb.append ( "<anonymous>" );
         }
         sb.append ( ", roles=" );
-        for ( final String role : this.roles )
-        {
-            sb.append ( "," );
-            sb.append ( role );
-        }
+        sb.append ( StringHelper.join ( this.roles, ", " ) );
         sb.append ( "]" );
         return sb.toString ();
     }
