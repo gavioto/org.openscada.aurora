@@ -41,9 +41,9 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
 
     private String instanceId = "default";
 
-    private final RowMapper mapper = new RowMapper () {
+    private final RowMapper<Entry> mapper = new RowMapper<Entry> () {
         @Override
-        public Object mapRow ( final ResultSet rs, final int rowNum ) throws SQLException
+        public Entry mapRow ( final ResultSet rs, final int rowNum ) throws SQLException
         {
             final Entry entry = new Entry ();
             entry.setInstance ( rs.getString ( "instance_id" ) );
@@ -56,7 +56,6 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         }
     };
 
-    @SuppressWarnings ( "unchecked" )
     @Override
     public List<Entry> loadAll ()
     {
@@ -64,7 +63,6 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         return deChunk ( fixNulls ( result ) );
     }
 
-    @SuppressWarnings ( "unchecked" )
     @Override
     public List<Entry> loadFactory ( final String factoryId )
     {
@@ -72,7 +70,6 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         return deChunk ( fixNulls ( result ) );
     }
 
-    @SuppressWarnings ( "unchecked" )
     public List<Entry> loadConfiguration ( final String factoryId, final String configurationId )
     {
         final List<Entry> result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId, configurationId }, this.mapper );
