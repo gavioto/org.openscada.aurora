@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,6 +19,7 @@
 
 package org.openscada.ca;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Map;
 
@@ -30,13 +31,13 @@ public interface ConfigurationAdministrator
 
     /* modifiers */
 
-    public NotifyFuture<Configuration> createConfiguration ( String factoryId, String configurationId, Map<String, String> initialProperties );
+    public NotifyFuture<Configuration> createConfiguration ( Principal principal, String factoryId, String configurationId, Map<String, String> initialProperties );
 
-    public NotifyFuture<Configuration> updateConfiguration ( String factoryId, String configurationId, Map<String, String> newProperties, boolean fullSet );
+    public NotifyFuture<Configuration> updateConfiguration ( Principal principal, String factoryId, String configurationId, Map<String, String> newProperties, boolean fullSet );
 
-    public NotifyFuture<Configuration> deleteConfiguration ( String factoryId, String configurationId );
+    public NotifyFuture<Configuration> deleteConfiguration ( Principal principal, String factoryId, String configurationId );
 
-    public NotifyFuture<Void> purgeFactory ( String factoryId );
+    public NotifyFuture<Void> purgeFactory ( Principal principal, String factoryId );
 
     /**
      * Applies a change set to an existing configuration manager.
@@ -50,7 +51,7 @@ public interface ConfigurationAdministrator
      * @param changeSet the change set to apply
      * @return a future which notifies the end of the operation
      */
-    public NotifyFuture<Void> applyDiff ( Collection<DiffEntry> changeSet );
+    public NotifyFuture<Void> applyDiff ( Principal principal, Collection<DiffEntry> changeSet );
 
     /* readers */
 

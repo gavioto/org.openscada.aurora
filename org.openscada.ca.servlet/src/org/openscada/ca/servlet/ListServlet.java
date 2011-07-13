@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -33,8 +33,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
@@ -141,7 +141,7 @@ public class ListServlet extends HttpServlet
         }
 
         final PrintWriter stream = resp.getWriter ();
-        waitForFuture ( stream, admin.purgeFactory ( factoryId ) );
+        waitForFuture ( stream, admin.purgeFactory ( null, factoryId ) );
     }
 
     private void handleUpdate ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
@@ -156,7 +156,7 @@ public class ListServlet extends HttpServlet
         }
 
         final PrintWriter stream = resp.getWriter ();
-        waitForFuture ( stream, admin.updateConfiguration ( factoryId, configurationId, parseData ( data ), true ) );
+        waitForFuture ( stream, admin.updateConfiguration ( null, factoryId, configurationId, parseData ( data ), true ) );
     }
 
     private void handleDelete ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
@@ -166,7 +166,7 @@ public class ListServlet extends HttpServlet
 
         final PrintWriter stream = resp.getWriter ();
 
-        waitForFuture ( stream, admin.deleteConfiguration ( factoryId, configurationId ) );
+        waitForFuture ( stream, admin.deleteConfiguration ( null, factoryId, configurationId ) );
     }
 
     private void handleCreate ( final ConfigurationAdministrator admin, final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
@@ -187,7 +187,7 @@ public class ListServlet extends HttpServlet
 
         final Map<String, String> properties = parseData ( data );
 
-        waitForFuture ( stream, admin.createConfiguration ( factoryId, id, properties ) );
+        waitForFuture ( stream, admin.createConfiguration ( null, factoryId, id, properties ) );
 
         stream.print ( "</div>" );
     }
@@ -269,6 +269,7 @@ public class ListServlet extends HttpServlet
 
         Collections.sort ( factories, new Comparator<Factory> () {
 
+            @Override
             public int compare ( final Factory o1, final Factory o2 )
             {
                 return o1.getId ().compareTo ( o2.getId () );
@@ -315,6 +316,7 @@ public class ListServlet extends HttpServlet
 
         Arrays.sort ( configurations, new Comparator<Configuration> () {
 
+            @Override
             public int compare ( final Configuration o1, final Configuration o2 )
             {
                 return o1.getId ().compareTo ( o2.getId () );

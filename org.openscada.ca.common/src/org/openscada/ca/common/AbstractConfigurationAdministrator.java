@@ -19,6 +19,7 @@
 
 package org.openscada.ca.common;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,15 +82,18 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         this.listenerTracker = new ListenerTracker ( context );
         this.serviceListener = new ServiceTracker ( context, ConfigurationFactory.class.getName (), new ServiceTrackerCustomizer () {
 
+            @Override
             public void removedService ( final ServiceReference reference, final Object service )
             {
                 AbstractConfigurationAdministrator.this.removedService ( reference, service );
             }
 
+            @Override
             public void modifiedService ( final ServiceReference reference, final Object service )
             {
             }
 
+            @Override
             public Object addingService ( final ServiceReference reference )
             {
                 return AbstractConfigurationAdministrator.this.addingService ( reference );
@@ -97,15 +101,18 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         } );
         this.selfServiceListener = new ServiceTracker ( context, SelfManagedConfigurationFactory.class.getName (), new ServiceTrackerCustomizer () {
 
+            @Override
             public void removedService ( final ServiceReference reference, final Object service )
             {
                 AbstractConfigurationAdministrator.this.removedSelfService ( reference, service );
             }
 
+            @Override
             public void modifiedService ( final ServiceReference reference, final Object service )
             {
             }
 
+            @Override
             public Object addingService ( final ServiceReference reference )
             {
                 return AbstractConfigurationAdministrator.this.addingSelfService ( reference );
@@ -127,11 +134,13 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         this.listenerTracker.close ();
     }
 
+    @Override
     public synchronized void freeze () throws Exception
     {
         stop ();
     }
 
+    @Override
     public synchronized void thaw () throws Exception
     {
         start ();
@@ -182,6 +191,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         this.executor.execute ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 for ( final ConfigurationImpl cfg : configurations )
@@ -257,6 +267,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
             final ConfigurationListener listener = new ConfigurationListener () {
 
+                @Override
                 public void configurationUpdate ( final Configuration[] addedOrChanged, final String[] deleted )
                 {
                     AbstractConfigurationAdministrator.this.handleSelfChange ( factoryId, addedOrChanged, deleted );
@@ -379,6 +390,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
             this.executor.execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     AbstractConfigurationAdministrator.this.applyConfiguration ( future, factoryService, factory, applyConfiguration );
@@ -444,7 +456,8 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized NotifyFuture<Void> purgeFactory ( final String factoryId )
+    @Override
+    public synchronized NotifyFuture<Void> purgeFactory ( final Principal principal, final String factoryId )
     {
         logger.info ( "Request to purge: {}", factoryId );
 
@@ -464,7 +477,8 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized NotifyFuture<Configuration> createConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties )
+    @Override
+    public synchronized NotifyFuture<Configuration> createConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -488,7 +502,8 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized NotifyFuture<Configuration> updateConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
+    @Override
+    public synchronized NotifyFuture<Configuration> updateConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -512,7 +527,8 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    public synchronized NotifyFuture<Configuration> deleteConfiguration ( final String factoryId, final String configurationId )
+    @Override
+    public synchronized NotifyFuture<Configuration> deleteConfiguration ( final Principal principal, final String factoryId, final String configurationId )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -586,6 +602,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
             future.addListener ( new FutureListener<T> () {
 
+                @Override
                 public void complete ( final Future<T> xfuture )
                 {
                     CompositeFuture.this.removed ( future );
@@ -615,6 +632,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         final PurgeFuture future = new PurgeFuture ();
         this.executor.execute ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 try
@@ -637,6 +655,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         this.executor.execute ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 try
@@ -657,6 +676,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         final ConfigurationFuture future = new ConfigurationFuture ();
         this.executor.execute ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 try
@@ -674,6 +694,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
     /* readers */
 
+    @Override
     public synchronized Configuration getConfiguration ( final String factoryId, final String configurationId )
     {
         final FactoryImpl factory = getFactory ( factoryId );
@@ -684,6 +705,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return factory.getConfiguration ( configurationId );
     }
 
+    @Override
     public synchronized Configuration[] getConfigurations ( final String factoryId )
     {
         final FactoryImpl factory = getFactory ( factoryId );
@@ -694,11 +716,13 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return factory.getConfigurations ();
     }
 
+    @Override
     public synchronized FactoryImpl getFactory ( final String factoryId )
     {
         return this.factories.get ( factoryId );
     }
 
+    @Override
     public synchronized FactoryImpl[] getKnownFactories ()
     {
         return this.factories.values ().toArray ( new FactoryImpl[0] );
@@ -816,7 +840,8 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return factoryId;
     }
 
-    public synchronized NotifyFuture<Void> applyDiff ( final Collection<DiffEntry> changeSet )
+    @Override
+    public synchronized NotifyFuture<Void> applyDiff ( final Principal principal, final Collection<DiffEntry> changeSet )
     {
         final PatchFuture future = new PatchFuture ();
 
@@ -825,16 +850,16 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             switch ( entry.getOperation () )
             {
             case ADD:
-                future.addChild ( createConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData () ) );
+                future.addChild ( createConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData () ) );
                 break;
             case DELETE:
-                future.addChild ( deleteConfiguration ( entry.getFactoryId (), entry.getConfigurationId () ) );
+                future.addChild ( deleteConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId () ) );
                 break;
             case UPDATE_SET:
-                future.addChild ( updateConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), true ) );
+                future.addChild ( updateConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), true ) );
                 break;
             case UPDATE_DIFF:
-                future.addChild ( updateConfiguration ( entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), false ) );
+                future.addChild ( updateConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), false ) );
                 break;
             }
         }

@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -34,6 +34,8 @@ public interface RemoteConfigurationAdministrator
 {
     public abstract boolean hasService ();
 
+    /* read calls */
+
     /**
      * Get factory information without content
      * @return the factories without a content
@@ -46,6 +48,8 @@ public interface RemoteConfigurationAdministrator
 
     public abstract ConfigurationInformation getConfiguration ( String factoryId, String configurationId );
 
+    /* update calls */
+
     public abstract void purge ( final String factoryId, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
 
     public abstract void delete ( final String factoryId, final String[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
@@ -55,5 +59,4 @@ public interface RemoteConfigurationAdministrator
     public abstract void create ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
 
     public abstract void applyDiff ( Collection<DiffEntry> changeSet, int timeout ) throws InterruptedException, ExecutionException, TimeoutException;
-
 }

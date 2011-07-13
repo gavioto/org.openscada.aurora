@@ -19,6 +19,7 @@
 
 package org.openscada.ca.servlet.jaxws;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
@@ -26,8 +27,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.Resource;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
 
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationInformation;
@@ -50,10 +53,14 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 
     private volatile ConfigurationAdministrator service;
 
+    @Resource
+    private WebServiceContext context;
+
     public ConfigurationAdministratorService ( final BundleContext context )
     {
         this.tracker = new SingleServiceTracker ( context, ConfigurationAdministrator.class.getName (), new SingleServiceListener () {
 
+            @Override
             public void serviceChange ( final ServiceReference reference, final Object service )
             {
                 ConfigurationAdministratorService.this.setService ( (ConfigurationAdministrator)service );
@@ -76,16 +83,19 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#hasService()
      */
+    @Override
     public boolean hasService ()
     {
         return this.service != null;
     }
 
+    @Override
     public FactoryInformation getFactory ( final String factoryId )
     {
         return convertFactory ( this.service.getFactory ( factoryId ), true );
     }
 
+    @Override
     public ConfigurationInformation getConfiguration ( final String factoryId, final String configurationId )
     {
         final org.openscada.ca.Configuration cfg = this.service.getConfiguration ( factoryId, configurationId );
@@ -95,6 +105,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#getFactories()
      */
+    @Override
     public FactoryInformation[] getFactories ()
     {
         return getFactories ( false );
@@ -103,6 +114,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#getCompleteConfiguration()
      */
+    @Override
     public FactoryInformation[] getCompleteConfiguration ()
     {
         return getFactories ( true );
@@ -156,13 +168,14 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#purge(java.lang.String, int)
      */
+    @Override
     public void purge ( final String factoryId, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         logger.info ( "Request purge: {}", factoryId );
 
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
 
-        jobs.add ( this.service.purgeFactory ( factoryId ) );
+        jobs.add ( this.service.purgeFactory ( makePrincipal (), factoryId ) );
 
         complete ( timeout, jobs );
     }
@@ -170,13 +183,14 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#delete(java.lang.String, java.lang.String[], int)
      */
+    @Override
     public void delete ( final String factoryId, final String[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
 
         for ( final String id : configurations )
         {
-            jobs.add ( this.service.deleteConfiguration ( factoryId, id ) );
+            jobs.add ( this.service.deleteConfiguration ( makePrincipal (), factoryId, id ) );
         }
 
         complete ( timeout, jobs );
@@ -200,13 +214,14 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#update(java.lang.String, org.openscada.ca.servlet.jaxws.ConfigurationInformation[], int)
      */
+    @Override
     public void update ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
 
         for ( final ConfigurationInformation cfg : configurations )
         {
-            jobs.add ( this.service.updateConfiguration ( factoryId, cfg.getId (), cfg.getData (), true ) );
+            jobs.add ( this.service.updateConfiguration ( makePrincipal (), factoryId, cfg.getId (), cfg.getData (), true ) );
         }
 
         complete ( timeout, jobs );
@@ -215,21 +230,23 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     /* (non-Javadoc)
      * @see org.openscada.ca.servlet.jaxws.RemoteConfigurationAdministrator#create(java.lang.String, org.openscada.ca.servlet.jaxws.ConfigurationInformation[], int)
      */
+    @Override
     public void create ( final String factoryId, final ConfigurationInformation[] configurations, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
 
         for ( final ConfigurationInformation cfg : configurations )
         {
-            jobs.add ( this.service.createConfiguration ( factoryId, cfg.getId (), cfg.getData () ) );
+            jobs.add ( this.service.createConfiguration ( makePrincipal (), factoryId, cfg.getId (), cfg.getData () ) );
         }
 
         complete ( timeout, jobs );
     }
 
+    @Override
     public void applyDiff ( final Collection<DiffEntry> changeSet, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
-        final NotifyFuture<Void> future = this.service.applyDiff ( changeSet );
+        final NotifyFuture<Void> future = this.service.applyDiff ( makePrincipal (), changeSet );
 
         final Collection<NotifyFuture<Void>> result = new LinkedList<NotifyFuture<Void>> ();
         result.add ( future );
@@ -237,4 +254,20 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         complete ( timeout, result );
     }
 
+    protected Principal makePrincipal ()
+    {
+        final Object username = this.context.getMessageContext ().get ( "username" );
+        if ( username instanceof String )
+        {
+            return new Principal () {
+
+                @Override
+                public String getName ()
+                {
+                    return (String)username;
+                }
+            };
+        }
+        return null;
+    }
 }
