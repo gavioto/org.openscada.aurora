@@ -7,6 +7,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,7 +75,7 @@ public class JmxDetector implements Detector
         if ( isDeadlock () )
         {
             out.println ( DOUBLE_DASH );
-            out.println ( String.format ( " " + getString () + " : Deadlock detected involving %s threads", this.threadInformation.length ) );
+            out.println ( String.format ( " %1$s : %2$tF %2$tT.%2$tL - Deadlock detected involving %3$s threads", getString (), Calendar.getInstance (), this.threadInformation.length ) );
             for ( int i = 0; i < this.threadInformation.length; i++ )
             {
                 dumpThread ( out, this.threadInformation[i], i );
@@ -157,7 +158,7 @@ public class JmxDetector implements Detector
 
         try
         {
-            long[] threads;
+            final long[] threads;
             if ( localThreadMXBean.isSynchronizerUsageSupported () )
             {
                 threads = localThreadMXBean.findDeadlockedThreads ();
@@ -167,8 +168,15 @@ public class JmxDetector implements Detector
                 threads = localThreadMXBean.findMonitorDeadlockedThreads ();
             }
 
-            this.threadInformation = localThreadMXBean.getThreadInfo ( threads, true, true );
-            return threads.length > 0;
+            if ( threads == null || threads.length == 0 )
+            {
+                this.threadInformation = new ThreadInfo[0];
+            }
+            else
+            {
+                this.threadInformation = localThreadMXBean.getThreadInfo ( threads, true, true );
+            }
+            return threads == null ? false : threads.length > 0;
         }
         finally
         {

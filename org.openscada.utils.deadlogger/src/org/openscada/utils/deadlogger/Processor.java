@@ -1,5 +1,8 @@
 package org.openscada.utils.deadlogger;
 
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,25 +19,45 @@ public class Processor
 
     private volatile ScheduledExecutorService executor;
 
-    public Processor ()
-    {
-        this.executor = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( "DeadLockDetector", true ) );
-        this.executor.scheduleWithFixedDelay ( new Runnable () {
+    private final ArrayList<Detector> detectors;
 
-            @Override
-            public void run ()
-            {
-                detect ();
-            }
-        }, 1000, 1000, TimeUnit.MILLISECONDS );
+    private final PrintStream out;
+
+    public Processor ( final Collection<Detector> detectors, final int milliseconds, final PrintStream out )
+    {
+        this.detectors = new ArrayList<Detector> ( detectors );
+        this.out = out;
+
+        if ( !detectors.isEmpty () )
+        {
+            this.executor = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( "DeadLockDetector", true ) );
+            this.executor.scheduleWithFixedDelay ( new Runnable () {
+
+                @Override
+                public void run ()
+                {
+                    detect ();
+                }
+            }, 0, milliseconds, TimeUnit.MILLISECONDS );
+        }
     }
 
     protected void detect ()
     {
-        final LocalDetector detector = new LocalDetector ();
-        if ( detector.isDeadlock () )
+        logger.debug ( "Checking for deadlocks" );
+        try
         {
-            detector.dump ( System.out );
+            for ( final Detector detector : this.detectors )
+            {
+                if ( detector.isDeadlock () )
+                {
+                    detector.dump ( this.out );
+                }
+            }
+        }
+        finally
+        {
+            this.out.flush ();
         }
     }
 
