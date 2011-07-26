@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: openSCADA Deadlock Logger Test
+Bundle-SymbolicName: org.openscada.utils.deadlogger.test
+Bundle-Version: 0.17.0.qualifier
+Bundle-Vendor: TH4 SYSTEMS GmbH
+Fragment-Host: org.openscada.utils.deadlogger;bundle-version="0.17.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
