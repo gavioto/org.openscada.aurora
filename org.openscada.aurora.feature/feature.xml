@@ -2,7 +2,7 @@
 <feature
       id="org.openscada.aurora"
       label="OpenSCADA Aurora Feature"
-      version="0.15.0.qualifier"
+      version="0.17.0.qualifier"
       provider-name="TH4 SYSTEMS GmbH">
 
    <description url="http://openscada.org">
