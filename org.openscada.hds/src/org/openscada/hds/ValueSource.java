@@ -23,6 +23,13 @@ import java.util.Date;
 
 public interface ValueSource
 {
+    /**
+     * Visit the value source
+     * @param visitor the visitor
+     * @param start the start timestamp
+     * @param end the end timestamp
+     * @return <code>true</code> if more data should be read, <code>false</code> otherwise
+     */
     public boolean visit ( final ValueVisitor visitor, final Date start, final Date end );
 
     public void addListener ( final DataStoreListener listener );
