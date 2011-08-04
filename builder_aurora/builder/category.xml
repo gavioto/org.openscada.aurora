@@ -6,21 +6,25 @@
    <feature url="features/org.openscada.aurora.sdk_0.17.0.qualifier.jar" id="org.openscada.aurora.sdk" version="0.17.0.qualifier">
       <category name="org.openscada.aurora.category"/>
    </feature>
-   <feature url="features/org.openscada.hsdb_0.14.0.qualifier.jar" id="org.openscada.hsdb" version="0.14.0.qualifier">
-      <category name="org.openscada.aurora.hsbd.category"/>
-   </feature>
-   <feature url="features/org.openscada.ca_0.15.0.qualifier.jar" id="org.openscada.ca" version="0.15.0.qualifier">
-      <category name="org.openscada.aurora.ca"/>
-   </feature>
    <feature url="features/org.openscada.sec_0.1.0.qualifier.jar" id="org.openscada.sec" version="0.1.0.qualifier">
       <category name="org.openscada.aurora.sec"/>
    </feature>
    <feature url="features/org.openscada.ds_0.15.0.qualifier.jar" id="org.openscada.ds" version="0.15.0.qualifier">
       <category name="org.openscada.aurora.ds"/>
    </feature>
-   <category-def name="org.openscada.aurora.category" label="OpenSCADA Aurora"/>
-   <category-def name="org.openscada.aurora.hsbd.category" label="OpenSCADA HSDB"/>
-   <category-def name="org.openscada.aurora.ca" label="OpenSCADA CA"/>
-   <category-def name="org.openscada.aurora.sec" label="OpenSCADA Security"/>
-   <category-def name="org.openscada.aurora.ds" label="OpenSCADA DS"/>
+   <feature url="features/org.openscada.hds_0.17.0.qualifier.jar" id="org.openscada.hds" version="0.17.0.qualifier">
+      <category name="org.openscada.aurora.hds"/>
+   </feature>
+   <feature url="features/org.openscada.hsdb_0.15.0.qualifier.jar" id="org.openscada.hsdb" version="0.15.0.qualifier">
+      <category name="org.openscada.aurora.hsbd.category"/>
+   </feature>
+   <feature url="features/org.openscada.ca_0.17.0.qualifier.jar" id="org.openscada.ca" version="0.17.0.qualifier">
+      <category name="org.openscada.aurora.ca"/>
+   </feature>
+   <category-def name="org.openscada.aurora.category" label="openSCADA Aurora"/>
+   <category-def name="org.openscada.aurora.hsbd.category" label="openSCADA HSDB"/>
+   <category-def name="org.openscada.aurora.ca" label="openSCADA CA"/>
+   <category-def name="org.openscada.aurora.sec" label="openSCADA Security"/>
+   <category-def name="org.openscada.aurora.ds" label="openSCADA DS"/>
+   <category-def name="org.openscada.aurora.hds" label="openSCADA Historical Data Store"/>
 </site>
