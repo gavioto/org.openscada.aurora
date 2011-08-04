@@ -19,7 +19,7 @@
 
 package org.openscada.hds.test;
 
-import org.openscada.hds.RunningAverage;
+import org.openscada.hd.server.storage.common.RunningAverage;
 
 public class HDSApplication4
 {
