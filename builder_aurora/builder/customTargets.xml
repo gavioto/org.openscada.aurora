@@ -109,6 +109,9 @@
   	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.console" />
   	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.ircbot" />
   	
+  	<openscada.builder.copyFeature id="org.openscada.hds" />
+  	<openscada.builder.copyPlugin id="org.openscada.hds" />
+  	
   	<openscada.builder.copyFeature id="org.openscada.ca" />
   	<openscada.builder.copyPlugin id="org.openscada.ca" />
   	<openscada.builder.copyPlugin id="org.openscada.ca.servlet" />
