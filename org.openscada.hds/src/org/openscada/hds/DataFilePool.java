@@ -108,6 +108,7 @@ public class DataFilePool
             this.lastAccess = new Date ();
         }
 
+        @SuppressWarnings ( "unused" )
         public long getAccesses ()
         {
             return this.accesses;
