@@ -56,7 +56,7 @@ public class EndpointExporter implements ServiceListener
         synchronized ( this )
         {
             context.addServiceListener ( this, filter );
-            final ServiceReference[] refs = context.getServiceReferences ( null, filter );
+            final ServiceReference[] refs = context.getServiceReferences ( (String)null, filter );
             if ( refs != null )
             {
                 for ( final ServiceReference ref : refs )

@@ -76,18 +76,18 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
             return this.targetBean;
         }
 
-        public Dictionary<?, ?> getProperties ()
+        public Dictionary<String, ?> getProperties ()
         {
             try
             {
-                final Dictionary<Object, Object> result = new Hashtable<Object, Object> ();
+                final Dictionary<String, Object> result = new Hashtable<String, Object> ();
 
                 final Map<?, ?> properties = new BeanUtilsBean2 ().describe ( this.targetBean );
                 for ( final Map.Entry<?, ?> entry : properties.entrySet () )
                 {
                     if ( entry.getValue () != null )
                     {
-                        result.put ( entry.getKey (), entry.getValue () );
+                        result.put ( entry.getKey ().toString (), entry.getValue () );
                     }
                 }
                 return result;
@@ -95,7 +95,7 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
             catch ( final Exception e )
             {
                 logger.warn ( "Failed to get dictionary", e );
-                return new Hashtable<Object, Object> ();
+                return new Hashtable<String, Object> ( 1 );
             }
         }
 

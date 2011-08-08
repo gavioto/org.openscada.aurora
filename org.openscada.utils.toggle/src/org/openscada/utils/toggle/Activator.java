@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,7 +19,8 @@
 
 package org.openscada.utils.toggle;
 
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.openscada.utils.toggle.internal.ToggleServiceImpl;
 import org.osgi.framework.BundleActivator;
@@ -37,10 +38,12 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
+    @Override
     public void start ( final BundleContext context ) throws Exception
     {
         this.service = new ToggleServiceImpl ();
-        final Properties props = new Properties ();
+
+        final Dictionary<String, Object> props = new Hashtable<String, Object> ( 1 );
         this.registration = context.registerService ( new String[] { ToggleService.class.getCanonicalName () }, this.service, props );
         this.service.start ();
     }
@@ -49,6 +52,7 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop ( final BundleContext context ) throws Exception
     {
         this.service.stop ();

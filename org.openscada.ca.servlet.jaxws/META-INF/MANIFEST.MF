@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenSCADA CA WS Interface
 Bundle-SymbolicName: org.openscada.ca.servlet.jaxws
-Bundle-Version: 0.15.0.qualifier
+Bundle-Version: 0.17.0.qualifier
 Bundle-Activator: org.openscada.ca.servlet.jaxws.Activator
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -13,6 +13,6 @@ Import-Package: javax.jws,
  org.openscada.utils.concurrent.task;version="0.15.0",
  org.openscada.utils.osgi;version="0.15.0",
  org.openscada.utils.osgi.jaxws;version="0.15.0",
- org.osgi.framework;version="1.3.0",
+ org.osgi.framework;version="1.6.0",
  org.slf4j
-Export-Package: org.openscada.ca.servlet.jaxws;version="0.15.0";uses:="org.openscada.ca,org.osgi.framework"
+Export-Package: org.openscada.ca.servlet.jaxws;version="0.17.0";uses:="org.openscada.ca,org.osgi.framework"

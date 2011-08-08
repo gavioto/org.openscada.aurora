@@ -19,24 +19,34 @@
 
 package org.openscada.utils.concurrent;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class NamedThreadFactory implements ThreadFactory
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( NamedThreadFactory.class );
+
     private final AtomicLong counter;
 
     private final String name;
 
     private final boolean daemon;
 
+    private final boolean logExceptions;
+
     public NamedThreadFactory ( final String name )
     {
         this ( name, false );
     }
 
-    public NamedThreadFactory ( final String name, final boolean daemon )
+    public NamedThreadFactory ( final String name, final boolean daemon, final boolean logExceptions )
     {
+        this.logExceptions = logExceptions;
         this.counter = new AtomicLong ();
         this.name = name;
         this.daemon = daemon;
@@ -46,11 +56,28 @@ public class NamedThreadFactory implements ThreadFactory
         }
     }
 
+    public NamedThreadFactory ( final String name, final boolean daemon )
+    {
+        this ( name, daemon, true );
+    }
+
     @Override
     public Thread newThread ( final Runnable r )
     {
         final Thread t = new Thread ( r, createName () );
         t.setDaemon ( this.daemon );
+
+        if ( this.logExceptions && !Boolean.getBoolean ( "org.openscada.utils.concurrent.noDefaultLogger" ) )
+        {
+            t.setUncaughtExceptionHandler ( new UncaughtExceptionHandler () {
+
+                @Override
+                public void uncaughtException ( final Thread t, final Throwable e )
+                {
+                    logger.warn ( String.format ( "Thread %s failed and nobody cared", t ), e );
+                }
+            } );
+        }
         return t;
     }
 

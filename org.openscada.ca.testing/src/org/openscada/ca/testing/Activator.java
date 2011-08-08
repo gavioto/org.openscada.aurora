@@ -40,6 +40,7 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
+    @Override
     public void start ( final BundleContext context ) throws Exception
     {
         this.service = new ConfigurationFactoryImpl ();
@@ -47,7 +48,7 @@ public class Activator implements BundleActivator
         this.service2.start ();
 
         // add plain factory
-        Dictionary<Object, Object> properties = new Hashtable<Object, Object> ();
+        Dictionary<String, Object> properties = new Hashtable<String, Object> ();
         properties.put ( ConfigurationAdministrator.FACTORY_ID, "testing.factory" );
         properties.put ( Constants.SERVICE_DESCRIPTION, "Testing Factory" );
 
@@ -55,7 +56,7 @@ public class Activator implements BundleActivator
 
         // add self managed factory
 
-        properties = new Hashtable<Object, Object> ();
+        properties = new Hashtable<String, Object> ();
         properties.put ( ConfigurationAdministrator.FACTORY_ID, "testing.selfManaged.factory" );
         properties.put ( Constants.SERVICE_DESCRIPTION, "Self Managed Testing Factory" );
 
@@ -66,6 +67,7 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop ( final BundleContext context ) throws Exception
     {
         this.service2.stop ();
