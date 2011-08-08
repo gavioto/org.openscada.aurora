@@ -389,7 +389,7 @@ public class DataStoreAccesor extends AbstractValueSource
 
         if ( start == null )
         {
-            logger.warn ( "{} is outside of the valid time period", date );
+            logger.info ( "{} is outside of the valid time period", date );
             return null;
         }
 
