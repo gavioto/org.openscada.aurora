@@ -87,6 +87,18 @@ public class DataFilePool
         }
 
         @Override
+        public Date getStart ()
+        {
+            return this.accessor.getStart ();
+        }
+
+        @Override
+        public Date getEnd ()
+        {
+            return this.accessor.getEnd ();
+        }
+
+        @Override
         public void delete ()
         {
             check ();

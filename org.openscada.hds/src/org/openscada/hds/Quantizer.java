@@ -54,11 +54,23 @@ public class Quantizer
         this.count = count;
     }
 
+    public Date getEndOfPeriod ( final Date now )
+    {
+        if ( now == null )
+        {
+            return new Date ( System.currentTimeMillis () - this.millisTime * this.count );
+        }
+        else
+        {
+            return new Date ( now.getTime () - this.millisTime * this.count );
+        }
+    }
+
     public Date getValidStart ( final Date timestamp, final Date now )
     {
         final Date start = getStart ( timestamp );
 
-        final Date end = new Date ( now.getTime () - this.millisTime * this.count );
+        final Date end = getEndOfPeriod ( now );
 
         if ( start.before ( end ) )
         {

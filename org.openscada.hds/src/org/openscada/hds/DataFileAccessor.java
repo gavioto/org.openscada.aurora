@@ -49,4 +49,8 @@ public interface DataFileAccessor
      * Delete the accessors file. This is implicitly a dispose operation.
      */
     public void delete ();
+
+    public Date getStart ();
+
+    public Date getEnd ();
 }

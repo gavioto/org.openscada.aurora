@@ -96,6 +96,18 @@ public class DataFileAccessorImpl implements DataFileAccessor
         }
     }
 
+    @Override
+    public Date getStart ()
+    {
+        return this.start;
+    }
+
+    @Override
+    public Date getEnd ()
+    {
+        return this.end;
+    }
+
     /* (non-Javadoc)
      * @see org.openscada.hds.DataFileAccessor#insertValue(double, java.util.Date, boolean, boolean, boolean)
      */

@@ -102,6 +102,18 @@ public class DataStoreAccesor extends AbstractValueSource
         }
 
         @Override
+        public Date getStart ()
+        {
+            return this.accessor.getStart ();
+        }
+
+        @Override
+        public Date getEnd ()
+        {
+            return this.accessor.getEnd ();
+        }
+
+        @Override
         public void dispose ()
         {
             try
@@ -402,7 +414,16 @@ public class DataStoreAccesor extends AbstractValueSource
                     logger.warn ( "No accessor. Ignoring file: {}", file );
                     continue;
                 }
+
                 // DELETE
+                if ( accessor.getEnd ().before ( this.quantizer.getEndOfPeriod ( null ) ) )
+                {
+                    accessor.delete ();
+                }
+                else
+                {
+                    accessor.dispose ();
+                }
 
             }
             catch ( final Exception e )
