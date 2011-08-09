@@ -58,7 +58,6 @@ public class DataFileAccessorImpl implements DataFileAccessor
 
     public DataFileAccessorImpl ( final File file ) throws Exception
     {
-
         this.fileInfo = file;
         this.file = new RandomAccessFile ( file, "rw" );
 
@@ -284,6 +283,12 @@ public class DataFileAccessorImpl implements DataFileAccessor
     public void dispose ()
     {
         logger.debug ( "Closing {}", this.fileInfo );
+        if ( this.file == null )
+        {
+            // alread disposed
+            return;
+        }
+
         try
         {
             this.file.close ();
@@ -292,6 +297,33 @@ public class DataFileAccessorImpl implements DataFileAccessor
         catch ( final IOException e )
         {
             logger.warn ( "Failed to close file", e );
+        }
+    }
+
+    @Override
+    public void delete ()
+    {
+        if ( this.file == null )
+        {
+            // already disposed
+            return;
+        }
+
+        // dispose first to close file
+        dispose ();
+
+        if ( !this.fileInfo.exists () )
+        {
+            logger.warn ( "File does not exists?! {}", this.fileInfo );
+        }
+
+        if ( !this.fileInfo.delete () )
+        {
+            logger.warn ( "Failed to delete: {}", this.fileInfo );
+        }
+        else
+        {
+            logger.info ( "Deleted file: {}", this.fileInfo );
         }
     }
 

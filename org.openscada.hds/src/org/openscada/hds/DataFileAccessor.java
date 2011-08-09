@@ -45,4 +45,8 @@ public interface DataFileAccessor
      */
     public abstract void forwardCorrect ( double value, Date date, boolean error, boolean manual ) throws Exception;
 
+    /**
+     * Delete the accessors file. This is implicitly a dispose operation.
+     */
+    public void delete ();
 }

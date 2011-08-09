@@ -95,6 +95,13 @@ public class DataStoreAccesor extends AbstractValueSource
         }
 
         @Override
+        public void delete ()
+        {
+            this.accessor.delete ();
+            dispose ();
+        }
+
+        @Override
         public void dispose ()
         {
             try
@@ -368,6 +375,41 @@ public class DataStoreAccesor extends AbstractValueSource
         } while ( current.before ( end ) );
 
         return true;
+    }
+
+    /**
+     * Delete data files that are out of range
+     */
+    public void purge ()
+    {
+        logger.info ( "Purging {}", this.basePath );
+
+        for ( final File file : this.basePath.listFiles () )
+        {
+            logger.debug ( "Checking file: {}", file );
+
+            if ( !file.isFile () )
+            {
+                logger.debug ( "{} is not a file. Ignoring.", file );
+                continue;
+            }
+
+            try
+            {
+                final DataFileAccessor accessor = this.pool.getAccessor ( file );
+                if ( accessor == null )
+                {
+                    logger.warn ( "No accessor. Ignoring file: {}", file );
+                    continue;
+                }
+                // DELETE
+
+            }
+            catch ( final Exception e )
+            {
+                logger.warn ( String.format ( "Failed to check file: %s", file ), e );
+            }
+        }
     }
 
     /**

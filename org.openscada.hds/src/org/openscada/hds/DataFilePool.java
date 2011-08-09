@@ -87,6 +87,14 @@ public class DataFilePool
         }
 
         @Override
+        public void delete ()
+        {
+            check ();
+            this.accessor.delete ();
+            dispose ();
+        }
+
+        @Override
         public void dispose ()
         {
             giveBack ( this );
@@ -152,6 +160,28 @@ public class DataFilePool
         this.timeout = timeout;
     }
 
+    public DataFileAccessor getAccessor ( final File file ) throws Exception
+    {
+        final Pair<DataFileAccessor, Boolean> result = getAccessor ( file, null, null, false );
+        if ( result == null )
+        {
+            return null;
+        }
+        return result.first;
+    }
+
+    /**
+     * get access to a file
+     * <p>
+     * If the parameter <code>create</code> is <code>true</code> then start and end must not be null 
+     * </p>
+     * @param file the file to get access to
+     * @param start the start date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
+     * @param end the end date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
+     * @param create <code>true</code> will create a new file it if the file does not currently exists
+     * @return the accessor information
+     * @throws Exception if anything goes wrong
+     */
     public Pair<DataFileAccessor, Boolean> getAccessor ( final File file, final Date start, final Date end, final boolean create ) throws Exception
     {
         final Date deadline = new Date ( System.currentTimeMillis () + this.timeout );
