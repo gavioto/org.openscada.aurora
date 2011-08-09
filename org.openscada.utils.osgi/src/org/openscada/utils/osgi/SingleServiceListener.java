@@ -28,5 +28,5 @@ public interface SingleServiceListener<T>
      * @param reference the new service reference or <code>null</code> if no matching service is availabe
      * @param service the new service instance or <code>null</code> if no matching service is availabe
      */
-    public void serviceChange ( ServiceReference<T> reference, Object service );
+    public void serviceChange ( ServiceReference<T> reference, T service );
 }
