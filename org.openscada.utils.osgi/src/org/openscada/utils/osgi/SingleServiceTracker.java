@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -28,51 +28,54 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SingleServiceTracker
+public class SingleServiceTracker<T>
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( SingleServiceTracker.class );
 
-    private final class ServiceTrackerCustomizerImplementation implements ServiceTrackerCustomizer
+    private final class ServiceTrackerCustomizerImplementation implements ServiceTrackerCustomizer<T, T>
     {
-        public void removedService ( final ServiceReference reference, final Object service )
+        @Override
+        public void removedService ( final ServiceReference<T> reference, final T service )
         {
             SingleServiceTracker.this.removedService ( reference, service );
         }
 
-        public void modifiedService ( final ServiceReference reference, final Object service )
+        @Override
+        public void modifiedService ( final ServiceReference<T> reference, final T service )
         {
             SingleServiceTracker.this.modifiedService ( reference, service );
         }
 
-        public Object addingService ( final ServiceReference reference )
+        @Override
+        public T addingService ( final ServiceReference<T> reference )
         {
             return SingleServiceTracker.this.addingService ( reference );
         }
     }
 
-    private final ServiceTracker tracker;
+    private final ServiceTracker<T, T> tracker;
 
     private final BundleContext context;
 
-    private Object currentService;
+    private T currentService;
 
-    private final SingleServiceListener listener;
+    private final SingleServiceListener<T> listener;
 
-    private ServiceReference currentRef;
+    private ServiceReference<T> currentRef;
 
-    public SingleServiceTracker ( final BundleContext context, final Filter filter, final SingleServiceListener listener )
+    public SingleServiceTracker ( final BundleContext context, final Filter filter, final SingleServiceListener<T> listener )
     {
         this.context = context;
         this.listener = listener;
-        this.tracker = new ServiceTracker ( context, filter, new ServiceTrackerCustomizerImplementation () );
+        this.tracker = new ServiceTracker<T, T> ( context, filter, new ServiceTrackerCustomizerImplementation () );
     }
 
-    public SingleServiceTracker ( final BundleContext context, final String clazz, final SingleServiceListener listener )
+    public SingleServiceTracker ( final BundleContext context, final String clazz, final SingleServiceListener<T> listener )
     {
         this.context = context;
         this.listener = listener;
-        this.tracker = new ServiceTracker ( context, clazz, new ServiceTrackerCustomizerImplementation () );
+        this.tracker = new ServiceTracker<T, T> ( context, clazz, new ServiceTrackerCustomizerImplementation () );
     }
 
     /**
@@ -97,11 +100,11 @@ public class SingleServiceTracker
         }
     }
 
-    protected synchronized Object addingService ( final ServiceReference reference )
+    protected synchronized T addingService ( final ServiceReference<T> reference )
     {
         logger.info ( "Adding service: {}", reference );
 
-        final Object service = this.context.getService ( reference );
+        final T service = this.context.getService ( reference );
 
         if ( this.currentService == null )
         {
@@ -122,7 +125,7 @@ public class SingleServiceTracker
         return service;
     }
 
-    private boolean isHigher ( final ServiceReference reference, final ServiceReference currentRef )
+    private boolean isHigher ( final ServiceReference<T> reference, final ServiceReference<T> currentRef )
     {
         int ref1 = 0;
         int ref2 = 0;
@@ -146,18 +149,18 @@ public class SingleServiceTracker
         return ref1 > ref2;
     }
 
-    protected void modifiedService ( final ServiceReference reference, final Object service )
+    protected void modifiedService ( final ServiceReference<T> reference, final Object service )
     {
         /* do nothing */
     }
 
-    protected synchronized void removedService ( final ServiceReference reference, final Object service )
+    protected synchronized void removedService ( final ServiceReference<T> reference, final Object service )
     {
         this.context.ungetService ( reference );
 
         if ( this.currentService == service )
         {
-            final ServiceReference ref = this.tracker.getServiceReference ();
+            final ServiceReference<T> ref = this.tracker.getServiceReference ();
             if ( ref != null )
             {
                 this.currentService = this.tracker.getService ( ref );
@@ -175,7 +178,7 @@ public class SingleServiceTracker
         }
     }
 
-    private void notifyService ( final ServiceReference reference, final Object service )
+    private void notifyService ( final ServiceReference<T> reference, final T service )
     {
         this.listener.serviceChange ( reference, service );
     }

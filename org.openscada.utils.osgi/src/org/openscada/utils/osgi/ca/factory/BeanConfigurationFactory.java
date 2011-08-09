@@ -122,7 +122,7 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
 
         bean.update ( parameters );
 
-        final ServiceRegistration reg = context.registerService ( this.beanClazz.getName (), bean.getTargetBean (), bean.getProperties () );
+        final ServiceRegistration<?> reg = context.registerService ( this.beanClazz.getName (), bean.getTargetBean (), bean.getProperties () );
 
         return new Entry<BeanServiceInstance> ( configurationId, bean, reg );
     }

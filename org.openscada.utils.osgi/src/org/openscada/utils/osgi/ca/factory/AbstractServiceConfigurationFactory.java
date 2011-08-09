@@ -39,14 +39,14 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
         private final T service;
 
-        private final ServiceRegistration handle;
+        private final ServiceRegistration<?> handle;
 
         /**
          * Create a new service entry that is registered with OSGi
          * @param service the service
          * @param handle the service registration
          */
-        public Entry ( final String id, final T service, final ServiceRegistration handle )
+        public Entry ( final String id, final T service, final ServiceRegistration<?> handle )
         {
             this.id = id;
             this.service = service;
@@ -64,7 +64,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
             this.handle = null;
         }
 
-        public ServiceRegistration getHandle ()
+        public ServiceRegistration<?> getHandle ()
         {
             return this.handle;
         }
@@ -100,13 +100,14 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
      */
     protected void unregisterService ( final Entry<T> entry )
     {
-        final ServiceRegistration handle = entry.getHandle ();
+        final ServiceRegistration<?> handle = entry.getHandle ();
         if ( handle != null )
         {
             handle.unregister ();
         }
     }
 
+    @Override
     public synchronized void delete ( final String configurationId ) throws Exception
     {
         final Entry<T> entry = this.services.remove ( configurationId );
@@ -117,6 +118,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         }
     }
 
+    @Override
     public synchronized void update ( final String configurationId, final Map<String, String> parameters ) throws Exception
     {
         Entry<T> entry = this.services.get ( configurationId );

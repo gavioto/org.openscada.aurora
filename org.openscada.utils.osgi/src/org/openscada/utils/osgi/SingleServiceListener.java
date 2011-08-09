@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -21,12 +21,12 @@ package org.openscada.utils.osgi;
 
 import org.osgi.framework.ServiceReference;
 
-public interface SingleServiceListener
+public interface SingleServiceListener<T>
 {
     /**
      * The method is called when the service instance has changed
      * @param reference the new service reference or <code>null</code> if no matching service is availabe
      * @param service the new service instance or <code>null</code> if no matching service is availabe
      */
-    public void serviceChange ( ServiceReference reference, Object service );
+    public void serviceChange ( ServiceReference<T> reference, Object service );
 }

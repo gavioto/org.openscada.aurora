@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -47,7 +47,7 @@ public class ObjectPoolTracker
 
     private final int DEFAULT_PRIORITY = Integer.getInteger ( "org.openscada.osgi.objectPool.defaultPriority", 0 );
 
-    private final ServiceTracker poolTracker;
+    private final ServiceTracker<ObjectPool, ObjectPool> poolTracker;
 
     private final Set<ObjectPoolServiceListener> listeners = new HashSet<ObjectPoolServiceListener> ();
 
@@ -68,39 +68,37 @@ public class ObjectPoolTracker
         parameters.put ( ObjectPool.OBJECT_POOL_CLASS, poolClass );
         final Filter filter = FilterUtil.createAndFilter ( ObjectPool.class.getName (), parameters );
 
-        this.poolTracker = new ServiceTracker ( context, filter, new ServiceTrackerCustomizer () {
+        this.poolTracker = new ServiceTracker<ObjectPool, ObjectPool> ( context, filter, new ServiceTrackerCustomizer<ObjectPool, ObjectPool> () {
 
-            public void removedService ( final ServiceReference reference, final Object service )
+            @Override
+            public void removedService ( final ServiceReference<ObjectPool> reference, final ObjectPool service )
             {
                 context.ungetService ( reference );
-                ObjectPoolTracker.this.removePool ( (ObjectPool)service );
+                ObjectPoolTracker.this.removePool ( service );
             }
 
-            public void modifiedService ( final ServiceReference reference, final Object service )
+            @Override
+            public void modifiedService ( final ServiceReference<ObjectPool> reference, final ObjectPool service )
             {
-                ObjectPoolTracker.this.modifyPool ( (ObjectPool)service, reference );
+                ObjectPoolTracker.this.modifyPool ( service, reference );
             }
 
-            public Object addingService ( final ServiceReference reference )
+            @Override
+            public ObjectPool addingService ( final ServiceReference<ObjectPool> reference )
             {
-                final Object o = context.getService ( reference );
-                if ( ! ( o instanceof ObjectPool ) )
-                {
-                    context.ungetService ( reference );
-                    return null;
-                }
-                ObjectPoolTracker.this.addPool ( ( (ObjectPool)o ), reference );
+                final ObjectPool o = context.getService ( reference );
+                ObjectPoolTracker.this.addPool ( o, reference );
                 return o;
             }
         } );
     }
 
-    protected int getPriority ( final ServiceReference reference )
+    protected int getPriority ( final ServiceReference<ObjectPool> reference )
     {
         return getPriority ( reference, this.DEFAULT_PRIORITY );
     }
 
-    protected int getPriority ( final ServiceReference reference, final int defaultPriority )
+    protected int getPriority ( final ServiceReference<ObjectPool> reference, final int defaultPriority )
     {
         final Object o = reference.getProperty ( Constants.SERVICE_RANKING );
         if ( o instanceof Number )
@@ -113,7 +111,7 @@ public class ObjectPoolTracker
         }
     }
 
-    protected synchronized void addPool ( final ObjectPool objectPool, final ServiceReference reference )
+    protected synchronized void addPool ( final ObjectPool objectPool, final ServiceReference<ObjectPool> reference )
     {
         logger.debug ( "Found new pool: {} -> {}", new Object[] { objectPool, reference } );
 
@@ -130,7 +128,7 @@ public class ObjectPoolTracker
         }
     }
 
-    protected synchronized void modifyPool ( final ObjectPool objectPool, final ServiceReference reference )
+    protected synchronized void modifyPool ( final ObjectPool objectPool, final ServiceReference<ObjectPool> reference )
     {
         logger.debug ( "Pool modified: {} -> {}", new Object[] { objectPool, reference } );
 
