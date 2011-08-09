@@ -2,20 +2,20 @@ Manifest-Version: 1.0
 Bundle-License: http://www.gnu.org/licenses/lgpl-2.1.html
 Import-Package: org.slf4j;version="[1.5.0,1.6.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.openscada.utils;version="0.16.0",
- org.openscada.utils.beans;version="0.16.0",
- org.openscada.utils.codec;version="0.16.0",
- org.openscada.utils.collection;version="0.16.0";uses:="org.openscada.utils.lang",
- org.openscada.utils.concurrent;version="0.16.0",
- org.openscada.utils.concurrent.task;version="0.16.0";uses:="org.openscada.utils.concurrent",
- org.openscada.utils.exec;version="0.16.0",
- org.openscada.utils.factory;version="0.16.0";uses:="org.openscada.utils.statuscodes",
- org.openscada.utils.lang;version="0.16.0",
- org.openscada.utils.lifecycle;version="0.16.0",
- org.openscada.utils.statuscodes;version="0.16.0",
- org.openscada.utils.str;version="0.16.0";uses:="org.openscada.utils.lang"
-Bundle-Version: 0.16.0.qualifier
-Bundle-Name: OpenSCADA Common Utilities
+Export-Package: org.openscada.utils;version="0.17.0",
+ org.openscada.utils.beans;version="0.17.0",
+ org.openscada.utils.codec;version="0.17.0",
+ org.openscada.utils.collection;version="0.17.0";uses:="org.openscada.utils.lang",
+ org.openscada.utils.concurrent;version="0.17.0",
+ org.openscada.utils.concurrent.task;version="0.17.0";uses:="org.openscada.utils.concurrent",
+ org.openscada.utils.exec;version="0.17.0",
+ org.openscada.utils.factory;version="0.17.0";uses:="org.openscada.utils.statuscodes",
+ org.openscada.utils.lang;version="0.17.0",
+ org.openscada.utils.lifecycle;version="0.17.0",
+ org.openscada.utils.statuscodes;version="0.17.0",
+ org.openscada.utils.str;version="0.17.0";uses:="org.openscada.utils.lang"
+Bundle-Version: 0.17.0.qualifier
+Bundle-Name: openSCADA Common Utilities
 Bundle-Description: Utility classes for use throughout the OpenSCADA p
  roject
 Bundle-ManifestVersion: 2
