@@ -23,8 +23,15 @@ import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+/**
+ * A wrapper to execute scripts
+ * @author Jens Reimann
+ * @sicne 0.17.0
+ *
+ */
 public class ScriptExecutor
 {
     private final ScriptEngine engine;
@@ -35,13 +42,25 @@ public class ScriptExecutor
 
     private final ClassLoader classLoader;
 
+    public ScriptExecutor ( final ScriptEngineManager engineManager, final String engineName, final String command, final ClassLoader classLoader ) throws ScriptException
+    {
+        this ( engineName == null ? null : engineManager.getEngineByName ( engineName ), engineName == null ? null : command, classLoader );
+    }
+
+    /**
+     * Construct a new script executors
+     * @param engine the script engine to use, must not be <code>null</code>
+     * @param command the command to execute, may be <code>null</code>
+     * @param classLoader the class loader to use when executing, may be <code>null</code>
+     * @throws ScriptException
+     */
     public ScriptExecutor ( final ScriptEngine engine, final String command, final ClassLoader classLoader ) throws ScriptException
     {
         this.engine = engine;
         this.command = command;
         this.classLoader = classLoader;
 
-        if ( engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
+        if ( command != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
         {
             final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
             try
@@ -65,9 +84,13 @@ public class ScriptExecutor
         {
             return this.compiledScript.eval ( scriptContext );
         }
-        else
+        else if ( this.command != null )
         {
             return this.engine.eval ( this.command, scriptContext );
+        }
+        else
+        {
+            return null;
         }
     }
 
