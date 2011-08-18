@@ -39,11 +39,18 @@ public class Activator implements BundleActivator
             {
                 if ( event.getType () == FrameworkEvent.STARTED )
                 {
-                    createPidFile ( getPidFilePath () );
+                    try
+                    {
+                        createPidFile ( getPidFilePath () );
+                    }
+                    catch ( Throwable th )
+                    {
+                        logger.error ( "a unexpected error happened", th );
+                    }
                 }
             }
         };
-        context.addFrameworkListener ( fl );
+        bundleContext.addFrameworkListener ( fl );
     }
 
     /*
@@ -52,7 +59,10 @@ public class Activator implements BundleActivator
      */
     public void stop ( BundleContext bundleContext ) throws Exception
     {
-        context.removeFrameworkListener ( fl );
+        if ( fl != null )
+        {
+            bundleContext.removeFrameworkListener ( fl );
+        }
         fl = null;
         Activator.context = null;
     }
