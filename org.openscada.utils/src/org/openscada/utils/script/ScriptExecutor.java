@@ -19,6 +19,9 @@
 
 package org.openscada.utils.script;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
@@ -78,23 +81,75 @@ public class ScriptExecutor
         }
     }
 
-    private Object executeScript ( final ScriptContext scriptContext ) throws ScriptException
+    protected Map<String, Object> applyVars ( final ScriptContext context, final Map<String, Object> scriptObjects )
     {
-        if ( this.compiledScript != null )
-        {
-            return this.compiledScript.eval ( scriptContext );
-        }
-        else if ( this.command != null )
-        {
-            return this.engine.eval ( this.command, scriptContext );
-        }
-        else
+        if ( scriptObjects == null || scriptObjects.isEmpty () )
         {
             return null;
+        }
+
+        final Map<String, Object> replaced = new HashMap<String, Object> ();
+        for ( final Map.Entry<String, Object> entry : scriptObjects.entrySet () )
+        {
+            final Object original = context.getAttribute ( entry.getKey (), ScriptContext.ENGINE_SCOPE );
+            replaced.put ( entry.getKey (), original );
+            context.setAttribute ( entry.getKey (), entry.getValue (), ScriptContext.ENGINE_SCOPE );
+        }
+        return replaced;
+    }
+
+    protected void restoreVars ( final ScriptContext context, final Map<String, Object> vars )
+    {
+        if ( vars == null )
+        {
+            return;
+        }
+
+        for ( final Map.Entry<String, Object> entry : vars.entrySet () )
+        {
+            if ( entry.getValue () == null )
+            {
+                context.removeAttribute ( entry.getKey (), ScriptContext.ENGINE_SCOPE );
+            }
+            else
+            {
+                context.setAttribute ( entry.getKey (), entry.getValue (), ScriptContext.ENGINE_SCOPE );
+            }
+        }
+    }
+
+    private Object executeScript ( final ScriptContext scriptContext, final Map<String, Object> scriptObjects ) throws ScriptException
+    {
+        Map<String, Object> vars = null;
+        try
+        {
+            vars = applyVars ( scriptContext, scriptObjects );
+
+            if ( this.compiledScript != null )
+            {
+                return this.compiledScript.eval ( scriptContext );
+            }
+            else if ( this.command != null )
+            {
+                return this.engine.eval ( this.command, scriptContext );
+            }
+            else
+            {
+                return null;
+            }
+        }
+        finally
+        {
+            restoreVars ( scriptContext, vars );
         }
     }
 
     public Object execute ( final ScriptContext scriptContext ) throws ScriptException
+    {
+        return execute ( scriptContext, null );
+    }
+
+    public Object execute ( final ScriptContext scriptContext, final Map<String, Object> scriptObjects ) throws ScriptException
     {
         final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
         try
@@ -103,7 +158,7 @@ public class ScriptExecutor
             {
                 Thread.currentThread ().setContextClassLoader ( this.classLoader );
             }
-            return executeScript ( scriptContext );
+            return executeScript ( scriptContext, scriptObjects );
         }
         finally
         {
