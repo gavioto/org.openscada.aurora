@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
 {
@@ -44,7 +44,7 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
             throw new IllegalArgumentException ();
         }
         this.capacity = capacity;
-        this.internalSet = new TreeSet<E> ( comparator );
+        this.internalSet = new ConcurrentSkipListSet<E> ( comparator );
     }
 
     public BoundedPriorityQueueSet ( final int capacity, final Collection<E> c )
