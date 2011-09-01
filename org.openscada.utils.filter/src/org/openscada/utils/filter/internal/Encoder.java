@@ -57,7 +57,7 @@ public class Encoder
                 }
                 else
                 {
-                    sb.append ( new Character ( b ) );
+                    sb.append ( Character.valueOf ( b ) );
                 }
             }
         }
