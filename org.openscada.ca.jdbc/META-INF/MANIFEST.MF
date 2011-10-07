@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenSCADA JDBC Configuration Administrator
 Bundle-SymbolicName: org.openscada.ca.jdbc
-Bundle-Version: 0.16.0.qualifier
+Bundle-Version: 0.17.0.qualifier
 Bundle-Activator: org.openscada.ca.jdbc.Activator
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -16,7 +16,7 @@ Import-Package: javassist.util.proxy;version="[3.9.0,4.0.0)",
  org.openscada.utils;version="0.15.0",
  org.openscada.utils.concurrent;version="0.15.0",
  org.osgi.framework;version="1.3.0",
- org.slf4j;version="[1.5.0,1.6.0)",
+ org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.aop;version="[2.5.0,4.0.0)",
  org.springframework.aop.framework;version="[2.5.0,4.0.0)",
  org.springframework.beans;version="[2.5.0,4.0.0)",
