@@ -78,6 +78,13 @@ public class SingleServiceTracker<T>
         this.tracker = new ServiceTracker<T, T> ( context, clazz, new ServiceTrackerCustomizerImplementation () );
     }
 
+    public SingleServiceTracker ( final BundleContext context, final Class<T> clazz, final SingleServiceListener<T> listener )
+    {
+        this.context = context;
+        this.listener = listener;
+        this.tracker = new ServiceTracker<T, T> ( context, clazz, new ServiceTrackerCustomizerImplementation () );
+    }
+
     /**
      * @see ServiceTracker#open()
      */
