@@ -34,9 +34,10 @@ import org.openscada.sec.UserInformation;
 public class DummyAuthenticationProviderImpl implements AuthenticationService
 {
 
+    @Override
     public UserInformation authenticate ( final String username, final String password )
     {
-        return new UserInformation ( username, new String[0] );
+        return new UserInformation ( username, password, new String[0] );
     }
 
 }

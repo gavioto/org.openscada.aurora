@@ -37,11 +37,11 @@ public class AuthorizationHelper
 
     private final static Logger logger = LoggerFactory.getLogger ( AuthorizationHelper.class );
 
-    private final ServiceTracker tracker;
+    private final ServiceTracker<AuthorizationService, AuthorizationService> tracker;
 
     public AuthorizationHelper ( final BundleContext context )
     {
-        this.tracker = new ServiceTracker ( context, AuthorizationService.class.getName (), null );
+        this.tracker = new ServiceTracker<AuthorizationService, AuthorizationService> ( context, AuthorizationService.class, null );
     }
 
     public void open ()

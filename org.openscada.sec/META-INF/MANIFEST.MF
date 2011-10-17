@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA Security
+Bundle-Name: openSCADA Security
 Bundle-SymbolicName: org.openscada.sec
 Bundle-Version: 0.3.0.qualifier
 Bundle-Vendor: TH4 SYSTEMS GmbH

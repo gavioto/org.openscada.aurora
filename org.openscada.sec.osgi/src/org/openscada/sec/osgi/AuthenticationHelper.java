@@ -27,11 +27,11 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class AuthenticationHelper
 {
-    private final ServiceTracker tracker;
+    private final ServiceTracker<AuthenticationService, AuthenticationService> tracker;
 
     public AuthenticationHelper ( final BundleContext context )
     {
-        this.tracker = new ServiceTracker ( context, AuthenticationService.class.getName (), null );
+        this.tracker = new ServiceTracker<AuthenticationService, AuthenticationService> ( context, AuthenticationService.class, null );
     }
 
     public void open ()
@@ -46,8 +46,6 @@ public class AuthenticationHelper
 
     public UserInformation authenticate ( final String username, final String password ) throws AuthenticationException
     {
-        int services = 0;
-
         final Object[] s = this.tracker.getServices ();
         if ( s != null )
         {
@@ -58,7 +56,6 @@ public class AuthenticationHelper
                     continue;
                 }
 
-                services++;
                 final UserInformation user = ( (AuthenticationService)o ).authenticate ( username, password );
                 if ( user != null )
                 {

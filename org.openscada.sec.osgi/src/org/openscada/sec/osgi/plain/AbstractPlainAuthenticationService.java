@@ -115,7 +115,7 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
         {
             final StringBuilder sb = new StringBuilder ();
             sb.append ( "UserEntry [password=" );
-            sb.append ( this.password );
+            sb.append ( this.password == null ? "null" : "***" );
             sb.append ( ", roles=" );
             for ( final String role : this.roles )
             {
@@ -134,6 +134,7 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
 
     protected abstract UserEntry getUserEntry ( final String name ) throws Exception;
 
+    @Override
     public UserInformation authenticate ( final String username, final String password ) throws AuthenticationException
     {
         UserEntry user;
@@ -154,19 +155,19 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
 
         if ( user.getPassword () == null )
         {
-            return makeInfo ( username, user );
+            return makeInfo ( username, null, user );
         }
         if ( !user.getPassword ().equals ( password ) )
         {
             throw new AuthenticationException ( StatusCodes.INVALID_USER_OR_PASSWORD );
         }
 
-        return makeInfo ( username, user );
+        return makeInfo ( username, password, user );
     }
 
-    protected UserInformation makeInfo ( final String name, final UserEntry user )
+    protected UserInformation makeInfo ( final String name, final String password, final UserEntry user )
     {
-        return new UserInformation ( name, user.getRoles () );
+        return new UserInformation ( name, password, user.getRoles () );
     }
 
 }
