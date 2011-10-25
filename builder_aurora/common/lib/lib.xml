@@ -7,7 +7,7 @@
                    
      jens                                                                
      ====================================================================== -->
-<project name="OpenSCADA Builder Common Library" default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="OpenSCADA Builder Common Library" default="default">
     <description>
             Library File
     </description>
@@ -23,16 +23,62 @@
 	
 	<!-- taskdefs -->
 	
-	<!-- ivy -->
-		
-	<path id="ivy.lib.path">
-		<fileset dir="${build.root}/common/lib/ivy" includes="*.jar"/>
+	<!-- ant contrib -->
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	  <classpath>
+	    <pathelement location="${build.root}/common/lib/ant-contrib.jar"/>
+	  </classpath>
+	</taskdef>
+	
+	<!-- sonar -->
+	
+	<path id="sonar.lib.path">
+		<fileset dir="${build.root}/common/lib/sonar" includes="*.jar"/>
     </path>
 	
-	<taskdef resource="org/apache/ivy/ant/antlib.xml"
-	    	uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+	<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" classpathref="sonar.lib.path">
+		<!-- This sonar Ant task library can also be put in the ${ANT_HOME\}/lib directory-->
+		<!-- In such case this classpath node is no more mandatory -->
+	</taskdef>
+	
+	<property name="sonar.host.url" value="http://sonar.intra" />
+	<property name="sonar.jdbc.url" value="jdbc:postgresql://sonar.intra/sonar" />
+	<property name="sonar.jdbc.driverClassName" value="org.postgresql.Driver" />
+	<property name="sonar.jdbc.username" value="sonar" />
+	<property name="sonar.jdbc.password" value="sonarping" />
+	<property name="sonar.java.source" value="1.5" />
+	<property name="sonar.java.target" value="1.5" />
 	
 	<!-- macrodefs -->
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: openscada.sonar          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="openscada.sonar">
+    	<attribute name="projectId"/>
+    	<attribute name="bundleId" default="${bundleId}" />
+    	<attribute name="projectName" default="@{bundleId}"/>
+    	<attribute name="version" default="${bundleVersion}"/>
+        <sequential>
+        	<if>
+        		<istrue value="${sonar.enable}"/>
+        		<then>
+        		<sonar:sonar
+        			description="@{bundleId}"
+        			key="@{projectId}:@{bundleId}"
+        			version="@{version}"
+        			xmlns:sonar="antlib:org.sonar.ant"
+        		>
+        			<sources location="src"/>
+        			<binaries location="bin"/>
+        			<property key="sonar.projectName" value="@{projectName}"/>
+        		</sonar:sonar>
+        		</then>
+        	</if>
+        </sequential>
+    </macrodef>
+
 	
 	<!-- = = = = = = = = = = = = = = = = =
           macrodef: openscada.builder.copyFeature          
@@ -94,6 +140,8 @@
         		
         		<arg value="-Ddeploy.repo.root=${deploy.repo.root}"/>
         		<arg value="-Dexternal.repo.root=${external.repo.root}"/>
+        		
+        		<arg value="-Dsonar.enable=${sonar.enable}"/>
 			</java>
         </sequential>
     </macrodef>
@@ -132,6 +180,8 @@
         		
         		<arg value="-Ddeploy.repo.root=${deploy.repo.root}"/>
         		<arg value="-Dexternal.repo.root=${external.repo.root}"/>
+        		
+        		<arg value="-Dsonar.enable=${sonar.enable}"/>
 			</java>
         </sequential>
     </macrodef>
