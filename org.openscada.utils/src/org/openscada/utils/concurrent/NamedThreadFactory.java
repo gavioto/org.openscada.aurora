@@ -52,7 +52,7 @@ public class NamedThreadFactory implements ThreadFactory
         this.daemon = daemon;
         if ( name == null )
         {
-            throw new NullPointerException ( String.format ( "'name' must not be null" ) );
+            throw new IllegalArgumentException ( String.format ( "'name' must not be null" ) );
         }
     }
 
