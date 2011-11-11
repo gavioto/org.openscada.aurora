@@ -40,7 +40,7 @@ public class ObjectPoolHelper
      */
     public static ServiceRegistration<ObjectPool> registerObjectPool ( final BundleContext context, final ObjectPool pool, final String poolClass )
     {
-        final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
+        final Dictionary<String, Object> properties = new Hashtable<String, Object> ( 1 );
         properties.put ( ObjectPool.OBJECT_POOL_CLASS, poolClass );
         return context.registerService ( ObjectPool.class, pool, properties );
     }
