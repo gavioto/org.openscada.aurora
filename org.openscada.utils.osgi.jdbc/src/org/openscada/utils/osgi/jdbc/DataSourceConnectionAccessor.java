@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -17,17 +17,28 @@
  * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
  */
 
-package org.openscada.ds.storage.jdbc.internal;
+package org.openscada.utils.osgi.jdbc;
 
-import org.openscada.ds.DataNode;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
 
-public interface JdbcStorageDAO
+import javax.sql.DataSource;
+
+import org.osgi.service.jdbc.DataSourceFactory;
+
+public class DataSourceConnectionAccessor extends CommonConnectionAccessor
 {
-    public DataNode readNode ( String nodeId );
+    private final DataSource dataSource;
 
-    public void writeNode ( DataNode node );
+    public DataSourceConnectionAccessor ( final DataSourceFactory dataSourceFactory, final Properties paramProperties ) throws SQLException
+    {
+        this.dataSource = dataSourceFactory.createDataSource ( paramProperties );
+    }
 
-    public void deleteNode ( String nodeId );
-
-    public void dispose ();
+    @Override
+    public Connection getConnection () throws SQLException
+    {
+        return this.dataSource.getConnection ();
+    }
 }

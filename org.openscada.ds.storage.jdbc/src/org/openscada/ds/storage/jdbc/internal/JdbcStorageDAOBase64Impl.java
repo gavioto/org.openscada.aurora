@@ -20,61 +20,52 @@
 package org.openscada.ds.storage.jdbc.internal;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
 import org.openscada.ds.DataNode;
 import org.openscada.utils.codec.Base64;
+import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
+import org.openscada.utils.osgi.jdbc.task.CommonConnectionTask;
+import org.openscada.utils.osgi.jdbc.task.ConnectionContext;
+import org.osgi.service.jdbc.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.Assert;
 
-public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorageDAO, InitializingBean
+public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBase64Impl.class );
 
-    private String instanceId = "default";
+    private final String instanceId = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
 
-    public void setInstanceId ( final String instanceId )
+    private int chunkSize = Integer.getInteger ( "org.openscada.ds.storage.jdbc.chunkSize", 0 );
+
+    private final String tableName = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
+
+    private final DataSourceConnectionAccessor accessor;
+
+    public JdbcStorageDAOBase64Impl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties ) throws SQLException
     {
-        this.instanceId = instanceId;
-    }
-
-    private int chunkSize = 0;
-
-    public void setChunkSize ( final int chunkSize )
-    {
-        if ( chunkSize <= 0 )
+        this.accessor = new DataSourceConnectionAccessor ( dataSourceFactory, paramProperties );
+        if ( this.chunkSize <= 0 )
         {
             this.chunkSize = Integer.MAX_VALUE;
         }
-        else
-        {
-            this.chunkSize = chunkSize;
-        }
-    }
-
-    private String tableName = "datastore";
-
-    public void setTableName ( final String tableName )
-    {
-        this.tableName = tableName;
     }
 
     @Override
-    public void afterPropertiesSet ()
+    public void dispose ()
     {
-        Assert.hasText ( this.tableName, "'tableName' must be set" );
-
-        super.afterPropertiesSet ();
+        this.accessor.dispose ();
     }
 
     @Override
     public DataNode readNode ( final String nodeId )
     {
         final List<String> result = findAll ( nodeId );
+
         if ( result.isEmpty () )
         {
             return null;
@@ -101,12 +92,19 @@ public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorag
         }
     }
 
-    @SuppressWarnings ( "unchecked" )
     private List<String> findAll ( final String nodeId )
     {
         logger.debug ( "Find node: {}", nodeId );
-        final List<String> result = queryForList ( String.format ( "select data from %s where node_id=? and instance_id=? order by sequence_nr", dataStoreName () ), new Object[] { nodeId, this.instanceId }, String.class );
-        return result;
+
+        final String sql = String.format ( "select data from %s where node_id=? and instance_id=? order by sequence_nr", dataStoreName () );
+
+        return this.accessor.doWithConnection ( new CommonConnectionTask<List<String>> () {
+            @Override
+            protected List<String> performTask ( final ConnectionContext connectionContext ) throws SQLException
+            {
+                return connectionContext.queryForList ( String.class, sql, nodeId, JdbcStorageDAOBase64Impl.this.instanceId );
+            }
+        } );
     }
 
     protected String dataStoreName ()
@@ -117,7 +115,22 @@ public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorag
     @Override
     public void deleteNode ( final String nodeId )
     {
-        update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, this.instanceId } );
+        this.accessor.doWithConnection ( new CommonConnectionTask<Void> () {
+
+            @Override
+            protected Void performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                connectionContext.setAutoCommit ( false );
+                deleteNode ( connectionContext, nodeId );
+                connectionContext.commit ();
+                return null;
+            }
+        } );
+    }
+
+    protected void deleteNode ( final ConnectionContext context, final String nodeId ) throws SQLException
+    {
+        context.update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), nodeId, JdbcStorageDAOBase64Impl.this.instanceId );
     }
 
     @Override
@@ -136,8 +149,26 @@ public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorag
 
         logger.debug ( "Write data node: {} -> {}", node, data );
 
-        deleteNode ( node.getId () );
+        this.accessor.doWithConnection ( new CommonConnectionTask<Void> () {
 
+            @Override
+            protected Void performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                connectionContext.setAutoCommit ( false );
+
+                deleteNode ( connectionContext, node.getId () );
+                insertNode ( connectionContext, node, data );
+
+                connectionContext.commit ();
+                return null;
+            }
+        } );
+
+    }
+
+    protected void insertNode ( final ConnectionContext connectionContext, final DataNode node, final String data ) throws SQLException
+    {
+        // TODO: re-use SQL statement
         if ( data != null )
         {
             final int len = data.length ();
@@ -151,7 +182,8 @@ public class JdbcStorageDAOBase64Impl extends JdbcTemplate implements JdbcStorag
                 }
 
                 final String chunk = data.substring ( i * this.chunkSize, end );
-                update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ? , ?, ?, ? )", dataStoreName () ), new Object[] { node.getId (), this.instanceId, i, chunk } );
+
+                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ? , ?, ?, ? )", dataStoreName () ), node.getId (), this.instanceId, i, chunk );
             }
         }
     }

@@ -23,49 +23,53 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import org.openscada.ds.DataNode;
+import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
+import org.openscada.utils.osgi.jdbc.task.CommonConnectionTask;
+import org.openscada.utils.osgi.jdbc.task.ConnectionContext;
+import org.openscada.utils.osgi.jdbc.task.ResultSetProcessor;
+import org.osgi.service.jdbc.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.util.Assert;
 
-public class JdbcStorageDAOBlobImpl extends JdbcTemplate implements JdbcStorageDAO, InitializingBean
+public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
 {
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBlobImpl.class );
 
-    private String tableName = "datastore";
+    private final String tableName = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
 
-    private String instanceId = "default";
+    private final String instanceId = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
+
+    private final DataSourceConnectionAccessor accessor;
+
+    public JdbcStorageDAOBlobImpl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties ) throws SQLException
+    {
+        this.accessor = new DataSourceConnectionAccessor ( dataSourceFactory, paramProperties );
+    }
 
     @Override
-    public void afterPropertiesSet ()
-    {
-        Assert.hasText ( this.tableName, "'tableName' must be set" );
-
-        super.afterPropertiesSet ();
-    }
-
-    public void setTableName ( final String tableName )
-    {
-        this.tableName = tableName;
-    }
-
-    public void setInstanceId ( final String instanceId )
-    {
-        this.instanceId = instanceId;
-    }
-
     public DataNode readNode ( final String nodeId )
     {
         final List<DataNode> result = new LinkedList<DataNode> ();
-        query ( String.format ( "select node_id,data from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, this.instanceId }, new RowCallbackHandler () {
 
-            public void processRow ( final ResultSet rs ) throws SQLException
+        final String sql = String.format ( "select node_id,data from %s where node_id=? and instance_id=?", dataStoreName () );
+
+        this.accessor.doWithConnection ( new CommonConnectionTask<List<DataNode>> () {
+            @Override
+            protected List<DataNode> performTask ( final ConnectionContext connectionContext ) throws Exception
             {
-                result.add ( new DataNode ( rs.getString ( "node_id" ), rs.getBytes ( "data" ) ) );
+                connectionContext.query ( new ResultSetProcessor () {
+
+                    @Override
+                    public void processResult ( final ResultSet resultSet ) throws SQLException
+                    {
+                        result.add ( new DataNode ( resultSet.getString ( "node_id" ), resultSet.getBytes ( "data" ) ) );
+                    }
+                }, sql, nodeId, JdbcStorageDAOBlobImpl.this.instanceId );
+
+                return null;
             }
         } );
 
@@ -84,16 +88,46 @@ public class JdbcStorageDAOBlobImpl extends JdbcTemplate implements JdbcStorageD
         return this.tableName;
     }
 
+    @Override
     public void deleteNode ( final String nodeId )
     {
-        update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), new Object[] { nodeId, this.instanceId } );
+        this.accessor.doWithConnection ( new CommonConnectionTask<Void> () {
+            @Override
+            protected Void performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                deleteNode ( nodeId );
+                return null;
+            }
+        } );
     }
 
+    protected void deleteNode ( final ConnectionContext connectionContext, final String nodeId ) throws SQLException
+    {
+        connectionContext.update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), nodeId, this.instanceId );
+    }
+
+    @Override
     public void writeNode ( final DataNode node )
     {
         logger.debug ( "Write data node: {}", node );
 
-        deleteNode ( node.getId () );
-        update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), new Object[] { node.getId (), this.instanceId, node.getData () } );
+        this.accessor.doWithConnection ( new CommonConnectionTask<Void> () {
+            @Override
+            protected Void performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                connectionContext.getConnection ().setAutoCommit ( false );
+
+                deleteNode ( connectionContext, node.getId () );
+                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), node.getId (), JdbcStorageDAOBlobImpl.this.instanceId, node.getData () );
+
+                connectionContext.commit ();
+                return null;
+            }
+        } );
+    }
+
+    @Override
+    public void dispose ()
+    {
     }
 }
