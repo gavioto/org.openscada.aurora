@@ -5,7 +5,7 @@
 <project name="Build specific targets and properties" default="noDefault">
 
 	<property name="build.root" location="../builder_aurora"/>
-	<import file="${build.root}/lib/lib.xml"/>
+	<import file="${build.root}/global/lib.xml"/>
 	
 	<!-- ===================================================================== -->
 	<!-- Default target                                                        -->
