@@ -75,10 +75,9 @@
 			</fileset>
 		</unzip>
 	</target>
-
 	
 	<target name="preProcessRepos">	
-		<openscada.import.repository id="org.openscada.external.sdk" version="${external.version}"/>
+		<openscada.importAllRepositories/>
   	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
