@@ -30,6 +30,7 @@ import org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBlobImpl;
 import org.openscada.ds.storage.jdbc.internal.StorageImpl;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.jdbc.DataSourceFactoryTracker;
+import org.openscada.utils.osgi.jdbc.DataSourceHelper;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -102,9 +103,11 @@ public class Activator implements BundleActivator
             switch ( getType () )
             {
             case BLOB:
+                logger.info ( "Registering BLOB implemenation" );
                 storage = new JdbcStorageDAOBlobImpl ( service, getDataSourceProperties () );
                 break;
             case BSAE64:
+                logger.info ( "Registering BASE64 implemenation" );
                 storage = new JdbcStorageDAOBase64Impl ( service, getDataSourceProperties () );
                 break;
             }
@@ -124,10 +127,9 @@ public class Activator implements BundleActivator
         }
     }
 
-    private Properties getDataSourceProperties ()
+    private static Properties getDataSourceProperties ()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return DataSourceHelper.getDataSourceProperties ( "org.openscada.ds.storage.jdbc", "org.openscada.jdbc" );
     }
 
     protected void unregister ()
