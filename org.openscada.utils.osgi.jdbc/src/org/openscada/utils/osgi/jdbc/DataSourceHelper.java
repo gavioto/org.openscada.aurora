@@ -35,11 +35,11 @@ public final class DataSourceHelper
         String prefix;
         if ( System.getProperties ().containsKey ( specificPrefix + ".driver" ) )
         {
-            prefix = specificPrefix + ".";
+            prefix = specificPrefix + ".properties.";
         }
         else
         {
-            prefix = defaultPrefix + ".";
+            prefix = defaultPrefix + ".properties.";
         }
 
         for ( final Map.Entry<Object, Object> entry : System.getProperties ().entrySet () )
