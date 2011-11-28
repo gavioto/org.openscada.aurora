@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -38,16 +38,12 @@ public class StorageImpl extends AbstractStorage
 
     private final static Logger logger = LoggerFactory.getLogger ( StorageImpl.class );
 
-    private JdbcStorageDAO storage;
+    private final JdbcStorageDAO storage;
 
-    public void setStorage ( final JdbcStorageDAO storage )
-    {
-        this.storage = storage;
-    }
-
-    public StorageImpl ()
+    public StorageImpl ( final JdbcStorageDAO storage )
     {
         super ( Executors.newSingleThreadExecutor ( new NamedThreadFactory ( StorageImpl.class.getName () ) ) );
+        this.storage = storage;
     }
 
     @Override
@@ -61,6 +57,8 @@ public class StorageImpl extends AbstractStorage
         {
             ( (ExecutorService)executor ).shutdown ();
         }
+
+        this.storage.dispose ();
     }
 
     @Override
@@ -70,6 +68,7 @@ public class StorageImpl extends AbstractStorage
         {
             final FutureTask<DataNode> task = new FutureTask<DataNode> ( new Callable<DataNode> () {
 
+                @Override
                 public DataNode call () throws Exception
                 {
                     return StorageImpl.this.storage.readNode ( nodeId );
@@ -86,12 +85,14 @@ public class StorageImpl extends AbstractStorage
         }
     }
 
+    @Override
     public synchronized NotifyFuture<Void> writeNode ( final DataNode node )
     {
         try
         {
             final FutureTask<Void> task = new FutureTask<Void> ( new Callable<Void> () {
 
+                @Override
                 public Void call () throws Exception
                 {
                     try
@@ -118,12 +119,14 @@ public class StorageImpl extends AbstractStorage
         }
     }
 
+    @Override
     public synchronized NotifyFuture<Void> deleteNode ( final String nodeId )
     {
         try
         {
             final FutureTask<Void> task = new FutureTask<Void> ( new Callable<Void> () {
 
+                @Override
                 public Void call () throws Exception
                 {
                     StorageImpl.this.storage.deleteNode ( nodeId );

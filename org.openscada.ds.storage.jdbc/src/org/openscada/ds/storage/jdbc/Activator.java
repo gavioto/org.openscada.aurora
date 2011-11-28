@@ -119,7 +119,7 @@ public class Activator implements BundleActivator
 
         if ( storage != null )
         {
-            this.storageImpl = new StorageImpl ();
+            this.storageImpl = new StorageImpl ( storage );
 
             final Dictionary<String, Object> properties = new Hashtable<String, Object> ( 1 );
             properties.put ( Constants.SERVICE_VENDOR, "TH4 SYSTEMS GmbH" );
