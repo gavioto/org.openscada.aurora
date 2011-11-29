@@ -183,7 +183,7 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 
                 final String chunk = data.substring ( i * this.chunkSize, end );
 
-                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ? , ?, ?, ? )", dataStoreName () ), node.getId (), this.instanceId, i, chunk );
+                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ?, ?, ?, ? )", dataStoreName () ), node.getId (), this.instanceId, i, chunk );
             }
         }
     }

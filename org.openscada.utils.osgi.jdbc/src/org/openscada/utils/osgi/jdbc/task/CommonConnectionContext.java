@@ -28,9 +28,13 @@ import java.util.List;
 import org.openscada.utils.osgi.jdbc.data.RowMapper;
 import org.openscada.utils.osgi.jdbc.data.RowMapperException;
 import org.openscada.utils.osgi.jdbc.data.SingleColumnRowMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class CommonConnectionContext implements ConnectionContext
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( CommonConnectionContext.class );
 
     @Override
     public void setAutoCommit ( final boolean autoCommit ) throws SQLException
@@ -147,6 +151,7 @@ public abstract class CommonConnectionContext implements ConnectionContext
         {
             for ( int i = 0; i < parameters.length; i++ )
             {
+                logger.trace ( "Set parameter #{} - {}", i + 1, parameters[i] );
                 stmt.setObject ( i + 1, parameters[i] );
             }
         }
@@ -157,6 +162,8 @@ public abstract class CommonConnectionContext implements ConnectionContext
     @Override
     public int update ( final String sql, final Object... parameters ) throws SQLException
     {
+        logger.trace ( "Preparing SQL - {}", sql );
+
         final PreparedStatement stmt = getConnection ().prepareStatement ( sql );
         try
         {
