@@ -24,5 +24,16 @@ import java.sql.SQLException;
 
 public interface ResultSetProcessor
 {
+    /**
+     * Process the result set
+     * <p>
+     * Note that you need to call {@link ResultSet#next()} first!
+     * </p>
+     * <p>
+     * There is no need to close the result set.
+     * </p>
+     * @param resultSet the result set to process
+     * @throws SQLException any SQL exception
+     */
     public void processResult ( ResultSet resultSet ) throws SQLException;
 }
