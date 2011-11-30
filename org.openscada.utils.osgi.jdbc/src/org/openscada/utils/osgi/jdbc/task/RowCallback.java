@@ -20,8 +20,9 @@
 package org.openscada.utils.osgi.jdbc.task;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public interface RowCallback
 {
-    public void processRow ( ResultSet resultSet );
+    public void processRow ( ResultSet resultSet ) throws SQLException;
 }
