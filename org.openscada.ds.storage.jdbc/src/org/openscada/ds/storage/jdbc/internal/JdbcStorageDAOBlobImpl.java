@@ -29,7 +29,7 @@ import org.openscada.ds.DataNode;
 import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.task.CommonConnectionTask;
 import org.openscada.utils.osgi.jdbc.task.ConnectionContext;
-import org.openscada.utils.osgi.jdbc.task.ResultSetProcessor;
+import org.openscada.utils.osgi.jdbc.task.RowCallback;
 import org.osgi.service.jdbc.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +60,14 @@ public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
             @Override
             protected List<DataNode> performTask ( final ConnectionContext connectionContext ) throws Exception
             {
-                connectionContext.query ( new ResultSetProcessor () {
+                connectionContext.query ( new RowCallback () {
 
                     @Override
-                    public void processResult ( final ResultSet resultSet ) throws SQLException
+                    public void processRow ( final ResultSet resultSet ) throws SQLException
                     {
                         result.add ( new DataNode ( resultSet.getString ( "node_id" ), resultSet.getBytes ( "data" ) ) );
                     }
+
                 }, sql, nodeId, JdbcStorageDAOBlobImpl.this.instanceId );
 
                 return null;
