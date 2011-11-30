@@ -59,7 +59,7 @@ public class Activator implements BundleActivator
 
     private static Type getType ()
     {
-        final String type = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "blob" );
+        final String type = System.getProperty ( "org.openscada.ds.storage.jdbc.encoder", "blob" );
         try
         {
             return Type.valueOf ( type.toUpperCase () );
