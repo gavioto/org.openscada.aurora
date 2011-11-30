@@ -39,5 +39,5 @@ public interface ConnectionContext
 
     public int update ( String sql, Object... parameters ) throws SQLException;
 
-    void query ( RowCallback callback, String sql, Object... parameters ) throws SQLException;
+    public void query ( RowCallback callback, String sql, Object... parameters ) throws SQLException;
 }
