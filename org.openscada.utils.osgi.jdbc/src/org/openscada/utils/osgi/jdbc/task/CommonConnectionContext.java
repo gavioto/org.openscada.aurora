@@ -132,7 +132,10 @@ public abstract class CommonConnectionContext implements ConnectionContext
             {
                 if ( rs != null )
                 {
-                    rs.close ();
+                    if ( !rs.isClosed () )
+                    {
+                        rs.close ();
+                    }
                 }
             }
         }
