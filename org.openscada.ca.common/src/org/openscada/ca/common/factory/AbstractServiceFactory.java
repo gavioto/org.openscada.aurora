@@ -31,7 +31,7 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
 
     private final Map<String, Service> instances = new HashMap<String, Service> ();
 
-    private final Map<String, ServiceRegistration> regs = new HashMap<String, ServiceRegistration> ();
+    private final Map<String, ServiceRegistration<?>> regs = new HashMap<String, ServiceRegistration<?>> ();
 
     private final BundleContext context;
 
@@ -42,7 +42,7 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
 
     public synchronized void dispose ()
     {
-        for ( final ServiceRegistration reg : this.regs.values () )
+        for ( final ServiceRegistration<?> reg : this.regs.values () )
         {
             reg.unregister ();
         }
@@ -54,9 +54,10 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
         this.regs.clear ();
     }
 
+    @Override
     public synchronized void delete ( final String configurationId ) throws Exception
     {
-        final ServiceRegistration reg = this.regs.remove ( configurationId );
+        final ServiceRegistration<?> reg = this.regs.remove ( configurationId );
         if ( reg != null )
         {
             reg.unregister ();
@@ -70,6 +71,7 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
         }
     }
 
+    @Override
     public synchronized void update ( final String configurationId, final Map<String, String> properties ) throws Exception
     {
         final Service service = this.instances.get ( configurationId );
@@ -84,7 +86,7 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
             final Service newService = createService ( configurationId, properties );
             if ( newService != null )
             {
-                final ServiceRegistration reg = registerService ( this.context, configurationId, newService );
+                final ServiceRegistration<?> reg = registerService ( this.context, configurationId, newService );
 
                 if ( reg != null )
                 {
@@ -101,6 +103,6 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
 
     protected abstract Service createService ( String configurationId, Map<String, String> properties ) throws Exception;
 
-    protected abstract ServiceRegistration registerService ( BundleContext context, String configurationId, Service service );
+    protected abstract ServiceRegistration<?> registerService ( BundleContext context, String configurationId, Service service );
 
 }

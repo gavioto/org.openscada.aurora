@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -66,54 +66,55 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
     private final Map<String, FactoryImpl> factories = new HashMap<String, FactoryImpl> ();
 
-    private final Map<ServiceReference, ConfigurationFactory> services = new HashMap<ServiceReference, ConfigurationFactory> ();
+    private final Map<ServiceReference<ConfigurationFactory>, ConfigurationFactory> services = new HashMap<ServiceReference<ConfigurationFactory>, ConfigurationFactory> ();
 
-    private final Map<ServiceReference, SelfManagedConfigurationFactory> selfServices = new HashMap<ServiceReference, SelfManagedConfigurationFactory> ();
+    private final Map<ServiceReference<SelfManagedConfigurationFactory>, SelfManagedConfigurationFactory> selfServices = new HashMap<ServiceReference<SelfManagedConfigurationFactory>, SelfManagedConfigurationFactory> ();
 
-    private final ServiceTracker serviceListener;
+    private final ServiceTracker<ConfigurationFactory, ConfigurationFactory> serviceListener;
 
-    private final ServiceTracker selfServiceListener;
+    private final ServiceTracker<SelfManagedConfigurationFactory, SelfManagedConfigurationFactory> selfServiceListener;
 
     public AbstractConfigurationAdministrator ( final BundleContext context )
     {
         this.context = context;
+
         this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( "Configuration Administrator" ) );
 
         this.listenerTracker = new ListenerTracker ( context );
-        this.serviceListener = new ServiceTracker ( context, ConfigurationFactory.class.getName (), new ServiceTrackerCustomizer () {
+        this.serviceListener = new ServiceTracker<ConfigurationFactory, ConfigurationFactory> ( context, ConfigurationFactory.class, new ServiceTrackerCustomizer<ConfigurationFactory, ConfigurationFactory> () {
 
             @Override
-            public void removedService ( final ServiceReference reference, final Object service )
+            public void removedService ( final ServiceReference<ConfigurationFactory> reference, final ConfigurationFactory service )
             {
                 AbstractConfigurationAdministrator.this.removedService ( reference, service );
             }
 
             @Override
-            public void modifiedService ( final ServiceReference reference, final Object service )
+            public void modifiedService ( final ServiceReference<ConfigurationFactory> reference, final ConfigurationFactory service )
             {
             }
 
             @Override
-            public Object addingService ( final ServiceReference reference )
+            public ConfigurationFactory addingService ( final ServiceReference<ConfigurationFactory> reference )
             {
                 return AbstractConfigurationAdministrator.this.addingService ( reference );
             }
         } );
-        this.selfServiceListener = new ServiceTracker ( context, SelfManagedConfigurationFactory.class.getName (), new ServiceTrackerCustomizer () {
+        this.selfServiceListener = new ServiceTracker<SelfManagedConfigurationFactory, SelfManagedConfigurationFactory> ( context, SelfManagedConfigurationFactory.class, new ServiceTrackerCustomizer<SelfManagedConfigurationFactory, SelfManagedConfigurationFactory> () {
 
             @Override
-            public void removedService ( final ServiceReference reference, final Object service )
+            public void removedService ( final ServiceReference<SelfManagedConfigurationFactory> reference, final SelfManagedConfigurationFactory service )
             {
                 AbstractConfigurationAdministrator.this.removedSelfService ( reference, service );
             }
 
             @Override
-            public void modifiedService ( final ServiceReference reference, final Object service )
+            public void modifiedService ( final ServiceReference<SelfManagedConfigurationFactory> reference, final SelfManagedConfigurationFactory service )
             {
             }
 
             @Override
-            public Object addingService ( final ServiceReference reference )
+            public SelfManagedConfigurationFactory addingService ( final ServiceReference<SelfManagedConfigurationFactory> reference )
             {
                 return AbstractConfigurationAdministrator.this.addingSelfService ( reference );
             }
@@ -132,6 +133,20 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         this.serviceListener.close ();
         this.selfServiceListener.close ();
         this.listenerTracker.close ();
+    }
+
+    public void dispose ()
+    {
+        try
+        {
+            stop ();
+        }
+        catch ( final Exception e )
+        {
+            logger.error ( "Failed to stop", e );
+        }
+        this.listenerTracker.dispose ();
+        this.executor.shutdown ();
     }
 
     @Override
@@ -728,7 +743,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return this.factories.values ().toArray ( new FactoryImpl[0] );
     }
 
-    protected Object addingService ( final ServiceReference reference )
+    protected ConfigurationFactory addingService ( final ServiceReference<ConfigurationFactory> reference )
     {
         final String factoryId = checkAndGetFactoryId ( reference );
         final String description = getDescription ( reference );
@@ -739,11 +754,11 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             return null;
         }
 
-        Object service = null;
+        ConfigurationFactory service = null;
         try
         {
             service = this.context.getService ( reference );
-            final ConfigurationFactory factory = (ConfigurationFactory)service;
+            final ConfigurationFactory factory = service;
 
             addFactoryService ( factoryId, factory, description );
 
@@ -761,7 +776,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    protected synchronized void removedService ( final ServiceReference reference, final Object service )
+    protected synchronized void removedService ( final ServiceReference<ConfigurationFactory> reference, final ConfigurationFactory service )
     {
         final ConfigurationFactory factoryService = this.services.remove ( reference );
         if ( factoryService != null )
@@ -771,7 +786,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    protected Object addingSelfService ( final ServiceReference reference )
+    protected SelfManagedConfigurationFactory addingSelfService ( final ServiceReference<SelfManagedConfigurationFactory> reference )
     {
         final String factoryId = checkAndGetFactoryId ( reference );
 
@@ -782,11 +797,11 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         final String description = getDescription ( reference );
 
-        Object service = null;
+        SelfManagedConfigurationFactory service = null;
         try
         {
             service = this.context.getService ( reference );
-            final SelfManagedConfigurationFactory factory = (SelfManagedConfigurationFactory)service;
+            final SelfManagedConfigurationFactory factory = service;
 
             addFactorySelfService ( factoryId, factory, description );
 
@@ -804,7 +819,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    private String getDescription ( final ServiceReference reference )
+    private String getDescription ( final ServiceReference<?> reference )
     {
         String description;
         if ( reference.getProperty ( Constants.SERVICE_DESCRIPTION ) instanceof String )
@@ -818,7 +833,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return description;
     }
 
-    protected void removedSelfService ( final ServiceReference reference, final Object service )
+    protected void removedSelfService ( final ServiceReference<?> reference, final Object service )
     {
         final SelfManagedConfigurationFactory factoryService = this.selfServices.remove ( reference );
         if ( factoryService != null )
@@ -828,7 +843,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    private String checkAndGetFactoryId ( final ServiceReference reference )
+    private String checkAndGetFactoryId ( final ServiceReference<?> reference )
     {
         if ( ! ( reference.getProperty ( FACTORY_ID ) instanceof String ) )
         {

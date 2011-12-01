@@ -35,7 +35,7 @@ public class Activator implements BundleActivator
 {
     private AbstractConfigurationAdministrator service;
 
-    private ServiceRegistration handle;
+    private ServiceRegistration<?> handle;
 
     @Override
     public void start ( final BundleContext context ) throws Exception
@@ -57,7 +57,7 @@ public class Activator implements BundleActivator
         this.handle.unregister ();
         this.handle = null;
 
-        this.service.stop ();
+        this.service.dispose ();
         this.service = null;
     }
 

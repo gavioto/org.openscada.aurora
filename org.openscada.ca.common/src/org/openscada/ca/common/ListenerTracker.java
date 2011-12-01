@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -20,13 +20,12 @@
 package org.openscada.ca.common;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 import org.openscada.ca.ConfigurationAdministratorListener;
 import org.openscada.ca.ConfigurationEvent;
 import org.openscada.ca.FactoryEvent;
+import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -37,14 +36,14 @@ public class ListenerTracker
 
     private final static Logger logger = LoggerFactory.getLogger ( ListenerTracker.class );
 
-    private final ServiceTracker listenerTracker;
+    private final ServiceTracker<ConfigurationAdministratorListener, ConfigurationAdministratorListener> listenerTracker;
 
     private final ExecutorService executor;
 
     public ListenerTracker ( final BundleContext context )
     {
-        this.listenerTracker = new ServiceTracker ( context, ConfigurationAdministratorListener.class.getName (), null );
-        this.executor = new ThreadPoolExecutor ( 0, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable> () );
+        this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( "org.openscada.ca.common.ListenerTracker" ) );
+        this.listenerTracker = new ServiceTracker<ConfigurationAdministratorListener, ConfigurationAdministratorListener> ( context, ConfigurationAdministratorListener.class, null );
     }
 
     public void open ()
@@ -57,6 +56,11 @@ public class ListenerTracker
         this.listenerTracker.close ();
     }
 
+    public void dispose ()
+    {
+        this.executor.shutdown ();
+    }
+
     public void fireEvent ( final ConfigurationEvent configurationEvent )
     {
         logger.debug ( "Fire configuration event: {}", configurationEvent );
@@ -67,6 +71,7 @@ public class ListenerTracker
         {
             this.executor.execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     if ( services != null )
@@ -101,6 +106,7 @@ public class ListenerTracker
         {
             this.executor.execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     if ( services != null )
