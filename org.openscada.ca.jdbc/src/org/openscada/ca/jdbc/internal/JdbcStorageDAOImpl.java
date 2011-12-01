@@ -25,25 +25,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
+import org.openscada.utils.osgi.jdbc.data.RowMapper;
+import org.openscada.utils.osgi.jdbc.data.RowMapperValidationException;
+import org.openscada.utils.osgi.jdbc.task.CommonConnectionTask;
+import org.openscada.utils.osgi.jdbc.task.ConnectionContext;
+import org.osgi.service.jdbc.DataSourceFactory;
 
-public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
+public class JdbcStorageDAOImpl implements JdbcStorageDAO
 {
     private static final String defaultOrder = " ORDER BY instance_id, factory_id, configuration_id, chunk_seq";
 
-    private String tableName = "ca_data";
+    private final String tableName = getTableName ();
 
-    private int chunkSize = 0;
+    private final int chunkSize = getChunkSize ();
 
-    private boolean fixNull = false;
+    private final boolean fixNull = isFixNull ();
 
-    private String instanceId = "default";
+    private final String instanceId = getInstanceId ();
 
-    private final RowMapper mapper = new RowMapper () {
+    private final RowMapper<Entry> mapper = new RowMapper<Entry> () {
+
         @Override
-        public Entry mapRow ( final ResultSet rs, final int rowNum ) throws SQLException
+        public void validate ( final ResultSet resultSet ) throws SQLException, RowMapperValidationException
+        {
+        }
+
+        @Override
+        public Entry mapRow ( final ResultSet rs ) throws SQLException
         {
             final Entry entry = new Entry ();
             entry.setInstance ( rs.getString ( "instance_id" ) );
@@ -54,37 +65,67 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
             entry.setSeq ( rs.getInt ( "chunk_seq" ) );
             return entry;
         }
+
     };
 
-    @SuppressWarnings ( "unchecked" )
+    private final DataSourceConnectionAccessor accessor;
+
+    public JdbcStorageDAOImpl ( final DataSourceFactory dataSourceFactory, final Properties dataSourceProperties ) throws SQLException
+    {
+        this.accessor = new DataSourceConnectionAccessor ( dataSourceFactory, dataSourceProperties );
+    }
+
+    protected List<Entry> load ( final String sql, final Object... parameters )
+    {
+        final List<Entry> result = this.accessor.doWithConnection ( new CommonConnectionTask<List<Entry>> () {
+            @Override
+            protected List<Entry> performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                return connectionContext.query ( JdbcStorageDAOImpl.this.mapper, sql, parameters );
+            }
+        } );
+
+        return deChunk ( fixNulls ( result ) );
+    }
+
     @Override
     public List<Entry> loadAll ()
     {
-        final List<Entry> result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId }, this.mapper );
-        return deChunk ( fixNulls ( result ) );
+        return load ( String.format ( "SELECT * FROM %s WHERE instance_id = ? %s", JdbcStorageDAOImpl.this.tableName, defaultOrder ), this.instanceId );
     }
 
-    @SuppressWarnings ( "unchecked" )
     @Override
     public List<Entry> loadFactory ( final String factoryId )
     {
-        final List<Entry> result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId }, this.mapper );
-        return deChunk ( fixNulls ( result ) );
+        return load ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", this.tableName, defaultOrder ), this.instanceId, factoryId );
     }
 
-    @SuppressWarnings ( "unchecked" )
-    public List<Entry> loadConfiguration ( final String factoryId, final String configurationId )
+    private List<Entry> loadConfiguration ( final String factoryId, final String configurationId )
     {
-        final List<Entry> result = query ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), new Object[] { this.instanceId, factoryId, configurationId }, this.mapper );
-        return deChunk ( fixNulls ( result ) );
+        return load ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), this.instanceId, factoryId, configurationId );
     }
 
     @Override
     public Map<String, String> storeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
+        return this.accessor.doWithConnection ( new CommonConnectionTask<Map<String, String>> () {
+
+            @Override
+            protected Map<String, String> performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                connectionContext.setAutoCommit ( false );
+                final Map<String, String> result = internalStoreConfiguration ( connectionContext, factoryId, configurationId, properties, fullSet );
+                connectionContext.commit ();
+                return result;
+            }
+        } );
+    }
+
+    protected Map<String, String> internalStoreConfiguration ( final ConnectionContext connectionContext, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet ) throws SQLException
+    {
         if ( fullSet )
         {
-            deleteConfiguration ( factoryId, configurationId );
+            internalDeleteConfiguration ( connectionContext, factoryId, configurationId );
         }
 
         final List<Entry> toStore = new ArrayList<Entry> ();
@@ -103,13 +144,13 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
             }
 
             // always delete
-            update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ? and ca_key=?", this.tableName ), new Object[] { this.instanceId, factoryId, configurationId, entry.getKey () } );
+            connectionContext.update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ? and ca_key=?", this.tableName ), this.instanceId, factoryId, configurationId, entry.getKey () );
         }
 
         // split up entries and store
         for ( final Entry entry : chunk ( toStore ) )
         {
-            storeEntry ( entry );
+            storeEntry ( connectionContext, entry );
         }
 
         // fetch result and return it
@@ -128,24 +169,47 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         return result;
     }
 
-    private void storeEntry ( final Entry entry )
+    private void storeEntry ( final ConnectionContext connectionContext, final Entry entry ) throws SQLException
     {
         final Object[] params = new Object[] { entry.getInstance (), entry.getFactoryId (), entry.getConfigurationId (), entry.getKey (), entry.getValue (), entry.getSeq () };
-        update ( String.format ( "INSERT INTO %s (instance_id, factory_id, configuration_id, ca_key, ca_value, chunk_seq) VALUES (?, ?, ?, ?, ?, ?)", this.tableName ), params );
+        connectionContext.update ( String.format ( "INSERT INTO %s (instance_id, factory_id, configuration_id, ca_key, ca_value, chunk_seq) VALUES (?, ?, ?, ?, ?, ?)", this.tableName ), params );
     }
 
     @Override
     public List<Entry> purgeFactory ( final String factoryId )
     {
         final List<Entry> entries = fixNulls ( loadFactory ( factoryId ) );
-        update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ?", this.tableName ), new Object[] { this.instanceId, factoryId } );
+        this.accessor.doWithConnection ( new CommonConnectionTask<Void> () {
+
+            @Override
+            protected Void performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                connectionContext.update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ?", JdbcStorageDAOImpl.this.tableName ), JdbcStorageDAOImpl.this.instanceId, factoryId );
+                return null;
+            }
+        } );
+
         return entries;
     }
 
     @Override
     public void deleteConfiguration ( final String factoryId, final String configurationId )
     {
-        update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ?", this.tableName ), new Object[] { this.instanceId, factoryId, configurationId } );
+        this.accessor.doWithConnection ( new CommonConnectionTask<Void> () {
+            @Override
+            protected Void performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                connectionContext.setAutoCommit ( false );
+                internalDeleteConfiguration ( connectionContext, factoryId, configurationId );
+                connectionContext.commit ();
+                return null;
+            }
+        } );
+    }
+
+    protected void internalDeleteConfiguration ( final ConnectionContext connectionContext, final String factoryId, final String configurationId ) throws SQLException
+    {
+        connectionContext.update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ?", this.tableName ), this.instanceId, factoryId, configurationId );
     }
 
     protected List<Entry> fixNulls ( final List<Entry> data )
@@ -242,43 +306,24 @@ public class JdbcStorageDAOImpl extends JdbcTemplate implements JdbcStorageDAO
         return result;
     }
 
-    public String getTableName ()
+    private static String getTableName ()
     {
-        return this.tableName;
+        return System.getProperty ( "org.openscada.ca.jdbc.table", "ca_data" );
     }
 
-    public void setTableName ( final String tableName )
+    private static int getChunkSize ()
     {
-        this.tableName = tableName;
+        return Integer.getInteger ( "org.openscada.ca.jdbc.chunksize", 0 );
     }
 
-    public int getChunkSize ()
+    private static boolean isFixNull ()
     {
-        return this.chunkSize;
+        return Boolean.getBoolean ( "org.openscada.ca.jdbc.fixnull" );
     }
 
-    public void setChunkSize ( final int chunkSize )
+    private static String getInstanceId ()
     {
-        this.chunkSize = chunkSize;
+        return System.getProperty ( "org.openscada.ca.jdbc.instance", "default" );
     }
 
-    public boolean isFixNull ()
-    {
-        return this.fixNull;
-    }
-
-    public void setFixNull ( final boolean fixNull )
-    {
-        this.fixNull = fixNull;
-    }
-
-    public String getInstanceId ()
-    {
-        return this.instanceId;
-    }
-
-    public void setInstanceId ( final String instanceId )
-    {
-        this.instanceId = instanceId;
-    }
 }

@@ -61,15 +61,11 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 
     private final boolean disableIntern = Boolean.getBoolean ( "org.openscada.ca.jdbc.disableIntern" );
 
-    private JdbcStorageDAO jdbcStorageDAO;
+    private final JdbcStorageDAO jdbcStorageDAO;
 
-    public ConfigurationAdministratorImpl ( final BundleContext context )
+    public ConfigurationAdministratorImpl ( final BundleContext context, final JdbcStorageDAO jdbcStorageDAO )
     {
         super ( context );
-    }
-
-    public void setJdbcStorageDAO ( final JdbcStorageDAO jdbcStorageDAO )
-    {
         this.jdbcStorageDAO = jdbcStorageDAO;
     }
 
