@@ -23,6 +23,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.openscada.utils.osgi.jdbc.data.RowMapper;
+
 public interface ConnectionContext
 {
     public Connection getConnection ();
@@ -40,4 +42,6 @@ public interface ConnectionContext
     public int update ( String sql, Object... parameters ) throws SQLException;
 
     public void query ( RowCallback callback, String sql, Object... parameters ) throws SQLException;
+
+    public <T> List<T> query ( RowMapper<T> rowMapper, String sql, Object... parameters ) throws SQLException;
 }

@@ -93,7 +93,13 @@ public abstract class CommonConnectionContext implements ConnectionContext
     @Override
     public <T> List<T> queryForList ( final Class<T> clazz, final String sql, final Object... parameters ) throws SQLException
     {
-        final CaptureMappedResultSetProcessor<T> crsp = new CaptureMappedResultSetProcessor<T> ( new SingleColumnRowMapper<T> ( clazz ) );
+        return query ( new SingleColumnRowMapper<T> ( clazz ), sql, parameters );
+    }
+
+    @Override
+    public <T> List<T> query ( final RowMapper<T> rowMapper, final String sql, final Object... parameters ) throws SQLException
+    {
+        final CaptureMappedResultSetProcessor<T> crsp = new CaptureMappedResultSetProcessor<T> ( rowMapper );
         query ( crsp, sql, parameters );
         return crsp.getResult ();
     }
