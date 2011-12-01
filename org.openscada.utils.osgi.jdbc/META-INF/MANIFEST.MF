@@ -10,9 +10,10 @@ Import-Package: org.openscada.utils.osgi;version="0.17.0",
  org.osgi.service.jdbc;version="1.0.0",
  org.osgi.util.tracker;version="1.5.0",
  org.slf4j;version="1.5.0"
-Export-Package: org.openscada.utils.osgi.jdbc;version="0.17.0";
+Export-Package: org.openscada.utils.osgi.jdbc;version="0.18.0";
   uses:="org.osgi.framework,
    org.openscada.utils.osgi.jdbc.task,
    org.openscada.utils.osgi,
    org.osgi.service.jdbc",
- org.openscada.utils.osgi.jdbc.task;version="0.17.0"
+ org.openscada.utils.osgi.jdbc.data;version="0.18.0",
+ org.openscada.utils.osgi.jdbc.task;version="0.18.0";uses:="org.openscada.utils.osgi.jdbc.data"
