@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 {
-
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBase64Impl.class );
 
     private final String instanceId = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );

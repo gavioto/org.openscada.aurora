@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 public class StorageImpl extends AbstractStorage
 {
-
     private final static Logger logger = LoggerFactory.getLogger ( StorageImpl.class );
 
     private final JdbcStorageDAO storage;
