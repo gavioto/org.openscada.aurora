@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -169,22 +169,24 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
     protected void insertNode ( final ConnectionContext connectionContext, final DataNode node, final String data ) throws SQLException
     {
         // TODO: re-use SQL statement
-        if ( data != null )
+        if ( data == null )
         {
-            final int len = data.length ();
+            return;
+        }
 
-            for ( int i = 0; i <= len / this.chunkSize; i++ )
+        final int len = data.length ();
+
+        for ( int i = 0; i <= len / this.chunkSize; i++ )
+        {
+            int end = ( i + 1 ) * this.chunkSize;
+            if ( end > len )
             {
-                int end = ( i + 1 ) * this.chunkSize;
-                if ( end > len )
-                {
-                    end = len;
-                }
-
-                final String chunk = data.substring ( i * this.chunkSize, end );
-
-                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ?, ?, ?, ? )", dataStoreName () ), node.getId (), this.instanceId, i, chunk );
+                end = len;
             }
+
+            final String chunk = data.substring ( i * this.chunkSize, end );
+
+            connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ?, ?, ?, ? )", dataStoreName () ), node.getId (), this.instanceId, i, chunk );
         }
     }
 }
