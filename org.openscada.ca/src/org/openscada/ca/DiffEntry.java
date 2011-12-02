@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -22,7 +22,7 @@ package org.openscada.ca;
 import java.io.Serializable;
 import java.util.Map;
 
-public class DiffEntry implements Serializable
+public class DiffEntry implements Serializable, Comparable<DiffEntry>
 {
     private static final long serialVersionUID = 9030999002792898317L;
 
@@ -179,6 +179,17 @@ public class DiffEntry implements Serializable
             return false;
         }
         return true;
+    }
+
+    @Override
+    public int compareTo ( final DiffEntry o )
+    {
+        final int rc = this.factoryId.compareTo ( o.factoryId );
+        if ( rc != 0 )
+        {
+            return rc;
+        }
+        return this.configurationId.compareTo ( o.configurationId );
     }
 
 }
