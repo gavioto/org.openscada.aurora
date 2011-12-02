@@ -51,7 +51,6 @@ public class BeanMatcher
 
         try
         {
-
             if ( filter.isEmpty () )
             {
                 return ifEmpty;

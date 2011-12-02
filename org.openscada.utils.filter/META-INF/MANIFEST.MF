@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA Filter
+Bundle-Name: openSCADA Filter
 Bundle-SymbolicName: org.openscada.utils.filter
-Bundle-Version: 0.15.0.qualifier
+Bundle-Version: 0.18.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.openscada.utils.filter;version="0.15.0",
- org.openscada.utils.filter.bean;version="0.15.0";uses:="org.openscada.utils.propertyeditors,org.openscada.utils.filter"
+Export-Package: org.openscada.utils.filter;version="0.18.0",
+ org.openscada.utils.filter.bean;version="0.18.0";uses:="org.openscada.utils.propertyeditors,org.openscada.utils.filter"
 Bundle-Vendor: TH4 SYSTEMS GmbH
-Import-Package: org.openscada.utils.propertyeditors;version="0.15.0",
- org.slf4j;version="1.5.8"
+Import-Package: org.openscada.utils.propertyeditors;version="0.17.0",
+ org.slf4j;version="[1.5.0,2.0.0)"
