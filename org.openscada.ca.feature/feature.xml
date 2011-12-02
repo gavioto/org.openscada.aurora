@@ -2,7 +2,7 @@
 <feature
       id="org.openscada.ca"
       label="openSCADA CA"
-      version="0.17.0.qualifier"
+      version="0.18.0.qualifier"
       provider-name="TH4 SYSTEMS GmbH">
 
    <description>
@@ -20,16 +20,19 @@ authority.
 
    <requires>
       <import plugin="org.openscada.utils"/>
+      <import plugin="org.openscada.utils.propertyeditors"/>
       <import plugin="org.eclipse.osgi"/>
+      <import plugin="slf4j.api"/>
       <import plugin="javax.servlet"/>
       <import plugin="org.eclipse.osgi.services"/>
       <import plugin="org.openscada.utils.osgi"/>
       <import plugin="org.openscada.utils.osgi.jaxws"/>
-      <import feature="org.openscada.external.spring" version="2.5.6.SEC01"/>
-      <import feature="org.openscada.external.spring.osgi" version="1.2.0"/>
-      <import feature="org.openscada.external.hibernate.feature" version="3.3.2.GA"/>
-      <import feature="org.openscada.external.slf4j" version="1.5.8.qualifier"/>
-      <import feature="org.openscada.external.spring.extended.feature" version="2.5.6.SEC01"/>
+      <import plugin="org.openscada.utils.osgi.jdbc"/>
+      <import plugin="org.openscada.external.osgi.enterprise"/>
+      <import plugin="com.springsource.org.hsqldb"/>
+      <import plugin="com.google.gson"/>
+      <import plugin="jackson-core-lgpl"/>
+      <import plugin="jackson-mapper-lgpl"/>
    </requires>
 
    <plugin
