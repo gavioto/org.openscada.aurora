@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.openscada.ca.common
 Bundle-Version: 0.18.0.qualifier
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.openscada.ca.common;version="0.16.0";uses:="org.openscada.utils.concurrent,org.openscada.ca,org.osgi.framework",
- org.openscada.ca.common.factory;version="0.16.0";uses:="org.openscada.utils.lang,org.openscada.ca,org.osgi.framework"
-Import-Package: org.openscada.ca;version="0.15.0",
+Export-Package: org.openscada.ca.common;version="0.18.0";uses:="org.openscada.utils.concurrent,org.openscada.ca,org.osgi.framework",
+ org.openscada.ca.common.factory;version="0.18.0";uses:="org.openscada.utils.lang,org.openscada.ca,org.osgi.framework"
+Import-Package: org.openscada.ca;version="0.18.0",
  org.openscada.utils.concurrent;version="0.14.0",
  org.openscada.utils.concurrent.task;version="0.14.0",
  org.openscada.utils.lang;version="0.14.0",

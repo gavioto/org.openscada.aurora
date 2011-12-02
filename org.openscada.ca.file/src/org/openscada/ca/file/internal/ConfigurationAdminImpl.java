@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -312,7 +313,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    protected void performPurge ( final String factoryId, final PurgeFuture future ) throws Exception
+    protected void performPurge ( final Principal principal, final String factoryId, final PurgeFuture future ) throws Exception
     {
         logger.info ( "Request to delete: {}", factoryId );
 
@@ -329,7 +330,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             final String id = idFromFile ( file );
 
             final ConfigurationFuture subFuture = new ConfigurationFuture ();
-            changeConfiguration ( factoryId, id, null, subFuture );
+            changeConfiguration ( principal, factoryId, id, null, subFuture );
 
             future.addChild ( subFuture );
 
@@ -346,7 +347,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    protected void performStoreConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws FileNotFoundException, IOException
+    protected void performStoreConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws FileNotFoundException, IOException
     {
         if ( this.root == null )
         {
@@ -403,7 +404,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
 
         // notify the abstract service from our content change
-        changeConfiguration ( factoryId, configurationId, newProperties, future );
+        changeConfiguration ( principal, factoryId, configurationId, newProperties, future );
     }
 
     private File getFactoryPath ( final String factoryId ) throws UnsupportedEncodingException
@@ -418,7 +419,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    protected void performDeleteConfiguration ( final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
+    protected void performDeleteConfiguration ( final Principal principal, final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
     {
         final File path = getFactoryPath ( factoryId );
 
@@ -432,6 +433,6 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
 
         // notify the abstract service from our content change
-        changeConfiguration ( factoryId, configurationId, null, future );
+        changeConfiguration ( principal, factoryId, configurationId, null, future );
     }
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,11 +19,25 @@
 
 package org.openscada.ca;
 
+import java.security.Principal;
 import java.util.Map;
 
 public interface ConfigurationFactory
 {
-    public void update ( String configurationId, Map<String, String> properties ) throws Exception;
+    /**
+     * receive configuration update
+     * @param principal the principal that performed the change, may be <code>null</code>
+     * @param configurationId the configuration object to change
+     * @param properties the new properties
+     * @throws Exception can be thrown if anything goes wrong changing the configuration
+     */
+    public void update ( Principal principal, String configurationId, Map<String, String> properties ) throws Exception;
 
-    public void delete ( String configurationId ) throws Exception;
+    /**
+     * receive configuration delete request
+     * @param principal the principal that performed the change, may be <code>null</code>
+     * @param configurationId the configuration object to change
+     * @throws Exception can be thrown if anything goes wrong changing the configuration
+     */
+    public void delete ( Principal principal, String configurationId ) throws Exception;
 }

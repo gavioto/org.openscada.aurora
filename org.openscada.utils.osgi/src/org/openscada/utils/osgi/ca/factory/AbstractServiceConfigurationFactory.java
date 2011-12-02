@@ -19,6 +19,7 @@
 
 package org.openscada.utils.osgi.ca.factory;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     {
         for ( final Entry<T> entry : this.services.values () )
         {
-            disposeService ( entry.getId (), entry.getService () );
+            disposeService ( null, entry.getId (), entry.getService () );
             unregisterService ( entry );
         }
     }
@@ -108,34 +109,34 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     }
 
     @Override
-    public synchronized void delete ( final String configurationId ) throws Exception
+    public synchronized void delete ( final Principal principal, final String configurationId ) throws Exception
     {
         final Entry<T> entry = this.services.remove ( configurationId );
         if ( entry != null )
         {
-            disposeService ( configurationId, entry.getService () );
+            disposeService ( principal, configurationId, entry.getService () );
             unregisterService ( entry );
         }
     }
 
     @Override
-    public synchronized void update ( final String configurationId, final Map<String, String> parameters ) throws Exception
+    public synchronized void update ( final Principal principal, final String configurationId, final Map<String, String> parameters ) throws Exception
     {
         Entry<T> entry = this.services.get ( configurationId );
         if ( entry != null )
         {
-            final Entry<T> newEntry = updateService ( configurationId, entry, parameters );
+            final Entry<T> newEntry = updateService ( principal, configurationId, entry, parameters );
             if ( newEntry != null && newEntry != entry )
             {
                 // replace with the new entry
-                disposeService ( configurationId, entry.getService () );
+                disposeService ( principal, configurationId, entry.getService () );
                 unregisterService ( entry );
                 this.services.put ( configurationId, newEntry );
             }
         }
         else
         {
-            entry = createService ( configurationId, this.context, parameters );
+            entry = createService ( principal, configurationId, this.context, parameters );
             if ( entry != null )
             {
                 this.services.put ( configurationId, entry );
@@ -150,25 +151,27 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
      * registration must then be places into the result that is returned. This is an optional step.
      * There is no need to register the created service.
      * </p>
+     * @param principal 
      * @param configurationId the configuration id for which the service should be created
      * @param context the bundle context
      * @param parameters the initial parameters
      * @return a new entry instance which holds the service. This method must never return <code>null</code>
      * @throws Exception if anything goes wrong
      */
-    protected abstract Entry<T> createService ( String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
+    protected abstract Entry<T> createService ( Principal principal, String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
 
-    protected abstract void disposeService ( String configurationId, T service );
+    protected abstract void disposeService ( Principal principal, String configurationId, T service );
 
     /**
      * Update a service configuration
+     * @param principal 
      * @param configurationId the configuration to update
      * @param entry the original service entry
      * @param parameters the new parameters
      * @return the new service entry or <code>null</code> if the entry did not change
      * @throws Exception if anything goes wrong
      */
-    protected abstract Entry<T> updateService ( String configurationId, Entry<T> entry, Map<String, String> parameters ) throws Exception;
+    protected abstract Entry<T> updateService ( Principal principal, String configurationId, Entry<T> entry, Map<String, String> parameters ) throws Exception;
 
     protected synchronized Entry<T> getService ( final String configurationId )
     {

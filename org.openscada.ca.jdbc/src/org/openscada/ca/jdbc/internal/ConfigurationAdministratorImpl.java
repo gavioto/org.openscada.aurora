@@ -38,6 +38,7 @@ package org.openscada.ca.jdbc.internal;
  * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
  */
 
+import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -141,15 +142,15 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
     }
 
     @Override
-    protected synchronized void performDeleteConfiguration ( final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
+    protected synchronized void performDeleteConfiguration ( final Principal principal, final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
     {
         this.jdbcStorageDAO.deleteConfiguration ( factoryId, configurationId );
 
-        changeConfiguration ( factoryId, configurationId, null, future );
+        changeConfiguration ( principal, factoryId, configurationId, null, future );
     }
 
     @Override
-    protected synchronized void performPurge ( final String factoryId, final PurgeFuture future )
+    protected synchronized void performPurge ( final Principal principal, final String factoryId, final PurgeFuture future )
     {
         logger.info ( "Purging: {}", factoryId );
 
@@ -159,7 +160,7 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
             if ( done.add ( entry.getConfigurationId () ) )
             {
                 final ConfigurationFuture subFuture = new ConfigurationFuture ();
-                changeConfiguration ( factoryId, entry.getConfigurationId (), null, subFuture );
+                changeConfiguration ( principal, factoryId, entry.getConfigurationId (), null, subFuture );
 
                 future.addChild ( subFuture );
             }
@@ -169,11 +170,11 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
     }
 
     @Override
-    protected synchronized void performStoreConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws Exception
+    protected synchronized void performStoreConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws Exception
     {
         final Map<String, String> resultProperties = this.jdbcStorageDAO.storeConfiguration ( factoryId, configurationId, properties, fullSet );
 
-        changeConfiguration ( factoryId, configurationId, resultProperties, future );
+        changeConfiguration ( principal, factoryId, configurationId, resultProperties, future );
     }
 
 }

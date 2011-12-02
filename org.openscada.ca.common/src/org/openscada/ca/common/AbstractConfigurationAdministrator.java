@@ -211,7 +211,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 for ( final ConfigurationImpl cfg : configurations )
                 {
-                    applyConfiguration ( null, factoryService, factory, cfg );
+                    applyConfiguration ( null, null, factoryService, factory, cfg );
                 }
                 setFactoryState ( factory, FactoryState.BOUND );
             }
@@ -345,20 +345,21 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
     }
 
-    protected abstract void performPurge ( String factoryId, PurgeFuture future ) throws Exception;
+    protected abstract void performPurge ( Principal principal, String factoryId, PurgeFuture future ) throws Exception;
 
-    protected abstract void performStoreConfiguration ( String factoryId, String configurationId, Map<String, String> properties, boolean fullSet, ConfigurationFuture future ) throws Exception;
+    protected abstract void performStoreConfiguration ( Principal principal, String factoryId, String configurationId, Map<String, String> properties, boolean fullSet, ConfigurationFuture future ) throws Exception;
 
-    protected abstract void performDeleteConfiguration ( String factoryId, String configurationId, ConfigurationFuture future ) throws Exception;
+    protected abstract void performDeleteConfiguration ( Principal principal, String factoryId, String configurationId, ConfigurationFuture future ) throws Exception;
 
     /**
      * Request a change of the configuration
+     * @param principal 
      * @param factoryId
      * @param configurationId
      * @param properties
      * @param future
      */
-    protected synchronized void changeConfiguration ( final String factoryId, final String configurationId, final Map<String, String> properties, final ConfigurationFuture future )
+    protected synchronized void changeConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final ConfigurationFuture future )
     {
         logger.info ( "Request to change configuration: {}/{} -> {}", new Object[] { factoryId, configurationId, properties } );
 
@@ -408,7 +409,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
                 @Override
                 public void run ()
                 {
-                    AbstractConfigurationAdministrator.this.applyConfiguration ( future, factoryService, factory, applyConfiguration );
+                    AbstractConfigurationAdministrator.this.applyConfiguration ( principal, future, factoryService, factory, applyConfiguration );
                 }
             } );
         }
@@ -423,12 +424,13 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
      * <p>
      * This method can block for some while
      * </p>
+     * @param principal 
      * @param future
      * @param factory 
      * @param factoryService 
      * @param configuration
      */
-    protected void applyConfiguration ( final ConfigurationFuture future, final ConfigurationFactory factoryService, final FactoryImpl factory, final ConfigurationImpl configuration )
+    protected void applyConfiguration ( final Principal principal, final ConfigurationFuture future, final ConfigurationFactory factoryService, final FactoryImpl factory, final ConfigurationImpl configuration )
     {
         logger.info ( "Apply configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () } );
 
@@ -438,12 +440,12 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             if ( properties != null )
             {
                 logger.debug ( "Update configuration" );
-                factoryService.update ( configuration.getId (), properties );
+                factoryService.update ( principal, configuration.getId (), properties );
             }
             else
             {
                 logger.debug ( "Delete configuration: {}", configuration.getId () );
-                factoryService.delete ( configuration.getId () );
+                factoryService.delete ( principal, configuration.getId () );
                 // FIXME: notify remove                
             }
             synchronized ( this )
@@ -484,7 +486,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokePurge ( factoryId );
+            return invokePurge ( principal, factoryId );
         }
         else
         {
@@ -509,7 +511,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeStore ( factoryId, configurationId, properties, true );
+            return invokeStore ( principal, factoryId, configurationId, properties, true );
         }
         else
         {
@@ -534,7 +536,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeStore ( factoryId, configurationId, properties, fullSet );
+            return invokeStore ( principal, factoryId, configurationId, properties, fullSet );
         }
         else
         {
@@ -559,7 +561,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeDelete ( factoryId, configurationId );
+            return invokeDelete ( principal, factoryId, configurationId );
         }
         else
         {
@@ -642,7 +644,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    private NotifyFuture<Void> invokePurge ( final String factoryId )
+    private NotifyFuture<Void> invokePurge ( final Principal principal, final String factoryId )
     {
         final PurgeFuture future = new PurgeFuture ();
         this.executor.execute ( new Runnable () {
@@ -652,7 +654,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
-                    performPurge ( factoryId, future );
+                    performPurge ( principal, factoryId, future );
                 }
                 catch ( final Throwable e )
                 {
@@ -664,7 +666,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return future;
     }
 
-    private NotifyFuture<Configuration> invokeStore ( final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
+    private NotifyFuture<Configuration> invokeStore ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final ConfigurationFuture future = new ConfigurationFuture ();
 
@@ -675,7 +677,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
-                    performStoreConfiguration ( factoryId, configurationId, properties, fullSet, future );
+                    performStoreConfiguration ( principal, factoryId, configurationId, properties, fullSet, future );
                 }
                 catch ( final Throwable e )
                 {
@@ -686,7 +688,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return future;
     }
 
-    private NotifyFuture<Configuration> invokeDelete ( final String factoryId, final String configurationId )
+    private NotifyFuture<Configuration> invokeDelete ( final Principal principal, final String factoryId, final String configurationId )
     {
         final ConfigurationFuture future = new ConfigurationFuture ();
         this.executor.execute ( new Runnable () {
@@ -696,7 +698,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
-                    performDeleteConfiguration ( factoryId, configurationId, future );
+                    performDeleteConfiguration ( principal, factoryId, configurationId, future );
                 }
                 catch ( final Throwable e )
                 {

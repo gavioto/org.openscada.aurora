@@ -19,6 +19,7 @@
 
 package org.openscada.ca.common.factory;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
     }
 
     @Override
-    public synchronized void delete ( final String configurationId ) throws Exception
+    public synchronized void delete ( final Principal principal, final String configurationId ) throws Exception
     {
         final ServiceRegistration<?> reg = this.regs.remove ( configurationId );
         if ( reg != null )
@@ -72,21 +73,21 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
     }
 
     @Override
-    public synchronized void update ( final String configurationId, final Map<String, String> properties ) throws Exception
+    public synchronized void update ( final Principal principal, final String configurationId, final Map<String, String> properties ) throws Exception
     {
         final Service service = this.instances.get ( configurationId );
         if ( service != null )
         {
             // update
-            service.update ( properties );
+            service.update ( principal, properties );
         }
         else
         {
             // create
-            final Service newService = createService ( configurationId, properties );
+            final Service newService = createService ( principal, configurationId, properties );
             if ( newService != null )
             {
-                final ServiceRegistration<?> reg = registerService ( this.context, configurationId, newService );
+                final ServiceRegistration<?> reg = registerService ( principal, this.context, configurationId, newService );
 
                 if ( reg != null )
                 {
@@ -101,8 +102,8 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
         }
     }
 
-    protected abstract Service createService ( String configurationId, Map<String, String> properties ) throws Exception;
+    protected abstract Service createService ( Principal principal, String configurationId, Map<String, String> properties ) throws Exception;
 
-    protected abstract ServiceRegistration<?> registerService ( BundleContext context, String configurationId, Service service );
+    protected abstract ServiceRegistration<?> registerService ( Principal principal, BundleContext context, String configurationId, Service service );
 
 }
