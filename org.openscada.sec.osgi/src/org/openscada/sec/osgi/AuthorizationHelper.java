@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class AuthorizationHelper
 {
-    protected static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, "No authentication provider voted. Rejecting request!" );
+    protected static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, Messages.getString ( "AuthorizationHelper.DefaultMessage" ) ); //$NON-NLS-1$
 
     private final static Logger logger = LoggerFactory.getLogger ( AuthorizationHelper.class );
 
@@ -73,13 +73,13 @@ public class AuthorizationHelper
 
     public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context, final AuthorizationResult defaultResult )
     {
-        logger.debug ( "Authorizing - objectType: {}, objectId: {}, action: {}, userInformation: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } );
+        logger.debug ( "Authorizing - objectType: {}, objectId: {}, action: {}, userInformation: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } ); //$NON-NLS-1$
 
         final Object[] s = this.tracker.getServices ();
 
         if ( s == null )
         {
-            logger.debug ( "No authencation services" );
+            logger.debug ( "No authencation services" ); //$NON-NLS-1$
             return defaultResult;
         }
 
@@ -97,13 +97,13 @@ public class AuthorizationHelper
         {
             if ( ! ( service instanceof AuthorizationService ) )
             {
-                logger.info ( "Service does not implement AuthorizationService" );
+                logger.info ( "Service does not implement AuthorizationService" ); //$NON-NLS-1$
                 continue;
             }
             final AuthorizationResult result = ( (AuthorizationService)service ).authorize ( objectType, objectId, action, userInformation, unmodiContext );
             if ( result != null )
             {
-                logger.debug ( "Got result ({}). Returning ... ", result );
+                logger.debug ( "Got result ({}). Returning ... ", result ); //$NON-NLS-1$
                 return result;
             }
         }
