@@ -117,22 +117,22 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         public void setScript ( final ScriptEngine engine, final String script ) throws ScriptException
         {
             this.engine = engine;
-            if ( engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.sec.provider.script.disableCompile" ) )
+            if ( engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.sec.provider.script.disableCompile" ) ) //$NON-NLS-1$
             {
-                logger.debug ( "Pre-compiling script" );
+                logger.debug ( "Pre-compiling script" ); //$NON-NLS-1$
                 this.compiledScript = ( (Compilable)engine ).compile ( script );
             }
             else
             {
-                logger.debug ( "Not pre-compiling script" );
+                logger.debug ( "Not pre-compiling script" ); //$NON-NLS-1$
                 this.script = script;
             }
         }
 
         public AuthorizationResult run ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context, final ClassLoader classLoader ) throws ScriptException
         {
-            logger.debug ( "Checking authentication - objectType: {}, objectId: {}, action: {}, user: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } );
-            logger.debug ( "Pre-Filter - objectType: {}, objectId: {}, action: {}", new Object[] { this.objectType, this.objectId, this.action } );
+            logger.debug ( "Checking authentication - objectType: {}, objectId: {}, action: {}, user: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } ); //$NON-NLS-1$
+            logger.debug ( "Pre-Filter - objectType: {}, objectId: {}, action: {}", new Object[] { this.objectType, this.objectId, this.action } ); //$NON-NLS-1$
 
             if ( this.objectId != null && !this.objectId.matcher ( objectId ).matches () )
             {
@@ -151,12 +151,12 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
             final Bindings bindings = this.engine.createBindings ();
 
-            bindings.put ( "id", objectId );
-            bindings.put ( "type", objectType );
-            bindings.put ( "action", action );
-            bindings.put ( "user", userInformation );
-            bindings.put ( "GRANTED", AuthorizationResult.GRANTED );
-            bindings.put ( "context", context );
+            bindings.put ( "id", objectId ); //$NON-NLS-1$
+            bindings.put ( "type", objectType ); //$NON-NLS-1$
+            bindings.put ( "action", action ); //$NON-NLS-1$
+            bindings.put ( "user", userInformation ); //$NON-NLS-1$
+            bindings.put ( "GRANTED", AuthorizationResult.GRANTED ); //$NON-NLS-1$
+            bindings.put ( "context", context ); //$NON-NLS-1$
 
             final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
             try
@@ -164,12 +164,12 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
                 Thread.currentThread ().setContextClassLoader ( classLoader );
                 if ( this.compiledScript != null )
                 {
-                    logger.debug ( "Running pre-compiled script" );
+                    logger.debug ( "Running pre-compiled script" ); //$NON-NLS-1$
                     return generateResult ( this.compiledScript.eval ( bindings ) );
                 }
                 else
                 {
-                    logger.debug ( "Running script" );
+                    logger.debug ( "Running script" ); //$NON-NLS-1$
                     return generateResult ( this.engine.eval ( this.script, bindings ) );
                 }
             }
@@ -181,7 +181,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
 
         private AuthorizationResult generateResult ( final Object eval )
         {
-            logger.debug ( "Authentication result: {}", eval );
+            logger.debug ( "Authentication result: {}", eval ); //$NON-NLS-1$
 
             if ( eval == null )
             {
@@ -197,7 +197,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
                 }
                 else
                 {
-                    return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 1, SeverityLevel.ERROR ), "Request rejected" );
+                    return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 1, SeverityLevel.ERROR ), Messages.getString ( "ScriptAuthorizationProvider.error.1.message" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             }
 
@@ -210,7 +210,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
                 }
                 else
                 {
-                    return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 2, SeverityLevel.ERROR ), String.format ( "Request rejected (%s)", eval ) );
+                    return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 2, SeverityLevel.ERROR ), String.format ( Messages.getString ( "ScriptAuthorizationProvider.error.2.message" ), eval ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             }
 
@@ -223,13 +223,13 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
                 }
                 else
                 {
-                    return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 3, SeverityLevel.ERROR ), String.format ( eval.toString (), eval ) );
+                    return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 3, SeverityLevel.ERROR ), String.format ( eval.toString (), eval ) ); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
 
             if ( eval instanceof StatusCode )
             {
-                return AuthorizationResult.create ( (StatusCode)eval, "Request rejected" );
+                return AuthorizationResult.create ( (StatusCode)eval, Messages.getString ( "ScriptAuthorizationProvider.error.defaultMessage" ) ); //$NON-NLS-1$
             }
 
             if ( eval instanceof Throwable )
@@ -244,7 +244,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
             }
 
             // no more known results
-            return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 4, SeverityLevel.ERROR ), String.format ( "Request rejected - unknown result type: %s", eval ) );
+            return AuthorizationResult.create ( new StatusCode ( "OSSEC", "SCRIPT", 4, SeverityLevel.ERROR ), String.format ( Messages.getString ( "ScriptAuthorizationProvider.unknownResultType" ), eval ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
 
     }
@@ -362,16 +362,16 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         {
             Thread.currentThread ().setContextClassLoader ( classLoader );
 
-            final AuthorizationEntry entry = new AuthorizationEntry ( id, cfg.getIntegerChecked ( "priority", "'priority' must be set" ) );
+            final AuthorizationEntry entry = new AuthorizationEntry ( id, cfg.getIntegerChecked ( "priority", "'priority' must be set" ) ); //$NON-NLS-1$ //$NON-NLS-2$
 
-            final ScriptEngine engine = this.manager.getEngineByName ( cfg.getString ( "engine", "JavaScript" ) );
+            final ScriptEngine engine = this.manager.getEngineByName ( cfg.getString ( "engine", "JavaScript" ) ); //$NON-NLS-1$ //$NON-NLS-2$
             if ( engine == null )
             {
-                throw new IllegalArgumentException ( String.format ( "Script engine '%s' is unknown", engine ) );
+                throw new IllegalArgumentException ( String.format ( "Script engine '%s' is unknown", engine ) ); //$NON-NLS-1$
             }
 
-            entry.setPreFilter ( cfg.getString ( "for.id" ), cfg.getString ( "for.type" ), cfg.getString ( "for.action" ) );
-            entry.setScript ( engine, cfg.getString ( "script" ) );
+            entry.setPreFilter ( cfg.getString ( "for.id" ), cfg.getString ( "for.type" ), cfg.getString ( "for.action" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            entry.setScript ( engine, cfg.getString ( "script" ) ); //$NON-NLS-1$
 
             return entry;
         }

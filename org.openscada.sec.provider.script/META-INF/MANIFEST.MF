@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA Script Security Provider
+Bundle-Name: openSCADA Script Security Provider
 Bundle-SymbolicName: org.openscada.sec.provider.script
 Bundle-Version: 0.4.0.qualifier
 Bundle-Activator: org.openscada.sec.provider.script.Activator
