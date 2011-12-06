@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA Security Dummy Provider
+Bundle-Name: openSCADA Security Dummy Provider
 Bundle-SymbolicName: org.openscada.sec.provider.dummy
-Bundle-Version: 0.3.0.qualifier
+Bundle-Version: 0.4.0.qualifier
 Bundle-Activator: org.openscada.sec.provider.dummy.Activator
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.openscada.sec;version="0.3.0",
- org.osgi.framework;version="1.3.0"
+Import-Package: org.openscada.sec;version="0.4.0",
+ org.osgi.framework;version="1.6.0"

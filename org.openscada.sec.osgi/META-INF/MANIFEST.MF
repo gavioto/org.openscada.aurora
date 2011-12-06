@@ -1,15 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA Security OSGi
+Bundle-Name: openSCADA Security OSGi
 Bundle-SymbolicName: org.openscada.sec.osgi
-Bundle-Version: 0.3.0.qualifier
+Bundle-Version: 0.4.0.qualifier
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.openscada.sec;version="0.3.0",
+Import-Package: org.openscada.sec;version="0.4.0",
  org.openscada.utils.lang;version="0.15.0",
  org.openscada.utils.statuscodes;version="0.15.0",
- org.osgi.framework;version="1.3.0",
- org.osgi.util.tracker;version="1.4.2",
+ org.osgi.framework;version="1.6.0",
+ org.osgi.util.tracker;version="1.5.0",
  org.slf4j;version="1.5.0"
-Export-Package: org.openscada.sec.osgi;version="0.3.0";uses:="org.openscada.sec,org.osgi.framework,org.openscada.utils.statuscodes",
- org.openscada.sec.osgi.plain;version="0.3.0";uses:="org.openscada.sec"
+Export-Package: org.openscada.sec.osgi;version="0.4.0";uses:="org.openscada.sec,org.osgi.framework",
+ org.openscada.sec.osgi.plain;version="0.4.0";uses:="org.openscada.sec"

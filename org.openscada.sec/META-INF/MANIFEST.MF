@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: openSCADA Security
 Bundle-SymbolicName: org.openscada.sec
-Bundle-Version: 0.3.0.qualifier
+Bundle-Version: 0.4.0.qualifier
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.openscada.sec;version="0.3.0";uses:="org.openscada.utils.concurrent,org.openscada.utils.statuscodes"
+Export-Package: org.openscada.sec;version="0.4.0";uses:="org.openscada.utils.concurrent,org.openscada.utils.statuscodes"
 Import-Package: org.openscada.utils.concurrent;version="0.15.0",
  org.openscada.utils.lang;version="0.15.0",
  org.openscada.utils.statuscodes;version="0.15.0",
