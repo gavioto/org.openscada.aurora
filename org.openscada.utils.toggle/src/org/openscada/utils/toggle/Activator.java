@@ -32,7 +32,7 @@ public class Activator implements BundleActivator
 
     private ToggleServiceImpl service;
 
-    private ServiceRegistration registration;
+    private ServiceRegistration<ToggleService> registration;
 
     /*
      * (non-Javadoc)
@@ -44,7 +44,7 @@ public class Activator implements BundleActivator
         this.service = new ToggleServiceImpl ();
 
         final Dictionary<String, Object> props = new Hashtable<String, Object> ( 1 );
-        this.registration = context.registerService ( new String[] { ToggleService.class.getCanonicalName () }, this.service, props );
+        this.registration = context.registerService ( ToggleService.class, this.service, props );
         this.service.start ();
     }
 
