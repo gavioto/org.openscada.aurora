@@ -108,7 +108,6 @@ public class Activator implements BundleActivator
         properties.put ( Constants.SERVICE_DESCRIPTION, "A JDBC based configuration administrator" );
 
         this.serviceHandle = context.registerService ( new String[] { ConfigurationAdministrator.class.getName (), FreezableConfigurationAdministrator.class.getName () }, this.configAdmin, properties );
-
     }
 
     private static Properties getDataSourceProperties ()
@@ -118,14 +117,18 @@ public class Activator implements BundleActivator
 
     protected void unregister ()
     {
+        logger.info ( "Unregistering services" );
+
         if ( this.serviceHandle != null )
         {
+            logger.info ( "Unregistering CA" );
             this.serviceHandle.unregister ();
             this.serviceHandle = null;
         }
 
         if ( this.configAdmin != null )
         {
+            logger.info ( "Disposing CA" );
             this.configAdmin.dispose ();
             this.configAdmin = null;
         }

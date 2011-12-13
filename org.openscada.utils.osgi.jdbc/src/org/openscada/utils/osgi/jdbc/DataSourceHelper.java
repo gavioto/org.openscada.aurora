@@ -22,14 +22,22 @@ package org.openscada.utils.osgi.jdbc;
 import java.util.Map;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class DataSourceHelper
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( DataSourceHelper.class );
+
     private DataSourceHelper ()
     {
     }
 
     public static Properties getDataSourceProperties ( final String specificPrefix, final String defaultPrefix )
     {
+        logger.debug ( "Getting datasource properties - specific: {} / default: {}", specificPrefix, defaultPrefix );
+
         final Properties p = new Properties ();
 
         String prefix;
@@ -42,8 +50,12 @@ public final class DataSourceHelper
             prefix = defaultPrefix + ".properties.";
         }
 
+        logger.debug ( "Prefix is: {}", prefix );
+
         for ( final Map.Entry<Object, Object> entry : System.getProperties ().entrySet () )
         {
+            logger.debug ( "Checking entry - key: {}, value: {}", entry.getKey (), entry.getValue () );
+
             if ( entry.getKey () == null )
             {
                 continue;
@@ -52,6 +64,10 @@ public final class DataSourceHelper
             if ( key.startsWith ( prefix ) )
             {
                 // remove prefix and add as property
+                if ( logger.isDebugEnabled () )
+                {
+                    logger.debug ( "Adding entry - key: {}, value: {}", key.substring ( prefix.length () ), entry.getValue () );
+                }
                 p.put ( key.substring ( prefix.length () ), entry.getValue () );
             }
         }
