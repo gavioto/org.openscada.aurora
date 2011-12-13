@@ -95,6 +95,8 @@ public class Activator implements BundleActivator
 
     protected void register ( final DataSourceFactory service, final BundleContext context ) throws Exception
     {
+        logger.info ( "Registering services - service: {}, context: {}", service, context );
+
         final JdbcStorageDAO storage = new JdbcStorageDAOImpl ( service, getDataSourceProperties () );
 
         final ConfigurationAdministratorImpl configAdmin = new ConfigurationAdministratorImpl ( context, storage );
