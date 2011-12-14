@@ -677,10 +677,12 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
+                    logger.debug ( "Storing configuration - factory: {}, configuration: {}", factoryId, configurationId );
                     performStoreConfiguration ( userInformation, factoryId, configurationId, properties, fullSet, future );
                 }
                 catch ( final Throwable e )
                 {
+                    logger.debug ( "Failed to store configuration", e );
                     future.setError ( e );
                 }
             }
@@ -698,10 +700,12 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
+                    logger.debug ( "Deleting configuration - factory: {}, configuration: {}", factoryId, configurationId );
                     performDeleteConfiguration ( userInformation, factoryId, configurationId, future );
                 }
                 catch ( final Throwable e )
                 {
+                    logger.debug ( "Failed to delete configuration", e );
                     future.setError ( e );
                 }
             }
