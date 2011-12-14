@@ -23,9 +23,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.data.RowMapper;
@@ -75,6 +78,11 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
         this.accessor = new DataSourceConnectionAccessor ( dataSourceFactory, dataSourceProperties );
     }
 
+    protected List<Entry> internalLoad ( final ConnectionContext connectionContext, final String sql, final Object... parameters ) throws SQLException
+    {
+        return deChunk ( fixNulls ( connectionContext.query ( JdbcStorageDAOImpl.this.mapper, sql, parameters ) ) );
+    }
+
     protected List<Entry> load ( final String sql, final Object... parameters )
     {
         final List<Entry> result = this.accessor.doWithConnection ( new CommonConnectionTask<List<Entry>> () {
@@ -100,9 +108,9 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
         return load ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", this.tableName, defaultOrder ), this.instanceId, factoryId );
     }
 
-    private List<Entry> loadConfiguration ( final String factoryId, final String configurationId )
+    private List<Entry> loadConfiguration ( final ConnectionContext connectionContext, final String factoryId, final String configurationId ) throws SQLException
     {
-        return load ( String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), this.instanceId, factoryId, configurationId );
+        return internalLoad ( connectionContext, String.format ( "SELECT * FROM %s WHERE instance_id = ?  AND factory_id = ? AND configuration_id = ? %s", this.tableName, defaultOrder ), this.instanceId, factoryId, configurationId );
     }
 
     @Override
@@ -128,6 +136,7 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
             internalDeleteConfiguration ( connectionContext, factoryId, configurationId );
         }
 
+        final Set<String> keys = new LinkedHashSet<String> ();
         final List<Entry> toStore = new ArrayList<Entry> ();
         for ( final Map.Entry<String, String> entry : properties.entrySet () )
         {
@@ -143,8 +152,41 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
                 toStore.add ( dataEntry );
             }
 
-            // always delete
-            connectionContext.update ( String.format ( "DELETE FROM %s WHERE instance_id = ? AND factory_id = ? AND configuration_id = ? and ca_key=?", this.tableName ), this.instanceId, factoryId, configurationId, entry.getKey () );
+            keys.add ( entry.getKey () );
+        }
+
+        // always delete
+        if ( !keys.isEmpty () )
+        {
+            final Object[] parameters = new Object[3 + keys.size ()];
+
+            // fill first three parameters
+            parameters[0] = this.instanceId;
+            parameters[1] = factoryId;
+            parameters[2] = configurationId;
+
+            // append all other keys from the set
+            {
+                int i = 3;
+                final Iterator<String> iter = keys.iterator ();
+                while ( iter.hasNext () )
+                {
+                    parameters[i] = iter.next ();
+                    i++;
+                }
+            }
+
+            // construct the SQL statement
+            final StringBuilder sb = new StringBuilder ();
+            sb.append ( "DELETE FROM " ).append ( this.tableName ).append ( " WHERE instance_id = ? AND factory_id = ? AND configuration_id = ? and ca_key in (" );
+            for ( int i = 0; i < keys.size (); i++ )
+            {
+                sb.append ( i == 0 ? "?" : ", ?" );
+            }
+            sb.append ( ")" );
+
+            // trigger SQL
+            connectionContext.update ( sb.toString (), parameters );
         }
 
         // split up entries and store
@@ -155,7 +197,7 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
 
         // fetch result and return it
         final Map<String, String> result = new HashMap<String, String> ( 4 );
-        for ( final Entry entry : deChunk ( fixNulls ( loadConfiguration ( factoryId, configurationId ) ) ) )
+        for ( final Entry entry : loadConfiguration ( connectionContext, factoryId, configurationId ) )
         {
             if ( entry.getKey () != null )
             {
