@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -43,7 +43,7 @@ public class Activator implements BundleActivator, ServiceListener
 
     private HttpContext httpContext;
 
-    private ServiceReference serviceReference;
+    private ServiceReference<?> serviceReference;
 
     private ListServlet servlet;
 
@@ -51,14 +51,15 @@ public class Activator implements BundleActivator, ServiceListener
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
+    @Override
     public void start ( final BundleContext context ) throws Exception
     {
         this.context = context;
-        addService ( context.getServiceReference ( HttpService.class.getName () ) );
+        addService ( context.getServiceReference ( HttpService.class ) );
         context.addServiceListener ( this, String.format ( "(%s=%s)", Constants.OBJECTCLASS, HttpService.class.getName () ) );
     }
 
-    private void addService ( final ServiceReference serviceReference )
+    private void addService ( final ServiceReference<?> serviceReference )
     {
         if ( serviceReference == null )
         {
@@ -72,7 +73,7 @@ public class Activator implements BundleActivator, ServiceListener
         }
     }
 
-    private void removeService ( final ServiceReference serviceReference )
+    private void removeService ( final ServiceReference<?> serviceReference )
     {
         if ( serviceReference != this.serviceReference )
         {
@@ -118,11 +119,13 @@ public class Activator implements BundleActivator, ServiceListener
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop ( final BundleContext context ) throws Exception
     {
         this.context.removeServiceListener ( this );
     }
 
+    @Override
     public void serviceChanged ( final ServiceEvent event )
     {
         switch ( event.getType () )

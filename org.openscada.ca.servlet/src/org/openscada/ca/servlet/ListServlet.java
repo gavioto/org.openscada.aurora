@@ -51,17 +51,13 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class ListServlet extends HttpServlet
 {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = -4627580623796526837L;
 
-    private final ServiceTracker adminTracker;
+    private final ServiceTracker<ConfigurationAdministrator, ConfigurationAdministrator> adminTracker;
 
     public ListServlet ( final BundleContext context )
     {
-        this.adminTracker = new ServiceTracker ( context, ConfigurationAdministrator.class.getName (), null );
+        this.adminTracker = new ServiceTracker<ConfigurationAdministrator, ConfigurationAdministrator> ( context, ConfigurationAdministrator.class, null );
         this.adminTracker.open ();
     }
 
@@ -74,12 +70,7 @@ public class ListServlet extends HttpServlet
 
     protected ConfigurationAdministrator getAdmin ()
     {
-        final Object o = this.adminTracker.getService ();
-        if ( o instanceof ConfigurationAdministrator )
-        {
-            return (ConfigurationAdministrator)o;
-        }
-        return null;
+        return this.adminTracker.getService ();
     }
 
     @Override

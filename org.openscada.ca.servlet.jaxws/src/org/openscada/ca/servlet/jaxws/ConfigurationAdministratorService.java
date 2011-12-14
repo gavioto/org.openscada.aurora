@@ -49,7 +49,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 {
     private final static Logger logger = LoggerFactory.getLogger ( ConfigurationAdministratorService.class );
 
-    private final SingleServiceTracker tracker;
+    private final SingleServiceTracker<ConfigurationAdministrator> tracker;
 
     private volatile ConfigurationAdministrator service;
 
@@ -58,12 +58,12 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 
     public ConfigurationAdministratorService ( final BundleContext context )
     {
-        this.tracker = new SingleServiceTracker ( context, ConfigurationAdministrator.class.getName (), new SingleServiceListener () {
+        this.tracker = new SingleServiceTracker<ConfigurationAdministrator> ( context, ConfigurationAdministrator.class, new SingleServiceListener<ConfigurationAdministrator> () {
 
             @Override
-            public void serviceChange ( final ServiceReference reference, final Object service )
+            public void serviceChange ( final ServiceReference<ConfigurationAdministrator> reference, final ConfigurationAdministrator service )
             {
-                ConfigurationAdministratorService.this.setService ( (ConfigurationAdministrator)service );
+                ConfigurationAdministratorService.this.setService ( service );
             }
         } );
         this.tracker.open ();

@@ -20,6 +20,7 @@
 package org.openscada.sec;
 
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,6 +87,20 @@ public class UserInformation implements Serializable
         {
             this.roles = Collections.emptySet ();
         }
+    }
+
+    /**
+     * Create a user information object
+     * @param principal
+     * @return Returns the converted user information object or {@link #ANONYMOUS} if principal was <code>null</code>. Never returns <code>null</code>.
+     */
+    public static UserInformation fromPrincipal ( final Principal principal )
+    {
+        if ( principal == null )
+        {
+            return ANONYMOUS;
+        }
+        return new UserInformation ( principal.getName (), null );
     }
 
     public boolean isAnonymous ()
