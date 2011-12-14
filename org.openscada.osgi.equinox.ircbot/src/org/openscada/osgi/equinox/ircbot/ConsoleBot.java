@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -62,6 +62,7 @@ final class ConsoleBot extends PircBot
     {
         this.connector = new Thread ( new Runnable () {
 
+            @Override
             public void run ()
             {
                 ConsoleBot.this.connector ();
@@ -154,10 +155,10 @@ final class ConsoleBot extends PircBot
 
         try
         {
-            final ServiceReference[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
+            final ServiceReference<?>[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
             if ( refs != null )
             {
-                for ( final ServiceReference ref : refs )
+                for ( final ServiceReference<?> ref : refs )
                 {
                     if ( handleService ( sender, ref, command ) )
                     {
@@ -177,10 +178,10 @@ final class ConsoleBot extends PircBot
     {
         final StringBuilder sb = new StringBuilder ();
 
-        final ServiceReference[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
+        final ServiceReference<?>[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
         if ( refs != null )
         {
-            for ( final ServiceReference ref : refs )
+            for ( final ServiceReference<?> ref : refs )
             {
                 final Object o = Activator.getDefault ().getService ( ref );
                 try
@@ -217,7 +218,7 @@ final class ConsoleBot extends PircBot
         sendMessage ( sender, sw.getBuffer ().toString () );
     }
 
-    private boolean handleService ( final String sender, final ServiceReference ref, final String command ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
+    private boolean handleService ( final String sender, final ServiceReference<?> ref, final String command ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
     {
         final String toks[] = command.split ( " " );
         final LinkedList<String> args = new LinkedList<String> ( Arrays.asList ( toks ) );

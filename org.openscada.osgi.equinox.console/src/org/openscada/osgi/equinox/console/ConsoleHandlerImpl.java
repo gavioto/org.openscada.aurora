@@ -152,10 +152,10 @@ public class ConsoleHandlerImpl extends IoHandlerAdapter
 
         try
         {
-            final ServiceReference[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
+            final ServiceReference<?>[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
             if ( refs != null )
             {
-                for ( final ServiceReference ref : refs )
+                for ( final ServiceReference<?> ref : refs )
                 {
                     if ( handleService ( session, ref, command ) )
                     {
@@ -180,10 +180,10 @@ public class ConsoleHandlerImpl extends IoHandlerAdapter
     {
         final StringBuilder sb = new StringBuilder ();
 
-        final ServiceReference[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
+        final ServiceReference<?>[] refs = Activator.getDefault ().getServiceReferences ( CommandProvider.class.getName (), null );
         if ( refs != null )
         {
-            for ( final ServiceReference ref : refs )
+            for ( final ServiceReference<?> ref : refs )
             {
                 final Object o = Activator.getDefault ().getService ( ref );
                 try
@@ -209,7 +209,7 @@ public class ConsoleHandlerImpl extends IoHandlerAdapter
         session.write ( sw.getBuffer ().toString () );
     }
 
-    private boolean handleService ( final IoSession session, final ServiceReference ref, final String command ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
+    private boolean handleService ( final IoSession session, final ServiceReference<?> ref, final String command ) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
     {
         final String toks[] = command.split ( " " );
         final LinkedList<String> args = new LinkedList<String> ( Arrays.asList ( toks ) );
