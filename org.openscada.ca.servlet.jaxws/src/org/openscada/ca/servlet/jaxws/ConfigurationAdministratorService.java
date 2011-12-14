@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,7 +19,6 @@
 
 package org.openscada.ca.servlet.jaxws;
 
-import java.security.Principal;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
@@ -36,6 +35,7 @@ import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.ConfigurationInformation;
 import org.openscada.ca.DiffEntry;
 import org.openscada.ca.FactoryInformation;
+import org.openscada.sec.UserInformation;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.SingleServiceTracker;
@@ -175,7 +175,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 
         final Collection<Future<?>> jobs = new LinkedList<Future<?>> ();
 
-        jobs.add ( this.service.purgeFactory ( makePrincipal (), factoryId ) );
+        jobs.add ( this.service.purgeFactory ( makeUserInformation (), factoryId ) );
 
         complete ( timeout, jobs );
     }
@@ -190,7 +190,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 
         for ( final String id : configurations )
         {
-            jobs.add ( this.service.deleteConfiguration ( makePrincipal (), factoryId, id ) );
+            jobs.add ( this.service.deleteConfiguration ( makeUserInformation (), factoryId, id ) );
         }
 
         complete ( timeout, jobs );
@@ -221,7 +221,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 
         for ( final ConfigurationInformation cfg : configurations )
         {
-            jobs.add ( this.service.updateConfiguration ( makePrincipal (), factoryId, cfg.getId (), cfg.getData (), true ) );
+            jobs.add ( this.service.updateConfiguration ( makeUserInformation (), factoryId, cfg.getId (), cfg.getData (), true ) );
         }
 
         complete ( timeout, jobs );
@@ -237,7 +237,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
 
         for ( final ConfigurationInformation cfg : configurations )
         {
-            jobs.add ( this.service.createConfiguration ( makePrincipal (), factoryId, cfg.getId (), cfg.getData () ) );
+            jobs.add ( this.service.createConfiguration ( makeUserInformation (), factoryId, cfg.getId (), cfg.getData () ) );
         }
 
         complete ( timeout, jobs );
@@ -246,7 +246,7 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
     @Override
     public void applyDiff ( final Collection<DiffEntry> changeSet, final int timeout ) throws InterruptedException, ExecutionException, TimeoutException
     {
-        final NotifyFuture<Void> future = this.service.applyDiff ( makePrincipal (), changeSet );
+        final NotifyFuture<Void> future = this.service.applyDiff ( makeUserInformation (), changeSet );
 
         final Collection<NotifyFuture<Void>> result = new LinkedList<NotifyFuture<Void>> ();
         result.add ( future );
@@ -254,19 +254,12 @@ public class ConfigurationAdministratorService implements RemoteConfigurationAdm
         complete ( timeout, result );
     }
 
-    protected Principal makePrincipal ()
+    protected UserInformation makeUserInformation ()
     {
         final Object username = this.context.getMessageContext ().get ( "username" );
         if ( username instanceof String )
         {
-            return new Principal () {
-
-                @Override
-                public String getName ()
-                {
-                    return (String)username;
-                }
-            };
+            return new UserInformation ( (String)username, null );
         }
         return null;
     }

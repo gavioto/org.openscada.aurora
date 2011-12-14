@@ -19,7 +19,6 @@
 
 package org.openscada.ca.common;
 
-import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +40,7 @@ import org.openscada.ca.FactoryNotFoundException;
 import org.openscada.ca.FactoryState;
 import org.openscada.ca.FreezableConfigurationAdministrator;
 import org.openscada.ca.SelfManagedConfigurationFactory;
+import org.openscada.sec.UserInformation;
 import org.openscada.utils.concurrent.AbstractFuture;
 import org.openscada.utils.concurrent.FutureListener;
 import org.openscada.utils.concurrent.InstantErrorFuture;
@@ -345,21 +345,21 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
     }
 
-    protected abstract void performPurge ( Principal principal, String factoryId, PurgeFuture future ) throws Exception;
+    protected abstract void performPurge ( UserInformation userInformation, String factoryId, PurgeFuture future ) throws Exception;
 
-    protected abstract void performStoreConfiguration ( Principal principal, String factoryId, String configurationId, Map<String, String> properties, boolean fullSet, ConfigurationFuture future ) throws Exception;
+    protected abstract void performStoreConfiguration ( UserInformation userInformation, String factoryId, String configurationId, Map<String, String> properties, boolean fullSet, ConfigurationFuture future ) throws Exception;
 
-    protected abstract void performDeleteConfiguration ( Principal principal, String factoryId, String configurationId, ConfigurationFuture future ) throws Exception;
+    protected abstract void performDeleteConfiguration ( UserInformation userInformation, String factoryId, String configurationId, ConfigurationFuture future ) throws Exception;
 
     /**
      * Request a change of the configuration
-     * @param principal 
+     * @param userInformation 
      * @param factoryId
      * @param configurationId
      * @param properties
      * @param future
      */
-    protected synchronized void changeConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final ConfigurationFuture future )
+    protected synchronized void changeConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId, final Map<String, String> properties, final ConfigurationFuture future )
     {
         logger.info ( "Request to change configuration: {}/{} -> {}", new Object[] { factoryId, configurationId, properties } );
 
@@ -409,7 +409,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
                 @Override
                 public void run ()
                 {
-                    AbstractConfigurationAdministrator.this.applyConfiguration ( principal, future, factoryService, factory, applyConfiguration );
+                    AbstractConfigurationAdministrator.this.applyConfiguration ( userInformation, future, factoryService, factory, applyConfiguration );
                 }
             } );
         }
@@ -424,13 +424,13 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
      * <p>
      * This method can block for some while
      * </p>
-     * @param principal 
+     * @param userInformation 
      * @param future
      * @param factory 
      * @param factoryService 
      * @param configuration
      */
-    protected void applyConfiguration ( final Principal principal, final ConfigurationFuture future, final ConfigurationFactory factoryService, final FactoryImpl factory, final ConfigurationImpl configuration )
+    protected void applyConfiguration ( final UserInformation userInformation, final ConfigurationFuture future, final ConfigurationFactory factoryService, final FactoryImpl factory, final ConfigurationImpl configuration )
     {
         logger.info ( "Apply configuration: {}/{} -> {}", new Object[] { factory.getId (), configuration.getId (), configuration.getData () } );
 
@@ -440,12 +440,12 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             if ( properties != null )
             {
                 logger.debug ( "Update configuration" );
-                factoryService.update ( principal, configuration.getId (), properties );
+                factoryService.update ( userInformation, configuration.getId (), properties );
             }
             else
             {
                 logger.debug ( "Delete configuration: {}", configuration.getId () );
-                factoryService.delete ( principal, configuration.getId () );
+                factoryService.delete ( userInformation, configuration.getId () );
                 // FIXME: notify remove                
             }
             synchronized ( this )
@@ -474,7 +474,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     }
 
     @Override
-    public synchronized NotifyFuture<Void> purgeFactory ( final Principal principal, final String factoryId )
+    public synchronized NotifyFuture<Void> purgeFactory ( final UserInformation userInformation, final String factoryId )
     {
         logger.info ( "Request to purge: {}", factoryId );
 
@@ -486,7 +486,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokePurge ( principal, factoryId );
+            return invokePurge ( userInformation, factoryId );
         }
         else
         {
@@ -495,7 +495,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     }
 
     @Override
-    public synchronized NotifyFuture<Configuration> createConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties )
+    public synchronized NotifyFuture<Configuration> createConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId, final Map<String, String> properties )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -511,7 +511,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeStore ( principal, factoryId, configurationId, properties, true );
+            return invokeStore ( userInformation, factoryId, configurationId, properties, true );
         }
         else
         {
@@ -520,7 +520,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     }
 
     @Override
-    public synchronized NotifyFuture<Configuration> updateConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
+    public synchronized NotifyFuture<Configuration> updateConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -536,7 +536,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeStore ( principal, factoryId, configurationId, properties, fullSet );
+            return invokeStore ( userInformation, factoryId, configurationId, properties, fullSet );
         }
         else
         {
@@ -545,7 +545,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     }
 
     @Override
-    public synchronized NotifyFuture<Configuration> deleteConfiguration ( final Principal principal, final String factoryId, final String configurationId )
+    public synchronized NotifyFuture<Configuration> deleteConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId )
     {
         final FactoryImpl factory = getFactory ( factoryId );
         if ( factory == null )
@@ -561,7 +561,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
         if ( !factory.isSelfManaged () )
         {
-            return invokeDelete ( principal, factoryId, configurationId );
+            return invokeDelete ( userInformation, factoryId, configurationId );
         }
         else
         {
@@ -644,7 +644,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         }
     }
 
-    private NotifyFuture<Void> invokePurge ( final Principal principal, final String factoryId )
+    private NotifyFuture<Void> invokePurge ( final UserInformation userInformation, final String factoryId )
     {
         final PurgeFuture future = new PurgeFuture ();
         this.executor.execute ( new Runnable () {
@@ -654,7 +654,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
-                    performPurge ( principal, factoryId, future );
+                    performPurge ( userInformation, factoryId, future );
                 }
                 catch ( final Throwable e )
                 {
@@ -666,7 +666,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return future;
     }
 
-    private NotifyFuture<Configuration> invokeStore ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
+    private NotifyFuture<Configuration> invokeStore ( final UserInformation userInformation, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet )
     {
         final ConfigurationFuture future = new ConfigurationFuture ();
 
@@ -677,7 +677,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
-                    performStoreConfiguration ( principal, factoryId, configurationId, properties, fullSet, future );
+                    performStoreConfiguration ( userInformation, factoryId, configurationId, properties, fullSet, future );
                 }
                 catch ( final Throwable e )
                 {
@@ -688,7 +688,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         return future;
     }
 
-    private NotifyFuture<Configuration> invokeDelete ( final Principal principal, final String factoryId, final String configurationId )
+    private NotifyFuture<Configuration> invokeDelete ( final UserInformation userInformation, final String factoryId, final String configurationId )
     {
         final ConfigurationFuture future = new ConfigurationFuture ();
         this.executor.execute ( new Runnable () {
@@ -698,7 +698,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             {
                 try
                 {
-                    performDeleteConfiguration ( principal, factoryId, configurationId, future );
+                    performDeleteConfiguration ( userInformation, factoryId, configurationId, future );
                 }
                 catch ( final Throwable e )
                 {
@@ -858,7 +858,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     }
 
     @Override
-    public synchronized NotifyFuture<Void> applyDiff ( final Principal principal, final Collection<DiffEntry> changeSet )
+    public synchronized NotifyFuture<Void> applyDiff ( final UserInformation userInformation, final Collection<DiffEntry> changeSet )
     {
         final PatchFuture future = new PatchFuture ();
 
@@ -867,16 +867,16 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             switch ( entry.getOperation () )
             {
             case ADD:
-                future.addChild ( createConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData () ) );
+                future.addChild ( createConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData () ) );
                 break;
             case DELETE:
-                future.addChild ( deleteConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId () ) );
+                future.addChild ( deleteConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId () ) );
                 break;
             case UPDATE_SET:
-                future.addChild ( updateConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), true ) );
+                future.addChild ( updateConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), true ) );
                 break;
             case UPDATE_DIFF:
-                future.addChild ( updateConfiguration ( principal, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), false ) );
+                future.addChild ( updateConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), false ) );
                 break;
             }
         }

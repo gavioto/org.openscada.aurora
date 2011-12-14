@@ -38,7 +38,6 @@ package org.openscada.ca.jdbc.internal;
  * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
  */
 
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +49,7 @@ import java.util.Set;
 
 import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.common.ConfigurationImpl;
+import org.openscada.sec.UserInformation;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,15 +142,15 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
     }
 
     @Override
-    protected synchronized void performDeleteConfiguration ( final Principal principal, final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
+    protected synchronized void performDeleteConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
     {
         this.jdbcStorageDAO.deleteConfiguration ( factoryId, configurationId );
 
-        changeConfiguration ( principal, factoryId, configurationId, null, future );
+        changeConfiguration ( userInformation, factoryId, configurationId, null, future );
     }
 
     @Override
-    protected synchronized void performPurge ( final Principal principal, final String factoryId, final PurgeFuture future )
+    protected synchronized void performPurge ( final UserInformation userInformation, final String factoryId, final PurgeFuture future )
     {
         logger.info ( "Purging: {}", factoryId );
 
@@ -160,7 +160,7 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
             if ( done.add ( entry.getConfigurationId () ) )
             {
                 final ConfigurationFuture subFuture = new ConfigurationFuture ();
-                changeConfiguration ( principal, factoryId, entry.getConfigurationId (), null, subFuture );
+                changeConfiguration ( userInformation, factoryId, entry.getConfigurationId (), null, subFuture );
 
                 future.addChild ( subFuture );
             }
@@ -170,11 +170,11 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
     }
 
     @Override
-    protected synchronized void performStoreConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws Exception
+    protected synchronized void performStoreConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws Exception
     {
         final Map<String, String> resultProperties = this.jdbcStorageDAO.storeConfiguration ( factoryId, configurationId, properties, fullSet );
 
-        changeConfiguration ( principal, factoryId, configurationId, resultProperties, future );
+        changeConfiguration ( userInformation, factoryId, configurationId, resultProperties, future );
     }
 
 }

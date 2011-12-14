@@ -40,6 +40,7 @@ import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.DiffEntry;
 import org.openscada.ca.DiffEntry.Operation;
 import org.openscada.ca.Factory;
+import org.openscada.sec.UserInformation;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -224,7 +225,7 @@ public class JsonServlet extends HttpServlet
             final String factoryId = getRequiredString ( req, resp, "factory.id" );
             final String id = getRequiredString ( req, resp, "id" );
             final Map<String, String> properties = this.gson.fromJson ( req.getReader (), new TypeToken<Map<String, String>> () {}.getType () );
-            final Future<Configuration> future = this.configurationAdmin.createConfiguration ( req.getUserPrincipal (), factoryId, id, properties );
+            final Future<Configuration> future = this.configurationAdmin.createConfiguration ( UserInformation.fromPrincipal ( req.getUserPrincipal () ), factoryId, id, properties );
             this.gson.toJson ( future.get (), resp.getWriter () );
         }
         catch ( final Exception e )
@@ -242,7 +243,7 @@ public class JsonServlet extends HttpServlet
             final String id = getRequiredString ( req, resp, "id" );
             final String full = getOptionalString ( req, resp, "full", "" );
             final Map<String, String> properties = this.gson.fromJson ( req.getReader (), new TypeToken<Map<String, String>> () {}.getType () );
-            final Future<Configuration> future = this.configurationAdmin.updateConfiguration ( req.getUserPrincipal (), factoryId, id, properties, "full".equals ( full ) );
+            final Future<Configuration> future = this.configurationAdmin.updateConfiguration ( UserInformation.fromPrincipal ( req.getUserPrincipal () ), factoryId, id, properties, "full".equals ( full ) );
             this.gson.toJson ( future.get (), resp.getWriter () );
         }
         catch ( final Exception e )
@@ -258,7 +259,7 @@ public class JsonServlet extends HttpServlet
         {
             final String factoryId = getRequiredString ( req, resp, "factory.id" );
             final String id = getRequiredString ( req, resp, "id" );
-            final Future<Configuration> future = this.configurationAdmin.deleteConfiguration ( req.getUserPrincipal (), factoryId, id );
+            final Future<Configuration> future = this.configurationAdmin.deleteConfiguration ( UserInformation.fromPrincipal ( req.getUserPrincipal () ), factoryId, id );
             this.gson.toJson ( future.get (), resp.getWriter () );
         }
         catch ( final Exception e )
@@ -273,7 +274,7 @@ public class JsonServlet extends HttpServlet
         try
         {
             final String factoryId = getRequiredString ( req, resp, "factory.id" );
-            final Future<Void> future = this.configurationAdmin.purgeFactory ( req.getUserPrincipal (), factoryId );
+            final Future<Void> future = this.configurationAdmin.purgeFactory ( UserInformation.fromPrincipal ( req.getUserPrincipal () ), factoryId );
             this.gson.toJson ( future.get (), resp.getWriter () );
         }
         catch ( final Exception e )
@@ -354,7 +355,7 @@ public class JsonServlet extends HttpServlet
         try
         {
             final Collection<DiffEntry> changeSet = this.gson.fromJson ( req.getReader (), new TypeToken<Collection<DiffEntry>> () {}.getType () );
-            final Future<Void> future = this.configurationAdmin.applyDiff ( req.getUserPrincipal (), changeSet );
+            final Future<Void> future = this.configurationAdmin.applyDiff ( UserInformation.fromPrincipal ( req.getUserPrincipal () ), changeSet );
             future.get ();
             resp.getWriter ().print ( changeSet.size () + " applied" );
         }

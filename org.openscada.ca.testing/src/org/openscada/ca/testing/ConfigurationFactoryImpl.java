@@ -19,11 +19,11 @@
 
 package org.openscada.ca.testing;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openscada.ca.ConfigurationFactory;
+import org.openscada.sec.UserInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory
     private final Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>> ();
 
     @Override
-    public void update ( final Principal principal, final String configurationId, final Map<String, String> properties ) throws NumberFormatException, InterruptedException
+    public void update ( final UserInformation userInformation, final String configurationId, final Map<String, String> properties ) throws NumberFormatException, InterruptedException
     {
         logger.info ( String.format ( "Updating configuration: %s (%s)", configurationId, properties ) );
 
@@ -50,7 +50,7 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory
     }
 
     @Override
-    public void delete ( final Principal principal, final String configurationId ) throws NumberFormatException, InterruptedException
+    public void delete ( final UserInformation userInformation, final String configurationId ) throws NumberFormatException, InterruptedException
     {
         logger.info ( "Deleting: " + configurationId );
 

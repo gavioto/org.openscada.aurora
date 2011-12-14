@@ -19,7 +19,6 @@
 
 package org.openscada.sec.provider.script;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -311,12 +310,12 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
     }
 
     @Override
-    public void delete ( final Principal principal, final String configurationId ) throws Exception
+    public void delete ( final UserInformation userInformation, final String configurationId ) throws Exception
     {
         try
         {
             this.writeLock.lock ();
-            internalDelete ( principal, configurationId );
+            internalDelete ( userInformation, configurationId );
             Collections.sort ( this.configuration, this.comparator );
         }
         finally
@@ -325,7 +324,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         }
     }
 
-    private void internalDelete ( final Principal principal, final String configurationId )
+    private void internalDelete ( final UserInformation userInformation, final String configurationId )
     {
         for ( final Iterator<AuthorizationEntry> i = this.configuration.iterator (); i.hasNext (); )
         {
@@ -338,13 +337,13 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
     }
 
     @Override
-    public void update ( final Principal principal, final String configurationId, final Map<String, String> properties ) throws Exception
+    public void update ( final UserInformation userInformation, final String configurationId, final Map<String, String> properties ) throws Exception
     {
-        final AuthorizationEntry entry = createEntry ( principal, configurationId, new ConfigurationDataHelper ( properties ) );
+        final AuthorizationEntry entry = createEntry ( userInformation, configurationId, new ConfigurationDataHelper ( properties ) );
         try
         {
             this.writeLock.lock ();
-            internalDelete ( principal, configurationId );
+            internalDelete ( userInformation, configurationId );
             this.configuration.add ( entry );
             Collections.sort ( this.configuration, this.comparator );
         }
@@ -354,7 +353,7 @@ public class ScriptAuthorizationProvider implements AuthorizationService, Config
         }
     }
 
-    private AuthorizationEntry createEntry ( final Principal principal, final String id, final ConfigurationDataHelper cfg ) throws Exception
+    private AuthorizationEntry createEntry ( final UserInformation userInformation, final String id, final ConfigurationDataHelper cfg ) throws Exception
     {
         final ClassLoader classLoader = Thread.currentThread ().getContextClassLoader ();
 

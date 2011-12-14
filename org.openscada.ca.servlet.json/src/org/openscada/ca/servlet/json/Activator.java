@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -36,9 +36,9 @@ public class Activator implements BundleActivator
 
     private BundleContext context;
 
-    private ServiceTracker configurationAdminTracker;
+    private ServiceTracker<ConfigurationAdministrator, ConfigurationAdministrator> configurationAdminTracker;
 
-    private ServiceTracker httpServiceTracker;
+    private ServiceTracker<HttpService, HttpService> httpServiceTracker;
 
     private ConfigurationAdministrator configurationAdmin;
 
@@ -52,42 +52,46 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
+    @Override
     public void start ( final BundleContext context ) throws Exception
     {
         this.context = context;
 
-        final ServiceTrackerCustomizer configurationAdminCustomizer = createConfigurationAdminCustomizer ();
-        this.configurationAdminTracker = new ServiceTracker ( context, ConfigurationAdministrator.class.getName (), configurationAdminCustomizer );
-        final ServiceTrackerCustomizer httpServiceCustomizer = createHttpServiceCustomizer ();
-        this.httpServiceTracker = new ServiceTracker ( context, HttpService.class.getName (), httpServiceCustomizer );
+        final ServiceTrackerCustomizer<ConfigurationAdministrator, ConfigurationAdministrator> configurationAdminCustomizer = createConfigurationAdminCustomizer ();
+        this.configurationAdminTracker = new ServiceTracker<ConfigurationAdministrator, ConfigurationAdministrator> ( context, ConfigurationAdministrator.class, configurationAdminCustomizer );
+        final ServiceTrackerCustomizer<HttpService, HttpService> httpServiceCustomizer = createHttpServiceCustomizer ();
+        this.httpServiceTracker = new ServiceTracker<HttpService, HttpService> ( context, HttpService.class, httpServiceCustomizer );
 
         this.configurationAdminTracker.open ();
         this.httpServiceTracker.open ();
     }
 
-    private ServiceTrackerCustomizer createConfigurationAdminCustomizer ()
+    private ServiceTrackerCustomizer<ConfigurationAdministrator, ConfigurationAdministrator> createConfigurationAdminCustomizer ()
     {
-        return new ServiceTrackerCustomizer () {
-            public Object addingService ( final ServiceReference reference )
+        return new ServiceTrackerCustomizer<ConfigurationAdministrator, ConfigurationAdministrator> () {
+            @Override
+            public ConfigurationAdministrator addingService ( final ServiceReference<ConfigurationAdministrator> reference )
             {
-                final Object service = Activator.this.context.getService ( reference );
+                final ConfigurationAdministrator service = Activator.this.context.getService ( reference );
                 synchronized ( Activator.this )
                 {
                     if ( Activator.this.configurationAdmin == null )
                     {
-                        Activator.this.configurationAdmin = (ConfigurationAdministrator)service;
+                        Activator.this.configurationAdmin = service;
                         Activator.this.bind ();
                     }
                 }
                 return service;
             }
 
-            public void modifiedService ( final ServiceReference reference, final Object service )
+            @Override
+            public void modifiedService ( final ServiceReference<ConfigurationAdministrator> reference, final ConfigurationAdministrator service )
             {
                 // pass
             }
 
-            public void removedService ( final ServiceReference reference, final Object service )
+            @Override
+            public void removedService ( final ServiceReference<ConfigurationAdministrator> reference, final ConfigurationAdministrator service )
             {
                 synchronized ( Activator.this )
                 {
@@ -103,29 +107,32 @@ public class Activator implements BundleActivator
         };
     }
 
-    private ServiceTrackerCustomizer createHttpServiceCustomizer ()
+    private ServiceTrackerCustomizer<HttpService, HttpService> createHttpServiceCustomizer ()
     {
-        return new ServiceTrackerCustomizer () {
-            public Object addingService ( final ServiceReference reference )
+        return new ServiceTrackerCustomizer<HttpService, HttpService> () {
+            @Override
+            public HttpService addingService ( final ServiceReference<HttpService> reference )
             {
-                final Object service = Activator.this.context.getService ( reference );
+                final HttpService service = Activator.this.context.getService ( reference );
                 synchronized ( Activator.this )
                 {
                     if ( Activator.this.httpService == null )
                     {
-                        Activator.this.httpService = (HttpService)service;
+                        Activator.this.httpService = service;
                         Activator.this.bind ();
                     }
                 }
                 return service;
             }
 
-            public void modifiedService ( final ServiceReference reference, final Object service )
+            @Override
+            public void modifiedService ( final ServiceReference<HttpService> reference, final HttpService service )
             {
                 // pass
             }
 
-            public void removedService ( final ServiceReference reference, final Object service )
+            @Override
+            public void removedService ( final ServiceReference<HttpService> reference, final HttpService service )
             {
                 synchronized ( Activator.this )
                 {
@@ -178,6 +185,7 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop ( final BundleContext context ) throws Exception
     {
         this.httpServiceTracker.close ();

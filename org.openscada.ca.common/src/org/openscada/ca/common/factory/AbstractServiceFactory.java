@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,11 +19,11 @@
 
 package org.openscada.ca.common.factory;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openscada.ca.ConfigurationFactory;
+import org.openscada.sec.UserInformation;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -56,7 +56,7 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
     }
 
     @Override
-    public synchronized void delete ( final Principal principal, final String configurationId ) throws Exception
+    public synchronized void delete ( final UserInformation information, final String configurationId ) throws Exception
     {
         final ServiceRegistration<?> reg = this.regs.remove ( configurationId );
         if ( reg != null )
@@ -73,21 +73,21 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
     }
 
     @Override
-    public synchronized void update ( final Principal principal, final String configurationId, final Map<String, String> properties ) throws Exception
+    public synchronized void update ( final UserInformation information, final String configurationId, final Map<String, String> properties ) throws Exception
     {
         final Service service = this.instances.get ( configurationId );
         if ( service != null )
         {
             // update
-            service.update ( principal, properties );
+            service.update ( information, properties );
         }
         else
         {
             // create
-            final Service newService = createService ( principal, configurationId, properties );
+            final Service newService = createService ( information, configurationId, properties );
             if ( newService != null )
             {
-                final ServiceRegistration<?> reg = registerService ( principal, this.context, configurationId, newService );
+                final ServiceRegistration<?> reg = registerService ( information, this.context, configurationId, newService );
 
                 if ( reg != null )
                 {
@@ -102,8 +102,8 @@ public abstract class AbstractServiceFactory implements ConfigurationFactory
         }
     }
 
-    protected abstract Service createService ( Principal principal, String configurationId, Map<String, String> properties ) throws Exception;
+    protected abstract Service createService ( UserInformation information, String configurationId, Map<String, String> properties ) throws Exception;
 
-    protected abstract ServiceRegistration<?> registerService ( Principal principal, BundleContext context, String configurationId, Service service );
+    protected abstract ServiceRegistration<?> registerService ( UserInformation information, BundleContext context, String configurationId, Service service );
 
 }

@@ -19,12 +19,12 @@
 
 package org.openscada.ca.common.factory;
 
-import java.security.Principal;
 import java.util.Map;
 
+import org.openscada.sec.UserInformation;
 import org.openscada.utils.lang.Disposable;
 
 public interface Service extends Disposable
 {
-    public void update ( Principal principal, Map<String, String> properties ) throws Exception;
+    public void update ( UserInformation userInformation, Map<String, String> properties ) throws Exception;
 }

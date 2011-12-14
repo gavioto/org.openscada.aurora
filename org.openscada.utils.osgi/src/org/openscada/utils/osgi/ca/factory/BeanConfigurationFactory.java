@@ -19,12 +19,12 @@
 
 package org.openscada.utils.osgi.ca.factory;
 
-import java.security.Principal;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean2;
+import org.openscada.sec.UserInformation;
 import org.openscada.utils.lang.Disposable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -112,7 +112,7 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
     }
 
     @Override
-    protected Entry<BeanServiceInstance> createService ( final Principal principal, final String configurationId, final BundleContext context, final Map<String, String> parameters ) throws Exception
+    protected Entry<BeanServiceInstance> createService ( final UserInformation userInformation, final String configurationId, final BundleContext context, final Map<String, String> parameters ) throws Exception
     {
         final BeanServiceInstance bean = new BeanServiceInstance ( this.beanClazz.newInstance () );
 
@@ -129,7 +129,7 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
     }
 
     @Override
-    protected void disposeService ( final Principal principal, final String id, final BeanServiceInstance service )
+    protected void disposeService ( final UserInformation userInformation, final String id, final BeanServiceInstance service )
     {
         if ( service instanceof Disposable )
         {
@@ -138,7 +138,7 @@ public class BeanConfigurationFactory extends AbstractServiceConfigurationFactor
     }
 
     @Override
-    protected Entry<BeanConfigurationFactory.BeanServiceInstance> updateService ( final Principal principal, final String configurationId, final Entry<BeanConfigurationFactory.BeanServiceInstance> entry, final Map<String, String> parameters ) throws Exception
+    protected Entry<BeanConfigurationFactory.BeanServiceInstance> updateService ( final UserInformation userInformation, final String configurationId, final Entry<BeanConfigurationFactory.BeanServiceInstance> entry, final Map<String, String> parameters ) throws Exception
     {
         entry.getService ().update ( parameters );
         entry.getHandle ().setProperties ( entry.getService ().getProperties () );

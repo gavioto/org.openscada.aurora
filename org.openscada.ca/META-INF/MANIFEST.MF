@@ -7,7 +7,8 @@ Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.openscada.ca;version="0.18.0";uses:="org.openscada.utils.concurrent"
 Bundle-License: http://opensource.org/licenses/lgpl-2.1.php
-Import-Package: org.openscada.utils;version="0.15.0",
+Import-Package: org.openscada.sec;version="0.4.0",
+ org.openscada.utils;version="0.15.0",
  org.openscada.utils.concurrent;version="0.15.0",
  org.openscada.utils.lang;version="0.15.0",
  org.openscada.utils.propertyeditors;version="0.15.0"

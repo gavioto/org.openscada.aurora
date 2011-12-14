@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +37,7 @@ import java.util.Properties;
 
 import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.common.ConfigurationImpl;
+import org.openscada.sec.UserInformation;
 import org.openscada.utils.str.StringReplacer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -313,7 +313,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    protected void performPurge ( final Principal principal, final String factoryId, final PurgeFuture future ) throws Exception
+    protected void performPurge ( final UserInformation userInformation, final String factoryId, final PurgeFuture future ) throws Exception
     {
         logger.info ( "Request to delete: {}", factoryId );
 
@@ -330,7 +330,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             final String id = idFromFile ( file );
 
             final ConfigurationFuture subFuture = new ConfigurationFuture ();
-            changeConfiguration ( principal, factoryId, id, null, subFuture );
+            changeConfiguration ( userInformation, factoryId, id, null, subFuture );
 
             future.addChild ( subFuture );
 
@@ -347,7 +347,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    protected void performStoreConfiguration ( final Principal principal, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws FileNotFoundException, IOException
+    protected void performStoreConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId, final Map<String, String> properties, final boolean fullSet, final ConfigurationFuture future ) throws FileNotFoundException, IOException
     {
         if ( this.root == null )
         {
@@ -404,7 +404,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
 
         // notify the abstract service from our content change
-        changeConfiguration ( principal, factoryId, configurationId, newProperties, future );
+        changeConfiguration ( userInformation, factoryId, configurationId, newProperties, future );
     }
 
     private File getFactoryPath ( final String factoryId ) throws UnsupportedEncodingException
@@ -419,7 +419,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
     }
 
     @Override
-    protected void performDeleteConfiguration ( final Principal principal, final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
+    protected void performDeleteConfiguration ( final UserInformation userInformation, final String factoryId, final String configurationId, final ConfigurationFuture future ) throws Exception
     {
         final File path = getFactoryPath ( factoryId );
 
@@ -433,6 +433,6 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
         }
 
         // notify the abstract service from our content change
-        changeConfiguration ( principal, factoryId, configurationId, null, future );
+        changeConfiguration ( userInformation, factoryId, configurationId, null, future );
     }
 }

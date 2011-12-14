@@ -19,25 +19,26 @@
 
 package org.openscada.ca;
 
-import java.security.Principal;
 import java.util.Map;
+
+import org.openscada.sec.UserInformation;
 
 public interface ConfigurationFactory
 {
     /**
      * receive configuration update
-     * @param principal the principal that performed the change, may be <code>null</code>
+     * @param userInformation the principal that performed the change, may be <code>null</code>
      * @param configurationId the configuration object to change
      * @param properties the new properties
      * @throws Exception can be thrown if anything goes wrong changing the configuration
      */
-    public void update ( Principal principal, String configurationId, Map<String, String> properties ) throws Exception;
+    public void update ( UserInformation userInformation, String configurationId, Map<String, String> properties ) throws Exception;
 
     /**
      * receive configuration delete request
-     * @param principal the principal that performed the change, may be <code>null</code>
+     * @param userInformation the principal that performed the change, may be <code>null</code>
      * @param configurationId the configuration object to change
      * @throws Exception can be thrown if anything goes wrong changing the configuration
      */
-    public void delete ( Principal principal, String configurationId ) throws Exception;
+    public void delete ( final UserInformation userInformation, String configurationId ) throws Exception;
 }
