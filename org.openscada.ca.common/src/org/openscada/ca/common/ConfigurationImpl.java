@@ -44,26 +44,31 @@ public class ConfigurationImpl implements Configuration
         this.data = new HashMap<String, String> ( data );
     }
 
+    @Override
     public String getFactoryId ()
     {
         return this.factoryId;
     }
 
+    @Override
     public Map<String, String> getData ()
     {
         return this.data;
     }
 
+    @Override
     public Throwable getErrorInformation ()
     {
         return this.error;
     }
 
+    @Override
     public String getId ()
     {
         return this.id;
     }
 
+    @Override
     public ConfigurationState getState ()
     {
         return this.state;
@@ -80,4 +85,14 @@ public class ConfigurationImpl implements Configuration
         this.error = e;
     }
 
+    @Override
+    public String toString ()
+    {
+        final StringBuilder sb = new StringBuilder ();
+
+        sb.append ( "[" ).append ( this.factoryId ).append ( "/" ).append ( this.id ).append ( "]=" );
+        sb.append ( this.data );
+
+        return sb.toString ();
+    }
 }
