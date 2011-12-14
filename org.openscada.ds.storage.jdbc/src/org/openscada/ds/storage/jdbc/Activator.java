@@ -53,7 +53,7 @@ public class Activator implements BundleActivator
 
     private static enum Type
     {
-        BSAE64,
+        BASE64,
         BLOB;
     }
 
@@ -106,7 +106,7 @@ public class Activator implements BundleActivator
                 logger.info ( "Registering BLOB implemenation" );
                 storage = new JdbcStorageDAOBlobImpl ( service, getDataSourceProperties () );
                 break;
-            case BSAE64:
+            case BASE64:
                 logger.info ( "Registering BASE64 implemenation" );
                 storage = new JdbcStorageDAOBase64Impl ( service, getDataSourceProperties () );
                 break;
