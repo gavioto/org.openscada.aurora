@@ -123,6 +123,7 @@ public abstract class CommonConnectionContext implements ConnectionContext
     @Override
     public void query ( final ResultSetProcessor resultSetProcessor, final String sql, final Object... parameters ) throws SQLException
     {
+        logger.trace ( "Preparing query SQL - {}", sql );
         final PreparedStatement stmt = getConnection ().prepareStatement ( sql );
         try
         {
@@ -171,7 +172,7 @@ public abstract class CommonConnectionContext implements ConnectionContext
     @Override
     public int update ( final String sql, final Object... parameters ) throws SQLException
     {
-        logger.trace ( "Preparing SQL - {}", sql );
+        logger.trace ( "Preparing update SQL - {}", sql );
 
         final PreparedStatement stmt = getConnection ().prepareStatement ( sql );
         try
