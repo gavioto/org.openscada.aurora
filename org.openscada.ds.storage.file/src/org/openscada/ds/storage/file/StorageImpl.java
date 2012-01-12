@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -27,11 +27,15 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.openscada.ds.DataNode;
 import org.openscada.ds.storage.AbstractStorage;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.InstantFuture;
+import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +49,15 @@ public class StorageImpl extends AbstractStorage
 
     private final File rootFolder;
 
-    public StorageImpl ( final Executor executor ) throws IOException
+    private final LinkedBlockingQueue<Runnable> taskQueue;
+
+    private final ThreadPoolExecutor executorService;
+
+    public StorageImpl () throws IOException
     {
-        super ( executor );
+        this.taskQueue = new LinkedBlockingQueue<Runnable> ();
+        this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, this.taskQueue, new NamedThreadFactory ( StorageImpl.class.getName () ) );
+
         this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.home" ) + File.separator + ".openscadaDS" ) );
         if ( !this.rootFolder.exists () )
         {
@@ -55,8 +65,21 @@ public class StorageImpl extends AbstractStorage
         }
         if ( !this.rootFolder.exists () || !this.rootFolder.isDirectory () )
         {
-            throw new IOException ( "Unable to use directory: " + this.rootFolder );
+            throw new IOException ( String.format ( "Unable to use directory: %s", this.rootFolder ) );
         }
+    }
+
+    @Override
+    protected Executor getExecutor ()
+    {
+        return this.executorService;
+    }
+
+    @Override
+    public void dispose ()
+    {
+        super.dispose ();
+        this.executorService.shutdown ();
     }
 
     @Override
@@ -122,6 +145,7 @@ public class StorageImpl extends AbstractStorage
         }
     }
 
+    @Override
     public synchronized NotifyFuture<Void> writeNode ( final DataNode node )
     {
         final File file = makeFile ( node.getId () );
@@ -161,6 +185,7 @@ public class StorageImpl extends AbstractStorage
         }
     }
 
+    @Override
     public synchronized NotifyFuture<Void> deleteNode ( final String nodeId )
     {
         final File file = makeFile ( nodeId );

@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -21,11 +21,8 @@ package org.openscada.ds.storage.file;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.openscada.ds.DataStore;
-import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -37,20 +34,17 @@ public class Activator implements BundleActivator
 
     private final static Logger logger = LoggerFactory.getLogger ( Activator.class );
 
-    private ExecutorService executor;
-
     private StorageImpl service;
 
     /*
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
+    @Override
     public void start ( final BundleContext context ) throws Exception
     {
         logger.info ( "Starting file based DS" );
-
-        this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
-        this.service = new StorageImpl ( this.executor );
+        this.service = new StorageImpl ();
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
         properties.put ( Constants.SERVICE_VENDOR, "TH4 SYSTEMS GmbH" );
         properties.put ( Constants.SERVICE_DESCRIPTION, "A file based data store implemenentation" );
@@ -61,10 +55,10 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop ( final BundleContext context ) throws Exception
     {
         this.service.dispose ();
-        this.executor.shutdown ();
     }
 
 }

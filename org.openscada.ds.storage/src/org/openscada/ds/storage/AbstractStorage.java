@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -36,23 +36,33 @@ public abstract class AbstractStorage implements DataStore
 
     private final static Logger logger = LoggerFactory.getLogger ( AbstractStorage.class );
 
-    protected final Executor executor;
-
     private final Multimap<String, DataListener> listeners = HashMultimap.create ();
 
-    public AbstractStorage ( final Executor executor )
-    {
-        this.executor = executor;
-    }
-
+    @Override
     public abstract NotifyFuture<DataNode> readNode ( final String nodeId );
 
+    /**
+     * Provide an executor for sending events
+     * <p>
+     * This method is only called after the constructor is completed
+     * </p>
+     * @return the executor to use, must never return <code>null</code>
+     */
+    protected abstract Executor getExecutor ();
+
+    /**
+     * Dispose the service.
+     * <p>
+     * This method still needs a valid executor using {@link #getExecutor()}.
+     * </p>
+     */
     public synchronized void dispose ()
     {
         for ( final DataListener listener : this.listeners.values () )
         {
-            this.executor.execute ( new Runnable () {
+            getExecutor ().execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     listener.nodeChanged ( null );
@@ -62,14 +72,16 @@ public abstract class AbstractStorage implements DataStore
         this.listeners.clear ();
     }
 
+    @Override
     public synchronized void attachListener ( final String nodeId, final DataListener listener )
     {
         if ( this.listeners.put ( nodeId, listener ) )
         {
             final NotifyFuture<DataNode> task = readNode ( nodeId );
 
-            this.executor.execute ( new Runnable () {
+            getExecutor ().execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     try
@@ -87,6 +99,7 @@ public abstract class AbstractStorage implements DataStore
         }
     }
 
+    @Override
     public synchronized void detachListener ( final String nodeId, final DataListener listener )
     {
         this.listeners.remove ( nodeId, listener );
@@ -96,8 +109,9 @@ public abstract class AbstractStorage implements DataStore
     {
         for ( final DataListener listener : this.listeners.get ( node.getId () ) )
         {
-            this.executor.execute ( new Runnable () {
+            getExecutor ().execute ( new Runnable () {
 
+                @Override
                 public void run ()
                 {
                     listener.nodeChanged ( node );

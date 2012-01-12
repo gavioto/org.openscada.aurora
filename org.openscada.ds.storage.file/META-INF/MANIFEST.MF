@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA DS File Storage
+Bundle-Name: openSCADA DS File Storage
 Bundle-SymbolicName: org.openscada.ds.storage.file
-Bundle-Version: 0.17.0.qualifier
+Bundle-Version: 0.18.0.qualifier
 Bundle-Activator: org.openscada.ds.storage.file.Activator
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

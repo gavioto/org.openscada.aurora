@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -22,7 +22,9 @@ package org.openscada.ds.storage.jdbc.internal;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.openscada.ds.DataNode;
 import org.openscada.ds.storage.AbstractStorage;
@@ -39,10 +41,22 @@ public class StorageImpl extends AbstractStorage
 
     private final JdbcStorageDAO storage;
 
+    private final ExecutorService executorService;
+
+    private final LinkedBlockingQueue<Runnable> taskQueue;
+
     public StorageImpl ( final JdbcStorageDAO storage )
     {
-        super ( Executors.newSingleThreadExecutor ( new NamedThreadFactory ( StorageImpl.class.getName () ) ) );
+        this.taskQueue = new LinkedBlockingQueue<Runnable> ();
+        this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, this.taskQueue, new NamedThreadFactory ( StorageImpl.class.getName () ) );
+
         this.storage = storage;
+    }
+
+    @Override
+    protected Executor getExecutor ()
+    {
+        return this.executorService;
     }
 
     @Override
@@ -50,13 +64,7 @@ public class StorageImpl extends AbstractStorage
     {
         super.dispose ();
 
-        final Executor executor = this.executor;
-
-        if ( executor instanceof ExecutorService )
-        {
-            ( (ExecutorService)executor ).shutdown ();
-        }
-
+        this.executorService.shutdown ();
         this.storage.dispose ();
     }
 
@@ -74,7 +82,7 @@ public class StorageImpl extends AbstractStorage
                 }
             } );
 
-            this.executor.execute ( task );
+            this.executorService.execute ( task );
             return task;
         }
         catch ( final Exception e )
@@ -108,7 +116,7 @@ public class StorageImpl extends AbstractStorage
                 }
             } );
 
-            this.executor.execute ( task );
+            this.executorService.execute ( task );
             return task;
         }
         catch ( final Exception e )
@@ -133,7 +141,7 @@ public class StorageImpl extends AbstractStorage
                 }
             } );
 
-            this.executor.execute ( task );
+            this.executorService.execute ( task );
             return task;
         }
         catch ( final Exception e )
