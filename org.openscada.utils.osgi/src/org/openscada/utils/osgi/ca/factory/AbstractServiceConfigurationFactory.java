@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -148,7 +148,7 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
      * Create a new service instance
      * <p>
      * The method must also register the service with the OSGi bundle context if needed. The service
-     * registration must then be places into the result that is returned. This is an optional step.
+     * registration must then be placed into the result that is returned. This is an optional step.
      * There is no need to register the created service.
      * </p>
      * @param principal 
