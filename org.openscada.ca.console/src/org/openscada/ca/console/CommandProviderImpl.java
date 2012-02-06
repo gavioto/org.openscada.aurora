@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -32,9 +32,9 @@ import org.osgi.util.tracker.ServiceTracker;
 public class CommandProviderImpl implements CommandProvider
 {
 
-    private ServiceRegistration reg;
+    private ServiceRegistration<CommandProvider> reg;
 
-    private ServiceTracker caTracker;
+    private ServiceTracker<FreezableConfigurationAdministrator, FreezableConfigurationAdministrator> caTracker;
 
     public CommandProviderImpl ()
     {
@@ -42,11 +42,11 @@ public class CommandProviderImpl implements CommandProvider
 
     public void start ( final BundleContext context )
     {
-        this.caTracker = new ServiceTracker ( context, FreezableConfigurationAdministrator.class.getName (), null );
+        this.caTracker = new ServiceTracker<FreezableConfigurationAdministrator, FreezableConfigurationAdministrator> ( context, FreezableConfigurationAdministrator.class, null );
         this.caTracker.open ();
 
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
-        this.reg = context.registerService ( CommandProvider.class.getName (), this, properties );
+        this.reg = context.registerService ( CommandProvider.class, this, properties );
     }
 
     public void stop ( final BundleContext context )
@@ -58,6 +58,7 @@ public class CommandProviderImpl implements CommandProvider
         this.reg = null;
     }
 
+    @Override
     public String getHelp ()
     {
         final StringBuilder sb = new StringBuilder ();
