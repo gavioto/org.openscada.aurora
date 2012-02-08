@@ -103,6 +103,7 @@
   	<openscada.builder.copyPlugin id="org.openscada.utils.propertyeditors" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.filter" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jdbc" />
+  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.autostart" />
   	
   	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.console" />
   	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.ircbot" />
