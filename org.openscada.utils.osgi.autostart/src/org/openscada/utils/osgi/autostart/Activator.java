@@ -29,6 +29,7 @@ import java.util.Properties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.startlevel.FrameworkStartLevel;
@@ -139,7 +140,7 @@ public class Activator implements BundleActivator
         }
     }
 
-    private void setStartLevel ( final String symbolicName, final int startLevel )
+    private void setStartLevel ( final String symbolicName, final int startLevel ) throws BundleException
     {
         final Bundle bundle = findBundle ( symbolicName );
         if ( bundle == null )
@@ -153,6 +154,7 @@ public class Activator implements BundleActivator
         }
 
         bundleStartLevel.setStartLevel ( startLevel < 0 ? this.defaultStartLevel : startLevel );
+        bundle.start ();
     }
 
     private Bundle findBundle ( final String symbolicName )
