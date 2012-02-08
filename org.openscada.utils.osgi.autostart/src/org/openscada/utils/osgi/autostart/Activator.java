@@ -78,7 +78,7 @@ public class Activator implements BundleActivator
 
     protected void loadStartLevels () throws IOException
     {
-        final String fileName = System.getProperty ( "org.openscada.utils.osgi.equinox.autostart", null );
+        final String fileName = System.getProperty ( "org.openscada.utils.osgi.equinox.autostart.file", null );
 
         this.bundleStartList.clear ();
 
