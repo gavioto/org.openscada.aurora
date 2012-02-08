@@ -61,7 +61,6 @@ public class Activator implements BundleActivator
                 try
                 {
                     this.defaultStartLevel = service.getInitialBundleStartLevel ();
-
                 }
                 finally
                 {
