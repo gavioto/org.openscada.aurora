@@ -29,11 +29,15 @@ import java.util.Properties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.startlevel.BundleStartLevel;
+import org.osgi.framework.startlevel.FrameworkStartLevel;
 
 public class Activator implements BundleActivator
 {
     private BundleContext context;
+
+    private int defaultStartLevel = 4;
 
     private final Map<String, Integer> bundleStartList = new LinkedHashMap<String, Integer> ();
 
@@ -45,6 +49,24 @@ public class Activator implements BundleActivator
     public void start ( final BundleContext bundleContext ) throws Exception
     {
         this.context = bundleContext;
+
+        final ServiceReference<FrameworkStartLevel> frameworkStartLevel = this.context.getServiceReference ( FrameworkStartLevel.class );
+        if ( frameworkStartLevel != null )
+        {
+            final FrameworkStartLevel service = this.context.getService ( frameworkStartLevel );
+            if ( service != null )
+            {
+                try
+                {
+                    this.defaultStartLevel = service.getInitialBundleStartLevel ();
+
+                }
+                finally
+                {
+                    this.context.ungetService ( frameworkStartLevel );
+                }
+            }
+        }
 
         loadStartLevels ();
 
@@ -86,6 +108,7 @@ public class Activator implements BundleActivator
 
     private void setStartLevel ( final String symbolicName, final int startLevel )
     {
+
         final Bundle bundle = findBundle ( symbolicName );
         if ( bundle == null )
         {
@@ -97,7 +120,7 @@ public class Activator implements BundleActivator
             return;
         }
 
-        bundleStartLevel.setStartLevel ( startLevel );
+        bundleStartLevel.setStartLevel ( startLevel < 0 ? this.defaultStartLevel : startLevel );
     }
 
     private Bundle findBundle ( final String symbolicName )
