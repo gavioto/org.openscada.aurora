@@ -32,6 +32,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.startlevel.FrameworkStartLevel;
+import org.osgi.service.log.LogService;
 
 public class Activator implements BundleActivator
 {
@@ -76,9 +77,41 @@ public class Activator implements BundleActivator
         }
     }
 
+    protected void log ( final int level, final String message )
+    {
+        final BundleContext context = this.context;
+        if ( context == null )
+        {
+            return;
+        }
+
+        final ServiceReference<LogService> ref = context.getServiceReference ( LogService.class );
+        if ( ref == null )
+        {
+            return;
+        }
+
+        final LogService service = context.getService ( ref );
+        if ( service == null )
+        {
+            return;
+        }
+
+        try
+        {
+            service.log ( level, message );
+        }
+        finally
+        {
+            context.ungetService ( ref );
+        }
+    }
+
     protected void loadStartLevels () throws IOException
     {
-        final String fileName = System.getProperty ( "org.openscada.utils.osgi.equinox.autostart.file", null );
+        final String fileName = System.getProperty ( "org.openscada.utils.osgi.autostart.file", null );
+
+        log ( LogService.LOG_INFO, String.format ( "Loading start bundles from: %s", fileName ) );
 
         this.bundleStartList.clear ();
 
@@ -108,7 +141,6 @@ public class Activator implements BundleActivator
 
     private void setStartLevel ( final String symbolicName, final int startLevel )
     {
-
         final Bundle bundle = findBundle ( symbolicName );
         if ( bundle == null )
         {
