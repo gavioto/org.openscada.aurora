@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -32,6 +32,11 @@ public final class DataSourceHelper
 
     private DataSourceHelper ()
     {
+    }
+
+    public static String getDriver ( final String specificPrefix, final String defaultPrefix )
+    {
+        return System.getProperty ( specificPrefix + ".driver", System.getProperty ( defaultPrefix + ".driver", null ) );
     }
 
     public static Properties getDataSourceProperties ( final String specificPrefix, final String defaultPrefix )
