@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -45,7 +45,7 @@ public class EndpointExporter implements ServiceListener
 
     private final String baseAddress;
 
-    private final Map<ServiceReference, Endpoint> endpoints = new HashMap<ServiceReference, Endpoint> ();
+    private final Map<ServiceReference<?>, Endpoint> endpoints = new HashMap<ServiceReference<?>, Endpoint> ();
 
     public EndpointExporter ( final BundleContext context, final String baseAddress ) throws InvalidSyntaxException
     {
@@ -56,10 +56,10 @@ public class EndpointExporter implements ServiceListener
         synchronized ( this )
         {
             context.addServiceListener ( this, filter );
-            final ServiceReference[] refs = context.getServiceReferences ( (String)null, filter );
+            final ServiceReference<?>[] refs = context.getServiceReferences ( (String)null, filter );
             if ( refs != null )
             {
-                for ( final ServiceReference ref : refs )
+                for ( final ServiceReference<?> ref : refs )
                 {
                     addService ( ref );
                 }
@@ -99,7 +99,7 @@ public class EndpointExporter implements ServiceListener
 
     }
 
-    private void removeService ( final ServiceReference serviceReference )
+    private void removeService ( final ServiceReference<?> serviceReference )
     {
         final Endpoint e;
         synchronized ( this )
@@ -124,7 +124,7 @@ public class EndpointExporter implements ServiceListener
         }
     }
 
-    private void addService ( final ServiceReference reference )
+    private void addService ( final ServiceReference<?> reference )
     {
         logger.debug ( "Found new service: {}", reference );
 
@@ -143,7 +143,7 @@ public class EndpointExporter implements ServiceListener
         }
     }
 
-    private void exportService ( final ServiceReference reference, final Object service )
+    private void exportService ( final ServiceReference<?> reference, final Object service )
     {
         logger.info ( "Exporting service: {} -> {}", new Object[] { reference } );
         Endpoint e = null;
@@ -205,7 +205,7 @@ public class EndpointExporter implements ServiceListener
         }
     }
 
-    private String makeAddress ( final ServiceReference reference, final Object service, final WebService webService )
+    private String makeAddress ( final ServiceReference<?> reference, final Object service, final WebService webService )
     {
         String serviceName = webService.serviceName ();
         if ( serviceName == null )
