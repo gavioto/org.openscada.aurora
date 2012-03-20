@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -42,13 +42,13 @@ public class FilterExpression implements Filter
         }
         else
         {
-            result.append ( "(" );
+            result.append ( "(" ); //$NON-NLS-1$
             result.append ( this.operator.toString () );
             for ( final Filter filter : this.filterSet )
             {
                 result.append ( filter.toString () );
             }
-            result.append ( ")" );
+            result.append ( ")" ); //$NON-NLS-1$
         }
         return result.toString ();
     }
@@ -68,16 +68,19 @@ public class FilterExpression implements Filter
         this.operator = operator;
     }
 
+    @Override
     public boolean isAssertion ()
     {
         return false;
     }
 
+    @Override
     public boolean isExpression ()
     {
         return true;
     }
 
+    @Override
     public boolean isEmpty ()
     {
         return this.operator == null;

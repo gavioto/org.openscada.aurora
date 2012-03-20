@@ -46,7 +46,7 @@ public class FilterParser
 
     public FilterParser ( final String filter ) throws FilterParseException
     {
-        if ( filter == null || "".equals ( filter.trim () ) )
+        if ( filter == null || "".equals ( filter.trim () ) ) //$NON-NLS-1$
         {
             this.filter = new FilterEmpty ();
             return;
@@ -68,15 +68,15 @@ public class FilterParser
                 {
                     expressionExpected = true;
                     final FilterExpression expression = new FilterExpression ();
-                    if ( "|".equals ( token.getValue () ) )
+                    if ( "|".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         expression.setOperator ( Operator.OR );
                     }
-                    else if ( "&".equals ( token.getValue () ) )
+                    else if ( "&".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         expression.setOperator ( Operator.AND );
                     }
-                    else if ( "!".equals ( token.getValue () ) )
+                    else if ( "!".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         expression.setOperator ( Operator.NOT );
                     }
@@ -93,40 +93,40 @@ public class FilterParser
                 }
                 if ( expressionExpected )
                 {
-                    throw new FilterParseException ( "expression expected" );
+                    throw new FilterParseException ( Messages.getString ( "FilterParser.Error.ExpressionExpected" ) ); //$NON-NLS-1$
                 }
                 if ( token instanceof TokenAttribute )
                 {
-                    currentAssertion = new FilterAssertion ( token.getValue (), null, "" );
+                    currentAssertion = new FilterAssertion ( token.getValue (), null, "" ); //$NON-NLS-1$
                     continue;
                 }
                 if ( token instanceof TokenAssertion )
                 {
-                    if ( "=".equals ( token.getValue () ) )
+                    if ( "=".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         currentAssertion.setAssertion ( Assertion.EQUALITY );
                     }
-                    else if ( ">=".equals ( token.getValue () ) )
+                    else if ( ">=".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         currentAssertion.setAssertion ( Assertion.GREATEREQ );
                     }
-                    else if ( ">".equals ( token.getValue () ) )
+                    else if ( ">".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         currentAssertion.setAssertion ( Assertion.GREATERTHAN );
                     }
-                    else if ( "<=".equals ( token.getValue () ) )
+                    else if ( "<=".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         currentAssertion.setAssertion ( Assertion.LESSEQ );
                     }
-                    else if ( "<".equals ( token.getValue () ) )
+                    else if ( "<".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         currentAssertion.setAssertion ( Assertion.LESSTHAN );
                     }
-                    else if ( "~=".equals ( token.getValue () ) )
+                    else if ( "~=".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         currentAssertion.setAssertion ( Assertion.APPROXIMATE );
                     }
-                    else if ( "=*".equals ( token.getValue () ) )
+                    else if ( "=*".equals ( token.getValue () ) ) //$NON-NLS-1$
                     {
                         currentAssertion.setAssertion ( Assertion.PRESENCE );
                     }
@@ -159,7 +159,7 @@ public class FilterParser
                         }
                         catch ( final EmptyStackException e )
                         {
-                            throw new FilterParseException ( "expression expected" );
+                            throw new FilterParseException ( Messages.getString ( "FilterParser.Error.ExpressionExpected" ) ); //$NON-NLS-1$
                         }
                     }
                     continue;
@@ -173,7 +173,7 @@ public class FilterParser
         validate ( result );
         if ( !result.toString ().equals ( filter ) )
         {
-            throw new FilterParseException ( "expression ambiguos; expected " + result.toString () );
+            throw new FilterParseException ( String.format ( Messages.getString ( "FilterParser.Error.ExpressionAmbiguous" ), result.toString () ) ); //$NON-NLS-1$
         }
         this.filter = result;
     }
@@ -182,22 +182,22 @@ public class FilterParser
     {
         if ( toValidate == null )
         {
-            throw new FilterParseException ( "no filter given" );
+            throw new FilterParseException ( Messages.getString ( "FilterParser.Error.NoFilterGiven" ) ); //$NON-NLS-1$
         }
         if ( toValidate.isAssertion () )
         {
             final FilterAssertion assertion = (FilterAssertion)toValidate;
             if ( assertion.getAttribute () == null )
             {
-                throw new FilterParseException ( "no attribute given" );
+                throw new FilterParseException ( Messages.getString ( "FilterParser.Error.NoAttributeGiven" ) ); //$NON-NLS-1$
             }
             if ( assertion.getAssertion () == null )
             {
-                throw new FilterParseException ( "no assertion given" );
+                throw new FilterParseException ( Messages.getString ( "FilterParser.Error.NoAssertionGiven" ) ); //$NON-NLS-1$
             }
             if ( assertion.getValue () == null )
             {
-                throw new FilterParseException ( "no value given" );
+                throw new FilterParseException ( Messages.getString ( "FilterParser.Error.NoValueGiven" ) ); //$NON-NLS-1$
             }
         }
         else if ( toValidate.isExpression () )
@@ -205,11 +205,11 @@ public class FilterParser
             final FilterExpression expression = (FilterExpression)toValidate;
             if ( expression.getOperator () == null )
             {
-                throw new FilterParseException ( "no operator given" );
+                throw new FilterParseException ( Messages.getString ( "FilterParser.Error.NoOperatorGiven" ) ); //$NON-NLS-1$
             }
             if ( expression.getFilterSet ().size () == 0 )
             {
-                throw new FilterParseException ( "missing sub expression" );
+                throw new FilterParseException ( Messages.getString ( "FilterParser.Error.MissingSubExpression" ) ); //$NON-NLS-1$
             }
         }
     }
@@ -221,18 +221,18 @@ public class FilterParser
 
     private Object toValue ( final FilterAssertion currentAssertion, final String value ) throws TokenizeException
     {
-        if ( currentAssertion.getAssertion () == Assertion.EQUALITY && value.contains ( "*" ) )
+        if ( currentAssertion.getAssertion () == Assertion.EQUALITY && value.contains ( "*" ) ) //$NON-NLS-1$
         {
             currentAssertion.setAssertion ( Assertion.SUBSTRING );
             final List<String> result = new ArrayList<String> ();
-            for ( final String part : value.split ( "\\*" ) )
+            for ( final String part : value.split ( "\\*" ) ) //$NON-NLS-1$
             {
                 result.add ( Encoder.decode ( part ) );
             }
             // split doesn't include trailing whitespace, so add it here manually
             if ( value.charAt ( value.length () - 1 ) == '*' )
             {
-                result.add ( "" );
+                result.add ( "" ); //$NON-NLS-1$
             }
             return result;
         }
