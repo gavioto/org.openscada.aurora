@@ -69,31 +69,31 @@ public enum Assertion
 
     public static Assertion fromString ( final String op )
     {
-        if ( "=".equals ( op ) )
+        if ( "=".equals ( op ) ) //$NON-NLS-1$
         {
             return EQUALITY;
         }
-        else if ( "=*".equals ( op ) )
+        else if ( "=*".equals ( op ) ) //$NON-NLS-1$
         {
             return PRESENCE;
         }
-        else if ( ">=".equals ( op ) )
+        else if ( ">=".equals ( op ) ) //$NON-NLS-1$
         {
             return GREATEREQ;
         }
-        else if ( ">".equals ( op ) )
+        else if ( ">".equals ( op ) ) //$NON-NLS-1$
         {
             return GREATERTHAN;
         }
-        else if ( "<=".equals ( op ) )
+        else if ( "<=".equals ( op ) ) //$NON-NLS-1$
         {
             return LESSEQ;
         }
-        else if ( "<".equals ( op ) )
+        else if ( "<".equals ( op ) ) //$NON-NLS-1$
         {
             return LESSTHAN;
         }
-        else if ( "~=".equals ( op ) )
+        else if ( "~=".equals ( op ) ) //$NON-NLS-1$
         {
             return APPROXIMATE;
         }
@@ -106,21 +106,21 @@ public enum Assertion
         switch ( this.op )
         {
         case 0:
-            return "=";
+            return "="; //$NON-NLS-1$
         case 1:
-            return "=*";
+            return "=*"; //$NON-NLS-1$
         case 2:
-            return "=";
+            return "="; //$NON-NLS-1$
         case 3:
-            return ">=";
+            return ">="; //$NON-NLS-1$
         case 4:
-            return "<=";
+            return "<="; //$NON-NLS-1$
         case 6:
-            return "~=";
+            return "~="; //$NON-NLS-1$
         case 7:
-            return "<";
+            return "<"; //$NON-NLS-1$
         case 8:
-            return ">";
+            return ">"; //$NON-NLS-1$
         }
         return null;
     }

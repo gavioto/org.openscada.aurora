@@ -73,16 +73,19 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
         this.filter = toParse.toCharArray ();
     }
 
+    @Override
     public Iterator<Token> iterator ()
     {
         return this;
     }
 
+    @Override
     public boolean hasNext ()
     {
         return this.filter != null && this.pos < this.filter.length;
     }
 
+    @Override
     public Token next ()
     {
         int overflow = 0;
@@ -91,7 +94,7 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
             overflow += 1;
             if ( this.pos >= this.filter.length || overflow > this.filter.length )
             {
-                throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
+                throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
             }
             final String currentChar = String.valueOf ( this.filter[this.pos] );
 
@@ -128,9 +131,9 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
             {
                 if ( this.pos + 1 >= this.filter.length )
                 {
-                    throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
+                    throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
                 }
-                final String lookahead = currentChar + this.filter[this.pos + 1] + ( this.filter.length > this.pos + 2 ? this.filter[this.pos + 2] : "" );
+                final String lookahead = currentChar + this.filter[this.pos + 1] + ( this.filter.length > this.pos + 2 ? this.filter[this.pos + 2] : "" ); //$NON-NLS-1$
                 if ( TokenAssertion.isAssertion ( lookahead ) )
                 {
                     this.isAssertion = true;
@@ -143,7 +146,7 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
                 {
                     if ( this.buffer == null )
                     {
-                        throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
+                        throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
                     }
                     this.buffer.append ( currentChar );
                     this.pos += 1;
@@ -156,17 +159,17 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
                 this.isAssertion = false;
                 this.isValue = true;
                 final String lookahead2 = currentChar + this.filter[this.pos + 1];
-                final String lookahead3 = currentChar + this.filter[this.pos + 1] + ( this.filter.length > this.pos + 2 ? this.filter[this.pos + 2] : "" );
+                final String lookahead3 = currentChar + this.filter[this.pos + 1] + ( this.filter.length > this.pos + 2 ? this.filter[this.pos + 2] : "" ); //$NON-NLS-1$
                 // special case for presence
-                if ( "=*)".equals ( lookahead3 ) )
+                if ( "=*)".equals ( lookahead3 ) ) //$NON-NLS-1$
                 {
                     this.pos += 2;
-                    return TokenAssertion.getByValue ( "=*" );
+                    return TokenAssertion.getByValue ( "=*" ); //$NON-NLS-1$
                 }
-                else if ( "=*".equals ( lookahead2 ) )
+                else if ( "=*".equals ( lookahead2 ) ) //$NON-NLS-1$
                 {
                     this.pos += 1;
-                    return TokenAssertion.getByValue ( "=" );
+                    return TokenAssertion.getByValue ( "=" ); //$NON-NLS-1$
                 }
                 // all others are handled regularly
                 if ( TokenAssertion.getByValue ( lookahead2 ) != null )
@@ -184,10 +187,11 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
                 this.pos += 1;
                 continue;
             }
-            throw new TokenizeException ( "incorrect Syntax at pos " + this.pos );
+            throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
         }
     }
 
+    @Override
     public void remove ()
     {
         throw new UnsupportedOperationException ();

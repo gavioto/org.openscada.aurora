@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -71,19 +71,22 @@ public class FilterAssertion implements Filter
     @Override
     public String toString ()
     {
-        return "(" + this.attribute + this.assertion.toString () + nullSafeToString ( this.value ) + ")";
+        return "(" + this.attribute + this.assertion.toString () + nullSafeToString ( this.value ) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    @Override
     public boolean isAssertion ()
     {
         return true;
     }
 
+    @Override
     public boolean isExpression ()
     {
         return false;
     }
 
+    @Override
     public boolean isEmpty ()
     {
         return this.assertion == null;
@@ -93,7 +96,7 @@ public class FilterAssertion implements Filter
     {
         if ( value == null )
         {
-            return "";
+            return ""; //$NON-NLS-1$
         }
         else if ( value instanceof Collection<?> )
         {
@@ -121,9 +124,9 @@ public class FilterAssertion implements Filter
         {
             if ( i > 0 && i < valueList.length )
             {
-                sb.append ( "*" );
+                sb.append ( "*" ); //$NON-NLS-1$
             }
-            sb.append ( part == null ? "" : Encoder.encode ( part.toString () ) );
+            sb.append ( part == null ? "" : Encoder.encode ( part.toString () ) ); //$NON-NLS-1$
             i += 1;
         }
         return sb.toString ();

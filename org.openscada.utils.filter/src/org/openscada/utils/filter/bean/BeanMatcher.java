@@ -65,13 +65,13 @@ public class BeanMatcher
             }
             else
             {
-                logger.warn ( "Filter no none of: empty, assertion or expression" );
+                logger.warn ( "Filter no none of: empty, assertion or expression" ); //$NON-NLS-1$
                 return ifEmpty;
             }
         }
         catch ( final Exception e )
         {
-            throw new RuntimeException ( "Failed to filter", e );
+            throw new RuntimeException ( Messages.getString("BeanMatcher.Error.FailedToFilter"), e ); //$NON-NLS-1$
         }
     }
 
@@ -276,7 +276,7 @@ public class BeanMatcher
         {
             try
             {
-                final Class propertyEditorClass = Class.forName ( clazz.getName () + "Editor" );
+                final Class propertyEditorClass = Class.forName ( clazz.getName () + "Editor" ); //$NON-NLS-1$
                 if ( propertyEditorClass != null )
                 {
                     editor = (PropertyEditor)propertyEditorClass.newInstance ();
@@ -284,13 +284,13 @@ public class BeanMatcher
             }
             catch ( final Exception e )
             {
-                throw new IllegalArgumentException ( String.format ( "Failed to convert '%s' to %s", stringValue, clazz ), e );
+                throw new IllegalArgumentException ( String.format ( Messages.getString("BeanMatcher.Error.FailedToConvert"), stringValue, clazz ), e ); //$NON-NLS-1$
             }
         }
 
         if ( editor == null )
         {
-            throw new IllegalArgumentException ( String.format ( "Unable to convert '%s' to %s", stringValue, clazz ) );
+            throw new IllegalArgumentException ( String.format ( Messages.getString("BeanMatcher.Error.UnableToConvert"), stringValue, clazz ) ); //$NON-NLS-1$
         }
 
         editor.setAsText ( stringValue );
@@ -301,13 +301,13 @@ public class BeanMatcher
     {
         final StringBuilder sb = new StringBuilder ();
 
-        sb.append ( "^" );
+        sb.append ( "^" ); //$NON-NLS-1$
 
         for ( final String token : collection )
         {
             if ( token.length () == 0 )
             {
-                sb.append ( ".*" );
+                sb.append ( ".*" ); //$NON-NLS-1$
             }
             else
             {
@@ -315,7 +315,7 @@ public class BeanMatcher
             }
         }
 
-        sb.append ( "$" );
+        sb.append ( "$" ); //$NON-NLS-1$
 
         return matchRegexString ( string, sb.toString () );
     }
