@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="project" default="default" basedir=".">
     <description>
-            Build Bootstrapper - 0.1.0
+            Build Bootstrapper - 0.1.1
     </description>
 
 	<property file="bootstrap.properties"/>
@@ -18,9 +18,11 @@
 
     	<!-- unzip -->
 
-    	<get src="${bootstrap.uri}" dest="builder.zip"/>
-    	<unzip dest="global" src="builder.zip"/>
-    	<delete file="builder.zip"/>
+    	<mkdir dir="input" />
+    	<delete file="input/builder.zip" failonerror="false" />
+    	
+    	<get src="${bootstrap.uri}" dest="input/builder.zip"/>
+    	<unzip dest="global" src="input/builder.zip"/>
     </target>
 
 </project>
