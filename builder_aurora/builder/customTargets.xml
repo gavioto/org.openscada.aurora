@@ -1,7 +1,9 @@
-<project name="Build specific targets and properties" default="noDefault" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="Build specific targets and properties" default="noDefault">
 
 	<property name="build.root" location=".."/>
-			
+	
+	<property file="${build.root}/sonar.properties"/>
+	
 	<import file="${build.root}/global/lib.xml"/>
 	
 	
@@ -203,7 +205,7 @@
   <!-- ===================================================================== -->
   <!-- Steps to do after  running package. -->
   <!-- ===================================================================== -->
-  <target name="postPackage">
+  <target name="postPackage" depends="doSonar">
   </target>
 
   <!-- ===================================================================== -->

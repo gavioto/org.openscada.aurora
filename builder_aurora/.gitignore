@@ -1,2 +1,6 @@
 /local.properties
 /global
+/input
+/sonar.properties
+/.sonar
+/logs
