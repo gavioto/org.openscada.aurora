@@ -6,7 +6,7 @@
 
 	<property file="bootstrap.properties"/>
 	
-	<property name="input.dir" location="../input"/>
+	<property name="input.dir" location="input"/>
 	
     <!-- ================================= 
           target: default
