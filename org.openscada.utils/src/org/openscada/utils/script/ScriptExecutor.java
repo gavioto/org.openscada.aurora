@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -31,9 +31,9 @@ import javax.script.ScriptException;
 
 /**
  * A wrapper to execute scripts
+ * 
  * @author Jens Reimann
- * @sicne 0.17.0
- *
+ * @since 0.17.0
  */
 public class ScriptExecutor
 {
@@ -52,9 +52,13 @@ public class ScriptExecutor
 
     /**
      * Construct a new script executors
-     * @param engine the script engine to use, must not be <code>null</code>
-     * @param command the command to execute, may be <code>null</code>
-     * @param classLoader the class loader to use when executing, may be <code>null</code>
+     * 
+     * @param engine
+     *            the script engine to use, must not be <code>null</code>
+     * @param command
+     *            the command to execute, may be <code>null</code>
+     * @param classLoader
+     *            the class loader to use when executing, may be <code>null</code>
      * @throws ScriptException
      */
     public ScriptExecutor ( final ScriptEngine engine, final String command, final ClassLoader classLoader ) throws ScriptException
