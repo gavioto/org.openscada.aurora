@@ -53,6 +53,8 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
 
     public PoolConnectionAccessor ( final DataSourceFactory dataSourceFactory, final Properties paramProperties ) throws SQLException
     {
+        logger.debug ( "Creating pool connection accessor : {}", paramProperties );
+
         // first remove all our properties
 
         this.connectionPool = new GenericObjectPool<Object> ( null );
@@ -98,6 +100,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof Number )
         {
+            logger.debug ( "Parameter value is numeric - %s -> %s", name, value );
             return ( (Number)value ).longValue ();
         }
 
@@ -105,6 +108,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
             if ( value != null )
             {
+                logger.debug ( "Parameter value is string - %s -> %s", name, value );
                 return Long.parseLong ( value.toString () );
             }
         }
@@ -112,7 +116,9 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
         }
 
-        return Long.getLong ( name, defaultValue );
+        final Long result = Long.getLong ( name, defaultValue );
+        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        return result;
     }
 
     private static Integer getInteger ( final Properties paramProperties, final String name, final Integer defaultValue )
@@ -120,6 +126,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof Number )
         {
+            logger.debug ( "Parameter value is numeric - %s -> %s", name, value );
             return ( (Number)value ).intValue ();
         }
 
@@ -127,6 +134,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
             if ( value != null )
             {
+                logger.debug ( "Parameter value is string - %s -> %s", name, value );
                 return Integer.parseInt ( value.toString () );
             }
         }
@@ -134,7 +142,9 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
         }
 
-        return Integer.getInteger ( name, defaultValue );
+        final Integer result = Integer.getInteger ( name, defaultValue );
+        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        return result;
     }
 
     private static boolean getBoolean ( final Properties paramProperties, final String name, final boolean defaultValue )
@@ -142,10 +152,12 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof Boolean )
         {
+            logger.debug ( "Parameter value is boolean - %s -> %s", name, value );
             return (Boolean)value;
         }
         if ( value instanceof Number )
         {
+            logger.debug ( "Parameter value is numeric - %s -> %s", name, value );
             return ( (Number)value ).intValue () != 0;
         }
 
@@ -153,6 +165,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
             if ( value != null )
             {
+                logger.debug ( "Parameter value is string - %s -> %s", name, value );
                 return Boolean.parseBoolean ( value.toString () );
             }
         }
@@ -160,7 +173,9 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
         }
 
-        return Boolean.parseBoolean ( System.getProperty ( name, "" + defaultValue ) );
+        final boolean result = Boolean.parseBoolean ( System.getProperty ( name, "" + defaultValue ) );
+        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        return result;
     }
 
     private static String getString ( final Properties paramProperties, final String name, final String defaultValue )
@@ -168,15 +183,20 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof String )
         {
+            logger.debug ( "Parameter value is string - %s -> %s", name, value );
             return (String)value;
         }
 
-        return System.getProperty ( name, defaultValue );
+        final String result = System.getProperty ( name, defaultValue );
+        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        return result;
     }
 
     @Override
     public void dispose ()
     {
+        logger.debug ( "Dispose" );
+
         super.dispose ();
 
         try
