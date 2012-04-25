@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -104,11 +104,11 @@ public class Activator implements BundleActivator
             {
             case BLOB:
                 logger.info ( "Registering BLOB implemenation" );
-                storage = new JdbcStorageDAOBlobImpl ( service, getDataSourceProperties () );
+                storage = new JdbcStorageDAOBlobImpl ( service, getDataSourceProperties (), isConnectionPool () );
                 break;
             case BASE64:
                 logger.info ( "Registering BASE64 implemenation" );
-                storage = new JdbcStorageDAOBase64Impl ( service, getDataSourceProperties () );
+                storage = new JdbcStorageDAOBase64Impl ( service, getDataSourceProperties (), isConnectionPool () );
                 break;
             }
         }
@@ -130,6 +130,11 @@ public class Activator implements BundleActivator
     private static Properties getDataSourceProperties ()
     {
         return DataSourceHelper.getDataSourceProperties ( "org.openscada.ds.storage.jdbc", "org.openscada.jdbc" );
+    }
+
+    private static boolean isConnectionPool ()
+    {
+        return DataSourceHelper.isConnectionPool ( "org.openscada.ds.storage.jdbc", "org.openscada.jdbc", false );
     }
 
     protected void unregister ()

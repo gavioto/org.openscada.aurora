@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -26,7 +26,9 @@ import java.util.Properties;
 
 import org.openscada.ds.DataNode;
 import org.openscada.utils.codec.Base64;
+import org.openscada.utils.osgi.jdbc.CommonConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
+import org.openscada.utils.osgi.jdbc.pool.PoolConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.task.CommonConnectionTask;
 import org.openscada.utils.osgi.jdbc.task.ConnectionContext;
 import org.osgi.service.jdbc.DataSourceFactory;
@@ -43,11 +45,11 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 
     private final String tableName = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
 
-    private final DataSourceConnectionAccessor accessor;
+    private final CommonConnectionAccessor accessor;
 
-    public JdbcStorageDAOBase64Impl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties ) throws SQLException
+    public JdbcStorageDAOBase64Impl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties, final boolean usePool ) throws SQLException
     {
-        this.accessor = new DataSourceConnectionAccessor ( dataSourceFactory, paramProperties );
+        this.accessor = usePool ? new PoolConnectionAccessor ( dataSourceFactory, paramProperties ) : new DataSourceConnectionAccessor ( dataSourceFactory, paramProperties );
         if ( this.chunkSize <= 0 )
         {
             this.chunkSize = Integer.MAX_VALUE;
