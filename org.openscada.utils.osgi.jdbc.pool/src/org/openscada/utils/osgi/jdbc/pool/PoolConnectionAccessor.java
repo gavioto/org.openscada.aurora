@@ -63,7 +63,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         this.connectionPool.setTestOnReturn ( getBoolean ( paramProperties, PREFIX + "testOnReturn", true ) );
 
         this.connectionPool.setTimeBetweenEvictionRunsMillis ( getLong ( paramProperties, PREFIX + "timeBetweenEvictionRunsMillis", -1 ) );
-        this.connectionPool.setMinEvictableIdleTimeMillis ( getLong ( paramProperties, PREFIX + "minEvictableIdleTimeMillis", -1 ) );
+        this.connectionPool.setMinEvictableIdleTimeMillis ( getLong ( paramProperties, PREFIX + "minEvictableIdleTimeMillis", 30 * 60 * 1000 ) );
         this.connectionPool.setTestWhileIdle ( getBoolean ( paramProperties, PREFIX + "testWhileIdle", false ) );
         this.connectionPool.setSoftMinEvictableIdleTimeMillis ( getLong ( paramProperties, PREFIX + "softMinEvictableIdleTimeMillis", -1 ) );
         this.connectionPool.setNumTestsPerEvictionRun ( getInteger ( paramProperties, PREFIX + "numTestsPerEvictionRun", 3 ) );
