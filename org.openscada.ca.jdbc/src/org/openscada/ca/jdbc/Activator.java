@@ -26,7 +26,6 @@ import java.util.Properties;
 import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.FreezableConfigurationAdministrator;
 import org.openscada.ca.jdbc.internal.ConfigurationAdministratorImpl;
-import org.openscada.ca.jdbc.internal.JdbcStorageDAO;
 import org.openscada.ca.jdbc.internal.JdbcStorageDAOImpl;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.jdbc.DataSourceFactoryTracker;
@@ -50,6 +49,8 @@ public class Activator implements BundleActivator
     private ConfigurationAdministratorImpl configAdmin;
 
     private ServiceRegistration<?> serviceHandle;
+
+    private JdbcStorageDAOImpl storage;
 
     /*
      * (non-Javadoc)
@@ -97,9 +98,9 @@ public class Activator implements BundleActivator
     {
         logger.info ( "Registering services - service: {}, context: {}", service, context );
 
-        final JdbcStorageDAO storage = new JdbcStorageDAOImpl ( service, getDataSourceProperties () );
+        this.storage = new JdbcStorageDAOImpl ( service, getDataSourceProperties (), isConnectionPool () );
 
-        final ConfigurationAdministratorImpl configAdmin = new ConfigurationAdministratorImpl ( context, storage );
+        final ConfigurationAdministratorImpl configAdmin = new ConfigurationAdministratorImpl ( context, this.storage );
         configAdmin.start ();
 
         // started ... now announce
@@ -110,6 +111,11 @@ public class Activator implements BundleActivator
         properties.put ( Constants.SERVICE_DESCRIPTION, "A JDBC based configuration administrator" );
 
         this.serviceHandle = context.registerService ( new String[] { ConfigurationAdministrator.class.getName (), FreezableConfigurationAdministrator.class.getName () }, this.configAdmin, properties );
+    }
+
+    public static boolean isConnectionPool ()
+    {
+        return DataSourceHelper.isConnectionPool ( "org.openscada.ca.jdbc", "org.openscada.jdbc", false );
     }
 
     private static Properties getDataSourceProperties ()
@@ -133,6 +139,13 @@ public class Activator implements BundleActivator
             logger.info ( "Disposing CA" );
             this.configAdmin.dispose ();
             this.configAdmin = null;
+        }
+
+        if ( this.storage != null )
+        {
+            logger.info ( "Disposing storage" );
+            this.storage.dispose ();
+            this.storage = null;
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -30,9 +30,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.openscada.utils.osgi.jdbc.CommonConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.data.RowMapper;
 import org.openscada.utils.osgi.jdbc.data.RowMapperValidationException;
+import org.openscada.utils.osgi.jdbc.pool.PoolConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.task.CommonConnectionTask;
 import org.openscada.utils.osgi.jdbc.task.ConnectionContext;
 import org.osgi.service.jdbc.DataSourceFactory;
@@ -71,11 +73,16 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
 
     };
 
-    private final DataSourceConnectionAccessor accessor;
+    private final CommonConnectionAccessor accessor;
 
-    public JdbcStorageDAOImpl ( final DataSourceFactory dataSourceFactory, final Properties dataSourceProperties ) throws SQLException
+    public JdbcStorageDAOImpl ( final DataSourceFactory dataSourceFactory, final Properties dataSourceProperties, final boolean usePool ) throws SQLException
     {
-        this.accessor = new DataSourceConnectionAccessor ( dataSourceFactory, dataSourceProperties );
+        this.accessor = usePool ? new PoolConnectionAccessor ( dataSourceFactory, dataSourceProperties ) : new DataSourceConnectionAccessor ( dataSourceFactory, dataSourceProperties );
+    }
+
+    public void dispose ()
+    {
+        this.accessor.dispose ();
     }
 
     protected List<Entry> internalLoad ( final ConnectionContext connectionContext, final String sql, final Object... parameters ) throws SQLException

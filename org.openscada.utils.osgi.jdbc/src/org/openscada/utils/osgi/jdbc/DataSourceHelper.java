@@ -34,6 +34,12 @@ public final class DataSourceHelper
     {
     }
 
+    public static boolean isConnectionPool ( final String specificPrefix, final String defaultPrefix, final boolean defaultValue )
+    {
+        final String value = System.getProperty ( specificPrefix + ".usePool", System.getProperty ( defaultPrefix + ".usePool", "" + defaultValue ) );
+        return Boolean.getBoolean ( value );
+    }
+
     public static String getDriver ( final String specificPrefix, final String defaultPrefix )
     {
         return System.getProperty ( specificPrefix + ".driver", System.getProperty ( defaultPrefix + ".driver", null ) );
