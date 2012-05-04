@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -165,7 +165,9 @@ public class DataFilePool
 
     /**
      * Create a new data file pool
-     * @param timeout in milliseconds
+     * 
+     * @param timeout
+     *            in milliseconds
      */
     public DataFilePool ( final long timeout )
     {
@@ -185,14 +187,20 @@ public class DataFilePool
     /**
      * get access to a file
      * <p>
-     * If the parameter <code>create</code> is <code>true</code> then start and end must not be null 
+     * If the parameter <code>create</code> is <code>true</code> then start and end must not be null
      * </p>
-     * @param file the file to get access to
-     * @param start the start date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
-     * @param end the end date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
-     * @param create <code>true</code> will create a new file it if the file does not currently exists
+     * 
+     * @param file
+     *            the file to get access to
+     * @param start
+     *            the start date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
+     * @param end
+     *            the end date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
+     * @param create
+     *            <code>true</code> will create a new file it if the file does not currently exists
      * @return the accessor information
-     * @throws Exception if anything goes wrong
+     * @throws Exception
+     *             if anything goes wrong
      */
     public Pair<DataFileAccessor, Boolean> getAccessor ( final File file, final Date start, final Date end, final boolean create ) throws Exception
     {
@@ -242,29 +250,41 @@ public class DataFilePool
     {
         logger.info ( "Waiting until {} for {}", deadline, file );
 
-        do
+        final long startTix = System.currentTimeMillis ();
+
+        try
         {
-            if ( this.usedPool.containsKey ( file ) )
+            do
             {
-                // still used, wait again
-                continue;
-            }
+                if ( this.usedPool.containsKey ( file ) )
+                {
+                    // still used, wait again
+                    continue;
+                }
 
-            final AccessorWrapper result = this.freePool.get ( file );
-            if ( result != null )
-            {
-                // success, bring it home
-                return result;
-            }
+                final AccessorWrapper result = this.freePool.remove ( file );
+                if ( result != null )
+                {
+                    logger.debug ( "Fetching file {} from free pool", file );
+                    // mark as used
+                    this.usedPool.put ( file, result );
+                    // success, bring it home
+                    return result;
+                }
 
-            // resource was neither used nor free, so we need to create it
-            final AccessorWrapper newResult = wrap ( file, new DataFileAccessorImpl ( file ) );
-            this.usedPool.put ( file, newResult );
-            logger.debug ( "Acquired resource {}", file );
-            return newResult;
-        } while ( this.condition.awaitUntil ( deadline ) );
+                // resource was neither used nor free, so we need to create it
+                final AccessorWrapper newResult = wrap ( file, new DataFileAccessorImpl ( file ) );
+                this.usedPool.put ( file, newResult );
+                logger.debug ( "Acquired resource {} by creating accessor", file );
+                return newResult;
+            } while ( this.condition.awaitUntil ( deadline ) );
 
-        throw new IllegalStateException ( String.format ( "Failed to acquire create lock within %s ms for resource %s", this.timeout, file ) );
+            throw new IllegalStateException ( String.format ( "Failed to acquire create lock within %s ms for resource %s", this.timeout, file ) );
+        }
+        finally
+        {
+            logger.info ( "Waiting took {} ms", System.currentTimeMillis () - startTix );
+        }
     }
 
     protected AccessorWrapper wrap ( final File file, final DataFileAccessor accessor )
