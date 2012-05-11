@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.openscada.hsdb.backend.BackEndManagerFactory;
 import org.openscada.hsdb.configuration.Configuration;
@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class implements the BackEndManagerFactory interface for FileBackEnd objects.
+ * 
  * @author Ludwig Straub
  */
 public class FileBackEndManagerFactory implements BackEndManagerFactory
@@ -56,7 +57,9 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
 
     /**
      * Constructor.
-     * @param fileBackEndFactory factory that will be used to create new back end objects
+     * 
+     * @param fileBackEndFactory
+     *            factory that will be used to create new back end objects
      */
     public FileBackEndManagerFactory ( final FileBackEndFactory fileBackEndFactory )
     {
@@ -65,7 +68,9 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
 
     /**
      * This method returns the name of the configuration file with the specified encoded id.
-     * @param encodedConfigurationId encoded configuration id
+     * 
+     * @param encodedConfigurationId
+     *            encoded configuration id
      * @return name of the configuration file with the specified encoded id
      */
     public String getConfigurationFileName ( final String encodedConfigurationId )
@@ -75,15 +80,19 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
 
     /**
      * This method loads the configuration data from the configuration file.
-     * @param encodedConfigurationId folder name and prefix of file name for configuration control files
+     * 
+     * @param encodedConfigurationId
+     *            folder name and prefix of file name for configuration control files
      * @return loaded configuration object or null if configuration file does not exist
-     * @throws Exception in case of problems
+     * @throws Exception
+     *             in case of problems
      */
     public Configuration loadConfiguration ( final String encodedConfigurationId ) throws Exception
     {
         final String configurationFileName = getConfigurationFileName ( encodedConfigurationId );
         if ( !new File ( configurationFileName ).exists () )
         {
+            logger.warn ( "Configuration file {} does not exists", configurationFileName );
             return null;
         }
         final Properties properties = new Properties ();
@@ -123,8 +132,11 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
 
     /**
      * This method saves the configuration data to the configuration file.
-     * @param configuration configuration object that has to be saved
-     * @throws Exception in case of problems
+     * 
+     * @param configuration
+     *            configuration object that has to be saved
+     * @throws Exception
+     *             in case of problems
      */
     public void saveConfiguration ( final Configuration configuration ) throws Exception
     {
@@ -157,6 +169,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
     /**
      * @see org.openscada.hsdb.backend.BackEndManagerFactory#getBackEndManagers()
      */
+    @Override
     public FileBackEndManager[] getBackEndManagers ()
     {
         final File root = new File ( this.fileBackEndFactory.getFileRoot () );
@@ -197,6 +210,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
     /**
      * @see org.openscada.hsdb.backend.BackEndManagerFactory#getBackEndManager(Configuration,boolean)
      */
+    @Override
     public FileBackEndManager getBackEndManager ( final Configuration configuration, final boolean createIfNotExists )
     {
         if ( configuration == null )
@@ -229,6 +243,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
     /**
      * @see org.openscada.hsdb.backend.BackEndManagerFactory#delete(org.openscada.hsdb.configuration.Configuration)
      */
+    @Override
     public void delete ( final Configuration configuration )
     {
         new File ( getConfigurationFileName ( FileBackEndFactory.encodeFileNamePart ( configuration.getId () ) ) ).delete ();
@@ -237,6 +252,7 @@ public class FileBackEndManagerFactory implements BackEndManagerFactory
     /**
      * @see org.openscada.hsdb.backend.BackEndManagerFactory#save(org.openscada.hsdb.configuration.Configuration)
      */
+    @Override
     public void save ( final Configuration configuration )
     {
         try
