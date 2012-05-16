@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.openscada.aurora_0.18.0.qualifier.jar" id="org.openscada.aurora" version="0.18.0.qualifier">
+   <feature url="features/org.openscada.aurora_1.0.0.qualifier.jar" id="org.openscada.aurora" version="1.0.0.qualifier">
       <category name="org.openscada.aurora.category"/>
    </feature>
-   <feature url="features/org.openscada.aurora.sdk_0.18.0.qualifier.jar" id="org.openscada.aurora.sdk" version="0.18.0.qualifier">
+   <feature url="features/org.openscada.aurora.sdk_1.0.0.qualifier.jar" id="org.openscada.aurora.sdk" version="1.0.0.qualifier">
       <category name="org.openscada.aurora.category"/>
    </feature>
    <feature url="features/org.openscada.sec_0.4.0.qualifier.jar" id="org.openscada.sec" version="0.4.0.qualifier">
