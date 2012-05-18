@@ -100,7 +100,14 @@ public class JdbcAuthenticationService implements AuthenticationService
         @Override
         public void processRow ( final ResultSet resultSet ) throws SQLException
         {
-            if ( validatePassword ( this.password, resultSet.getString ( "password" ) ) )
+            final String storedPassword = resultSet.getString ( "password" );
+
+            if ( storedPassword == null || storedPassword.isEmpty () )
+            {
+                return;
+            }
+
+            if ( validatePassword ( this.password, storedPassword ) )
             {
                 this.result = true;
             }
