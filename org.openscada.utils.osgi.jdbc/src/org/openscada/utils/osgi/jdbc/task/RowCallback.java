@@ -22,7 +22,23 @@ package org.openscada.utils.osgi.jdbc.task;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * A row callback
+ * 
+ * @author Jens Reimann
+ */
 public interface RowCallback
 {
+    /**
+     * Gets called for every row
+     * <p>
+     * {@link ResultSet#next()} was already called and must not be called by the callback.
+     * </p>
+     * 
+     * @param resultSet
+     *            The result holding the data
+     * @throws SQLException
+     *             the callback may throw an {@link SQLException}
+     */
     public void processRow ( ResultSet resultSet ) throws SQLException;
 }
