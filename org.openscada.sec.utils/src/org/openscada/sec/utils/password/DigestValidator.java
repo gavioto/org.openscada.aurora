@@ -19,6 +19,7 @@
 
 package org.openscada.sec.utils.password;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +48,9 @@ public class DigestValidator implements PasswordValidator
 
     private byte[] makeDigest ( final String providedPassword )
     {
-        return this.digest.digest ( this.passwordCharset.encode ( providedPassword ).array () );
+        final ByteBuffer data = this.passwordCharset.encode ( providedPassword );
+        this.digest.update ( data.array (), 0, data.remaining () );
+        return this.digest.digest ();
     }
 
     protected boolean compare ( final byte[] data, final String storedPassword )

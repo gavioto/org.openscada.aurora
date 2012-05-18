@@ -50,12 +50,12 @@ public class HexCodec implements PasswordDigestCodec
         {
             if ( cb.remaining () > 1 )
             {
-                result[i] = Byte.parseByte ( "" + cb.get () + cb.get (), 16 );
+                result[i] = (byte) ( 0xFF & Integer.parseInt ( new String ( new char[] { cb.get (), cb.get () } ), 16 ) );
                 i++;
             }
             else
             {
-                result[i] = Byte.parseByte ( "" + cb.get () );
+                result[i] = (byte) ( 0xFF & Integer.parseInt ( new String ( new char[] { cb.get () } ), 16 ) );
             }
         }
 
