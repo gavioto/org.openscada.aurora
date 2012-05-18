@@ -38,6 +38,7 @@ import org.openscada.sec.utils.password.DigestValidator;
 import org.openscada.sec.utils.password.HexCodec;
 import org.openscada.sec.utils.password.PasswordValidator;
 import org.openscada.sec.utils.password.PlainValidator;
+import org.openscada.utils.collection.MapBuilder;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.DataSourceFactoryTracker;
@@ -214,7 +215,7 @@ public class JdbcAuthenticationService implements AuthenticationService
     protected UserInformation performAuthentication ( final ConnectionContext connection, final String username, final String password ) throws AuthenticationException, SQLException
     {
         final PasswordCheckRowCallback callback = new PasswordCheckRowCallback ( password );
-        connection.query ( callback, this.findUserSql, username );
+        connection.query ( callback, this.findUserSql, new MapBuilder<String, Object> ().put ( "USER_ID", username ).getMap () );
 
         if ( !callback.isResult () )
         {
@@ -225,7 +226,7 @@ public class JdbcAuthenticationService implements AuthenticationService
 
         if ( this.findRolesForUserSql != null && !this.findRolesForUserSql.isEmpty () )
         {
-            roles = connection.queryForList ( String.class, this.findRolesForUserSql, username );
+            roles = connection.queryForList ( String.class, this.findRolesForUserSql, new MapBuilder<String, Object> ().put ( "USER_ID", username ).getMap () );
         }
         else
         {
