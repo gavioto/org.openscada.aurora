@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -22,6 +22,8 @@ package org.openscada.ca;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openscada.utils.str.StringHelper;
 
 public class ConfigurationDataHelper
 {
@@ -390,5 +392,48 @@ public class ConfigurationDataHelper
         }
 
         return result;
+    }
+
+    public <E extends Enum<E>> E getEnumChecked ( final String name, final Class<E> enumType, final String errorMessage )
+    {
+        return makeEnum ( enumType, null, getStringChecked ( name, errorMessage ), false );
+    }
+
+    public <E extends Enum<E>> E getEnum ( final String name, final Class<E> enumType )
+    {
+        return makeEnum ( enumType, null, getString ( name ), false );
+    }
+
+    public <E extends Enum<E>> E getEnum ( final String name, final Class<E> enumType, final E defaultValue )
+    {
+        return makeEnum ( enumType, defaultValue, getString ( name ), false );
+    }
+
+    public static <E extends Enum<E>> E makeEnum ( final Class<E> enumType, final E defaultValue, final String stringValue, final boolean ignoreMissing )
+    {
+        if ( stringValue == null )
+        {
+            return defaultValue;
+        }
+        try
+        {
+            return Enum.valueOf ( enumType, stringValue );
+        }
+        catch ( final IllegalArgumentException e )
+        {
+            if ( ignoreMissing )
+            {
+                return defaultValue;
+            }
+            else
+            {
+                throw new IllegalArgumentException ( makeEnumError ( enumType, stringValue ), e );
+            }
+        }
+    }
+
+    protected static <E extends Enum<E>> String makeEnumError ( final Class<E> enumType, final String stringValue )
+    {
+        return String.format ( "Value '%s' is not contained in enum. (Possible values: %s)", stringValue, StringHelper.join ( enumType.getEnumConstants (), ", " ) );
     }
 }
