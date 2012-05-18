@@ -35,7 +35,6 @@ import org.openscada.utils.str.StringHelper;
  * 
  * @author Jens Reimann
  * @since 0.3.0
- *
  */
 @Immutable
 public class UserInformation implements Serializable
@@ -45,8 +44,7 @@ public class UserInformation implements Serializable
     public final static UserInformation ANONYMOUS = new UserInformation ( null, null, Collections.<String> emptySet () );
 
     /**
-     * The name of the user or <code>null</code> if it is an anonymous
-     * user information.
+     * The name of the user or <code>null</code> if it is an anonymous user information.
      */
     private final String name;
 
@@ -61,7 +59,7 @@ public class UserInformation implements Serializable
         this.roles = Collections.emptySet ();
     }
 
-    public UserInformation ( final String name, final String password, final Set<String> roles )
+    public UserInformation ( final String name, final String password, final Collection<String> roles )
     {
         this.name = name;
         this.password = password;
@@ -77,20 +75,12 @@ public class UserInformation implements Serializable
 
     public UserInformation ( final String name, final String password, final String[] roles )
     {
-        this.name = name;
-        this.password = password;
-        if ( roles != null )
-        {
-            this.roles = Collections.unmodifiableSet ( new HashSet<String> ( Arrays.asList ( roles ) ) );
-        }
-        else
-        {
-            this.roles = Collections.emptySet ();
-        }
+        this ( name, password, Arrays.asList ( roles ) );
     }
 
     /**
      * Create a user information object
+     * 
      * @param principal
      * @return Returns the converted user information object or {@link #ANONYMOUS} if principal was <code>null</code>. Never returns <code>null</code>.
      */
@@ -109,9 +99,9 @@ public class UserInformation implements Serializable
     }
 
     /**
-     * Get the name of the user 
-     * @return the name of the user or <code>null</code> if it
-     * an anonymous user information
+     * Get the name of the user
+     * 
+     * @return the name of the user or <code>null</code> if it an anonymous user information
      */
     public String getName ()
     {
