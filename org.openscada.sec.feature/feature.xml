@@ -2,7 +2,7 @@
 <feature
       id="org.openscada.sec"
       label="openSCADA Security"
-      version="0.4.0.qualifier"
+      version="1.0.0.qualifier"
       provider-name="TH4 SYSTEMS GmbH">
 
    <description>
@@ -16,6 +16,13 @@
    <license url="http://opensource.org/licenses/lgpl-3.0.html">
       %license
    </license>
+
+   <requires>
+      <import plugin="org.openscada.utils"/>
+      <import plugin="org.eclipse.osgi"/>
+      <import plugin="slf4j.api"/>
+      <import plugin="org.openscada.ca"/>
+   </requires>
 
    <plugin
          id="org.openscada.sec"
@@ -47,6 +54,19 @@
 
    <plugin
          id="org.openscada.sec.provider.script"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.sec.provider.jdbc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.openscada.sec.utils"
          download-size="0"
          install-size="0"
          version="0.0.0"
