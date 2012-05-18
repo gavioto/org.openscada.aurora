@@ -179,7 +179,8 @@ public class JdbcAuthenticationService implements AuthenticationService
             this.readLock.lock ();
             if ( this.accessor == null )
             {
-                return failure ( NO_ACCESSOR );
+                logger.info ( "We don't have any accessor" );
+                return failure ( "No connection to database", NO_ACCESSOR );
             }
 
             try
@@ -194,7 +195,6 @@ public class JdbcAuthenticationService implements AuthenticationService
             }
             catch ( final Exception e )
             {
-
                 if ( e.getCause () instanceof AuthenticationException )
                 {
                     logger.info ( "Task throw exception. Rethrowing cause...", e );
@@ -202,6 +202,7 @@ public class JdbcAuthenticationService implements AuthenticationService
                 }
                 else
                 {
+                    logger.warn ( "Failed to perform login", e );
                     throw new AuthenticationException ( INTERNAL_ERROR, e );
                 }
             }
@@ -219,7 +220,7 @@ public class JdbcAuthenticationService implements AuthenticationService
 
         if ( !callback.isResult () )
         {
-            return failure ( StatusCodes.INVALID_USER_OR_PASSWORD );
+            return failure ( "User not found or password invalid", StatusCodes.INVALID_USER_OR_PASSWORD );
         }
 
         final List<String> roles;
@@ -232,6 +233,8 @@ public class JdbcAuthenticationService implements AuthenticationService
         {
             roles = null;
         }
+
+        logger.trace ( "Found roles for user: {}", roles );
 
         return new UserInformation ( username, password, roles );
     }
@@ -249,11 +252,11 @@ public class JdbcAuthenticationService implements AuthenticationService
         }
     }
 
-    private UserInformation failure ( final StatusCode statusCode ) throws AuthenticationException
+    private UserInformation failure ( final String message, final StatusCode statusCode ) throws AuthenticationException
     {
         if ( this.authoritative )
         {
-            throw new AuthenticationException ( statusCode );
+            throw new AuthenticationException ( statusCode, message );
         }
 
         logger.warn ( "Failed to authenticate non-authoritative with error: {}", statusCode );
@@ -267,6 +270,7 @@ public class JdbcAuthenticationService implements AuthenticationService
 
     public void update ( final Map<String, String> parameters ) throws Exception
     {
+        logger.debug ( "Updating configuration" );
 
         // detach first
 
@@ -277,7 +281,7 @@ public class JdbcAuthenticationService implements AuthenticationService
         final ConfigurationDataHelper cfg = new ConfigurationDataHelper ( parameters );
         this.driver = cfg.getStringChecked ( "driver", "Need database driver name in 'driver'" );
         this.connectionProperties = new Properties ();
-        this.connectionProperties.putAll ( cfg.getPrefixed ( "jdbc." ) );
+        this.connectionProperties.putAll ( cfg.getPrefixed ( "jdbc.properties." ) );
         final PasswordType passwordType = cfg.getEnumChecked ( "passwordType", PasswordType.class, String.format ( "Need 'passwordType' to be one of (%s)", StringHelper.join ( PasswordType.values (), ", " ) ) );
         this.passwordValidator = passwordType.createValdiator ();
         this.authoritative = cfg.getBoolean ( "authoritative", true );
@@ -291,6 +295,7 @@ public class JdbcAuthenticationService implements AuthenticationService
 
     private void attach () throws InvalidSyntaxException
     {
+        logger.debug ( "Creating data source tracker: {}", this.driver );
         this.tracker = new DataSourceFactoryTracker ( this.context, this.driver, new SingleServiceListener<DataSourceFactory> () {
 
             @Override
@@ -313,6 +318,7 @@ public class JdbcAuthenticationService implements AuthenticationService
 
     protected void setDataSource ( final DataSourceFactory service )
     {
+        logger.debug ( "Setting data source: {}", service );
         try
         {
             this.writeLock.lock ();

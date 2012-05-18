@@ -19,14 +19,22 @@
 
 package org.openscada.sec.provider.jdbc;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Map;
 
+import org.openscada.sec.AuthenticationService;
 import org.openscada.sec.UserInformation;
 import org.openscada.utils.osgi.ca.factory.AbstractServiceConfigurationFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcAuthenticationServiceFactory extends AbstractServiceConfigurationFactory<JdbcAuthenticationService>
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( JdbcAuthenticationServiceFactory.class );
 
     public JdbcAuthenticationServiceFactory ( final BundleContext context )
     {
@@ -36,20 +44,30 @@ public class JdbcAuthenticationServiceFactory extends AbstractServiceConfigurati
     @Override
     protected Entry<JdbcAuthenticationService> createService ( final UserInformation userInformation, final String configurationId, final BundleContext context, final Map<String, String> parameters ) throws Exception
     {
+        logger.debug ( "Creating new service: {}", configurationId );
         final JdbcAuthenticationService service = new JdbcAuthenticationService ( context, configurationId );
         service.update ( parameters );
+
+        final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
+        properties.put ( Constants.SERVICE_DESCRIPTION, "JDBC based authenticator" );
+        properties.put ( Constants.SERVICE_PID, configurationId );
+        properties.put ( Constants.SERVICE_VENDOR, "TH4 SYSTEMS GmbH" );
+        context.registerService ( AuthenticationService.class, service, properties );
+
         return new Entry<JdbcAuthenticationService> ( configurationId, service );
     }
 
     @Override
     protected void disposeService ( final UserInformation userInformation, final String configurationId, final JdbcAuthenticationService service )
     {
+        logger.debug ( "Disposing service: {}", configurationId );
         service.dispose ();
     }
 
     @Override
     protected Entry<JdbcAuthenticationService> updateService ( final UserInformation userInformation, final String configurationId, final Entry<JdbcAuthenticationService> entry, final Map<String, String> parameters ) throws Exception
     {
+        logger.debug ( "Updating service: {}", configurationId );
         entry.getService ().update ( parameters );
         return null;
     }

@@ -28,9 +28,13 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( Activator.class );
 
     private static BundleContext context;
 
@@ -52,6 +56,8 @@ public class Activator implements BundleActivator
     {
         Activator.context = bundleContext;
 
+        logger.info ( "Starting JDBC Security Provider" );
+
         this.serviceFactory = new JdbcAuthenticationServiceFactory ( bundleContext );
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
         properties.put ( Constants.SERVICE_DESCRIPTION, "A JDBC authentication service" );
@@ -67,6 +73,8 @@ public class Activator implements BundleActivator
     @Override
     public void stop ( final BundleContext bundleContext ) throws Exception
     {
+        logger.info ( "Stopping JDBC Security Provider" );
+
         Activator.context = null;
 
         if ( this.handle != null )
