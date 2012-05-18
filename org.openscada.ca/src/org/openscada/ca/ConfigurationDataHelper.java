@@ -34,6 +34,7 @@ public class ConfigurationDataHelper
 
     /**
      * The actual configuration data
+     * 
      * @return the configuration data
      */
     public Map<String, String> getData ()
@@ -42,9 +43,10 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or <code>null</code> if
-     * the parameter is not set or not an integer
-     * @param name the name of the parameter
+     * Get an integer from the data or <code>null</code> if the parameter is not set or not an integer
+     * 
+     * @param name
+     *            the name of the parameter
      * @return the integer or <code>null</code>
      */
     public Integer getInteger ( final String name )
@@ -65,10 +67,12 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or the default value if
-     * the parameter is not set or not an integer
-     * @param name the name of the parameter
-     * @param defaultValue the default value
+     * Get an integer from the data or the default value if the parameter is not set or not an integer
+     * 
+     * @param name
+     *            the name of the parameter
+     * @param defaultValue
+     *            the default value
      * @return the integer or the default value
      */
     public int getInteger ( final String name, final int defaultValue )
@@ -84,12 +88,13 @@ public class ConfigurationDataHelper
     /**
      * Get an integer from the configuration data
      * <p>
-     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If
-     * the data can not be parsed to an integer a {@link NumberFormatException} will
-     * be thrown.
+     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If the data can not be parsed to an integer a {@link NumberFormatException} will be thrown.
      * </p>
-     * @param name the name of the parameter to get
-     * @param errorMessage the error message if the string is not set
+     * 
+     * @param name
+     *            the name of the parameter to get
+     * @param errorMessage
+     *            the error message if the string is not set
      * @return the value as integer
      * @throws NumberFormatException
      * @throws IllegalArgumentException
@@ -105,9 +110,10 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a long from the data or <code>null</code> if
-     * the parameter is not set or not a long
-     * @param name the name of the parameter
+     * Get a long from the data or <code>null</code> if the parameter is not set or not a long
+     * 
+     * @param name
+     *            the name of the parameter
      * @return the long or <code>null</code>
      */
     public Long getLong ( final String name )
@@ -128,10 +134,12 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a long from the data or the default value if
-     * the parameter is not set or not a long
-     * @param name the name of the parameter
-     * @param defaultValue the default value
+     * Get a long from the data or the default value if the parameter is not set or not a long
+     * 
+     * @param name
+     *            the name of the parameter
+     * @param defaultValue
+     *            the default value
      * @return the long or the default value
      */
     public long getLong ( final String name, final long defaultValue )
@@ -147,12 +155,13 @@ public class ConfigurationDataHelper
     /**
      * Get a long from the configuration data
      * <p>
-     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If
-     * the data can not be parsed to a long a {@link NumberFormatException} will
-     * be thrown.
+     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If the data can not be parsed to a long a {@link NumberFormatException} will be thrown.
      * </p>
-     * @param name the name of the parameter to get
-     * @param errorMessage the error message if the string is not set
+     * 
+     * @param name
+     *            the name of the parameter to get
+     * @param errorMessage
+     *            the error message if the string is not set
      * @return the value as long
      * @throws NumberFormatException
      * @throws IllegalArgumentException
@@ -169,9 +178,10 @@ public class ConfigurationDataHelper
 
     /**
      * Get a non-empty string from the configuration.
-     * @param name the name of the parameters to get
-     * @return returns <code>null</code> if the parameter is not set or is an empty string.
-     * Otherwise the string itself will be returned.
+     * 
+     * @param name
+     *            the name of the parameters to get
+     * @return returns <code>null</code> if the parameter is not set or is an empty string. Otherwise the string itself will be returned.
      */
     public String getStringNonEmpty ( final String name )
     {
@@ -189,7 +199,9 @@ public class ConfigurationDataHelper
 
     /**
      * Get a string from the configuration
-     * @param name the name of the string to get
+     * 
+     * @param name
+     *            the name of the string to get
      * @return the string data or <code>null</code> if the string was not set
      */
     public String getString ( final String name )
@@ -212,10 +224,14 @@ public class ConfigurationDataHelper
 
     /**
      * Get a string from the configuration data
-     * @param name the name of the parameter to get
-     * @param errorMessage the error message if the string is not set
+     * 
+     * @param name
+     *            the name of the parameter to get
+     * @param errorMessage
+     *            the error message if the string is not set
      * @return the string data
-     * @throws IllegalArgumentException if the string is not set
+     * @throws IllegalArgumentException
+     *             if the string is not set
      */
     public String getStringChecked ( final String name, final String errorMessage ) throws IllegalArgumentException
     {
@@ -231,9 +247,10 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or <code>null</code> if
-     * the parameter is not set or not an integer
-     * @param name the name of the parameter
+     * Get an integer from the data or <code>null</code> if the parameter is not set or not an integer
+     * 
+     * @param name
+     *            the name of the parameter
      * @return the integer or <code>null</code>
      */
     public Double getDouble ( final String name )
@@ -254,10 +271,12 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or the default value if
-     * the parameter is not set or not an integer
-     * @param name the name of the parameter
-     * @param defaultValue the default value
+     * Get an integer from the data or the default value if the parameter is not set or not an integer
+     * 
+     * @param name
+     *            the name of the parameter
+     * @param defaultValue
+     *            the default value
      * @return the integer or the default value
      */
     public double getDouble ( final String name, final double defaultValue )
@@ -273,12 +292,13 @@ public class ConfigurationDataHelper
     /**
      * Get an integer from the configuration data
      * <p>
-     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If
-     * the data can not be parsed to an integer a {@link NumberFormatException} will
-     * be thrown.
+     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If the data can not be parsed to an integer a {@link NumberFormatException} will be thrown.
      * </p>
-     * @param name the name of the parameter to get
-     * @param errorMessage the error message if the string is not set
+     * 
+     * @param name
+     *            the name of the parameter to get
+     * @param errorMessage
+     *            the error message if the string is not set
      * @return the value as integer
      * @throws NumberFormatException
      * @throws IllegalArgumentException
@@ -294,9 +314,10 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a boolean from the data or <code>null</code> if
-     * the parameter is not set or not a boolean
-     * @param name the name of the parameter
+     * Get a boolean from the data or <code>null</code> if the parameter is not set or not a boolean
+     * 
+     * @param name
+     *            the name of the parameter
      * @return the boolean or <code>null</code>
      */
     public Boolean getBoolean ( final String name )
@@ -317,10 +338,12 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a boolean from the data or the default value if
-     * the parameter is not set or not a boolean
-     * @param name the name of the parameter
-     * @param defaultValue the default value
+     * Get a boolean from the data or the default value if the parameter is not set or not a boolean
+     * 
+     * @param name
+     *            the name of the parameter
+     * @param defaultValue
+     *            the default value
      * @return the boolean or the default value
      */
     public boolean getBoolean ( final String name, final boolean defaultValue )
@@ -334,9 +357,13 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Extracts attributes that start with a prefix and return the matching entries
-     * only with the key truncated by the prefix.
-     * @param prefix the prefix to use
+     * Extracts attributes that start with a prefix and return the matching entries only with the key truncated by the prefix.
+     * <p>
+     * If you want your prefix to be "prefix." you must also add the dot.
+     * </p>
+     * 
+     * @param prefix
+     *            the prefix to use
      * @return the result map
      */
     public Map<String, String> getPrefixed ( final String prefix )
