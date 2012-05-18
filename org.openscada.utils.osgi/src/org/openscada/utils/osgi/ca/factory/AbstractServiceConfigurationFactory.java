@@ -44,8 +44,11 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
         /**
          * Create a new service entry that is registered with OSGi
-         * @param service the service
-         * @param handle the service registration
+         * 
+         * @param service
+         *            the service
+         * @param handle
+         *            the service registration
          */
         public Entry ( final String id, final T service, final ServiceRegistration<?> handle )
         {
@@ -56,7 +59,9 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
         /**
          * Create a new service entry that is not registered with OSGi
-         * @param service the service
+         * 
+         * @param service
+         *            the service
          */
         public Entry ( final String id, final T service )
         {
@@ -97,7 +102,9 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
     /**
      * Unregister the service entry with OSGi
-     * @param entry the entry to unregister
+     * 
+     * @param entry
+     *            the entry to unregister
      */
     protected void unregisterService ( final Entry<T> entry )
     {
@@ -147,29 +154,48 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     /**
      * Create a new service instance
      * <p>
-     * The method must also register the service with the OSGi bundle context if needed. The service
-     * registration must then be placed into the result that is returned. This is an optional step.
-     * There is no need to register the created service.
+     * The method must also register the service with the OSGi bundle context if needed. The service registration must then be placed into the result that is returned. This is an optional step. There
+     * is no need to register the created service.
      * </p>
-     * @param principal 
-     * @param configurationId the configuration id for which the service should be created
-     * @param context the bundle context
-     * @param parameters the initial parameters
+     * 
+     * @param principal
+     * @param configurationId
+     *            the configuration id for which the service should be created
+     * @param context
+     *            the bundle context
+     * @param parameters
+     *            the initial parameters
      * @return a new entry instance which holds the service. This method must never return <code>null</code>
-     * @throws Exception if anything goes wrong
+     * @throws Exception
+     *             if anything goes wrong
      */
     protected abstract Entry<T> createService ( UserInformation userInformation, String configurationId, BundleContext context, final Map<String, String> parameters ) throws Exception;
 
+    /**
+     * Dispose a service
+     * <p>
+     * If the service entry contains a service handle, the service is automatically unregistered.
+     * </p>
+     * 
+     * @param userInformation
+     * @param configurationId
+     * @param service
+     */
     protected abstract void disposeService ( UserInformation userInformation, String configurationId, T service );
 
     /**
      * Update a service configuration
-     * @param principal 
-     * @param configurationId the configuration to update
-     * @param entry the original service entry
-     * @param parameters the new parameters
+     * 
+     * @param principal
+     * @param configurationId
+     *            the configuration to update
+     * @param entry
+     *            the original service entry
+     * @param parameters
+     *            the new parameters
      * @return the new service entry or <code>null</code> if the entry did not change
-     * @throws Exception if anything goes wrong
+     * @throws Exception
+     *             if anything goes wrong
      */
     protected abstract Entry<T> updateService ( UserInformation userInformation, String configurationId, Entry<T> entry, Map<String, String> parameters ) throws Exception;
 
