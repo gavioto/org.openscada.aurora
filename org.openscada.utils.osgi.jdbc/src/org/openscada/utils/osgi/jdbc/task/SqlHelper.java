@@ -49,7 +49,7 @@ public final class SqlHelper
             {
                 max = Math.max ( max, i );
             }
-            if ( !parameters.containsKey ( entry.getKey () ) )
+            if ( !parameters.containsKey ( entry.getKey ().toUpperCase () ) )
             {
                 throw new IllegalArgumentException ( String.format ( "Named parameter %s could not be found in parameters", entry.getKey () ) );
             }
@@ -58,7 +58,7 @@ public final class SqlHelper
 
         for ( final Map.Entry<String, List<Integer>> entry : posMap.entrySet () )
         {
-            final Object value = parameters.get ( entry.getKey () );
+            final Object value = parameters.get ( entry.getKey ().toUpperCase () );
             for ( final Integer i : entry.getValue () )
             {
                 result[i] = value;
@@ -116,7 +116,7 @@ public final class SqlHelper
                         parseState = ParseState.NORMAL;
                         result.append ( c );
 
-                        final String key = name.toString ();
+                        final String key = name.toString ().toUpperCase ();
 
                         // add to position map
                         List<Integer> indexes = posMap.get ( key );
