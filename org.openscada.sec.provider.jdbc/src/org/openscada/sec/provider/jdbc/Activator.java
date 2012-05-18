@@ -54,8 +54,8 @@ public class Activator implements BundleActivator
 
         this.serviceFactory = new JdbcAuthenticationServiceFactory ( bundleContext );
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
-        properties.put ( Constants.BUNDLE_DESCRIPTION, "A JDBC authentication service" );
-        properties.put ( Constants.BUNDLE_VENDOR, "TH4 SYSTEMS GmbH" );
+        properties.put ( Constants.SERVICE_DESCRIPTION, "A JDBC authentication service" );
+        properties.put ( Constants.SERVICE_VENDOR, "TH4 SYSTEMS GmbH" );
         properties.put ( ConfigurationAdministrator.FACTORY_ID, bundleContext.getBundle ().getSymbolicName () + ".authenticator" );
         this.handle = bundleContext.registerService ( ConfigurationFactory.class, this.serviceFactory, properties );
     }
