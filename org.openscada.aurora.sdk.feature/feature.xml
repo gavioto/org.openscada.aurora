@@ -33,4 +33,10 @@
          id="org.openscada.ds.sdk"
          version="0.0.0"/>
 
+   <plugin
+         id="org.openscada.aurora.doc.isv"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
 </feature>

@@ -149,6 +149,8 @@
   	
   	<openscada.builder.copyFeature id="org.openscada.aurora" />
   	<openscada.builder.copyFeature id="org.openscada.aurora.sdk" />
+  	
+  	<openscada.builder.copyPlugin id="org.openscada.aurora.doc.isv" />
   </target>
 
   <!-- ===================================================================== -->
