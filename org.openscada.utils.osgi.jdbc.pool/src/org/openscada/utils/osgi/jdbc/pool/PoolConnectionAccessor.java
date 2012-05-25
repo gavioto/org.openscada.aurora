@@ -60,7 +60,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         this.connectionPool = new GenericObjectPool<Object> ( null );
         this.connectionPool.setMaxActive ( getInteger ( paramProperties, PREFIX + "maxActive", 8 ) );
         this.connectionPool.setMaxIdle ( getInteger ( paramProperties, PREFIX + "maxIdle", 8 ) );
-        this.connectionPool.setMaxIdle ( getInteger ( paramProperties, PREFIX + "maxIdle", 8 ) );
+        this.connectionPool.setMinIdle ( getInteger ( paramProperties, PREFIX + "minIdle", 8 ) );
         this.connectionPool.setTestOnBorrow ( getBoolean ( paramProperties, PREFIX + "testOnBorrow", true ) );
         this.connectionPool.setTestOnReturn ( getBoolean ( paramProperties, PREFIX + "testOnReturn", true ) );
 
