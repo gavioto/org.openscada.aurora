@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -37,30 +37,35 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A tracker which tracks object pools
+ * 
  * @author Jens Reimann
- *
  */
-public class ObjectPoolTracker
+public class ObjectPoolTracker<S>
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( ObjectPoolTracker.class );
 
     private final int DEFAULT_PRIORITY = Integer.getInteger ( "org.openscada.osgi.objectPool.defaultPriority", 0 );
 
-    private final ServiceTracker<ObjectPool, ObjectPool> poolTracker;
+    private final ServiceTracker<ObjectPool<S>, ObjectPool<S>> poolTracker;
 
-    private final Set<ObjectPoolServiceListener> listeners = new HashSet<ObjectPoolServiceListener> ();
+    private final Set<ObjectPoolServiceListener<S>> listeners = new HashSet<ObjectPoolServiceListener<S>> ();
 
-    public interface ObjectPoolServiceListener
+    public interface ObjectPoolServiceListener<S>
     {
-        public void poolAdded ( ObjectPool objectPool, int priority );
+        public void poolAdded ( ObjectPool<S> objectPool, int priority );
 
-        public void poolRemoved ( ObjectPool objectPool );
+        public void poolRemoved ( ObjectPool<S> objectPool );
 
-        public void poolModified ( ObjectPool objectPool, int newPriority );
+        public void poolModified ( ObjectPool<S> objectPool, int newPriority );
     }
 
-    private final Map<ObjectPool, Integer> poolMap = new HashMap<ObjectPool, Integer> ();
+    private final Map<ObjectPool<S>, Integer> poolMap = new HashMap<ObjectPool<S>, Integer> ();
+
+    public ObjectPoolTracker ( final BundleContext context, final Class<? extends S> poolClass ) throws InvalidSyntaxException
+    {
+        this ( context, poolClass.getName () );
+    }
 
     public ObjectPoolTracker ( final BundleContext context, final String poolClass ) throws InvalidSyntaxException
     {
@@ -68,37 +73,37 @@ public class ObjectPoolTracker
         parameters.put ( ObjectPool.OBJECT_POOL_CLASS, poolClass );
         final Filter filter = FilterUtil.createAndFilter ( ObjectPool.class.getName (), parameters );
 
-        this.poolTracker = new ServiceTracker<ObjectPool, ObjectPool> ( context, filter, new ServiceTrackerCustomizer<ObjectPool, ObjectPool> () {
+        this.poolTracker = new ServiceTracker<ObjectPool<S>, ObjectPool<S>> ( context, filter, new ServiceTrackerCustomizer<ObjectPool<S>, ObjectPool<S>> () {
 
             @Override
-            public void removedService ( final ServiceReference<ObjectPool> reference, final ObjectPool service )
+            public void removedService ( final ServiceReference<ObjectPool<S>> reference, final ObjectPool<S> service )
             {
                 context.ungetService ( reference );
                 ObjectPoolTracker.this.removePool ( service );
             }
 
             @Override
-            public void modifiedService ( final ServiceReference<ObjectPool> reference, final ObjectPool service )
+            public void modifiedService ( final ServiceReference<ObjectPool<S>> reference, final ObjectPool<S> service )
             {
                 ObjectPoolTracker.this.modifyPool ( service, reference );
             }
 
             @Override
-            public ObjectPool addingService ( final ServiceReference<ObjectPool> reference )
+            public ObjectPool<S> addingService ( final ServiceReference<ObjectPool<S>> reference )
             {
-                final ObjectPool o = context.getService ( reference );
+                final ObjectPool<S> o = context.getService ( reference );
                 ObjectPoolTracker.this.addPool ( o, reference );
                 return o;
             }
         } );
     }
 
-    protected int getPriority ( final ServiceReference<ObjectPool> reference )
+    protected int getPriority ( final ServiceReference<ObjectPool<S>> reference )
     {
         return getPriority ( reference, this.DEFAULT_PRIORITY );
     }
 
-    protected int getPriority ( final ServiceReference<ObjectPool> reference, final int defaultPriority )
+    protected int getPriority ( final ServiceReference<ObjectPool<S>> reference, final int defaultPriority )
     {
         final Object o = reference.getProperty ( Constants.SERVICE_RANKING );
         if ( o instanceof Number )
@@ -111,7 +116,7 @@ public class ObjectPoolTracker
         }
     }
 
-    protected synchronized void addPool ( final ObjectPool objectPool, final ServiceReference<ObjectPool> reference )
+    protected synchronized void addPool ( final ObjectPool<S> objectPool, final ServiceReference<ObjectPool<S>> reference )
     {
         logger.debug ( "Found new pool: {} -> {}", new Object[] { objectPool, reference } );
 
@@ -120,15 +125,15 @@ public class ObjectPoolTracker
         fireAdded ( objectPool, priority );
     }
 
-    private void fireAdded ( final ObjectPool objectPool, final int priority )
+    private void fireAdded ( final ObjectPool<S> objectPool, final int priority )
     {
-        for ( final ObjectPoolServiceListener listener : this.listeners )
+        for ( final ObjectPoolServiceListener<S> listener : this.listeners )
         {
             listener.poolAdded ( objectPool, priority );
         }
     }
 
-    protected synchronized void modifyPool ( final ObjectPool objectPool, final ServiceReference<ObjectPool> reference )
+    protected synchronized void modifyPool ( final ObjectPool<S> objectPool, final ServiceReference<ObjectPool<S>> reference )
     {
         logger.debug ( "Pool modified: {} -> {}", new Object[] { objectPool, reference } );
 
@@ -137,15 +142,15 @@ public class ObjectPoolTracker
         fireModified ( objectPool, newPriority );
     }
 
-    private void fireModified ( final ObjectPool objectPool, final int newPriority )
+    private void fireModified ( final ObjectPool<S> objectPool, final int newPriority )
     {
-        for ( final ObjectPoolServiceListener listener : this.listeners )
+        for ( final ObjectPoolServiceListener<S> listener : this.listeners )
         {
             listener.poolModified ( objectPool, newPriority );
         }
     }
 
-    protected synchronized void removePool ( final ObjectPool objectPool )
+    protected synchronized void removePool ( final ObjectPool<S> objectPool )
     {
         logger.debug ( "Pool removed: {}", new Object[] { objectPool } );
         final Integer priority = this.poolMap.remove ( objectPool );
@@ -155,9 +160,9 @@ public class ObjectPoolTracker
         }
     }
 
-    private void fireRemoved ( final ObjectPool objectPool )
+    private void fireRemoved ( final ObjectPool<S> objectPool )
     {
-        for ( final ObjectPoolServiceListener listener : this.listeners )
+        for ( final ObjectPoolServiceListener<S> listener : this.listeners )
         {
             listener.poolRemoved ( objectPool );
         }
@@ -173,12 +178,12 @@ public class ObjectPoolTracker
         this.poolTracker.close ();
     }
 
-    public synchronized void addListener ( final ObjectPoolServiceListener listener )
+    public synchronized void addListener ( final ObjectPoolServiceListener<S> listener )
     {
         logger.debug ( "Adding pool service listener: {}", listener );
         if ( this.listeners.add ( listener ) )
         {
-            for ( final Map.Entry<ObjectPool, Integer> entry : this.poolMap.entrySet () )
+            for ( final Map.Entry<ObjectPool<S>, Integer> entry : this.poolMap.entrySet () )
             {
                 logger.debug ( "Add Announce pool: {}/{}", new Object[] { entry.getKey (), entry.getValue () } );
                 listener.poolAdded ( entry.getKey (), entry.getValue () );
@@ -186,9 +191,9 @@ public class ObjectPoolTracker
         }
     }
 
-    public void removeListener ( final ObjectPoolServiceListener listener )
+    public void removeListener ( final ObjectPoolServiceListener<S> listener )
     {
-        final Set<ObjectPool> pools;
+        final Set<ObjectPool<S>> pools;
 
         synchronized ( this )
         {
@@ -196,10 +201,10 @@ public class ObjectPoolTracker
             {
                 return;
             }
-            pools = new HashSet<ObjectPool> ( this.poolMap.keySet () );
+            pools = new HashSet<ObjectPool<S>> ( this.poolMap.keySet () );
         }
 
-        for ( final ObjectPool pool : pools )
+        for ( final ObjectPool<S> pool : pools )
         {
             listener.poolRemoved ( pool );
         }

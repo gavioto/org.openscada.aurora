@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -27,21 +27,21 @@ import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTracker
+public class SingleObjectPoolServiceTracker<S> extends AbstractObjectPoolServiceTracker<S>
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( SingleObjectPoolServiceTracker.class );
 
     private static final int DEFAULT_PRIORITY = 0;
 
-    public interface ServiceListener
+    public interface ServiceListener<S>
     {
-        public void serviceChange ( Object service, Dictionary<?, ?> properties );
+        public void serviceChange ( S service, Dictionary<?, ?> properties );
     }
 
-    private final ServiceListener listener;
+    private final ServiceListener<S> listener;
 
-    public SingleObjectPoolServiceTracker ( final ObjectPoolTracker poolTracker, final String serviceId, final ServiceListener listener )
+    public SingleObjectPoolServiceTracker ( final ObjectPoolTracker<S> poolTracker, final String serviceId, final ServiceListener<S> listener )
     {
         super ( poolTracker, serviceId );
         this.listener = listener;
@@ -65,26 +65,26 @@ public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTra
         }
     }
 
-    private final Map<Object, Dictionary<?, ?>> services = new HashMap<Object, Dictionary<?, ?>> ();
+    private final Map<S, Dictionary<?, ?>> services = new HashMap<S, Dictionary<?, ?>> ();
 
-    private volatile Object currentService;
+    private volatile S currentService;
 
     @Override
-    protected synchronized void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties )
+    protected synchronized void handleServiceAdded ( final S service, final Dictionary<?, ?> properties )
     {
         this.services.put ( service, properties );
         update ();
     }
 
     @Override
-    protected synchronized void handleServiceModified ( final Object service, final Dictionary<?, ?> properties )
+    protected synchronized void handleServiceModified ( final S service, final Dictionary<?, ?> properties )
     {
         this.services.put ( service, properties );
         update ();
     }
 
     @Override
-    protected synchronized void handleServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
+    protected synchronized void handleServiceRemoved ( final S service, final Dictionary<?, ?> properties )
     {
         this.services.remove ( service );
         update ();
@@ -92,11 +92,11 @@ public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTra
 
     protected void update ()
     {
-        Object bestService = null;
+        S bestService = null;
         Dictionary<?, ?> bestProperties = null;
         final int bestPriority = Integer.MIN_VALUE;
 
-        for ( final Map.Entry<Object, Dictionary<?, ?>> entry : this.services.entrySet () )
+        for ( final Map.Entry<S, Dictionary<?, ?>> entry : this.services.entrySet () )
         {
             final int priority = getPriority ( entry.getValue () );
             if ( priority > bestPriority )
@@ -109,7 +109,7 @@ public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTra
         setService ( bestService, bestProperties );
     }
 
-    private synchronized void setService ( final Object bestService, final Dictionary<?, ?> bestProperties )
+    private synchronized void setService ( final S bestService, final Dictionary<?, ?> bestProperties )
     {
         if ( this.currentService != bestService )
         {
@@ -119,7 +119,7 @@ public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTra
         }
     }
 
-    private void fireServiceChange ( final Object bestService, final Dictionary<?, ?> bestProperties )
+    private void fireServiceChange ( final S bestService, final Dictionary<?, ?> bestProperties )
     {
         if ( this.listener != null )
         {
@@ -127,7 +127,7 @@ public class SingleObjectPoolServiceTracker extends AbstractObjectPoolServiceTra
         }
     }
 
-    public Object getCurrentService ()
+    public S getCurrentService ()
     {
         return this.currentService;
     }

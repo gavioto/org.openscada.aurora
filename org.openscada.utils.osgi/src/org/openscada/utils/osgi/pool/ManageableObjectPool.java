@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -21,11 +21,11 @@ package org.openscada.utils.osgi.pool;
 
 import java.util.Dictionary;
 
-public interface ManageableObjectPool extends ObjectPool
+public interface ManageableObjectPool<S> extends ObjectPool<S>
 {
-    public void addService ( final String id, final Object service, Dictionary<?, ?> properties );
+    public void addService ( final String id, final S service, Dictionary<?, ?> properties );
 
-    public void modifyService ( final String id, final Object service, final Dictionary<?, ?> properties );
+    public void modifyService ( final String id, final S service, final Dictionary<?, ?> properties );
 
-    public void removeService ( final String id, final Object service );
+    public void removeService ( final String id, final S service );
 }
