@@ -25,24 +25,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.openscada.hds.DataFileAccessor;
 import org.openscada.hds.DataFileAccessorImpl;
 import org.openscada.hds.DataFilePool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 public class HDSApplication5
 {
-
-    private final static Logger logger = LoggerFactory.getLogger ( HDSApplication5.class );
 
     public static void main ( final String[] args ) throws Exception
     {
         final File base = new File ( "base", "data1" );
 
-        Files.deleteRecursively ( base.getParentFile () );
+        FileUtils.deleteDirectory ( base.getParentFile () );
         base.mkdirs ();
 
         final DataFilePool pool = new DataFilePool ( 10000 );
