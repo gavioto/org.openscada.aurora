@@ -59,7 +59,7 @@ public class OscarLoader
         final ZipEntry entry = zfile.getEntry ( "data.json" ); //$NON-NLS-1$
         if ( entry == null )
         {
-            throw new IllegalArgumentException ( "File is not a valid OSCAR file" );
+            throw new IllegalArgumentException ( Messages.getString("OscarLoader.InvalidFileType") ); //$NON-NLS-1$
         }
         final InputStream stream = zfile.getInputStream ( entry );
         try
@@ -105,7 +105,7 @@ public class OscarLoader
     {
         final ObjectMapper mapper = new ObjectMapper ();
 
-        final BufferedReader reader = new BufferedReader ( new InputStreamReader ( stream, "UTF-8" ) );
+        final BufferedReader reader = new BufferedReader ( new InputStreamReader ( stream, "UTF-8" ) ); //$NON-NLS-1$
 
         final Map<String, Collection<Object>> data = mapper.readValue ( reader, HashMap.class );
 
@@ -130,7 +130,7 @@ public class OscarLoader
     {
         final ObjectMapper mapper = new ObjectMapper ();
 
-        final BufferedReader reader = new BufferedReader ( new InputStreamReader ( stream, "UTF-8" ) );
+        final BufferedReader reader = new BufferedReader ( new InputStreamReader ( stream, "UTF-8" ) ); //$NON-NLS-1$
 
         final Map<String, Map<String, Map<String, Object>>> data = mapper.readValue ( reader, HashMap.class );
 
