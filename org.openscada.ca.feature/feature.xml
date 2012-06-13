@@ -2,7 +2,7 @@
 <feature
       id="org.openscada.ca"
       label="openSCADA CA"
-      version="0.18.0.qualifier"
+      version="1.0.0.qualifier"
       provider-name="TH4 SYSTEMS GmbH">
 
    <description>
@@ -90,5 +90,11 @@ authority.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.openscada.ca.oscar"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
