@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -34,52 +34,62 @@ public class UnmodifyableDictionary<K, V> extends Hashtable<K, V>
         this.dictionary = dictionary;
     }
 
-    public Enumeration<V> elements ()
+    @Override
+    public synchronized Enumeration<V> elements ()
     {
         return this.dictionary.elements ();
     }
 
-    public boolean equals ( final Object o )
+    @Override
+    public synchronized boolean equals ( final Object o )
     {
         return this.dictionary.equals ( o );
     }
 
-    public V get ( final Object key )
+    @Override
+    public synchronized V get ( final Object key )
     {
         return this.dictionary.get ( key );
     }
 
-    public int hashCode ()
+    @Override
+    public synchronized int hashCode ()
     {
         return this.dictionary.hashCode ();
     }
 
-    public boolean isEmpty ()
+    @Override
+    public synchronized boolean isEmpty ()
     {
         return this.dictionary.isEmpty ();
     }
 
-    public Enumeration<K> keys ()
+    @Override
+    public synchronized Enumeration<K> keys ()
     {
         return this.dictionary.keys ();
     }
 
-    public V put ( final K key, final V value )
+    @Override
+    public synchronized V put ( final K key, final V value )
     {
         throw new UnsupportedOperationException ();
     }
 
-    public V remove ( final Object key )
+    @Override
+    public synchronized V remove ( final Object key )
     {
         throw new UnsupportedOperationException ();
     }
 
-    public int size ()
+    @Override
+    public synchronized int size ()
     {
         return this.dictionary.size ();
     }
 
-    public String toString ()
+    @Override
+    public synchronized String toString ()
     {
         return this.dictionary.toString ();
     }
