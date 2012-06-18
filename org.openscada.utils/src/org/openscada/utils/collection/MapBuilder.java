@@ -94,6 +94,9 @@ public class MapBuilder<Key, Value>
 
     /**
      * Get the map of the map builder.
+     * <p>
+     * Note that no copy is returned of the map. So further modifications using the this MapBuilder instance will change the returned map.
+     * </p>
      * 
      * @return The map
      */
@@ -135,7 +138,7 @@ public class MapBuilder<Key, Value>
     {
         if ( map == null )
         {
-            map = new HashMap<Key, Value> ();
+            map = new HashMap<Key, Value> ( 1 );
         }
 
         map.put ( pair.first, pair.second );
