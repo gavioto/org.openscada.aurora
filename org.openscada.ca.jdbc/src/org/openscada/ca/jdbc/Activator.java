@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,6 +19,7 @@
 
 package org.openscada.ca.jdbc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -101,7 +102,25 @@ public class Activator implements BundleActivator
         this.storage = new JdbcStorageDAOImpl ( service, getDataSourceProperties (), isConnectionPool () );
 
         final ConfigurationAdministratorImpl configAdmin = new ConfigurationAdministratorImpl ( context, this.storage );
-        configAdmin.start ();
+        try
+        {
+            configAdmin.start ();
+        }
+        catch ( final Exception e )
+        {
+            logger.warn ( "Failed to start CA", e );
+
+            try
+            {
+                configAdmin.dispose ();
+            }
+            catch ( final Exception e2 )
+            {
+                logger.warn ( "Failed to early dispose CA after error", e );
+            }
+
+            throw new InvocationTargetException ( e );
+        }
 
         // started ... now announce
         this.configAdmin = configAdmin;
