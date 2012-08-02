@@ -29,7 +29,7 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExecutorServiceExporterImpl implements ExecutorServiceExporter
+public class ExecutorServiceExporterImpl implements ExecutorServiceExporterMXBean
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( ExecutorServiceExporterImpl.class );

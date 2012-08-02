@@ -19,7 +19,7 @@
 
 package org.openscada.utils.concurrent;
 
-public interface ExecutorServiceExporter
+public interface ExecutorServiceExporterMXBean
 {
     public String getStatusString ();
 
