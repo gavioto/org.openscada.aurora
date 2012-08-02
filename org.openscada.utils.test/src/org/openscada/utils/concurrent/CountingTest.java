@@ -28,7 +28,7 @@ public class CountingTest
 {
     public static void main ( final String[] args )
     {
-        final CountingThreadPoolExecutor exec = new CountingThreadPoolExecutor ( 1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingDeque<Runnable> () );
+        final CountingThreadPoolExecutor exec = new CountingThreadPoolExecutor ( 1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingDeque<Runnable> (), new NamedThreadFactory ( "Testing" ) );
 
         exec.addListener ( new Listener () {
 
