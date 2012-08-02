@@ -25,8 +25,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.openscada.ca.Configuration;
 import org.openscada.ca.ConfigurationAlreadyExistsException;
@@ -81,7 +83,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
     {
         this.context = context;
 
-        this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( "Configuration Administrator" ) );
+        this.executor = new ThreadPoolExecutor ( 1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable> (), new NamedThreadFactory ( "Configuration Administrator" ) );
         this.executorExporter = new ExecutorServiceExporterImpl ( this.executor, "Configuration Administrator" );
 
         this.listenerTracker = new ListenerTracker ( context );
