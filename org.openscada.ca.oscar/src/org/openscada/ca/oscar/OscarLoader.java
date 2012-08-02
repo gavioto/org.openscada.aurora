@@ -24,15 +24,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 public class OscarLoader
 {
@@ -59,7 +58,7 @@ public class OscarLoader
         final ZipEntry entry = zfile.getEntry ( "data.json" ); //$NON-NLS-1$
         if ( entry == null )
         {
-            throw new IllegalArgumentException ( Messages.getString("OscarLoader.InvalidFileType") ); //$NON-NLS-1$
+            throw new IllegalArgumentException ( Messages.getString ( "OscarLoader.InvalidFileType" ) ); //$NON-NLS-1$
         }
         final InputStream stream = zfile.getInputStream ( entry );
         try
@@ -100,58 +99,18 @@ public class OscarLoader
         return this.ignoreFields;
     }
 
-    @SuppressWarnings ( "unchecked" )
     public static Map<String, Set<String>> loadIgnoreData ( final InputStream stream ) throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper ();
-
+        final Gson g = new GsonBuilder ().create ();
         final BufferedReader reader = new BufferedReader ( new InputStreamReader ( stream, "UTF-8" ) ); //$NON-NLS-1$
-
-        final Map<String, Collection<Object>> data = mapper.readValue ( reader, HashMap.class );
-
-        final Map<String, Set<String>> result = new HashMap<String, Set<String>> ();
-        for ( final Map.Entry<String, Collection<Object>> entry : data.entrySet () )
-        {
-            final Set<String> set = new HashSet<String> ();
-            result.put ( entry.getKey (), set );
-            for ( final Object o : entry.getValue () )
-            {
-                if ( o != null )
-                {
-                    set.add ( o.toString () );
-                }
-            }
-        }
-        return result;
+        return g.fromJson ( reader, new TypeToken<Map<String, Set<String>>> () {}.getType () );
     }
 
-    @SuppressWarnings ( "unchecked" )
     public static Map<String, Map<String, Map<String, String>>> loadJsonData ( final InputStream stream ) throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper ();
-
+        final Gson g = new GsonBuilder ().create ();
         final BufferedReader reader = new BufferedReader ( new InputStreamReader ( stream, "UTF-8" ) ); //$NON-NLS-1$
-
-        final Map<String, Map<String, Map<String, Object>>> data = mapper.readValue ( reader, HashMap.class );
-
-        final Map<String, Map<String, Map<String, String>>> result = new HashMap<String, Map<String, Map<String, String>>> ( data.size () );
-
-        for ( final Map.Entry<String, Map<String, Map<String, Object>>> entry : data.entrySet () )
-        {
-            final Map<String, Map<String, String>> newFactory = new HashMap<String, Map<String, String>> ( entry.getValue ().size () );
-            result.put ( entry.getKey (), newFactory );
-            for ( final Map.Entry<String, Map<String, Object>> subEntry : entry.getValue ().entrySet () )
-            {
-                final Map<String, String> newConfiguration = new HashMap<String, String> ( subEntry.getValue ().size () );
-                newFactory.put ( subEntry.getKey (), newConfiguration );
-                for ( final Map.Entry<String, Object> subSubEntry : subEntry.getValue ().entrySet () )
-                {
-                    newConfiguration.put ( subSubEntry.getKey (), subSubEntry.getValue ().toString () );
-                }
-            }
-        }
-
-        return result;
+        return g.fromJson ( reader, new TypeToken<Map<String, Map<String, Map<String, String>>>> () {}.getType () );
     }
 
     /**

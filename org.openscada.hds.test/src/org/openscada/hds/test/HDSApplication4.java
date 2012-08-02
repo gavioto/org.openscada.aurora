@@ -29,14 +29,35 @@ public class HDSApplication4
 
         avg.next ( 0.0, 0 );
         avg.step ( 100 );
-        avg.next ( 1.0, 200 );
-        avg.next ( 2.0, 300 );
+        avg.next ( 1.0001, 200 );
+        avg.step ( 200 );
+        avg.next ( 2.0001, 300 );
+        avg.step ( 300 );
         avg.step ( 400 );
-        System.out.println ( avg.getAverage ( 500 ) );
+        avg.next ( 4.0001, 500 );
+        System.out.println ( avg.getAverage ( 600 ) );
+        System.out.println ( avg.getDeviation ( 600 ) );
 
         avg = new RunningAverage ();
         avg.step ( 100 );
         avg.next ( 1.0, 200 );
         System.out.println ( avg.getAverage ( 300 ) );
+        System.out.println ( avg.getDeviation ( 300 ) );
+
+        avg = new RunningAverage ();
+        avg.step ( 100 );
+        avg.next ( 1.0, 200 );
+        avg.next ( 2.0, 300 );
+        avg.next ( 4.0, 500 );
+        System.out.println ( avg.getAverage ( 600 ) );
+        System.out.println ( avg.getDeviation ( 600 ) );
+
+        avg = new RunningAverage ();
+        avg.step ( 100 );
+        avg.next ( 1.0, 100 );
+        avg.next ( 1.0, 200 );
+        avg.next ( 1.0, 300 );
+        System.out.println ( avg.getAverage ( 400 ) );
+        System.out.println ( avg.getDeviation ( 400 ) );
     }
 }
