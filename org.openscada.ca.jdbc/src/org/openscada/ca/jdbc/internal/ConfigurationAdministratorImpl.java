@@ -79,6 +79,8 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
 
     protected synchronized void initialLoad () throws SQLException
     {
+        logger.debug ( "Starting initial load" );
+
         // load
         final List<Entry> result = this.jdbcStorageDAO.loadAll ();
 
