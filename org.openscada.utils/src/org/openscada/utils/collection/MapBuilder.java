@@ -106,6 +106,16 @@ public class MapBuilder<Key, Value>
     }
 
     /**
+     * Return a new map which is separated from this map builder
+     * 
+     * @return a new and independent map
+     */
+    public Map<Key, Value> build ()
+    {
+        return new HashMap<Key, Value> ( this.map );
+    }
+
+    /**
      * Return a new map the containing only the provided value pair
      * 
      * @param <Key>
