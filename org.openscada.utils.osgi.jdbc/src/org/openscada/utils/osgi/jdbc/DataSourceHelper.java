@@ -65,7 +65,7 @@ public final class DataSourceHelper
 
         for ( final Map.Entry<Object, Object> entry : System.getProperties ().entrySet () )
         {
-            logger.debug ( "Checking entry - key: {}, value: {}", entry.getKey (), entry.getValue () );
+            logger.trace ( "Checking entry - key: {}, value: {}", entry.getKey (), entry.getValue () );
 
             if ( entry.getKey () == null )
             {
