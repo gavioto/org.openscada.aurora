@@ -36,4 +36,6 @@ public interface ExecutorServiceExporterMXBean
     public Long getCompletedTaskCount ();
 
     public Integer getActiveCount ();
+
+    public Integer getQueueSize ();
 }

@@ -140,6 +140,16 @@ public class ExecutorServiceExporterImpl implements ExecutorServiceExporterMXBea
     }
 
     @Override
+    public Integer getQueueSize ()
+    {
+        if ( this.executorService instanceof ThreadPoolExecutor )
+        {
+            return ( (ThreadPoolExecutor)this.executorService ).getQueue ().size ();
+        }
+        return null;
+    }
+
+    @Override
     public String getStatusString ()
     {
         return this.executorService.toString ();
