@@ -197,7 +197,14 @@ public class SingleServiceTracker<T>
     {
         if ( this.listener != null )
         {
-            this.listener.serviceChange ( reference, service );
+            try
+            {
+                this.listener.serviceChange ( reference, service );
+            }
+            catch ( final Exception e )
+            {
+                logger.debug ( "Failed to notify service", e );
+            }
         }
     }
 
