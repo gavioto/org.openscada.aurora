@@ -100,7 +100,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof Number )
         {
-            logger.debug ( "Parameter value is numeric - %s -> %s", name, value );
+            logger.debug ( "Parameter value is numeric - {} -> {}", name, value );
             return ( (Number)value ).longValue ();
         }
 
@@ -108,7 +108,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
             if ( value != null )
             {
-                logger.debug ( "Parameter value is string - %s -> %s", name, value );
+                logger.debug ( "Parameter value is string - {} -> {}", name, value );
                 return Long.parseLong ( value.toString () );
             }
         }
@@ -117,7 +117,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         }
 
         final Long result = Long.getLong ( name, defaultValue );
-        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        logger.debug ( "Parameter value via system property - {} -> {}", name, result );
         return result;
     }
 
@@ -126,7 +126,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof Number )
         {
-            logger.debug ( "Parameter value is numeric - %s -> %s", name, value );
+            logger.debug ( "Parameter value is numeric - {} -> {}", name, value );
             return ( (Number)value ).intValue ();
         }
 
@@ -134,7 +134,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         {
             if ( value != null )
             {
-                logger.debug ( "Parameter value is string - %s -> %s", name, value );
+                logger.debug ( "Parameter value is string - {} -> {}", name, value );
                 return Integer.parseInt ( value.toString () );
             }
         }
@@ -143,7 +143,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         }
 
         final Integer result = Integer.getInteger ( name, defaultValue );
-        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        logger.debug ( "Parameter value via system property - {} -> {}", name, result );
         return result;
     }
 
@@ -152,12 +152,12 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof Boolean )
         {
-            logger.debug ( "Parameter value is boolean - %s -> %s", name, value );
+            logger.debug ( "Parameter value is boolean - {} -> {}", name, value );
             return (Boolean)value;
         }
         if ( value instanceof Number )
         {
-            logger.debug ( "Parameter value is numeric - %s -> %s", name, value );
+            logger.debug ( "Parameter value is numeric - {} -> {}", name, value );
             return ( (Number)value ).intValue () != 0;
         }
 
@@ -174,7 +174,7 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         }
 
         final boolean result = Boolean.parseBoolean ( System.getProperty ( name, "" + defaultValue ) );
-        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        logger.debug ( "Parameter value via system property - {} -> {}", name, result );
         return result;
     }
 
@@ -183,12 +183,12 @@ public class PoolConnectionAccessor extends CommonConnectionAccessor
         final Object value = paramProperties.remove ( name );
         if ( value instanceof String )
         {
-            logger.debug ( "Parameter value is string - %s -> %s", name, value );
+            logger.debug ( "Parameter value is string - {} -> {}", name, value );
             return (String)value;
         }
 
         final String result = System.getProperty ( name, defaultValue );
-        logger.debug ( "Parameter value via system property - %s -> %s", name, result );
+        logger.debug ( "Parameter value via system property - {} -> {}", name, result );
         return result;
     }
 
