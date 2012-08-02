@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openscada.ds.DataNode;
 import org.openscada.ds.storage.AbstractStorage;
+import org.openscada.utils.concurrent.ExecutorServiceExporterImpl;
 import org.openscada.utils.concurrent.FutureTask;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.NamedThreadFactory;
@@ -45,10 +46,13 @@ public class StorageImpl extends AbstractStorage
 
     private final LinkedBlockingQueue<Runnable> taskQueue;
 
+    private final ExecutorServiceExporterImpl executorExporter;
+
     public StorageImpl ( final JdbcStorageDAO storage )
     {
         this.taskQueue = new LinkedBlockingQueue<Runnable> ();
         this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, this.taskQueue, new NamedThreadFactory ( StorageImpl.class.getName () ) );
+        this.executorExporter = new ExecutorServiceExporterImpl ( this.executorService, StorageImpl.class.getName () );
 
         this.storage = storage;
     }
@@ -60,9 +64,11 @@ public class StorageImpl extends AbstractStorage
     }
 
     @Override
-    public void dispose ()
+    public synchronized void dispose ()
     {
         super.dispose ();
+
+        this.executorExporter.dispose ();
 
         this.executorService.shutdown ();
         this.storage.dispose ();

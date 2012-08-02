@@ -42,6 +42,7 @@ import org.openscada.ca.FreezableConfigurationAdministrator;
 import org.openscada.ca.SelfManagedConfigurationFactory;
 import org.openscada.sec.UserInformation;
 import org.openscada.utils.concurrent.AbstractFuture;
+import org.openscada.utils.concurrent.ExecutorServiceExporterImpl;
 import org.openscada.utils.concurrent.FutureListener;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.NamedThreadFactory;
@@ -74,11 +75,14 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
     private final ServiceTracker<SelfManagedConfigurationFactory, SelfManagedConfigurationFactory> selfServiceListener;
 
+    private ExecutorServiceExporterImpl executorExporter;
+
     public AbstractConfigurationAdministrator ( final BundleContext context )
     {
         this.context = context;
 
         this.executor = Executors.newSingleThreadExecutor ( new NamedThreadFactory ( "Configuration Administrator" ) );
+        this.executorExporter = new ExecutorServiceExporterImpl ( this.executor, "Configuration Administrator" );
 
         this.listenerTracker = new ListenerTracker ( context );
         this.serviceListener = new ServiceTracker<ConfigurationFactory, ConfigurationFactory> ( context, ConfigurationFactory.class, new ServiceTrackerCustomizer<ConfigurationFactory, ConfigurationFactory> () {
@@ -146,6 +150,7 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             logger.error ( "Failed to stop", e );
         }
         this.listenerTracker.dispose ();
+        this.executorExporter.dispose ();
         this.executor.shutdown ();
     }
 
@@ -353,7 +358,8 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
     /**
      * Request a change of the configuration
-     * @param userInformation 
+     * 
+     * @param userInformation
      * @param factoryId
      * @param configurationId
      * @param properties
@@ -424,10 +430,11 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
      * <p>
      * This method can block for some while
      * </p>
-     * @param userInformation 
+     * 
+     * @param userInformation
      * @param future
-     * @param factory 
-     * @param factoryService 
+     * @param factory
+     * @param factoryService
      * @param configuration
      */
     protected void applyConfiguration ( final UserInformation userInformation, final ConfigurationFuture future, final ConfigurationFactory factoryService, final FactoryImpl factory, final ConfigurationImpl configuration )
@@ -870,18 +877,18 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
         {
             switch ( entry.getOperation () )
             {
-            case ADD:
-                future.addChild ( createConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData () ) );
-                break;
-            case DELETE:
-                future.addChild ( deleteConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId () ) );
-                break;
-            case UPDATE_SET:
-                future.addChild ( updateConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), true ) );
-                break;
-            case UPDATE_DIFF:
-                future.addChild ( updateConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), false ) );
-                break;
+                case ADD:
+                    future.addChild ( createConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData () ) );
+                    break;
+                case DELETE:
+                    future.addChild ( deleteConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId () ) );
+                    break;
+                case UPDATE_SET:
+                    future.addChild ( updateConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), true ) );
+                    break;
+                case UPDATE_DIFF:
+                    future.addChild ( updateConfiguration ( userInformation, entry.getFactoryId (), entry.getConfigurationId (), entry.getNewData (), false ) );
+                    break;
             }
         }
 
