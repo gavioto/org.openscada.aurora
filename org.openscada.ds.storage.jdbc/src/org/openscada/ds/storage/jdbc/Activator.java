@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.openscada.ds.DataStore;
 import org.openscada.ds.storage.jdbc.internal.BufferingStorageDao;
+import org.openscada.ds.storage.jdbc.internal.CachingStorageDao;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDao;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBase64Impl;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBlobImpl;
@@ -130,15 +131,18 @@ public class Activator implements BundleActivator
 
     private JdbcStorageDao configure ( final JdbcStorageDao storageImpl )
     {
+        JdbcStorageDao result = storageImpl;
         if ( !Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.disableBuffer" ) )
         {
-            logger.info ( "Using write buffer for storage" );
-            return new BufferingStorageDao ( storageImpl );
+            logger.info ( "Adding write buffer" );
+            result = new BufferingStorageDao ( result );
         }
-        else
+        if ( Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.enableCache" ) )
         {
-            return storageImpl;
+            logger.info ( "Adding cache" );
+            result = new CachingStorageDao ( result );
         }
+        return result;
     }
 
     private static Properties getDataSourceProperties ()
