@@ -24,6 +24,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import org.openscada.ds.DataStore;
+import org.openscada.ds.storage.jdbc.internal.BufferingStorageDao;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDao;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBase64Impl;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBlobImpl;
@@ -102,14 +103,14 @@ public class Activator implements BundleActivator
         {
             switch ( getType () )
             {
-            case BLOB:
-                logger.info ( "Registering BLOB implemenation" );
-                storage = new JdbcStorageDaoBlobImpl ( service, getDataSourceProperties (), isConnectionPool () );
-                break;
-            case BASE64:
-                logger.info ( "Registering BASE64 implemenation" );
-                storage = new JdbcStorageDaoBase64Impl ( service, getDataSourceProperties (), isConnectionPool () );
-                break;
+                case BLOB:
+                    logger.info ( "Registering BLOB implemenation" );
+                    storage = configure ( new JdbcStorageDaoBlobImpl ( service, getDataSourceProperties (), isConnectionPool () ) );
+                    break;
+                case BASE64:
+                    logger.info ( "Registering BASE64 implemenation" );
+                    storage = configure ( new JdbcStorageDaoBase64Impl ( service, getDataSourceProperties (), isConnectionPool () ) );
+                    break;
             }
         }
         catch ( final Exception e )
@@ -124,6 +125,19 @@ public class Activator implements BundleActivator
             final Dictionary<String, Object> properties = new Hashtable<String, Object> ( 1 );
             properties.put ( Constants.SERVICE_VENDOR, "TH4 SYSTEMS GmbH" );
             this.serviceHandle = context.registerService ( org.openscada.ds.DataStore.class, this.storageImpl, properties );
+        }
+    }
+
+    private JdbcStorageDao configure ( final JdbcStorageDao storageImpl )
+    {
+        if ( !Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.disableBuffer" ) )
+        {
+            logger.info ( "Using write buffer for storage" );
+            return new BufferingStorageDao ( storageImpl );
+        }
+        else
+        {
+            return storageImpl;
         }
     }
 
