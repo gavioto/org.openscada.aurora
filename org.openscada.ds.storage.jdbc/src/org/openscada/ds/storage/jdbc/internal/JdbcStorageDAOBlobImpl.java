@@ -56,7 +56,7 @@ public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
     {
         final List<DataNode> result = new LinkedList<DataNode> ();
 
-        final String sql = String.format ( "select node_id,data from %s where node_id=? and instance_id=?", dataStoreName () );
+        final String sql = String.format ( "select node_id, data from %s where node_id=? and instance_id=?", dataStoreName () );
 
         this.accessor.doWithConnection ( new CommonConnectionTask<List<DataNode>> () {
             @Override
@@ -98,6 +98,7 @@ public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
             @Override
             protected Void performTask ( final ConnectionContext connectionContext ) throws Exception
             {
+                // using auto commit
                 deleteNode ( nodeId );
                 return null;
             }
