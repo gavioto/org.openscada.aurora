@@ -20,6 +20,7 @@
 package org.openscada.ds.storage.jdbc.internal;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
@@ -37,13 +38,20 @@ import org.slf4j.LoggerFactory;
 
 public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 {
+
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBase64Impl.class );
 
     private final String instanceId = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
 
     private int chunkSize = Integer.getInteger ( "org.openscada.ds.storage.jdbc.chunkSize", 0 );
 
-    private final String tableName = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
+    private static final String TABLE_NAME = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
+
+    private static final String SQL_INSERT = String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ?, ?, ?, ? )", TABLE_NAME );
+
+    private static final String SQL_SELECT = String.format ( "select data from %s where node_id=? and instance_id=? order by sequence_nr", TABLE_NAME );
+
+    private static final String SQL_DELETE = String.format ( "delete from %s where node_id=? and instance_id=?", TABLE_NAME );
 
     private final CommonConnectionAccessor accessor;
 
@@ -97,7 +105,7 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
     {
         logger.debug ( "Find node: {}", nodeId );
 
-        final String sql = String.format ( "select data from %s where node_id=? and instance_id=? order by sequence_nr", dataStoreName () );
+        final String sql = SQL_SELECT;
 
         return this.accessor.doWithConnection ( new CommonConnectionTask<List<String>> () {
             @Override
@@ -108,9 +116,9 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
         } );
     }
 
-    protected String dataStoreName ()
+    protected void deleteNode ( final ConnectionContext context, final String nodeId ) throws SQLException
     {
-        return this.tableName;
+        context.update ( SQL_DELETE, nodeId, JdbcStorageDAOBase64Impl.this.instanceId );
     }
 
     @Override
@@ -127,11 +135,6 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
                 return null;
             }
         } );
-    }
-
-    protected void deleteNode ( final ConnectionContext context, final String nodeId ) throws SQLException
-    {
-        context.update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), nodeId, JdbcStorageDAOBase64Impl.this.instanceId );
     }
 
     @Override
@@ -169,11 +172,12 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 
     protected void insertNode ( final ConnectionContext connectionContext, final DataNode node, final String data ) throws SQLException
     {
-        // TODO: re-use SQL statement
         if ( data == null )
         {
             return;
         }
+
+        final PreparedStatement stmt = connectionContext.getConnection ().prepareStatement ( SQL_INSERT );
 
         final int len = data.length ();
 
@@ -187,7 +191,13 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 
             final String chunk = data.substring ( i * this.chunkSize, end );
 
-            connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, sequence_nr, data ) values ( ?, ?, ?, ? )", dataStoreName () ), node.getId (), this.instanceId, i, chunk );
+            stmt.setObject ( 1, node.getId () );
+            stmt.setObject ( 2, this.instanceId );
+            stmt.setObject ( 3, i );
+            stmt.setObject ( 4, chunk );
+            stmt.addBatch ();
         }
+
+        stmt.executeBatch ();
     }
 }
