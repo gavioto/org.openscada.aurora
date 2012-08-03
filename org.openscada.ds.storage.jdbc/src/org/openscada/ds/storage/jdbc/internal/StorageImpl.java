@@ -44,14 +44,11 @@ public class StorageImpl extends AbstractStorage
 
     private final ExecutorService executorService;
 
-    private final LinkedBlockingQueue<Runnable> taskQueue;
-
     private final ExecutorServiceExporterImpl executorExporter;
 
     public StorageImpl ( final JdbcStorageDAO storage )
     {
-        this.taskQueue = new LinkedBlockingQueue<Runnable> ();
-        this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, this.taskQueue, new NamedThreadFactory ( StorageImpl.class.getName () ) );
+        this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable> (), new NamedThreadFactory ( StorageImpl.class.getName () ) );
         this.executorExporter = new ExecutorServiceExporterImpl ( this.executorService, StorageImpl.class.getName () );
 
         this.storage = storage;
