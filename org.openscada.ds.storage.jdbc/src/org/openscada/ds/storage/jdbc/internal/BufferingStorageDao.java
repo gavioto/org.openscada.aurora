@@ -119,6 +119,8 @@ public class BufferingStorageDao implements JdbcStorageDao
             }
 
             this.queueMap.put ( node.getId (), node );
+
+            this.writeCondition.signal ();
         }
         finally
         {
@@ -138,6 +140,8 @@ public class BufferingStorageDao implements JdbcStorageDao
             }
 
             this.queueMap.put ( nodeId, null );
+
+            this.writeCondition.signal ();
         }
         finally
         {
@@ -147,6 +151,7 @@ public class BufferingStorageDao implements JdbcStorageDao
 
     protected void writer ()
     {
+        logger.info ( "Starting writer" );
         while ( true )
         {
             // transfer from queue to write map
@@ -198,6 +203,7 @@ public class BufferingStorageDao implements JdbcStorageDao
 
                 if ( this.disposed )
                 {
+                    logger.info ( "Detected shutdown signal" );
                     // dispose target
                     this.targetDao.dispose ();
                     // exit loop
