@@ -66,7 +66,7 @@ public class BufferingStorageDao implements JdbcStorageDao
     public BufferingStorageDao ( final JdbcStorageDao targetDao )
     {
         this.targetDao = targetDao;
-        this.writerThread = new Thread ( "" ) {
+        this.writerThread = new Thread ( "BufferingStorageDao" ) {
             @Override
             public void run ()
             {
