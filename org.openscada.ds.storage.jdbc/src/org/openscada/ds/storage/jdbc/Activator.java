@@ -24,9 +24,9 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import org.openscada.ds.DataStore;
-import org.openscada.ds.storage.jdbc.internal.JdbcStorageDAO;
-import org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBase64Impl;
-import org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBlobImpl;
+import org.openscada.ds.storage.jdbc.internal.JdbcStorageDao;
+import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBase64Impl;
+import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBlobImpl;
 import org.openscada.ds.storage.jdbc.internal.StorageImpl;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.jdbc.DataSourceFactoryTracker;
@@ -96,7 +96,7 @@ public class Activator implements BundleActivator
 
     protected void register ( final DataSourceFactory service, final BundleContext context )
     {
-        JdbcStorageDAO storage = null;
+        JdbcStorageDao storage = null;
 
         try
         {
@@ -104,11 +104,11 @@ public class Activator implements BundleActivator
             {
             case BLOB:
                 logger.info ( "Registering BLOB implemenation" );
-                storage = new JdbcStorageDAOBlobImpl ( service, getDataSourceProperties (), isConnectionPool () );
+                storage = new JdbcStorageDaoBlobImpl ( service, getDataSourceProperties (), isConnectionPool () );
                 break;
             case BASE64:
                 logger.info ( "Registering BASE64 implemenation" );
-                storage = new JdbcStorageDAOBase64Impl ( service, getDataSourceProperties (), isConnectionPool () );
+                storage = new JdbcStorageDaoBase64Impl ( service, getDataSourceProperties (), isConnectionPool () );
                 break;
             }
         }

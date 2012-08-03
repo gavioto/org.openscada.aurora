@@ -21,7 +21,7 @@ package org.openscada.ds.storage.jdbc.internal;
 
 import org.openscada.ds.DataNode;
 
-public interface JdbcStorageDAO
+public interface JdbcStorageDao
 {
     public DataNode readNode ( String nodeId );
 

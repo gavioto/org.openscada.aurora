@@ -36,10 +36,10 @@ import org.osgi.service.jdbc.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
+public class JdbcStorageDaoBase64Impl implements JdbcStorageDao
 {
 
-    private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBase64Impl.class );
+    private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDaoBase64Impl.class );
 
     private final String instanceId = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
 
@@ -55,7 +55,7 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
 
     private final CommonConnectionAccessor accessor;
 
-    public JdbcStorageDAOBase64Impl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties, final boolean usePool ) throws SQLException
+    public JdbcStorageDaoBase64Impl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties, final boolean usePool ) throws SQLException
     {
         this.accessor = usePool ? new PoolConnectionAccessor ( dataSourceFactory, paramProperties ) : new DataSourceConnectionAccessor ( dataSourceFactory, paramProperties );
         if ( this.chunkSize <= 0 )
@@ -111,14 +111,14 @@ public class JdbcStorageDAOBase64Impl implements JdbcStorageDAO
             @Override
             protected List<String> performTask ( final ConnectionContext connectionContext ) throws SQLException
             {
-                return connectionContext.queryForList ( String.class, sql, nodeId, JdbcStorageDAOBase64Impl.this.instanceId );
+                return connectionContext.queryForList ( String.class, sql, nodeId, JdbcStorageDaoBase64Impl.this.instanceId );
             }
         } );
     }
 
     protected void deleteNode ( final ConnectionContext context, final String nodeId ) throws SQLException
     {
-        context.update ( SQL_DELETE, nodeId, JdbcStorageDAOBase64Impl.this.instanceId );
+        context.update ( SQL_DELETE, nodeId, JdbcStorageDaoBase64Impl.this.instanceId );
     }
 
     @Override

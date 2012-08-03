@@ -36,9 +36,9 @@ import org.osgi.service.jdbc.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
+public class JdbcStorageDaoBlobImpl implements JdbcStorageDao
 {
-    private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDAOBlobImpl.class );
+    private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDaoBlobImpl.class );
 
     private final String tableName = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
 
@@ -46,7 +46,7 @@ public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
 
     private final CommonConnectionAccessor accessor;
 
-    public JdbcStorageDAOBlobImpl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties, final boolean usePool ) throws SQLException
+    public JdbcStorageDaoBlobImpl ( final DataSourceFactory dataSourceFactory, final Properties paramProperties, final boolean usePool ) throws SQLException
     {
         this.accessor = usePool ? new PoolConnectionAccessor ( dataSourceFactory, paramProperties ) : new DataSourceConnectionAccessor ( dataSourceFactory, paramProperties );
     }
@@ -70,7 +70,7 @@ public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
                         result.add ( new DataNode ( resultSet.getString ( "node_id" ), resultSet.getBytes ( "data" ) ) );
                     }
 
-                }, sql, nodeId, JdbcStorageDAOBlobImpl.this.instanceId );
+                }, sql, nodeId, JdbcStorageDaoBlobImpl.this.instanceId );
 
                 return null;
             }
@@ -122,7 +122,7 @@ public class JdbcStorageDAOBlobImpl implements JdbcStorageDAO
                 connectionContext.getConnection ().setAutoCommit ( false );
 
                 deleteNode ( connectionContext, node.getId () );
-                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), node.getId (), JdbcStorageDAOBlobImpl.this.instanceId, node.getData () );
+                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), node.getId (), JdbcStorageDaoBlobImpl.this.instanceId, node.getData () );
 
                 connectionContext.commit ();
                 return null;

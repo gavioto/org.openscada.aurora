@@ -40,13 +40,13 @@ public class StorageImpl extends AbstractStorage
 {
     private final static Logger logger = LoggerFactory.getLogger ( StorageImpl.class );
 
-    private final JdbcStorageDAO storage;
+    private final JdbcStorageDao storage;
 
     private final ExecutorService executorService;
 
     private final ExecutorServiceExporterImpl executorExporter;
 
-    public StorageImpl ( final JdbcStorageDAO storage )
+    public StorageImpl ( final JdbcStorageDao storage )
     {
         this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable> (), new NamedThreadFactory ( StorageImpl.class.getName () ) );
         this.executorExporter = new ExecutorServiceExporterImpl ( this.executorService, StorageImpl.class.getName () );
