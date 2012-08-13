@@ -100,11 +100,12 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
             if ( factory == null )
             {
                 factory = new HashMap<String, Map<String, String>> ();
-                factories.put ( entry.getFactoryId (), factory );
+                factories.put ( intern ( entry.getFactoryId () ), factory );
             }
             Map<String, String> cfg = factory.get ( entry.getConfigurationId () );
             if ( cfg == null )
             {
+                // no need to intern configuration ids as they are unique
                 cfg = new HashMap<String, String> ( INITIAL_CFG_SIZE );
                 factory.put ( entry.getConfigurationId (), cfg );
             }
