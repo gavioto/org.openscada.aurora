@@ -19,8 +19,11 @@
 
 package org.openscada.ds.storage.jdbc.internal;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -73,6 +76,37 @@ public class BufferingStorageDao implements JdbcStorageDao
                 writer ();
             }
         };
+    }
+
+    @Override
+    public Collection<DataNode> readAllNodes ()
+    {
+        try
+        {
+            this.readLock.lock ();
+            if ( this.disposed )
+            {
+                return null;
+            }
+
+            // read all data nodes by ...
+
+            final Set<DataNode> result = new HashSet<DataNode> ();
+
+            // ... reading from target first
+            result.addAll ( this.targetDao.readAllNodes () );
+            // ... override with writeMap
+            result.addAll ( this.writeMap.values () );
+            // ... override with queueMap
+            result.addAll ( this.queueMap.values () );
+
+            // return result
+            return result;
+        }
+        finally
+        {
+            this.readLock.unlock ();
+        }
     }
 
     @Override

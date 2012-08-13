@@ -21,6 +21,7 @@ package org.openscada.ds.storage.jdbc.internal;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -38,9 +39,38 @@ import org.slf4j.LoggerFactory;
 
 public class JdbcStorageDaoBlobImpl implements JdbcStorageDao
 {
+    public static class CollectRows implements RowCallback
+    {
+        private final List<DataNode> result;
+
+        public CollectRows ( final List<DataNode> result )
+        {
+            this.result = result;
+        }
+
+        @Override
+        public void processRow ( final ResultSet resultSet ) throws SQLException
+        {
+            this.result.add ( new DataNode ( resultSet.getString ( "node_id" ), resultSet.getBytes ( "data" ) ) );
+        }
+
+        public List<DataNode> getResult ()
+        {
+            return this.result;
+        }
+    }
+
     private final static Logger logger = LoggerFactory.getLogger ( JdbcStorageDaoBlobImpl.class );
 
-    private final String tableName = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
+    private final static String TABLE_NAME = System.getProperty ( "org.openscada.ds.storage.jdbc.table", "datastore" );
+
+    private final static String SQL_SELECT = String.format ( "select node_id, data from %s where node_id=? and instance_id=?", TABLE_NAME );
+
+    private final static String SQL_SELECT_ALL = String.format ( "select node_id, data from %s where instance_id=?", TABLE_NAME );
+
+    private static final String SQL_INSERT = String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", TABLE_NAME );
+
+    private static final String SQL_DELETE = String.format ( "delete from %s where node_id=? and instance_id=?", TABLE_NAME );
 
     private final String instanceId = System.getProperty ( "org.openscada.ds.storage.jdbc.instance", "default" );
 
@@ -54,25 +84,14 @@ public class JdbcStorageDaoBlobImpl implements JdbcStorageDao
     @Override
     public DataNode readNode ( final String nodeId )
     {
-        final List<DataNode> result = new LinkedList<DataNode> ();
-
-        final String sql = String.format ( "select node_id, data from %s where node_id=? and instance_id=?", dataStoreName () );
-
-        this.accessor.doWithConnection ( new CommonConnectionTask<List<DataNode>> () {
+        final List<DataNode> result = this.accessor.doWithConnection ( new CommonConnectionTask<List<DataNode>> () {
             @Override
             protected List<DataNode> performTask ( final ConnectionContext connectionContext ) throws Exception
             {
-                connectionContext.query ( new RowCallback () {
+                final CollectRows innerResult = new CollectRows ( new LinkedList<DataNode> () );
+                connectionContext.query ( innerResult, SQL_SELECT, nodeId, JdbcStorageDaoBlobImpl.this.instanceId );
 
-                    @Override
-                    public void processRow ( final ResultSet resultSet ) throws SQLException
-                    {
-                        result.add ( new DataNode ( resultSet.getString ( "node_id" ), resultSet.getBytes ( "data" ) ) );
-                    }
-
-                }, sql, nodeId, JdbcStorageDaoBlobImpl.this.instanceId );
-
-                return null;
+                return innerResult.getResult ();
             }
         } );
 
@@ -86,9 +105,19 @@ public class JdbcStorageDaoBlobImpl implements JdbcStorageDao
         }
     }
 
-    protected String dataStoreName ()
+    @Override
+    public Collection<DataNode> readAllNodes ()
     {
-        return this.tableName;
+        return this.accessor.doWithConnection ( new CommonConnectionTask<List<DataNode>> () {
+            @Override
+            protected List<DataNode> performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                final CollectRows innerResult = new CollectRows ( new LinkedList<DataNode> () );
+                connectionContext.query ( innerResult, SQL_SELECT_ALL, JdbcStorageDaoBlobImpl.this.instanceId );
+
+                return innerResult.getResult ();
+            }
+        } );
     }
 
     @Override
@@ -107,7 +136,7 @@ public class JdbcStorageDaoBlobImpl implements JdbcStorageDao
 
     protected void deleteNode ( final ConnectionContext connectionContext, final String nodeId ) throws SQLException
     {
-        connectionContext.update ( String.format ( "delete from %s where node_id=? and instance_id=?", dataStoreName () ), nodeId, this.instanceId );
+        connectionContext.update ( SQL_DELETE, nodeId, this.instanceId );
     }
 
     @Override
@@ -122,7 +151,7 @@ public class JdbcStorageDaoBlobImpl implements JdbcStorageDao
                 connectionContext.getConnection ().setAutoCommit ( false );
 
                 deleteNode ( connectionContext, node.getId () );
-                connectionContext.update ( String.format ( "insert into %s ( node_id, instance_id, data ) values ( ? , ?, ? )", dataStoreName () ), node.getId (), JdbcStorageDaoBlobImpl.this.instanceId, node.getData () );
+                connectionContext.update ( SQL_INSERT, node.getId (), JdbcStorageDaoBlobImpl.this.instanceId, node.getData () );
 
                 connectionContext.commit ();
                 return null;

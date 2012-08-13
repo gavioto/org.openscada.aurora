@@ -19,6 +19,8 @@
 
 package org.openscada.ds.storage.jdbc.internal;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -26,13 +28,17 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openscada.ds.DataNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CachingStorageDao implements JdbcStorageDao
 {
 
+    private final static Logger logger = LoggerFactory.getLogger ( CachingStorageDao.class );
+
     private final JdbcStorageDao targetDao;
 
-    private final Map<String, DataNode> cacheMap = new HashMap<String, DataNode> ();
+    private final Map<String, DataNode> cacheMap;
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock ();
 
@@ -43,6 +49,42 @@ public class CachingStorageDao implements JdbcStorageDao
     public CachingStorageDao ( final JdbcStorageDao targetDao )
     {
         this.targetDao = targetDao;
+        try
+        {
+            this.writeLock.lock ();
+
+            logger.info ( "Starting cache prefill" );
+
+            final Collection<DataNode> nodes = targetDao.readAllNodes ();
+            this.cacheMap = new HashMap<String, DataNode> ( nodes.size () );
+
+            logger.debug ( "Prefill found {} entries", nodes.size () );
+
+            for ( final DataNode node : nodes )
+            {
+                this.cacheMap.put ( node.getId (), node );
+            }
+
+            logger.info ( "Prefill complete" );
+        }
+        finally
+        {
+            this.writeLock.unlock ();
+        }
+    }
+
+    @Override
+    public Collection<DataNode> readAllNodes ()
+    {
+        try
+        {
+            this.readLock.lock ();
+            return new ArrayList<DataNode> ( this.cacheMap.values () );
+        }
+        finally
+        {
+            this.readLock.unlock ();
+        }
     }
 
     @Override
@@ -61,11 +103,13 @@ public class CachingStorageDao implements JdbcStorageDao
             this.readLock.unlock ();
         }
 
+        // releasing all locks could cause multiple reads, but this is ok
         final DataNode dataNode = this.targetDao.readNode ( nodeId );
 
         try
         {
             this.writeLock.lock ();
+            // check if entry was inserted meanwhile (might be a write)
             if ( this.cacheMap.containsKey ( nodeId ) )
             {
                 return this.cacheMap.get ( nodeId );
