@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-License: http://www.gnu.org/licenses/lgpl-2.1.html
-Import-Package: org.slf4j;version="[1.5.0,1.7.0)"
+Import-Package: com.google.common.collect;version="12.0.0",
+ org.slf4j;version="[1.5.0,1.7.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.openscada.utils;version="1.0.0",
  org.openscada.utils.beans;version="1.0.0",
@@ -10,6 +11,7 @@ Export-Package: org.openscada.utils;version="1.0.0",
  org.openscada.utils.concurrent.task;version="1.0.0";uses:="org.openscada.utils.concurrent",
  org.openscada.utils.exec;version="1.0.0",
  org.openscada.utils.factory;version="1.0.0";uses:="org.openscada.utils.statuscodes",
+ org.openscada.utils.interner;version="1.0.0";uses:="com.google.common.collect",
  org.openscada.utils.lang;version="1.0.0",
  org.openscada.utils.lifecycle;version="1.0.0",
  org.openscada.utils.script;version="1.0.0";uses:="javax.script",
