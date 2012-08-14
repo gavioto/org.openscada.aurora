@@ -145,7 +145,7 @@ public abstract class AbstractObjectPoolServiceTracker<S>
 
     protected synchronized void handlePoolAdd ( final ObjectPool<S> objectPool, final int priority )
     {
-        logger.debug ( "Pool added: {}/{}", new Object[] { objectPool, priority } );
+        logger.debug ( "Pool added: {}/{}", objectPool, priority );
         this.poolMap.put ( objectPool, new PoolHandler ( objectPool, this.serviceId ) );
     }
 
