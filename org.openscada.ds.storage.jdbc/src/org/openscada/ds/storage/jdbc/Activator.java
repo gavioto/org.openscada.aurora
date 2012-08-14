@@ -22,6 +22,8 @@ package org.openscada.ds.storage.jdbc;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.openscada.ds.DataStore;
 import org.openscada.ds.storage.jdbc.internal.BufferingStorageDao;
@@ -30,6 +32,7 @@ import org.openscada.ds.storage.jdbc.internal.JdbcStorageDao;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBase64Impl;
 import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBlobImpl;
 import org.openscada.ds.storage.jdbc.internal.StorageImpl;
+import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.jdbc.DataSourceFactoryTracker;
 import org.openscada.utils.osgi.jdbc.DataSourceHelper;
@@ -52,6 +55,8 @@ public class Activator implements BundleActivator
     private ServiceRegistration<DataStore> serviceHandle;
 
     private StorageImpl storageImpl;
+    
+    private ScheduledExecutorService scheduler;
 
     private static enum Type
     {
@@ -79,6 +84,7 @@ public class Activator implements BundleActivator
     @Override
     public void start ( final BundleContext context ) throws Exception
     {
+        scheduler = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
         final String driver = System.getProperty ( "org.openscada.ds.storage.jdbc.driver", System.getProperty ( "org.openscada.jdbc.driver", "" ) );
 
         this.dataSourceFactoryTracker = new DataSourceFactoryTracker ( context, driver, new SingleServiceListener<DataSourceFactory> () {
@@ -137,10 +143,10 @@ public class Activator implements BundleActivator
             logger.info ( "Adding write buffer" );
             result = new BufferingStorageDao ( result );
         }
-        if ( Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.enableCache" ) )
+        if ( !Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.disableCache" ) )
         {
             logger.info ( "Adding cache" );
-            result = new CachingStorageDao ( result, Long.getLong ( "org.openscada.ds.storage.jdbc.cacheExpiration", 10 * 60 ) );
+            result = new CachingStorageDao ( result, Long.getLong ( "org.openscada.ds.storage.jdbc.cacheExpiration", 10 * 60 ), scheduler );
         }
         return result;
     }
@@ -179,6 +185,10 @@ public class Activator implements BundleActivator
     {
         unregister ();
         this.dataSourceFactoryTracker.close ();
+        if (scheduler != null) {
+            scheduler.shutdownNow ();
+            scheduler = null;
+        }
     }
 
 }
