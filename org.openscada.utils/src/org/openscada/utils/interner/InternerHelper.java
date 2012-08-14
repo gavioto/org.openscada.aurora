@@ -41,15 +41,20 @@ public final class InternerHelper
         }
         else
         {
-            return new Interner<String> () {
-
-                @Override
-                public String intern ( final String string )
-                {
-                    return string;
-                }
-            };
+            return makeNoOpInterner ();
         }
+    }
+
+    public static Interner<String> makeNoOpInterner ()
+    {
+        return new Interner<String> () {
+
+            @Override
+            public String intern ( final String string )
+            {
+                return string;
+            }
+        };
     }
 
 }
