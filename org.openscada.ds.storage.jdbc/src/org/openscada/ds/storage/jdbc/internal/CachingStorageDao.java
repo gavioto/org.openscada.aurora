@@ -21,6 +21,7 @@ package org.openscada.ds.storage.jdbc.internal;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -51,7 +52,7 @@ public class CachingStorageDao implements JdbcStorageDao
 
     private final Lock writeLock = this.lock.writeLock ();
 
-    public CachingStorageDao ( final JdbcStorageDao targetDao, final long expireTime )
+    public CachingStorageDao ( final JdbcStorageDao targetDao, final long expireTime, final ScheduledExecutorService scheduler )
     {
         logger.trace ( "cache expiry set to {} seconds", expireTime );
         this.targetDao = targetDao;
@@ -72,6 +73,13 @@ public class CachingStorageDao implements JdbcStorageDao
         // preload cache
         logger.trace ( "preload cache" );
         fillCache ();
+        scheduler.schedule ( new Runnable() {
+            @Override
+            public void run ()
+            {
+                cache.cleanUp ();
+            }
+        }, 1l, TimeUnit.MINUTES );
     }
 
     private void fillCache ()
