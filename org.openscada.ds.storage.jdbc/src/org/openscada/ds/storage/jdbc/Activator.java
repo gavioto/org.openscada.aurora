@@ -137,7 +137,7 @@ public class Activator implements BundleActivator
             logger.info ( "Adding write buffer" );
             result = new BufferingStorageDao ( result );
         }
-        if ( Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.enableCache" ) )
+        if ( !Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.disableCache" ) )
         {
             logger.info ( "Adding cache" );
             result = new CachingStorageDao ( result, Long.getLong ( "org.openscada.ds.storage.jdbc.cacheExpiration", 10 * 60 ) );
