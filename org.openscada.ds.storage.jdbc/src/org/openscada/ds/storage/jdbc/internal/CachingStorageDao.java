@@ -20,12 +20,11 @@
 package org.openscada.ds.storage.jdbc.internal;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openscada.ds.DataNode;
 import org.slf4j.Logger;
@@ -46,8 +45,15 @@ public class CachingStorageDao implements JdbcStorageDao
 
     private final LoadingCache<String, DataNode> cache;
 
+    private final ReadWriteLock lock = new ReentrantReadWriteLock ();
+
+    private final Lock readLock = this.lock.readLock ();
+
+    private final Lock writeLock = this.lock.writeLock ();
+
     public CachingStorageDao ( final JdbcStorageDao targetDao, final long expireTime )
     {
+        logger.trace ( "cache expiry set to {} seconds", expireTime );
         this.targetDao = targetDao;
         this.cache = CacheBuilder.newBuilder ().expireAfterAccess ( expireTime, TimeUnit.SECONDS ).removalListener ( new RemovalListener<String, DataNode> () {
             @Override
@@ -62,97 +68,87 @@ public class CachingStorageDao implements JdbcStorageDao
                 logger.trace ( "load single node with id {}", nodeId );
                 return targetDao.readNode ( nodeId );
             }
-
-            @Override
-            public Map<String, DataNode> loadAll ( final Iterable<? extends String> nodeIds ) throws Exception
-            {
-                logger.trace ( "load all nodes" );
-                final Map<String, DataNode> result = new HashMap<String, DataNode> ();
-                for ( final DataNode node : targetDao.readAllNodes () )
-                {
-                    result.put ( node.getId (), node );
-                }
-                return result;
-            }
         } );
         // preload cache
-        try
+        logger.trace ( "preload cache" );
+        fillCache ();
+    }
+
+    private void fillCache ()
+    {
+        logger.trace ( "fill cache" );
+        this.cache.invalidateAll ();
+        for ( final DataNode node : targetDao.readAllNodes () )
         {
-            this.cache.getAll ( Collections.<String>emptyList () );
-        }
-        catch ( final ExecutionException e )
-        {
-            throw new RuntimeException ( e );
+            this.cache.put ( node.getId (), node );
         }
     }
 
     @Override
     public Collection<DataNode> readAllNodes ()
     {
+        logger.trace ( "read all nodes" );
         try
         {
-            return this.cache.getAll ( Collections.<String>emptyList () ).values ();
+            this.readLock.lock ();
+            fillCache ();
+            return cache.asMap ().values ();
         }
-        catch ( ExecutionException e )
+        finally
         {
-            throw new RuntimeException ( e );
+            this.readLock.unlock ();
         }
     }
 
     @Override
     public DataNode readNode ( final String nodeId )
     {
+        logger.trace ( "read single node with id {}", nodeId );
         try
         {
+            this.readLock.lock ();
             return this.cache.get ( nodeId );
         }
         catch ( ExecutionException e )
         {
             throw new RuntimeException ( e );
         }
+        finally
+        {
+            this.readLock.unlock ();
+        }
     }
 
     @Override
     public void writeNode ( final DataNode node )
     {
+        logger.trace ( "write node with id {}", node.getId () );
         try
         {
-            this.cache.get ( node.getId (), new Callable<DataNode> () {
-                @Override
-                public DataNode call () throws Exception
-                {
-                    logger.trace ( "write node with id {}", node.getId () );
-                    targetDao.writeNode ( node );
-                    return node;
-                }
-            } );
+            this.writeLock.lock ();
+            targetDao.writeNode ( node );
+            this.cache.put ( node.getId (), node );
         }
-        catch ( ExecutionException e )
+        finally
         {
-            throw new RuntimeException ( e );
+            this.writeLock.unlock ();
         }
     }
 
     @Override
     public void deleteNode ( final String nodeId )
     {
+        logger.trace ( "delete node with id {}", nodeId );
         try
         {
-            this.cache.get ( nodeId, new Callable<DataNode> () {
-                @Override
-                public DataNode call () throws Exception
-                {
-                    logger.trace ( "delete node with id {}", nodeId );
-                    targetDao.deleteNode ( nodeId );
-                    return null;
-                }
-            } );
+            this.writeLock.lock ();
+            targetDao.deleteNode ( nodeId );
+            this.cache.invalidate ( nodeId );
         }
-        catch ( ExecutionException e )
+        finally
         {
-            throw new RuntimeException ( e );
+            this.writeLock.unlock ();
         }
-        this.cache.invalidate ( nodeId );
     }
 
     @Override
