@@ -45,7 +45,7 @@ public class Activator implements BundleActivator
     {
         logger.info ( "Starting file based DS" );
         this.service = new StorageImpl ();
-        final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
+        final Dictionary<String, Object> properties = new Hashtable<String, Object> ( 2 );
         properties.put ( Constants.SERVICE_VENDOR, "TH4 SYSTEMS GmbH" );
         properties.put ( Constants.SERVICE_DESCRIPTION, "A file based data store implemenentation" );
         context.registerService ( DataStore.class.getName (), this.service, properties );

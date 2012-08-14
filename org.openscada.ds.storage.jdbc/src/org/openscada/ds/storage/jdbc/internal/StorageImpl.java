@@ -22,16 +22,13 @@ package org.openscada.ds.storage.jdbc.internal;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.openscada.ds.DataNode;
 import org.openscada.ds.storage.AbstractStorage;
-import org.openscada.utils.concurrent.ExecutorServiceExporterImpl;
+import org.openscada.utils.concurrent.ExportedExecutorService;
 import org.openscada.utils.concurrent.FutureTask;
 import org.openscada.utils.concurrent.InstantErrorFuture;
-import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +41,9 @@ public class StorageImpl extends AbstractStorage
 
     private final ExecutorService executorService;
 
-    private final ExecutorServiceExporterImpl executorExporter;
-
     public StorageImpl ( final JdbcStorageDao storage )
     {
-        this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable> (), new NamedThreadFactory ( StorageImpl.class.getName () ) );
-        this.executorExporter = new ExecutorServiceExporterImpl ( this.executorService, StorageImpl.class.getName () );
+        this.executorService = new ExportedExecutorService ( StorageImpl.class.getName (), 1, 1, 0L, TimeUnit.MILLISECONDS );
 
         this.storage = storage;
     }
@@ -64,8 +58,6 @@ public class StorageImpl extends AbstractStorage
     public synchronized void dispose ()
     {
         super.dispose ();
-
-        this.executorExporter.dispose ();
 
         this.executorService.shutdown ();
         this.storage.dispose ();
