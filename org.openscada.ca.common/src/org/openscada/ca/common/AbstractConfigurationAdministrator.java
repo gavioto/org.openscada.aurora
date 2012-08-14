@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.openscada.ca.Configuration;
@@ -44,10 +42,9 @@ import org.openscada.ca.FreezableConfigurationAdministrator;
 import org.openscada.ca.SelfManagedConfigurationFactory;
 import org.openscada.sec.UserInformation;
 import org.openscada.utils.concurrent.AbstractFuture;
-import org.openscada.utils.concurrent.ExecutorServiceExporterImpl;
+import org.openscada.utils.concurrent.ExportedExecutorService;
 import org.openscada.utils.concurrent.FutureListener;
 import org.openscada.utils.concurrent.InstantErrorFuture;
-import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -77,14 +74,11 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
 
     private final ServiceTracker<SelfManagedConfigurationFactory, SelfManagedConfigurationFactory> selfServiceListener;
 
-    private ExecutorServiceExporterImpl executorExporter;
-
     public AbstractConfigurationAdministrator ( final BundleContext context )
     {
         this.context = context;
 
-        this.executor = new ThreadPoolExecutor ( 1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable> (), new NamedThreadFactory ( "Configuration Administrator" ) );
-        this.executorExporter = new ExecutorServiceExporterImpl ( this.executor, "Configuration Administrator" );
+        this.executor = new ExportedExecutorService ( "Configuration Administrator", 1, 1, 1, TimeUnit.MINUTES );
 
         this.listenerTracker = new ListenerTracker ( context );
         this.serviceListener = new ServiceTracker<ConfigurationFactory, ConfigurationFactory> ( context, ConfigurationFactory.class, new ServiceTrackerCustomizer<ConfigurationFactory, ConfigurationFactory> () {
@@ -152,7 +146,6 @@ public abstract class AbstractConfigurationAdministrator implements FreezableCon
             logger.error ( "Failed to stop", e );
         }
         this.listenerTracker.dispose ();
-        this.executorExporter.dispose ();
         this.executor.shutdown ();
     }
 
