@@ -19,17 +19,22 @@
 
 package org.openscada.ds.storage.jdbc.internal;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.openscada.ds.DataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 public class CachingStorageDao implements JdbcStorageDao
 {
@@ -38,38 +43,45 @@ public class CachingStorageDao implements JdbcStorageDao
 
     private final JdbcStorageDao targetDao;
 
-    private final Map<String, DataNode> cacheMap;
+    private final LoadingCache<String, DataNode> cache;
 
-    private final ReadWriteLock lock = new ReentrantReadWriteLock ();
-
-    private final Lock readLock = this.lock.readLock ();
-
-    private final Lock writeLock = this.lock.writeLock ();
-
-    public CachingStorageDao ( final JdbcStorageDao targetDao )
+    public CachingStorageDao ( final JdbcStorageDao targetDao, final long expireTime )
     {
         this.targetDao = targetDao;
-        try
-        {
-            this.writeLock.lock ();
-
-            logger.info ( "Starting cache prefill" );
-
-            final Collection<DataNode> nodes = targetDao.readAllNodes ();
-            this.cacheMap = new HashMap<String, DataNode> ( nodes.size () );
-
-            logger.debug ( "Prefill found {} entries", nodes.size () );
-
-            for ( final DataNode node : nodes )
+        this.cache = CacheBuilder.newBuilder ().expireAfterAccess ( expireTime, TimeUnit.SECONDS ).removalListener ( new RemovalListener<String, DataNode> () {
+            @Override
+            public void onRemoval ( final RemovalNotification<String, DataNode> notification )
             {
-                this.cacheMap.put ( node.getId (), node );
+                logger.trace ( "remove from cache node with id {}", notification.getKey () );
+            }
+        } ).build ( new CacheLoader<String, DataNode> () {
+            @Override
+            public DataNode load ( final String nodeId ) throws Exception
+            {
+                logger.trace ( "load single node with id {}", nodeId );
+                return targetDao.readNode ( nodeId );
             }
 
-            logger.info ( "Prefill complete" );
-        }
-        finally
+            @Override
+            public Map<String, DataNode> loadAll ( final Iterable<? extends String> nodeIds ) throws Exception
+            {
+                logger.trace ( "load all nodes" );
+                final Map<String, DataNode> result = new HashMap<String, DataNode> ();
+                for ( final DataNode node : targetDao.readAllNodes () )
+                {
+                    result.put ( node.getId (), node );
+                }
+                return result;
+            }
+        } );
+        // preload cache
+        try
         {
-            this.writeLock.unlock ();
+            this.cache.getAll ( null );
+        }
+        catch ( final ExecutionException e )
+        {
+            throw new RuntimeException ( e );
         }
     }
 
@@ -78,12 +90,11 @@ public class CachingStorageDao implements JdbcStorageDao
     {
         try
         {
-            this.readLock.lock ();
-            return new ArrayList<DataNode> ( this.cacheMap.values () );
+            return this.cache.getAll ( null ).values ();
         }
-        finally
+        catch ( ExecutionException e )
         {
-            this.readLock.unlock ();
+            throw new RuntimeException ( e );
         }
     }
 
@@ -92,34 +103,11 @@ public class CachingStorageDao implements JdbcStorageDao
     {
         try
         {
-            this.readLock.lock ();
-            if ( this.cacheMap.containsKey ( nodeId ) )
-            {
-                return this.cacheMap.get ( nodeId );
-            }
+            return this.cache.get ( nodeId );
         }
-        finally
+        catch ( ExecutionException e )
         {
-            this.readLock.unlock ();
-        }
-
-        // releasing all locks could cause multiple reads, but this is ok
-        final DataNode dataNode = this.targetDao.readNode ( nodeId );
-
-        try
-        {
-            this.writeLock.lock ();
-            // check if entry was inserted meanwhile (might be a write)
-            if ( this.cacheMap.containsKey ( nodeId ) )
-            {
-                return this.cacheMap.get ( nodeId );
-            }
-            this.cacheMap.put ( nodeId, dataNode );
-            return dataNode;
-        }
-        finally
-        {
-            this.writeLock.unlock ();
+            throw new RuntimeException ( e );
         }
     }
 
@@ -128,14 +116,20 @@ public class CachingStorageDao implements JdbcStorageDao
     {
         try
         {
-            this.writeLock.lock ();
-            this.cacheMap.put ( node.getId (), node );
+            this.cache.get ( node.getId (), new Callable<DataNode> () {
+                @Override
+                public DataNode call () throws Exception
+                {
+                    logger.trace ( "write node with id {}", node.getId () );
+                    targetDao.writeNode ( node );
+                    return node;
+                }
+            } );
         }
-        finally
+        catch ( ExecutionException e )
         {
-            this.writeLock.unlock ();
+            throw new RuntimeException ( e );
         }
-        this.targetDao.writeNode ( node );
     }
 
     @Override
@@ -143,14 +137,21 @@ public class CachingStorageDao implements JdbcStorageDao
     {
         try
         {
-            this.writeLock.lock ();
-            this.cacheMap.remove ( nodeId );
+            this.cache.get ( nodeId, new Callable<DataNode> () {
+                @Override
+                public DataNode call () throws Exception
+                {
+                    logger.trace ( "delete node with id {}", nodeId );
+                    targetDao.deleteNode ( nodeId );
+                    return null;
+                }
+            } );
         }
-        finally
+        catch ( ExecutionException e )
         {
-            this.writeLock.unlock ();
+            throw new RuntimeException ( e );
         }
-        this.targetDao.deleteNode ( nodeId );
+        this.cache.invalidate ( nodeId );
     }
 
     @Override
@@ -158,5 +159,4 @@ public class CachingStorageDao implements JdbcStorageDao
     {
         this.targetDao.dispose ();
     }
-
 }
