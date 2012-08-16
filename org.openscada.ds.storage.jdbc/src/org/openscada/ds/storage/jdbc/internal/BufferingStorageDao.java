@@ -19,6 +19,7 @@
 
 package org.openscada.ds.storage.jdbc.internal;
 
+import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,11 +31,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import org.openscada.ds.DataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BufferingStorageDao implements JdbcStorageDao
+public class BufferingStorageDao implements BufferingStorageDaoMXBean, JdbcStorageDao
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( BufferingStorageDao.class );
@@ -57,6 +61,10 @@ public class BufferingStorageDao implements JdbcStorageDao
 
     private final Thread writerThread;
 
+    private final MBeanServer mbs;
+
+    private ObjectName name;
+
     /**
      * Create a new buffering storage DAO
      * <p>
@@ -76,6 +84,18 @@ public class BufferingStorageDao implements JdbcStorageDao
                 writer ();
             }
         };
+
+        this.mbs = ManagementFactory.getPlatformMBeanServer ();
+
+        try
+        {
+            this.name = new ObjectName ( "org.openscada.ds.storage.jdbc.JdbcStorageDao", "key", "BufferingStorageDao" );
+            this.mbs.registerMBean ( this, this.name );
+        }
+        catch ( final Exception e )
+        {
+            logger.warn ( "Failed to export", e );
+        }
     }
 
     @Override
@@ -300,6 +320,15 @@ public class BufferingStorageDao implements JdbcStorageDao
             // consuming interruption
             logger.warn ( "Failed to wait for end of writer", e );
         }
+
+        try
+        {
+            this.mbs.unregisterMBean ( this.name );
+        }
+        catch ( final Exception e )
+        {
+            logger.warn ( "Failed to unregister: " + this.name, e );
+        }
     }
 
     private void shutdown ()
@@ -312,6 +341,20 @@ public class BufferingStorageDao implements JdbcStorageDao
         finally
         {
             this.writeLock.unlock ();
+        }
+    }
+
+    @Override
+    public int getQueueSize ()
+    {
+        try
+        {
+            this.readLock.lock ();
+            return this.queueMap.size ();
+        }
+        finally
+        {
+            this.readLock.unlock ();
         }
     }
 }
