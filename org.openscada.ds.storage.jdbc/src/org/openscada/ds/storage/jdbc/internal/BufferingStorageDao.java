@@ -47,9 +47,9 @@ public class BufferingStorageDao implements JdbcStorageDao
 
     private final WriteLock writeLock = this.lock.writeLock ();
 
-    private final Map<String, DataNode> queueMap = new HashMap<String, DataNode> ();
+    private Map<String, DataNode> queueMap = new HashMap<String, DataNode> ();
 
-    private final Map<String, DataNode> writeMap = new HashMap<String, DataNode> ();
+    private Map<String, DataNode> writeMap = new HashMap<String, DataNode> ();
 
     private final Condition writeCondition = this.writeLock.newCondition ();
 
@@ -197,7 +197,7 @@ public class BufferingStorageDao implements JdbcStorageDao
                 this.writeCondition.await ( 1, TimeUnit.MINUTES );
 
                 this.writeMap.putAll ( this.queueMap );
-                this.queueMap.clear ();
+                this.queueMap = new HashMap<String, DataNode> ();
             }
             catch ( final InterruptedException e )
             {
@@ -215,10 +215,9 @@ public class BufferingStorageDao implements JdbcStorageDao
             try
             {
                 this.writeLock.lock ();
-                this.writeMap.clear ();
 
                 // re-add all failed entries
-                this.writeMap.putAll ( failMap );
+                this.writeMap = new HashMap<String, DataNode> ( failMap );
             }
             finally
             {
