@@ -84,6 +84,7 @@ public class BufferingStorageDao implements BufferingStorageDaoMXBean, JdbcStora
                 writer ();
             }
         };
+        this.writerThread.start ();
 
         this.mbs = ManagementFactory.getPlatformMBeanServer ();
 
