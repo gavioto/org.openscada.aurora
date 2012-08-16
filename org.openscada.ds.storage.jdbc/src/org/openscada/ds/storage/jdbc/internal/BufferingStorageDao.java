@@ -19,6 +19,7 @@
 
 package org.openscada.ds.storage.jdbc.internal;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,7 +60,7 @@ public class BufferingStorageDao implements BufferingStorageDaoMXBean, JdbcStora
 
     private boolean disposed;
 
-    private final Thread writerThread;
+    private volatile Thread writerThread;
 
     private final MBeanServer mbs;
 
@@ -77,14 +78,7 @@ public class BufferingStorageDao implements BufferingStorageDaoMXBean, JdbcStora
     public BufferingStorageDao ( final JdbcStorageDao targetDao )
     {
         this.targetDao = targetDao;
-        this.writerThread = new Thread ( "BufferingStorageDao" ) {
-            @Override
-            public void run ()
-            {
-                writer ();
-            }
-        };
-        this.writerThread.start ();
+        startWriter ();
 
         this.mbs = ManagementFactory.getPlatformMBeanServer ();
 
@@ -97,6 +91,33 @@ public class BufferingStorageDao implements BufferingStorageDaoMXBean, JdbcStora
         {
             logger.warn ( "Failed to export", e );
         }
+    }
+
+    protected synchronized void startWriter ()
+    {
+        if ( this.disposed )
+        {
+            logger.warn ( "We are disposed. Not starting writer" );
+            return;
+        }
+
+        this.writerThread = new Thread ( "BufferingStorageDao" ) {
+            @Override
+            public void run ()
+            {
+                writer ();
+            }
+        };
+        this.writerThread.start ();
+        this.writerThread.setUncaughtExceptionHandler ( new UncaughtExceptionHandler () {
+
+            @Override
+            public void uncaughtException ( final Thread t, final Throwable e )
+            {
+                logger.error ( "Writer thread failed. Restarting ...", e );
+                startWriter ();
+            }
+        } );
     }
 
     @Override
