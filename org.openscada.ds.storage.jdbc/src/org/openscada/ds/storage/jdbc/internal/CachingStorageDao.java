@@ -78,7 +78,7 @@ public class CachingStorageDao implements JdbcStorageDao
         // preload cache
         try
         {
-            this.cache.getAll ( Collections.<String>emptyList () );
+            this.cache.getAll ( null );
         }
         catch ( final ExecutionException e )
         {
