@@ -20,7 +20,6 @@
 package org.openscada.ds.storage.jdbc.internal;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -91,7 +90,7 @@ public class CachingStorageDao implements JdbcStorageDao
     {
         try
         {
-            return this.cache.getAll ( Collections.<String>emptyList () ).values ();
+            return this.cache.getAll ( null ).values ();
         }
         catch ( ExecutionException e )
         {
