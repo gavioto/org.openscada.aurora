@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -46,7 +48,7 @@ public class CachingStorageDao implements JdbcStorageDao
 
     private final Lock writeLock = this.lock.writeLock ();
 
-    public CachingStorageDao ( final JdbcStorageDao targetDao )
+    public CachingStorageDao ( final JdbcStorageDao targetDao, final ScheduledExecutorService scheduler, final long cleanUpCacheDelay )
     {
         this.targetDao = targetDao;
         try
@@ -66,6 +68,14 @@ public class CachingStorageDao implements JdbcStorageDao
             }
 
             logger.info ( "Prefill complete" );
+            
+            scheduler.schedule ( new Runnable() {
+                @Override
+                public void run ()
+                {
+                    clearCache();
+                }
+            }, cleanUpCacheDelay, TimeUnit.SECONDS );
         }
         finally
         {
@@ -153,9 +163,25 @@ public class CachingStorageDao implements JdbcStorageDao
         this.targetDao.deleteNode ( nodeId );
     }
 
+
+    private void clearCache ()
+    {
+        logger.info ( "clearing cache" );
+        try
+        {
+            this.writeLock.lock ();
+            this.cacheMap.clear ();
+        }
+        finally
+        {
+            this.writeLock.unlock ();
+        }
+    }
+    
     @Override
     public void dispose ()
     {
+        clearCache ();
         this.targetDao.dispose ();
     }
 
