@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -48,8 +49,18 @@ public class CachingStorageDao implements JdbcStorageDao
 
     private final Lock writeLock = this.lock.writeLock ();
 
+    private final ScheduledFuture<?> clearCacheFuture;
+
     public CachingStorageDao ( final JdbcStorageDao targetDao, final ScheduledExecutorService scheduler, final long cleanUpCacheDelay )
     {
+        if ( targetDao == null )
+        {
+            throw new IllegalArgumentException ( "'targetDao' must not be null" );
+        }
+        if ( scheduler == null )
+        {
+            throw new IllegalArgumentException ( "'scheduler' must not be null" );
+        }
         this.targetDao = targetDao;
         try
         {
@@ -68,12 +79,12 @@ public class CachingStorageDao implements JdbcStorageDao
             }
 
             logger.info ( "Prefill complete" );
-            
-            scheduler.schedule ( new Runnable() {
+
+            clearCacheFuture = scheduler.schedule ( new Runnable () {
                 @Override
                 public void run ()
                 {
-                    clearCache();
+                    CachingStorageDao.this.clearCache ();
                 }
             }, cleanUpCacheDelay, TimeUnit.SECONDS );
         }
@@ -163,7 +174,6 @@ public class CachingStorageDao implements JdbcStorageDao
         this.targetDao.deleteNode ( nodeId );
     }
 
-
     private void clearCache ()
     {
         logger.info ( "clearing cache" );
@@ -177,10 +187,14 @@ public class CachingStorageDao implements JdbcStorageDao
             this.writeLock.unlock ();
         }
     }
-    
+
     @Override
     public void dispose ()
     {
+        if ( clearCacheFuture != null )
+        {
+            clearCacheFuture.cancel ( false );
+        }
         clearCache ();
         this.targetDao.dispose ();
     }
