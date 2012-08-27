@@ -104,14 +104,14 @@ public class Activator implements BundleActivator
         {
             switch ( getType () )
             {
-            case BLOB:
-                logger.info ( "Registering BLOB implemenation" );
-                storage = configure ( new JdbcStorageDaoBlobImpl ( service, getDataSourceProperties (), isConnectionPool () ) );
-                break;
-            case BASE64:
-                logger.info ( "Registering BASE64 implemenation" );
-                storage = configure ( new JdbcStorageDaoBase64Impl ( service, getDataSourceProperties (), isConnectionPool () ) );
-                break;
+                case BLOB:
+                    logger.info ( "Registering BLOB implemenation" );
+                    storage = configure ( new JdbcStorageDaoBlobImpl ( service, getDataSourceProperties (), isConnectionPool () ) );
+                    break;
+                case BASE64:
+                    logger.info ( "Registering BASE64 implemenation" );
+                    storage = configure ( new JdbcStorageDaoBase64Impl ( service, getDataSourceProperties (), isConnectionPool () ) );
+                    break;
             }
         }
         catch ( final Exception e )
@@ -140,7 +140,7 @@ public class Activator implements BundleActivator
         if ( Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.enableCache" ) )
         {
             logger.info ( "Adding cache" );
-            result = new CachingStorageDao ( result, Long.getLong ( "org.openscada.ds.storage.jdbc.cacheExpiration", 10 * 60 ) );
+            result = new CachingStorageDao ( result );
         }
         return result;
     }

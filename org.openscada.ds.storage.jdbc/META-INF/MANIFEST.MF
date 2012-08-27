@@ -6,9 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.openscada.ds.storage.jdbc.Activator
 Bundle-Vendor: TH4 SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.google.common.cache;version="12.0.0",
- com.google.common.collect;version="12.0.0",
- org.openscada.ds;version="0.15.0",
+Import-Package: org.openscada.ds;version="0.15.0",
  org.openscada.ds.storage;version="0.15.0",
  org.openscada.utils;version="0.15.0",
  org.openscada.utils.codec;version="0.15.0",
