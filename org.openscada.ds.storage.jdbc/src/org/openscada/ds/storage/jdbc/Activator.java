@@ -84,7 +84,7 @@ public class Activator implements BundleActivator
     @Override
     public void start ( final BundleContext context ) throws Exception
     {
-        scheduler = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
+        this.scheduler = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
         final String driver = System.getProperty ( "org.openscada.ds.storage.jdbc.driver", System.getProperty ( "org.openscada.jdbc.driver", "" ) );
 
         this.dataSourceFactoryTracker = new DataSourceFactoryTracker ( context, driver, new SingleServiceListener<DataSourceFactory> () {
@@ -174,11 +174,6 @@ public class Activator implements BundleActivator
             this.storageImpl.dispose ();
             this.storageImpl = null;
         }
-        if ( scheduler != null )
-        {
-            scheduler.shutdownNow ();
-            scheduler = null;
-        }
     }
 
     /*
@@ -190,6 +185,11 @@ public class Activator implements BundleActivator
     {
         unregister ();
         this.dataSourceFactoryTracker.close ();
+        if ( scheduler != null )
+        {
+            scheduler.shutdownNow ();
+            scheduler = null;
+        }
     }
 
 }
