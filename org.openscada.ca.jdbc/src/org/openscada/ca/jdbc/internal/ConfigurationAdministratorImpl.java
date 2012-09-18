@@ -81,39 +81,43 @@ public class ConfigurationAdministratorImpl extends AbstractConfigurationAdminis
     {
         logger.debug ( "Starting initial load" );
 
-        // load
-        final List<Entry> result = this.jdbcStorageDAO.loadAll ();
-
-        logger.debug ( "Loaded {} initial entries", result.size () );
-
+        final List<String> factoryIds = this.jdbcStorageDAO.listFactories ();
         // map
-        final Map<String, Map<String, Map<String, String>>> factories = new HashMap<String, Map<String, Map<String, String>>> ();
+        final Map<String, Map<String, Map<String, String>>> factories = new HashMap<String, Map<String, Map<String, String>>> ( factoryIds.size () );
 
-        for ( final Entry entry : result )
+        for ( final String factoryId : factoryIds )
         {
-            if ( entry.getFactoryId () == null || entry.getConfigurationId () == null || entry.getKey () == null )
-            {
-                continue;
-            }
+            // load
+            final List<Entry> result = this.jdbcStorageDAO.loadFactory ( factoryId );
 
-            Map<String, Map<String, String>> factory = factories.get ( entry.getFactoryId () );
-            if ( factory == null )
-            {
-                factory = new HashMap<String, Map<String, String>> ();
-                factories.put ( intern ( entry.getFactoryId () ), factory );
-            }
-            Map<String, String> cfg = factory.get ( entry.getConfigurationId () );
-            if ( cfg == null )
-            {
-                // no need to intern configuration ids as they are unique
-                cfg = new HashMap<String, String> ( INITIAL_CFG_SIZE );
-                factory.put ( entry.getConfigurationId (), cfg );
-            }
+            logger.debug ( "Loaded {} initial entries for factory {}", result.size (), factoryId );
 
-            final String value = intern ( entry.getValue () );
-            final String key = intern ( entry.getKey () );
+            for ( final Entry entry : result )
+            {
+                if ( ( entry.getFactoryId () == null ) || ( entry.getConfigurationId () == null ) || ( entry.getKey () == null ) )
+                {
+                    continue;
+                }
 
-            cfg.put ( key, value );
+                Map<String, Map<String, String>> factory = factories.get ( entry.getFactoryId () );
+                if ( factory == null )
+                {
+                    factory = new HashMap<String, Map<String, String>> ();
+                    factories.put ( intern ( entry.getFactoryId () ), factory );
+                }
+                Map<String, String> cfg = factory.get ( entry.getConfigurationId () );
+                if ( cfg == null )
+                {
+                    // no need to intern configuration ids as they are unique
+                    cfg = new HashMap<String, String> ( INITIAL_CFG_SIZE );
+                    factory.put ( entry.getConfigurationId (), cfg );
+                }
+
+                final String value = intern ( entry.getValue () );
+                final String key = intern ( entry.getKey () );
+
+                cfg.put ( key, value );
+            }
         }
 
         // announce

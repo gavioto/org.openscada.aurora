@@ -33,6 +33,7 @@ import java.util.Set;
 import org.openscada.utils.osgi.jdbc.CommonConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.DataSourceConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.data.RowMapper;
+import org.openscada.utils.osgi.jdbc.data.RowMapperMappingException;
 import org.openscada.utils.osgi.jdbc.data.RowMapperValidationException;
 import org.openscada.utils.osgi.jdbc.pool.PoolConnectionAccessor;
 import org.openscada.utils.osgi.jdbc.task.CommonConnectionTask;
@@ -113,6 +114,29 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
     public List<Entry> loadFactory ( final String factoryId )
     {
         return load ( String.format ( "SELECT * FROM %s WHERE instance_id = ? AND factory_id = ? %s", this.tableName, defaultOrder ), this.instanceId, factoryId );
+    }
+
+    @Override
+    public List<String> listFactories ()
+    {
+        final String sql = String.format ( "SELECT DISTINCT factory_id FROM %s WHERE instance_id = ?", JdbcStorageDAOImpl.this.tableName );
+        return this.accessor.doWithConnection ( new CommonConnectionTask<List<String>> () {
+            @Override
+            protected List<String> performTask ( final ConnectionContext connectionContext ) throws Exception
+            {
+                return connectionContext.query ( new RowMapper<String> () {
+                    @Override
+                    public String mapRow ( ResultSet resultSet ) throws SQLException, RowMapperMappingException
+                    {
+                        return resultSet.getString ( 1 );
+                    }
+
+                    public void validate ( ResultSet resultSet ) throws SQLException, RowMapperValidationException
+                    {
+                    };
+                }, sql, JdbcStorageDAOImpl.this.instanceId );
+            }
+        } );
     }
 
     private List<Entry> loadConfiguration ( final ConnectionContext connectionContext, final String factoryId, final String configurationId ) throws SQLException
@@ -290,7 +314,7 @@ public class JdbcStorageDAOImpl implements JdbcStorageDAO
         for ( final Entry entry : data )
         {
             // shortcut: we don't need to chunk
-            if ( entry.getValue () == null || entry.getValue ().length () <= this.chunkSize )
+            if ( ( entry.getValue () == null ) || ( entry.getValue ().length () <= this.chunkSize ) )
             {
                 result.add ( entry );
                 continue;

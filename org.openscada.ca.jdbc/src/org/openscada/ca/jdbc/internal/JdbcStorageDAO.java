@@ -30,6 +30,8 @@ public interface JdbcStorageDAO
 
     public List<Entry> loadFactory ( String factoryId );
 
+    public List<String> listFactories ();
+
     public List<Entry> loadAll ();
 
     public List<Entry> purgeFactory ( String factoryId );
