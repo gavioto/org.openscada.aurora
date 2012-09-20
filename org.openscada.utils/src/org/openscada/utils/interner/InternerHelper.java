@@ -28,16 +28,36 @@ public final class InternerHelper
     {
     }
 
+    private static class NullSafeInterner implements Interner<String>
+    {
+        private final Interner<String> interner;
+
+        private NullSafeInterner ( final Interner<String> interner )
+        {
+            this.interner = interner;
+        }
+
+        @Override
+        public String intern ( final String string )
+        {
+            if ( string == null )
+            {
+                return null;
+            }
+            return this.interner.intern ( string );
+        };
+    }
+
     public static Interner<String> makeInterner ( final String specificPropertyName, final String defaultType )
     {
         final String type = System.getProperty ( specificPropertyName, System.getProperty ( "org.openscada.defaultStringInterner", defaultType ) );
         if ( "weak".equals ( type ) )
         {
-            return Interners.newWeakInterner ();
+            return new NullSafeInterner ( Interners.<String> newWeakInterner () );
         }
         else if ( "strong".equals ( type ) )
         {
-            return Interners.newStrongInterner ();
+            return new NullSafeInterner ( Interners.<String> newStrongInterner () );
         }
         else
         {
@@ -56,5 +76,4 @@ public final class InternerHelper
             }
         };
     }
-
 }
