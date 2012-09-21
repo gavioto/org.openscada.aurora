@@ -30,6 +30,7 @@ import java.util.Map;
 import org.openscada.utils.osgi.jdbc.data.RowMapper;
 import org.openscada.utils.osgi.jdbc.data.RowMapperException;
 import org.openscada.utils.osgi.jdbc.data.SingleColumnRowMapper;
+import org.openscada.utils.sql.SqlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
