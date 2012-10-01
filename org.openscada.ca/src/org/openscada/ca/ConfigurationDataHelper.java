@@ -315,6 +315,16 @@ public class ConfigurationDataHelper
         return Double.parseDouble ( str );
     }
 
+    public boolean getBooleanChecked ( final String name, final String errorMessage )
+    {
+        final String str = this.data.get ( name );
+        if ( str == null )
+        {
+            throw new IllegalArgumentException ( errorMessage );
+        }
+        return Boolean.parseBoolean ( str );
+    }
+
     /**
      * Get a boolean from the data or <code>null</code> if the parameter is not set or not a boolean
      * 
