@@ -44,6 +44,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Interner;
+
 public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 {
     private static final String URI_CHARSET = "UTF-8";
@@ -71,11 +73,19 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
 
     private final File root;
 
-    public ConfigurationAdminImpl ( final BundleContext context ) throws InvalidSyntaxException
+    private final Interner<String> stringInterner;
+
+    public ConfigurationAdminImpl ( final BundleContext context, final Interner<String> stringInterner ) throws InvalidSyntaxException
     {
         super ( context );
+        this.stringInterner = stringInterner;
         this.context = context;
         this.root = initRoot ();
+    }
+
+    protected String intern ( final String string )
+    {
+        return this.stringInterner.intern ( string );
     }
 
     protected File getRootFile ()
@@ -284,7 +294,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             final Map<String, String> result = new HashMap<String, String> ();
             for ( final Entry<Object, Object> entry : p.entrySet () )
             {
-                result.put ( entry.getKey ().toString (), entry.getValue ().toString () );
+                result.put ( intern ( entry.getKey ().toString () ), intern ( entry.getValue ().toString () ) );
             }
 
             return new ConfigurationImpl ( configurationId, factoryId, result );
@@ -380,7 +390,7 @@ public class ConfigurationAdminImpl extends AbstractConfigurationAdministrator
             final String value = entry.getValue ();
             if ( value != null )
             {
-                newProperties.put ( key, value );
+                newProperties.put ( intern ( key ), intern ( value ) );
             }
             else
             {

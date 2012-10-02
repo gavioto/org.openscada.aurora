@@ -26,10 +26,13 @@ import org.openscada.ca.ConfigurationAdministrator;
 import org.openscada.ca.FreezableConfigurationAdministrator;
 import org.openscada.ca.common.AbstractConfigurationAdministrator;
 import org.openscada.ca.file.internal.ConfigurationAdminImpl;
+import org.openscada.utils.interner.InternerHelper;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
+
+import com.google.common.collect.Interner;
 
 public class Activator implements BundleActivator
 {
@@ -37,10 +40,15 @@ public class Activator implements BundleActivator
 
     private ServiceRegistration<?> handle;
 
+    private Interner<String> stringInterner;
+
     @Override
     public void start ( final BundleContext context ) throws Exception
     {
-        this.service = new ConfigurationAdminImpl ( context );
+
+        this.stringInterner = InternerHelper.makeInterner ( "org.openscada.ae.monitor.dataitem.stringInternerType", "weak" );
+
+        this.service = new ConfigurationAdminImpl ( context, this.stringInterner );
 
         this.service.start ();
 
