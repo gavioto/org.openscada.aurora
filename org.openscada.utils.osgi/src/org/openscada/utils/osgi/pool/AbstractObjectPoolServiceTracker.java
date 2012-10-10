@@ -60,19 +60,27 @@ public abstract class AbstractObjectPoolServiceTracker<S>
 
         public synchronized void dispose ()
         {
-            this.pool.removeListener ( this.serviceId, this );
+            Map<S, Dictionary<?, ?>> services;
+            synchronized ( this )
+            {
+                this.pool.removeListener ( this.serviceId, this );
+                services = new HashMap<S, Dictionary<?, ?>> ( this.services );
+                this.services.clear ();
+            }
 
-            for ( final Map.Entry<S, Dictionary<?, ?>> entry : this.services.entrySet () )
+            for ( final Map.Entry<S, Dictionary<?, ?>> entry : services.entrySet () )
             {
                 fireServiceRemoved ( entry.getKey (), entry.getValue () );
             }
-            this.services.clear ();
         }
 
         @Override
-        public synchronized void serviceAdded ( final S service, final Dictionary<?, ?> properties )
+        public void serviceAdded ( final S service, final Dictionary<?, ?> properties )
         {
-            this.services.put ( service, properties );
+            synchronized ( this )
+            {
+                this.services.put ( service, properties );
+            }
             fireServiceAdded ( service, properties );
         }
 
@@ -83,9 +91,12 @@ public abstract class AbstractObjectPoolServiceTracker<S>
         }
 
         @Override
-        public synchronized void serviceModified ( final S service, final Dictionary<?, ?> properties )
+        public void serviceModified ( final S service, final Dictionary<?, ?> properties )
         {
-            this.services.put ( service, properties );
+            synchronized ( this )
+            {
+                this.services.put ( service, properties );
+            }
             fireServiceModified ( service, properties );
         }
 
@@ -95,9 +106,14 @@ public abstract class AbstractObjectPoolServiceTracker<S>
         }
 
         @Override
-        public synchronized void serviceRemoved ( final S service, final Dictionary<?, ?> properties )
+        public void serviceRemoved ( final S service, final Dictionary<?, ?> properties )
         {
-            final Dictionary<?, ?> oldProperties = this.services.remove ( service );
+            final Dictionary<?, ?> oldProperties;
+            synchronized ( this )
+            {
+                oldProperties = this.services.remove ( service );
+            }
+
             if ( oldProperties != null )
             {
                 fireServiceRemoved ( service, properties );
@@ -154,11 +170,16 @@ public abstract class AbstractObjectPoolServiceTracker<S>
         // we don't care
     }
 
-    protected synchronized void handlePoolRemove ( final ObjectPool<S> objectPool )
+    protected void handlePoolRemove ( final ObjectPool<S> objectPool )
     {
-        logger.debug ( "Pool removed: {}", objectPool );
+        final PoolHandler handler;
 
-        final PoolHandler handler = this.poolMap.get ( objectPool );
+        synchronized ( this )
+        {
+            logger.debug ( "Pool removed: {}", objectPool );
+            handler = this.poolMap.get ( objectPool );
+        }
+
         if ( handler != null )
         {
             handler.dispose ();
