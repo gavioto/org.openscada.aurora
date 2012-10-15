@@ -133,10 +133,6 @@
   	<openscada.builder.copyPlugin id="org.openscada.ds.storage.file" />
   	<openscada.builder.copyPlugin id="org.openscada.ds.storage.jdbc" />
   	
-  	<openscada.builder.copyFeature id="org.openscada.hsdb" />
-  	<openscada.builder.copyPlugin id="org.openscada.hsdb" />
-  	<openscada.builder.copyPlugin id="org.openscada.hsdb.backend.file" />
-  	
   	<openscada.builder.copyPlugin id="org.openscada.sec" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.utils" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.osgi" />

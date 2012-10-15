@@ -15,14 +15,10 @@
    <feature url="features/org.openscada.hds_1.0.0.qualifier.jar" id="org.openscada.hds" version="1.0.0.qualifier">
       <category name="org.openscada.aurora.hds"/>
    </feature>
-   <feature url="features/org.openscada.hsdb_1.0.0.qualifier.jar" id="org.openscada.hsdb" version="1.0.0.qualifier">
-      <category name="org.openscada.aurora.hsbd.category"/>
-   </feature>
    <feature url="features/org.openscada.ca_1.0.0.qualifier.jar" id="org.openscada.ca" version="1.0.0.qualifier">
       <category name="org.openscada.aurora.ca"/>
    </feature>
    <category-def name="org.openscada.aurora.category" label="openSCADA Aurora"/>
-   <category-def name="org.openscada.aurora.hsbd.category" label="openSCADA HSDB"/>
    <category-def name="org.openscada.aurora.ca" label="openSCADA CA"/>
    <category-def name="org.openscada.aurora.sec" label="openSCADA Security"/>
    <category-def name="org.openscada.aurora.ds" label="openSCADA DS"/>
