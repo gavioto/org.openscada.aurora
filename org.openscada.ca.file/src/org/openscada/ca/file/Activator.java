@@ -45,8 +45,7 @@ public class Activator implements BundleActivator
     @Override
     public void start ( final BundleContext context ) throws Exception
     {
-
-        this.stringInterner = InternerHelper.makeInterner ( "org.openscada.ae.monitor.dataitem.stringInternerType", "weak" );
+        this.stringInterner = InternerHelper.makeInterner ( "org.openscada.ca.file.stringInternerType", "weak" );
 
         this.service = new ConfigurationAdminImpl ( context, this.stringInterner );
 
