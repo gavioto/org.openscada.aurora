@@ -159,7 +159,7 @@ public class DataStoreAccesor extends AbstractValueSource
     /**
      * Get the time slice in milliseconds
      * 
-     * @return the time slice in millseconds
+     * @return the time slice in milliseconds
      */
     public long getTimeSlice ()
     {
@@ -252,7 +252,8 @@ public class DataStoreAccesor extends AbstractValueSource
     }
 
     /**
-     * Insert a marker that the data input mechanism was alive at the provided time
+     * Insert a marker that the data input mechanism was alive at the provided
+     * time
      * 
      * @param date
      *            the date of the marker
@@ -273,7 +274,8 @@ public class DataStoreAccesor extends AbstractValueSource
      *            the start range
      * @param end
      *            the end range
-     * @return <code>true</code> if more should be read, <code>false</code> otherwise
+     * @return <code>true</code> if more should be read, <code>false</code>
+     *         otherwise
      */
     @Override
     public boolean visit ( final ValueVisitor visitor, final Date start, final Date end )
@@ -452,8 +454,11 @@ public class DataStoreAccesor extends AbstractValueSource
      * @param date
      *            the date for which to file should be valid for
      * @param create
-     *            a flag that indicated whether to create a missing file or return <code>null</code> instead
-     * @return either the file found, the file created or <code>null</code> if the file could not be found but the create flag was <code>false</code>.
+     *            a flag that indicated whether to create a missing file or
+     *            return <code>null</code> instead
+     * @return either the file found, the file created or <code>null</code> if
+     *         the file could not be found but the create flag was
+     *         <code>false</code>.
      * @throws Exception
      *             if anything goes wrong
      */
