@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -54,6 +54,11 @@ public class FilterUtil
     public static Filter createClassAndPidFilter ( final String clazz, final String persistentId ) throws InvalidSyntaxException
     {
         return FrameworkUtil.createFilter ( String.format ( "(&(%s=%s)(%s=%s))", Constants.OBJECTCLASS, clazz, Constants.SERVICE_PID, persistentId ) );
+    }
+
+    public static Filter createClassAndPidFilter ( final Class<?> clazz, final String persistentId ) throws InvalidSyntaxException
+    {
+        return FrameworkUtil.createFilter ( String.format ( "(&(%s=%s)(%s=%s))", Constants.OBJECTCLASS, clazz.getName (), Constants.SERVICE_PID, persistentId ) );
     }
 
     public static Filter createAndFilter ( final Filter... filters ) throws InvalidSyntaxException
