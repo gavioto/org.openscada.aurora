@@ -34,6 +34,8 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
     private final BundleContext context;
 
+    private boolean canOnlyRecreate;
+
     protected static class Entry<T>
     {
         private final String id;
@@ -88,7 +90,13 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
     public AbstractServiceConfigurationFactory ( final BundleContext context )
     {
+        this ( context, false );
+    }
+
+    public AbstractServiceConfigurationFactory ( final BundleContext context, final boolean canOnlyRecreate )
+    {
         this.context = context;
+        this.canOnlyRecreate = canOnlyRecreate;
     }
 
     public synchronized void dispose ()
@@ -115,6 +123,11 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
         }
     }
 
+    protected boolean canOnlyRecreate ()
+    {
+        return false;
+    }
+
     @Override
     public synchronized void delete ( final UserInformation userInformation, final String configurationId ) throws Exception
     {
@@ -129,6 +142,11 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     @Override
     public synchronized void update ( final UserInformation userInformation, final String configurationId, final Map<String, String> parameters ) throws Exception
     {
+        if ( this.canOnlyRecreate )
+        {
+            delete ( userInformation, configurationId );
+        }
+
         Entry<T> entry = this.services.get ( configurationId );
         if ( entry != null )
         {
