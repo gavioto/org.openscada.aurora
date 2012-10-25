@@ -154,8 +154,10 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     /**
      * Create a new service instance
      * <p>
-     * The method must also register the service with the OSGi bundle context if needed. The service registration must then be placed into the result that is returned. This is an optional step. There
-     * is no need to register the created service.
+     * The method must also register the service with the OSGi bundle context if
+     * needed. The service registration must then be placed into the result that
+     * is returned. This is an optional step. There is no need to register the
+     * created service.
      * </p>
      * 
      * @param principal
@@ -165,7 +167,8 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
      *            the bundle context
      * @param parameters
      *            the initial parameters
-     * @return a new entry instance which holds the service. This method must never return <code>null</code>
+     * @return a new entry instance which holds the service. This method must
+     *         never return <code>null</code>
      * @throws Exception
      *             if anything goes wrong
      */
@@ -174,7 +177,8 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
     /**
      * Dispose a service
      * <p>
-     * If the service entry contains a service handle, the service is automatically unregistered.
+     * If the service entry contains a service handle, the service is
+     * automatically unregistered.
      * </p>
      * 
      * @param userInformation
@@ -185,6 +189,10 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
 
     /**
      * Update a service configuration
+     * <p>
+     * If a new service entry is returned the old one will get disposed after
+     * the call returns
+     * </p>
      * 
      * @param principal
      * @param configurationId
@@ -193,7 +201,8 @@ public abstract class AbstractServiceConfigurationFactory<T> implements Configur
      *            the original service entry
      * @param parameters
      *            the new parameters
-     * @return the new service entry or <code>null</code> if the entry did not change
+     * @return the new service entry or <code>null</code> if the entry did not
+     *         change
      * @throws Exception
      *             if anything goes wrong
      */
