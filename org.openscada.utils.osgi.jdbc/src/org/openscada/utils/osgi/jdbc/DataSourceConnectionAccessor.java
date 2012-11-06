@@ -42,6 +42,11 @@ public class DataSourceConnectionAccessor extends CommonConnectionAccessor
         this.dataSource = dataSourceFactory.createDataSource ( paramProperties );
     }
 
+    public DataSource getDataSource ()
+    {
+        return this.dataSource;
+    }
+
     @Override
     public Connection getConnection () throws SQLException
     {
