@@ -29,9 +29,9 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openscada.ds.internal.BundleObjectInputStream;
 import org.openscada.ds.internal.ClassLoaderObjectInputStream;
 import org.openscada.utils.lang.Immutable;
+import org.openscada.utils.osgi.BundleObjectInputStream;
 import org.osgi.framework.Bundle;
 
 /**
