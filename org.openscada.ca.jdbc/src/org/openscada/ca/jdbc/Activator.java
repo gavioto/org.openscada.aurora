@@ -60,7 +60,7 @@ public class Activator implements BundleActivator
     @Override
     public void start ( final BundleContext context ) throws Exception
     {
-        final String driver = System.getProperty ( "org.openscada.ca.jdbc.driver", System.getProperty ( "org.openscada.jdbc.driver", "" ) );
+        final String driver = DataSourceHelper.getDriver ( "org.openscada.ca.jdbc.driver", DataSourceHelper.DEFAULT_PREFIX );
 
         this.dataSourceFactoryTracker = new DataSourceFactoryTracker ( context, driver, new SingleServiceListener<DataSourceFactory> () {
 
@@ -134,12 +134,12 @@ public class Activator implements BundleActivator
 
     public static boolean isConnectionPool ()
     {
-        return DataSourceHelper.isConnectionPool ( "org.openscada.ca.jdbc", "org.openscada.jdbc", false );
+        return DataSourceHelper.isConnectionPool ( "org.openscada.ca.jdbc", DataSourceHelper.DEFAULT_PREFIX, false );
     }
 
     private static Properties getDataSourceProperties ()
     {
-        return DataSourceHelper.getDataSourceProperties ( "org.openscada.ca.jdbc", "org.openscada.jdbc" );
+        return DataSourceHelper.getDataSourceProperties ( "org.openscada.ca.jdbc", DataSourceHelper.DEFAULT_PREFIX );
     }
 
     protected void unregister ()
