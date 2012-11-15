@@ -173,7 +173,6 @@ public abstract class CommonConnectionContext implements ConnectionContext
         try
         {
             applyParameters ( stmt, parameters );
-
             final ResultSet rs = stmt.executeQuery ();
 
             try

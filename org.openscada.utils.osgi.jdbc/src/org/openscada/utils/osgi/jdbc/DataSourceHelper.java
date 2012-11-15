@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public final class DataSourceHelper
 {
 
-    public static final String DEFAULT_PREFIX = "org.openscada.jdbc.driver";
+    public static final String DEFAULT_PREFIX = "org.openscada.jdbc";
 
     private final static Logger logger = LoggerFactory.getLogger ( DataSourceHelper.class );
 
