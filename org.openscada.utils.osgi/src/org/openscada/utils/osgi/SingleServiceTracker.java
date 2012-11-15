@@ -213,4 +213,9 @@ public class SingleServiceTracker<T>
         return this.tracker.waitForService ( timeout );
     }
 
+    public T getService ()
+    {
+        return this.tracker.getService ();
+    }
+
 }
