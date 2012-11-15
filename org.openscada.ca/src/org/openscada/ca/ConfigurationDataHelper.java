@@ -22,6 +22,7 @@ package org.openscada.ca;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.openscada.utils.str.StringHelper;
 
@@ -45,7 +46,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or <code>null</code> if the parameter is not set or not an integer
+     * Get an integer from the data or <code>null</code> if the parameter is not
+     * set or not an integer
      * 
      * @param name
      *            the name of the parameter
@@ -69,7 +71,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or the default value if the parameter is not set or not an integer
+     * Get an integer from the data or the default value if the parameter is not
+     * set or not an integer
      * 
      * @param name
      *            the name of the parameter
@@ -90,7 +93,9 @@ public class ConfigurationDataHelper
     /**
      * Get an integer from the configuration data
      * <p>
-     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If the data can not be parsed to an integer a {@link NumberFormatException} will be thrown.
+     * If the parameter is not set a {@link IllegalArgumentException} will be
+     * thrown. If the data can not be parsed to an integer a
+     * {@link NumberFormatException} will be thrown.
      * </p>
      * 
      * @param name
@@ -112,7 +117,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a long from the data or <code>null</code> if the parameter is not set or not a long
+     * Get a long from the data or <code>null</code> if the parameter is not set
+     * or not a long
      * 
      * @param name
      *            the name of the parameter
@@ -136,7 +142,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a long from the data or the default value if the parameter is not set or not a long
+     * Get a long from the data or the default value if the parameter is not set
+     * or not a long
      * 
      * @param name
      *            the name of the parameter
@@ -157,7 +164,9 @@ public class ConfigurationDataHelper
     /**
      * Get a long from the configuration data
      * <p>
-     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If the data can not be parsed to a long a {@link NumberFormatException} will be thrown.
+     * If the parameter is not set a {@link IllegalArgumentException} will be
+     * thrown. If the data can not be parsed to a long a
+     * {@link NumberFormatException} will be thrown.
      * </p>
      * 
      * @param name
@@ -183,7 +192,8 @@ public class ConfigurationDataHelper
      * 
      * @param name
      *            the name of the parameters to get
-     * @return returns <code>null</code> if the parameter is not set or is an empty string. Otherwise the string itself will be returned.
+     * @return returns <code>null</code> if the parameter is not set or is an
+     *         empty string. Otherwise the string itself will be returned.
      */
     public String getStringNonEmpty ( final String name )
     {
@@ -249,7 +259,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or <code>null</code> if the parameter is not set or not an integer
+     * Get an integer from the data or <code>null</code> if the parameter is not
+     * set or not an integer
      * 
      * @param name
      *            the name of the parameter
@@ -273,7 +284,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get an integer from the data or the default value if the parameter is not set or not an integer
+     * Get an integer from the data or the default value if the parameter is not
+     * set or not an integer
      * 
      * @param name
      *            the name of the parameter
@@ -294,7 +306,9 @@ public class ConfigurationDataHelper
     /**
      * Get an integer from the configuration data
      * <p>
-     * If the parameter is not set a {@link IllegalArgumentException} will be thrown. If the data can not be parsed to an integer a {@link NumberFormatException} will be thrown.
+     * If the parameter is not set a {@link IllegalArgumentException} will be
+     * thrown. If the data can not be parsed to an integer a
+     * {@link NumberFormatException} will be thrown.
      * </p>
      * 
      * @param name
@@ -326,7 +340,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a boolean from the data or <code>null</code> if the parameter is not set or not a boolean
+     * Get a boolean from the data or <code>null</code> if the parameter is not
+     * set or not a boolean
      * 
      * @param name
      *            the name of the parameter
@@ -350,7 +365,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Get a boolean from the data or the default value if the parameter is not set or not a boolean
+     * Get a boolean from the data or the default value if the parameter is not
+     * set or not a boolean
      * 
      * @param name
      *            the name of the parameter
@@ -369,7 +385,8 @@ public class ConfigurationDataHelper
     }
 
     /**
-     * Extracts attributes that start with a prefix and return the matching entries only with the key truncated by the prefix.
+     * Extracts attributes that start with a prefix and return the matching
+     * entries only with the key truncated by the prefix.
      * <p>
      * If you want your prefix to be "prefix." you must also add the dot.
      * </p>
@@ -402,6 +419,24 @@ public class ConfigurationDataHelper
         }
 
         return result;
+    }
+
+    /**
+     * Convenience method to get prefixed attributes as {@link Properties}
+     * object
+     * <p>
+     * Actually calls {@link #getPrefixed(String)}
+     * </p>
+     * 
+     * @param prefix
+     *            the prefix to use
+     * @return the result properties
+     */
+    public Properties getPrefixedProperties ( final String prefix )
+    {
+        final Properties p = new Properties ();
+        p.putAll ( getPrefixed ( prefix ) );
+        return p;
     }
 
     public <E extends Enum<E>> E getEnumChecked ( final String name, final Class<E> enumType, final String errorMessage )
