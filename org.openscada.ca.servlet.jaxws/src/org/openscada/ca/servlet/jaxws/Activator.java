@@ -33,7 +33,7 @@ public class Activator implements BundleActivator
 
     private ConfigurationAdministratorService service;
 
-    private ServiceRegistration<ConfigurationAdministratorService> handle;
+    private ServiceRegistration<RemoteConfigurationAdministrator> handle;
 
     /*
      * (non-Javadoc)
@@ -48,7 +48,7 @@ public class Activator implements BundleActivator
         properties.put ( JaxWsExporter.EXPORT_ENABLED, Boolean.TRUE );
         properties.put ( Constants.SERVICE_PID, context.getBundle ().getSymbolicName () );
 
-        this.handle = context.registerService ( ConfigurationAdministratorService.class, this.service, properties );
+        this.handle = context.registerService ( RemoteConfigurationAdministrator.class, this.service, properties );
     }
 
     /*
