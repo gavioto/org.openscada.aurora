@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 
+import org.openscada.utils.osgi.exporter.AbstractExporter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
