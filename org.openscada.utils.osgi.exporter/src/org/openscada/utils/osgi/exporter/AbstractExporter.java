@@ -33,15 +33,18 @@ public abstract class AbstractExporter implements ServiceListener
 
     private final BundleContext context;
 
-    public AbstractExporter ( final BundleContext context ) throws InvalidSyntaxException
+    public AbstractExporter ( final BundleContext context )
     {
         this.context = context;
+    }
 
+    public void init () throws InvalidSyntaxException
+    {
         final String filter = String.format ( "(%s=%s)", JaxWsExporter.EXPORT_ENABLED, true );
         synchronized ( this )
         {
-            context.addServiceListener ( this, filter );
-            final ServiceReference<?>[] refs = context.getServiceReferences ( (String)null, filter );
+            this.context.addServiceListener ( this, filter );
+            final ServiceReference<?>[] refs = this.context.getServiceReferences ( (String)null, filter );
             if ( refs != null )
             {
                 for ( final ServiceReference<?> ref : refs )
