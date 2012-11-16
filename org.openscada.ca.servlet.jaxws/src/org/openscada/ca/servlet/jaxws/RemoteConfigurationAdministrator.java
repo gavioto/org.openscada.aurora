@@ -38,6 +38,7 @@ public interface RemoteConfigurationAdministrator
 
     /**
      * Get factory information without content
+     * 
      * @return the factories without a content
      */
     public abstract FactoryInformation[] getFactories ();

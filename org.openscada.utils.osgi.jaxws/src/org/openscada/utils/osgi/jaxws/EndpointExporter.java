@@ -89,12 +89,12 @@ public class EndpointExporter implements ServiceListener
     {
         switch ( event.getType () )
         {
-        case ServiceEvent.REGISTERED:
-            addService ( event.getServiceReference () );
-            break;
-        case ServiceEvent.UNREGISTERING:
-            removeService ( event.getServiceReference () );
-            break;
+            case ServiceEvent.REGISTERED:
+                addService ( event.getServiceReference () );
+                break;
+            case ServiceEvent.UNREGISTERING:
+                removeService ( event.getServiceReference () );
+                break;
         }
 
     }
@@ -171,6 +171,7 @@ public class EndpointExporter implements ServiceListener
 
                     if ( e != null )
                     {
+                        // we found a previous export ... stop the old one
                         try
                         {
                             e.stop ();
