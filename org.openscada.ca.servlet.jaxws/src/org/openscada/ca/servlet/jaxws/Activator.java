@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -26,11 +26,14 @@ import org.openscada.utils.osgi.jaxws.JaxWsExporter;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceRegistration;
 
 public class Activator implements BundleActivator
 {
 
     private ConfigurationAdministratorService service;
+
+    private ServiceRegistration<ConfigurationAdministratorService> handle;
 
     /*
      * (non-Javadoc)
@@ -45,7 +48,7 @@ public class Activator implements BundleActivator
         properties.put ( JaxWsExporter.EXPORT_ENABLED, Boolean.TRUE );
         properties.put ( Constants.SERVICE_PID, context.getBundle ().getSymbolicName () );
 
-        context.registerService ( ConfigurationAdministratorService.class.getName (), this.service, properties );
+        this.handle = context.registerService ( ConfigurationAdministratorService.class, this.service, properties );
     }
 
     /*
@@ -55,6 +58,7 @@ public class Activator implements BundleActivator
     @Override
     public void stop ( final BundleContext context ) throws Exception
     {
+        this.handle.unregister ();
         this.service.dispose ();
     }
 
