@@ -118,18 +118,6 @@
   	<openscada.builder.copyFeature id="org.openscada.hds" />
   	<openscada.builder.copyPlugin id="org.openscada.hds" />
   	
-  	<openscada.builder.copyFeature id="org.openscada.ca" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.servlet" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.servlet.jaxws" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.servlet.json" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.common" />
-	<openscada.builder.copyPlugin id="org.openscada.ca.console" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.oscar" />
-  	
-  	<openscada.builder.copyPlugin id="org.openscada.ca.file" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.jdbc" />
-  	
   	<openscada.builder.copyFeature id="org.openscada.ds" />
   	<openscada.builder.copyFeature id="org.openscada.ds.sdk" />
   	<openscada.builder.copyPlugin id="org.openscada.ds" />
