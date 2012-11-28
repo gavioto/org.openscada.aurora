@@ -59,6 +59,10 @@ public final class InternerHelper
         {
             return new NullSafeInterner ( Interners.<String> newStrongInterner () );
         }
+        else if ( "java".equals ( type ) )
+        {
+            return new JavaStringInterner ();
+        }
         else
         {
             return makeNoOpInterner ();
