@@ -22,23 +22,28 @@ package org.openscada.sec;
 /**
  * An interface for a service that authenticates a user.
  * <p>
- * The service needs to ensure that the information provided identifies a valid user.
+ * The service needs to ensure that the information provided identifies a valid
+ * user.
  * </p>
+ * 
  * @author Jens Reimann
  * @since 0.15.0
- *
  */
 public interface AuthenticationService
 {
     /**
      * Authenticate a user based on username and password.
-     * @param username the username
-     * @param password the password
-     * @return a valid user information instance of the user is a known user and is allowed
-     * to log on using the provided credentials or <code>null</code> if it a valid
-     * anonymous login.
-     * @throws AuthenticationException in the case the login is invalid (e.g. username and
-     * password don't match)
+     * 
+     * @param username
+     *            the username
+     * @param password
+     *            the password
+     * @return a valid user information instance if the user is a known user and
+     *         is allowed to log on using the provided credentials. Or
+     *         <code>null</code> if it is a valid anonymous login.
+     * @throws AuthenticationException
+     *             in the case the login is invalid (e.g. username and
+     *             password don't match)
      */
     public UserInformation authenticate ( String username, String password ) throws AuthenticationException;
 }
