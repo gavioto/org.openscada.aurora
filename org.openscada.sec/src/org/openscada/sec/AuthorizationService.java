@@ -22,30 +22,40 @@ package org.openscada.sec;
 import java.util.Map;
 
 /**
- * An interface for a service authorizing an operation 
+ * An interface for a service authorizing an operation
  * <p>
- * The authorization service only acts on already authenticated
- * user information objects.
+ * The authorization service only acts on already authenticated user information
+ * objects.
  * </p>
+ * 
  * @author Jens Reimann
  * @since 0.15.0
- *
  */
 public interface AuthorizationService
 {
     /**
      * Authorizes a requested operation
-     * @param objectId The object id on which the request should be performed
-     * @param objectType The type of object
-     * @param action The action to be performed
-     * @param userInformation The user information or <code>null</code> if
-     * there is no user information the user is anonymous.
-     * @param context Additional information that can be used by the implementations.
-     * The content must not be modified. The context may be <code>null</code> if no data
-     * would be present.
-     * @return Returns an authorization result if the implementation known something
-     * about the requested authorization and <code>null</code> if the service can neither
-     * approve or reject the request.
+     * 
+     * @param objectId
+     *            The object id on which the request should be performed
+     * @param objectType
+     *            The type of object
+     * @param action
+     *            The action to be performed
+     * @param userInformation
+     *            The user information or <code>null</code> if
+     *            there is no user information the user is anonymous.
+     * @param context
+     *            Additional information that can be used by the
+     *            implementations.
+     *            The content must not be modified. The context may be
+     *            <code>null</code> if no data
+     *            would be present.
+     * @return Returns an authorization result if the implementation known
+     *         something
+     *         about the requested authorization and <code>null</code> if the
+     *         service can neither
+     *         approve or reject the request.
      */
     public AuthorizationResult authorize ( String objectType, String objectId, String action, UserInformation userInformation, Map<String, Object> context );
 }

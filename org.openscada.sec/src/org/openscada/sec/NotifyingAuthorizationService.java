@@ -1,6 +1,7 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * 
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -17,30 +18,27 @@
  * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
  */
 
-package org.openscada.sec.osgi;
+package org.openscada.sec;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-
-public class Messages
+/**
+ * An authorization service which can notify listeners about changes in the
+ * backend.
+ * <p>
+ * The service should notify its listeners as soon as changed have been made
+ * which might change the result of authorization requests. (e.g. the
+ * authorization rules have been changed).
+ * </p>
+ * 
+ * @author Jens Reimann
+ */
+public interface NotifyingAuthorizationService extends AuthorizationService
 {
-    private static final String BUNDLE_NAME = "org.openscada.sec.osgi.messages"; //$NON-NLS-1$
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle ( BUNDLE_NAME );
-
-    private Messages ()
+    public interface Listener
     {
+        public void serviceChanged ();
     }
 
-    public static String getString ( final String key )
-    {
-        try
-        {
-            return RESOURCE_BUNDLE.getString ( key );
-        }
-        catch ( final MissingResourceException e )
-        {
-            return '!' + key + '!';
-        }
-    }
+    public void addListener ( final Listener listener );
+
+    public void removeListener ( final Listener listener );
 }
