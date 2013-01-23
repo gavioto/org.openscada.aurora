@@ -2,7 +2,6 @@
  * This file is part of the openSCADA project
  * 
  * Copyright (C) 2011-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
- * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -21,29 +20,27 @@
 
 package org.openscada.sec.utils.password;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class DigestValidator extends DigestBase implements PasswordValidator
+public class DigestBase
 {
+    private final MessageDigest digest;
 
-    private final PasswordDigestCodec passwordDigestCodec;
+    private final Charset passwordCharset;
 
-    public DigestValidator ( final String algorithm, final String passwordCharsetEncoder, final PasswordDigestCodec passwordDigestCodec ) throws NoSuchAlgorithmException
+    public DigestBase ( final String algorithm, final String passwordCharsetEncoder ) throws NoSuchAlgorithmException
     {
-        super ( algorithm, passwordCharsetEncoder );
-        this.passwordDigestCodec = passwordDigestCodec;
+        this.digest = MessageDigest.getInstance ( algorithm );
+        this.passwordCharset = Charset.forName ( passwordCharsetEncoder );
     }
 
-    @Override
-    public boolean validatePassword ( final String providedPassword, final String storedPassword ) throws Exception
+    protected byte[] makeDigest ( final String providedPassword )
     {
-        return compare ( makeDigest ( providedPassword ), storedPassword );
+        final ByteBuffer data = this.passwordCharset.encode ( providedPassword );
+        this.digest.update ( data.array (), 0, data.remaining () );
+        return this.digest.digest ();
     }
-
-    protected boolean compare ( final byte[] data, final String storedPassword )
-    {
-        return MessageDigest.isEqual ( data, this.passwordDigestCodec.decode ( storedPassword ) );
-    }
-
 }

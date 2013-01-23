@@ -1,7 +1,6 @@
 /*
  * This file is part of the openSCADA project
  * 
- * Copyright (C) 2011-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * openSCADA is free software: you can redistribute it and/or modify
@@ -21,29 +20,22 @@
 
 package org.openscada.sec.utils.password;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class DigestValidator extends DigestBase implements PasswordValidator
+public class DigestEncoder extends DigestBase implements PasswordEncoder
 {
 
     private final PasswordDigestCodec passwordDigestCodec;
 
-    public DigestValidator ( final String algorithm, final String passwordCharsetEncoder, final PasswordDigestCodec passwordDigestCodec ) throws NoSuchAlgorithmException
+    public DigestEncoder ( final String algorithm, final String passwordCharsetEncoder, final PasswordDigestCodec passwordDigestCodec ) throws NoSuchAlgorithmException
     {
         super ( algorithm, passwordCharsetEncoder );
         this.passwordDigestCodec = passwordDigestCodec;
     }
 
     @Override
-    public boolean validatePassword ( final String providedPassword, final String storedPassword ) throws Exception
+    public String encodePassword ( final String password )
     {
-        return compare ( makeDigest ( providedPassword ), storedPassword );
+        return this.passwordDigestCodec.encode ( makeDigest ( password ) );
     }
-
-    protected boolean compare ( final byte[] data, final String storedPassword )
-    {
-        return MessageDigest.isEqual ( data, this.passwordDigestCodec.decode ( storedPassword ) );
-    }
-
 }
