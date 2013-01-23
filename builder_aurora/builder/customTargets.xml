@@ -127,6 +127,7 @@
   	<openscada.builder.copyPlugin id="org.openscada.sec" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.utils" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.osgi" />
+  	<openscada.builder.copyPlugin id="org.openscada.sec.equinox" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.provider.plain.property" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.provider.dummy" />
   	
