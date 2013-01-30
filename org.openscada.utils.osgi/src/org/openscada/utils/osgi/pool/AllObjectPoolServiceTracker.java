@@ -27,6 +27,13 @@ import org.openscada.utils.osgi.pool.ObjectPoolTracker.ObjectPoolServiceListener
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A service tracker which tracks all services of all object pools found
+ * 
+ * @author Jens Reimann
+ * @param <S>
+ *            the service class
+ */
 public class AllObjectPoolServiceTracker<S>
 {
 
