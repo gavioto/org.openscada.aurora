@@ -112,8 +112,6 @@
   	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jdbc.pool" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.autostart" />
   	
-  	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.ircbot" />
-  	
   	<openscada.builder.copyFeature id="org.openscada.hds" />
   	<openscada.builder.copyPlugin id="org.openscada.hds" />
   	
