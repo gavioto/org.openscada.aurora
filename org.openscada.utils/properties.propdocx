@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.utils.">
+  <properties:groups properties:prefix="org.openscada.utils">
     <properties:properties properties:name="org.openscada.utils.concurrent.noDefaultLogger" properties:dataType="BOOLEAN">
       <properties:defaultValue>false</properties:defaultValue>
     </properties:properties>

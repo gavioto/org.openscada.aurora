@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.sec.provider.dummy.">
+  <properties:groups properties:prefix="org.openscada.sec.provider.dummy">
     <properties:properties properties:name="org.openscada.sec.provider.dummy.priority" properties:dataType="INTEGER">
       <properties:defaultValue>0</properties:defaultValue>
     </properties:properties>

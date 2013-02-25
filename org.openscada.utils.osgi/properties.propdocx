@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.utils.osgi.">
+  <properties:groups properties:prefix="org.openscada.utils.osgi">
     <properties:properties properties:name="org.openscada.osgi.objectPool.defaultPriority" properties:dataType="INTEGER">
       <properties:defaultValue>0</properties:defaultValue>
     </properties:properties>

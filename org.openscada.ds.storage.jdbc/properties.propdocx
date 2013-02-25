@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.ds.storage.jdbc.">
+  <properties:groups properties:prefix="org.openscada.ds.storage.jdbc">
     <properties:properties properties:name="org.openscada.ds.storage.jdbc.encoder">
       <properties:defaultValue>blob</properties:defaultValue>
     </properties:properties>

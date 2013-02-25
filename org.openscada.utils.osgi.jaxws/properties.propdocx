@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.utils.osgi.jaxws.">
+  <properties:groups properties:prefix="org.openscada.utils.osgi.jaxws">
     <properties:properties properties:name="org.openscada.utils.osgi.jaxws.baseAddress">
       <properties:defaultValue>http://localhost:9999</properties:defaultValue>
     </properties:properties>
