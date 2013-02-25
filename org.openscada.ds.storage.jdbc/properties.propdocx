@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ASCII"?>
+<properties:properties xmlns:properties="urn:openscada:doc:content:properties">
+  <properties:groups properties:prefix="org.openscada.ds.storage.jdbc.">
+    <properties:properties properties:name="org.openscada.ds.storage.jdbc.encoder">
+      <properties:defaultValue>blob</properties:defaultValue>
+    </properties:properties>
+    <properties:properties properties:name="org.openscada.ds.storage.jdbc.disableBuffer" properties:dataType="BOOLEAN">
+      <properties:defaultValue>false</properties:defaultValue>
+    </properties:properties>
+    <properties:properties properties:name="org.openscada.ds.storage.jdbc.disableCache" properties:dataType="BOOLEAN">
+      <properties:defaultValue>false</properties:defaultValue>
+    </properties:properties>
+    <properties:properties properties:name="org.openscada.ds.storage.jdbc.cleanUpCacheDelay" properties:dataType="LONG">
+      <properties:defaultValue>600</properties:defaultValue>
+    </properties:properties>
+    <properties:properties properties:name="org.openscada.ds.storage.jdbc.table">
+      <properties:defaultValue>datastore</properties:defaultValue>
+    </properties:properties>
+    <properties:properties properties:name="org.openscada.ds.storage.jdbc.instance">
+      <properties:defaultValue>default</properties:defaultValue>
+    </properties:properties>
+    <properties:properties properties:name="org.openscada.ds.storage.jdbc.chunkSize" properties:dataType="INTEGER">
+      <properties:defaultValue>0</properties:defaultValue>
+    </properties:properties>
+  </properties:groups>
+</properties:properties>
