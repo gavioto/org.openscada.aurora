@@ -33,6 +33,13 @@ public class StringReplacer
 
     public static final Pattern DEFAULT_PATTERN = Pattern.compile ( "\\$\\{(.*?)\\}" );
 
+    /**
+     * Replace with the default pattern of <code>${var}</code>
+     * 
+     * @param string
+     * @param properties
+     * @return
+     */
     public static String replace ( final String string, final Hashtable<?, ?> properties )
     {
         return replace ( string, new ReplaceSource () {
