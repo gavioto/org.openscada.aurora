@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: openSCADA Connection Pool
 Bundle-SymbolicName: org.openscada.utils.osgi.jdbc.pool
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Bundle-Vendor: openSCADA.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.dbcp;version="1.4.0",
  org.apache.commons.dbcp.datasources;version="1.4.0",

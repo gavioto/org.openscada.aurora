@@ -4,7 +4,7 @@ Bundle-Name: openSCADA Deadlock Logger
 Bundle-SymbolicName: org.openscada.utils.deadlogger
 Bundle-Version: 0.17.0.qualifier
 Bundle-Activator: org.openscada.utils.deadlogger.internal.Activator
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Bundle-Vendor: openSCADA.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.openscada.utils.concurrent;version="0.16.0",
  org.osgi.framework;version="1.3.0",

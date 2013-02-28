@@ -3,7 +3,7 @@
       id="org.openscada.pde.maven.target"
       label="PDE Maven Target Provisioner Feature"
       version="1.0.2"
-      provider-name="TH4 SYSTEMS GmbH"
+      provider-name="openSCADA.org"
       plugin="org.openscada.pde.maven.target">
 
    <description url="http://openscada.org">

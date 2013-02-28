@@ -4,7 +4,7 @@ Bundle-Name: openSCADA Security Plain Property Provider
 Bundle-SymbolicName: org.openscada.sec.provider.plain.property
 Bundle-Version: 0.4.0.qualifier
 Bundle-Activator: org.openscada.sec.provider.plain.property.Activator
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Bundle-Vendor: openSCADA.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.openscada.sec;version="0.4.0",
  org.openscada.sec.osgi.plain;version="0.4.0",

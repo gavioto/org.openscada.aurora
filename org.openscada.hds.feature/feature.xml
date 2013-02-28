@@ -3,7 +3,7 @@
       id="org.openscada.hds"
       label="openSCADA Historical Data Store Feature"
       version="1.0.0.qualifier"
-      provider-name="TH4 SYSTEMS GmbH">
+      provider-name="openSCADA.org">
 
    <description>
       openSCADA Historical Data Store

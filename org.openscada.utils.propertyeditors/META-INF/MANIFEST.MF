@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.openscada.utils.propertyeditors
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.openscada.utils.propertyeditors;version="1.0.0"
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Bundle-Vendor: openSCADA.org

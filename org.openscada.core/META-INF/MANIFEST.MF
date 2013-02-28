@@ -8,6 +8,6 @@ Export-Package: org.openscada.core;version="1.0.0";uses:="org.openscada.utils.st
 Bundle-Version: 1.0.0.qualifier
 Bundle-Name: openSCADA Core
 Bundle-ManifestVersion: 2
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Bundle-Vendor: openSCADA.org
 Bundle-SymbolicName: org.openscada.core
 

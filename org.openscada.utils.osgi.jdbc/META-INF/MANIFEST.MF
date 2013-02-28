@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JDBC Utils Package
 Bundle-SymbolicName: org.openscada.utils.osgi.jdbc
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Bundle-Vendor: openSCADA.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.openscada.utils.osgi;version="0.17.0",
  org.openscada.utils.sql;version="1.0.0",
