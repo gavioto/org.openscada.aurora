@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenSCADA Core Unit Test
+Bundle-Name: openSCADA Core Unit Test
 Bundle-SymbolicName: org.openscada.core.test
-Bundle-Version: 0.15.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: openSCADA.org
-Fragment-Host: org.openscada.core;bundle-version="0.15.0"
+Fragment-Host: org.openscada.core;bundle-version="1.0.0"
 Require-Bundle: org.junit4;bundle-version="4.5.0"
