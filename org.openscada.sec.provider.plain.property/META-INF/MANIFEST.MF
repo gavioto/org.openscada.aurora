@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: openSCADA Security Plain Property Provider
 Bundle-SymbolicName: org.openscada.sec.provider.plain.property
-Bundle-Version: 0.4.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.openscada.sec.provider.plain.property.Activator
 Bundle-Vendor: openSCADA.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.openscada.sec;version="0.4.0",
- org.openscada.sec.osgi.plain;version="0.4.0",
- org.openscada.utils.statuscodes;version="0.15.0",
+Import-Package: org.openscada.sec;version="1.0.0",
+ org.openscada.sec.osgi.plain;version="1.0.0",
+ org.openscada.utils.statuscodes;version="1.0.0",
  org.osgi.framework;version="1.6.0"

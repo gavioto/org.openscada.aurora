@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: openSCADA OSGi PID file creator
 Bundle-SymbolicName: org.openscada.utils.osgi.pidfile
-Bundle-Version: 0.17.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.openscada.utils.osgi.pidfile.Activator
 Import-Package: org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.5.0"
