@@ -9,4 +9,4 @@ Export-Package: org.openscada.sec;version="1.0.0";uses:="org.openscada.utils.con
 Import-Package: org.openscada.utils.concurrent;version="1.0.0",
  org.openscada.utils.lang;version="1.0.0",
  org.openscada.utils.statuscodes;version="1.0.0",
- org.openscada.utils.str;version="0.16.0"
+ org.openscada.utils.str;version="1.0.0"
