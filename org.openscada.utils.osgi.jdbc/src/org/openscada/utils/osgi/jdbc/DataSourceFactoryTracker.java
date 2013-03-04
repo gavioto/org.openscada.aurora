@@ -28,9 +28,17 @@ import org.osgi.service.jdbc.DataSourceFactory;
 public class DataSourceFactoryTracker extends SingleServiceTracker<DataSourceFactory>
 {
 
+    private final String driver;
+
     public DataSourceFactoryTracker ( final BundleContext context, final String driver, final SingleServiceListener<DataSourceFactory> listener ) throws InvalidSyntaxException
     {
         super ( context, context.createFilter ( "(&(objectClass=" + DataSourceFactory.class.getName () + ")(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + driver + "))" ), listener );
+        this.driver = driver;
+    }
+
+    public String getDriver ()
+    {
+        return this.driver;
     }
 
 }

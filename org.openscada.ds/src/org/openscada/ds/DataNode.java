@@ -29,16 +29,19 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openscada.ds.internal.BundleObjectInputStream;
 import org.openscada.ds.internal.ClassLoaderObjectInputStream;
 import org.openscada.utils.lang.Immutable;
+import org.openscada.utils.osgi.BundleObjectInputStream;
 import org.osgi.framework.Bundle;
 
 /**
  * A data node used for storing data in a {@link DataStore}.
+ * <p>
+ * Data nodes are equal by <code>id</code>.
+ * </p>
+ * 
  * @author Jens Reimann
  * @since 0.15.0
- *
  */
 @Immutable
 public class DataNode
@@ -52,8 +55,11 @@ public class DataNode
      * <p>
      * The byte buffer is copied by the constructor
      * </p>
-     * @param id The node id
-     * @param data the data
+     * 
+     * @param id
+     *            The node id
+     * @param data
+     *            the data
      */
     public DataNode ( final String id, final byte[] data )
     {
@@ -76,9 +82,13 @@ public class DataNode
      * <p>
      * The stream is not closed by the constructor.
      * </p>
-     * @param id the node id
-     * @param stream the stream to read from
-     * @throws IOException if stream reading fails
+     * 
+     * @param id
+     *            the node id
+     * @param stream
+     *            the stream to read from
+     * @throws IOException
+     *             if stream reading fails
      */
     public DataNode ( final String id, final InputStream stream ) throws IOException
     {
@@ -142,10 +152,12 @@ public class DataNode
     }
 
     /**
-     * Create a new data node and fill it with the serialized
-     * representation of the data object provided.
-     * @param id the node id
-     * @param data the data to serialize
+     * Create a new data node and fill it with the serialized representation of the data object provided.
+     * 
+     * @param id
+     *            the node id
+     * @param data
+     *            the data to serialize
      */
     public DataNode ( final String id, final Serializable data )
     {
@@ -179,6 +191,7 @@ public class DataNode
 
     /**
      * Get a copy of the data
+     * 
      * @return the binary node data
      */
     public byte[] getData ()

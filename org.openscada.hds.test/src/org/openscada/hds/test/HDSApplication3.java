@@ -23,13 +23,12 @@ import java.io.File;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.openscada.hds.DataFilePool;
 import org.openscada.hds.DataStoreAccesor;
 import org.openscada.hds.ValueVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 public class HDSApplication3
 {
@@ -40,7 +39,7 @@ public class HDSApplication3
     {
         final File base = new File ( "base", "data1" );
 
-        Files.deleteRecursively ( base.getParentFile () );
+        FileUtils.deleteDirectory ( base.getParentFile () );
         base.getParentFile ().mkdir ();
 
         final DataFilePool pool = new DataFilePool ( 10000 );

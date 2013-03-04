@@ -197,13 +197,25 @@ public class SingleServiceTracker<T>
     {
         if ( this.listener != null )
         {
-            this.listener.serviceChange ( reference, service );
+            try
+            {
+                this.listener.serviceChange ( reference, service );
+            }
+            catch ( final Exception e )
+            {
+                logger.debug ( "Failed to notify service", e );
+            }
         }
     }
 
     public T waitForService ( final long timeout ) throws InterruptedException
     {
         return this.tracker.waitForService ( timeout );
+    }
+
+    public T getService ()
+    {
+        return this.tracker.getService ();
     }
 
 }

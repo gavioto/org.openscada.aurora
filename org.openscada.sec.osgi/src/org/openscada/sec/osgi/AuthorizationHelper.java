@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,7 +21,7 @@
 
 package org.openscada.sec.osgi;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Map;
 
 import org.openscada.sec.AuthorizationResult;
@@ -57,13 +59,20 @@ public class AuthorizationHelper
     /**
      * Check all authentication services for authorization.
      * <p>
-     * This method calls {@link #authorize(String, String, String, UserInformation, AuthorizationResult)}
-     * with a default failure if there is not authorization provider or none voted.
+     * This method calls
+     * {@link #authorize(String, String, String, UserInformation, AuthorizationResult)}
+     * with a default failure if there is not authorization provider or none
+     * voted.
      * </p>
-     * @param objectId the id of the object to check for
-     * @param objectType the object type
-     * @param action the action to perform
-     * @param userInformation the user information or <code>null</code> if there is none
+     * 
+     * @param objectId
+     *            the id of the object to check for
+     * @param objectType
+     *            the object type
+     * @param action
+     *            the action to perform
+     * @param userInformation
+     *            the user information or <code>null</code> if there is none
      * @return always returns a result, never returns <code>null</code>
      */
     public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context )
@@ -71,38 +80,32 @@ public class AuthorizationHelper
         return authorize ( objectType, objectId, action, userInformation, context, DEFAULT_RESULT );
     }
 
+    public AuthorizationResult authorize ( final AuthorizationRequest request, final AuthorizationResult defaultResult )
+    {
+        logger.debug ( "Authorizing - {}", request );
+        final AuthorizationResult result = authorize ( this.tracker.getTracked ().values (), request, defaultResult );
+        logger.debug ( "Authorizing - {} -> {}", request, result );
+        return result;
+    }
+
     public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context, final AuthorizationResult defaultResult )
     {
-        logger.debug ( "Authorizing - objectType: {}, objectId: {}, action: {}, userInformation: {}, context: {}", new Object[] { objectType, objectId, action, userInformation, context } ); //$NON-NLS-1$
+        return authorize ( new AuthorizationRequest ( objectType, objectId, action, userInformation, context ), defaultResult );
+    }
 
-        final Object[] s = this.tracker.getServices ();
-
-        if ( s == null )
+    public static AuthorizationResult authorize ( final Collection<? extends AuthorizationService> services, final AuthorizationRequest request, final AuthorizationResult defaultResult )
+    {
+        if ( services == null )
         {
-            logger.debug ( "No authencation services" ); //$NON-NLS-1$
             return defaultResult;
         }
 
-        final Map<String, Object> unmodiContext;
-        if ( context != null )
+        for ( final AuthorizationService service : services )
         {
-            unmodiContext = Collections.unmodifiableMap ( context );
-        }
-        else
-        {
-            unmodiContext = null;
-        }
-
-        for ( final Object service : s )
-        {
-            if ( ! ( service instanceof AuthorizationService ) )
-            {
-                logger.info ( "Service does not implement AuthorizationService" ); //$NON-NLS-1$
-                continue;
-            }
-            final AuthorizationResult result = ( (AuthorizationService)service ).authorize ( objectType, objectId, action, userInformation, unmodiContext );
+            final AuthorizationResult result = service.authorize ( request.getObjectType (), request.getObjectId (), request.getAction (), request.getUserInformation (), request.getContext () );
             if ( result != null )
             {
+                // service did not abstain .. so use the result
                 logger.debug ( "Got result ({}). Returning ... ", result ); //$NON-NLS-1$
                 return result;
             }

@@ -23,11 +23,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openscada.utils.osgi.jdbc.data.RowMapper;
 import org.openscada.utils.osgi.jdbc.data.RowMapperException;
 import org.openscada.utils.osgi.jdbc.data.SingleColumnRowMapper;
+import org.openscada.utils.sql.SqlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +100,21 @@ public abstract class CommonConnectionContext implements ConnectionContext
     }
 
     @Override
+    public <T> List<T> queryForList ( final Class<T> clazz, final String sql, final Map<String, Object> parameters ) throws SQLException
+    {
+        return query ( new SingleColumnRowMapper<T> ( clazz ), sql, parameters );
+    }
+
+    @Override
     public <T> List<T> query ( final RowMapper<T> rowMapper, final String sql, final Object... parameters ) throws SQLException
+    {
+        final CaptureMappedResultSetProcessor<T> crsp = new CaptureMappedResultSetProcessor<T> ( rowMapper );
+        query ( crsp, sql, parameters );
+        return crsp.getResult ();
+    }
+
+    @Override
+    public <T> List<T> query ( final RowMapper<T> rowMapper, final String sql, final Map<String, Object> parameters ) throws SQLException
     {
         final CaptureMappedResultSetProcessor<T> crsp = new CaptureMappedResultSetProcessor<T> ( rowMapper );
         query ( crsp, sql, parameters );
@@ -121,6 +138,34 @@ public abstract class CommonConnectionContext implements ConnectionContext
     }
 
     @Override
+    public void query ( final RowCallback callback, final String sql, final Map<String, Object> parameters ) throws SQLException
+    {
+        query ( new ResultSetProcessor () {
+
+            @Override
+            public void processResult ( final ResultSet resultSet ) throws SQLException
+            {
+                while ( resultSet.next () )
+                {
+                    callback.processRow ( resultSet );
+                }
+            }
+        }, sql, parameters );
+    }
+
+    @Override
+    public void query ( final ResultSetProcessor resultSetProcessor, final String sql, final Map<String, Object> parameters ) throws SQLException
+    {
+        logger.trace ( "Preparing query SQL - {}", sql );
+
+        final Map<String, List<Integer>> posMap = new HashMap<String, List<Integer>> ();
+        final String convertedSql = SqlHelper.convertSql ( sql, posMap );
+
+        logger.trace ( "Converted sql from '{}' to '{}' for positional parameters", sql, convertedSql );
+        query ( resultSetProcessor, convertedSql, SqlHelper.expandParameters ( posMap, parameters ) );
+    }
+
+    @Override
     public void query ( final ResultSetProcessor resultSetProcessor, final String sql, final Object... parameters ) throws SQLException
     {
         logger.trace ( "Preparing query SQL - {}", sql );
@@ -128,7 +173,6 @@ public abstract class CommonConnectionContext implements ConnectionContext
         try
         {
             applyParameters ( stmt, parameters );
-
             final ResultSet rs = stmt.executeQuery ();
 
             try
@@ -184,5 +228,12 @@ public abstract class CommonConnectionContext implements ConnectionContext
                 stmt.close ();
             }
         }
+    }
+
+    @Override
+    public int update ( final String sql, final Map<String, Object> parameters ) throws SQLException
+    {
+        final Map<String, List<Integer>> posMap = new HashMap<String, List<Integer>> ();
+        return update ( SqlHelper.convertSql ( sql, posMap ), SqlHelper.expandParameters ( posMap, parameters ) );
     }
 }

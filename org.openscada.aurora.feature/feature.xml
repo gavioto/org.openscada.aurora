@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.openscada.aurora"
-      label="openSCADA Aurora Feature"
-      version="0.18.0.qualifier"
-      provider-name="TH4 SYSTEMS GmbH">
+      label="%featureName"
+      version="1.0.0.qualifier"
+      provider-name="openSCADA.org">
 
    <description url="http://openscada.org">
       The Aurora project contains a lot of tools.
@@ -16,14 +16,6 @@
    <license url="http://opensource.org/licenses/lgpl-3.0.html">
       %license
    </license>
-
-   <includes
-         id="org.openscada.hsdb"
-         version="0.0.0"/>
-
-   <includes
-         id="org.openscada.ca"
-         version="0.0.0"/>
 
    <includes
          id="org.openscada.sec"
@@ -58,13 +50,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.openscada.osgi.equinox.console"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.openscada.utils.propertyeditors"
          download-size="0"
          install-size="0"
@@ -86,13 +71,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.openscada.osgi.equinox.ircbot"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.openscada.utils.osgi.pidfile"
          download-size="0"
          install-size="0"
@@ -103,10 +81,37 @@
          id="org.openscada.utils.osgi.jdbc"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="org.openscada.utils.osgi.autostart"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.utils.osgi.jdbc.pool"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.utils.osgi.exporter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.openscada.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.openscada.core.info"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

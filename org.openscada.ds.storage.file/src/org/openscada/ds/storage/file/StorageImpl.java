@@ -27,15 +27,14 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.openscada.ds.DataNode;
 import org.openscada.ds.storage.AbstractStorage;
+import org.openscada.utils.concurrent.ExportedExecutorService;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.InstantFuture;
-import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,14 +48,11 @@ public class StorageImpl extends AbstractStorage
 
     private final File rootFolder;
 
-    private final LinkedBlockingQueue<Runnable> taskQueue;
-
-    private final ThreadPoolExecutor executorService;
+    private final ExecutorService executorService;
 
     public StorageImpl () throws IOException
     {
-        this.taskQueue = new LinkedBlockingQueue<Runnable> ();
-        this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, this.taskQueue, new NamedThreadFactory ( StorageImpl.class.getName () ) );
+        this.executorService = new ExportedExecutorService ( StorageImpl.class.getName (), 1, 1, 0L, TimeUnit.MILLISECONDS );
 
         this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.home" ) + File.separator + ".openscadaDS" ) );
         if ( !this.rootFolder.exists () )
@@ -76,7 +72,7 @@ public class StorageImpl extends AbstractStorage
     }
 
     @Override
-    public void dispose ()
+    public synchronized void dispose ()
     {
         super.dispose ();
         this.executorService.shutdown ();

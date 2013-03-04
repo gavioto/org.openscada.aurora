@@ -2,8 +2,8 @@
 <feature
       id="org.openscada.aurora.sdk"
       label="openSCADA Aurora SDK"
-      version="0.18.0.qualifier"
-      provider-name="TH4 SYSTEMS GmbH">
+      version="1.0.0.qualifier"
+      provider-name="openSCADA.org">
 
    <description url="http://openscada.org">
       The Aurora SDK project including binaries and sources.
@@ -31,6 +31,12 @@
 
    <includes
          id="org.openscada.ds.sdk"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.openscada.aurora.doc.isv"
+         download-size="0"
+         install-size="0"
          version="0.0.0"/>
 
 </feature>

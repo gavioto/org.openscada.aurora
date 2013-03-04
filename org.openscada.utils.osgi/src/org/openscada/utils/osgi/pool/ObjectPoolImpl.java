@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -39,16 +39,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
+public class ObjectPoolImpl<S> implements ObjectPool<S>, ManageableObjectPool<S>
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( ObjectPoolImpl.class );
 
-    private final Multimap<String, ObjectPoolListener> idListeners = HashMultimap.create ();
+    private final Multimap<String, ObjectPoolListener<S>> idListeners = HashMultimap.create ();
 
-    private final Set<ObjectPoolListener> anyListener = new HashSet<ObjectPoolListener> ( 1 );
+    private final Set<ObjectPoolListener<S>> anyListener = new HashSet<ObjectPoolListener<S>> ( 1 );
 
-    private final Map<String, Map<Object, Dictionary<?, ?>>> services = new HashMap<String, Map<Object, Dictionary<?, ?>>> ( 1 );
+    private final Map<String, Map<S, Dictionary<?, ?>>> services = new HashMap<String, Map<S, Dictionary<?, ?>>> ( 1 );
 
     private final ExecutorService executor;
 
@@ -63,7 +63,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
     @Override
     @SuppressWarnings ( "unchecked" )
-    public synchronized void addService ( final String id, final Object service, Dictionary<?, ?> properties )
+    public synchronized void addService ( final String id, final S service, Dictionary<?, ?> properties )
     {
         if ( this.disposed )
         {
@@ -81,10 +81,10 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
         logger.debug ( "Adding service: {} -> {} -> {}", new Object[] { id, service, properties } );
 
-        Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
+        Map<S, Dictionary<?, ?>> serviceMap = this.services.get ( id );
         if ( serviceMap == null )
         {
-            serviceMap = new HashMap<Object, Dictionary<?, ?>> ( 1 );
+            serviceMap = new HashMap<S, Dictionary<?, ?>> ( 1 );
             this.services.put ( id, serviceMap );
         }
 
@@ -98,7 +98,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
     }
 
     @Override
-    public synchronized void modifyService ( final String id, final Object service, final Dictionary<?, ?> properties )
+    public synchronized void modifyService ( final String id, final S service, final Dictionary<?, ?> properties )
     {
         if ( this.disposed )
         {
@@ -107,7 +107,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
         logger.debug ( "Modifing service: {} -> {} -> {}", new Object[] { id, service, properties } );
 
-        final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
+        final Map<S, Dictionary<?, ?>> serviceMap = this.services.get ( id );
         if ( serviceMap != null )
         {
             serviceMap.put ( service, properties );
@@ -116,16 +116,16 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
     }
 
     @Override
-    public synchronized void removeService ( final String id, final Object service )
+    public synchronized void removeService ( final String id, final S service )
     {
         if ( this.disposed )
         {
             return;
         }
 
-        logger.debug ( "Removing service: {} -> {}", new Object[] { id, service } );
+        logger.debug ( "Removing service: {} -> {}", id, service );
 
-        final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
+        final Map<S, Dictionary<?, ?>> serviceMap = this.services.get ( id );
         if ( serviceMap == null )
         {
             return;
@@ -141,18 +141,18 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         }
     }
 
-    private void fireAddedService ( final String id, final Object service, final Dictionary<?, ?> properties )
+    private void fireAddedService ( final String id, final S service, final Dictionary<?, ?> properties )
     {
-        final Collection<ObjectPoolListener> listeners = cloneListeners ( id );
+        final Collection<ObjectPoolListener<S>> listeners = cloneListeners ( id );
 
-        logger.debug ( "Fire add service: {} ({} listeners)", new Object[] { id, listeners.size () } );
+        logger.debug ( "Fire add service: {} ({} listeners)", id, listeners.size () );
 
         this.executor.execute ( new Runnable () {
 
             @Override
             public void run ()
             {
-                for ( final ObjectPoolListener listener : listeners )
+                for ( final ObjectPoolListener<S> listener : listeners )
                 {
                     listener.serviceAdded ( service, properties );
                 }
@@ -160,25 +160,25 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         } );
     }
 
-    protected Collection<ObjectPoolListener> cloneListeners ( final String id )
+    protected Collection<ObjectPoolListener<S>> cloneListeners ( final String id )
     {
-        final Collection<ObjectPoolListener> localListeners = this.idListeners.get ( id );
-        final List<ObjectPoolListener> listeners = new ArrayList<ObjectPoolListener> ( localListeners.size () + this.anyListener.size () );
+        final Collection<ObjectPoolListener<S>> localListeners = this.idListeners.get ( id );
+        final List<ObjectPoolListener<S>> listeners = new ArrayList<ObjectPoolListener<S>> ( localListeners.size () + this.anyListener.size () );
         listeners.addAll ( localListeners );
         listeners.addAll ( this.anyListener );
         return listeners;
     }
 
-    private void fireModifiedService ( final String id, final Object service, final Dictionary<?, ?> properties )
+    private void fireModifiedService ( final String id, final S service, final Dictionary<?, ?> properties )
     {
-        final Collection<ObjectPoolListener> listeners = cloneListeners ( id );
+        final Collection<ObjectPoolListener<S>> listeners = cloneListeners ( id );
 
         this.executor.execute ( new Runnable () {
 
             @Override
             public void run ()
             {
-                for ( final ObjectPoolListener listener : listeners )
+                for ( final ObjectPoolListener<S> listener : listeners )
                 {
                     listener.serviceModified ( service, properties );
                 }
@@ -186,16 +186,16 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
         } );
     }
 
-    private void fireRemoveService ( final String id, final Object service, final Dictionary<?, ?> properties )
+    private void fireRemoveService ( final String id, final S service, final Dictionary<?, ?> properties )
     {
-        final Collection<ObjectPoolListener> listeners = cloneListeners ( id );
+        final Collection<ObjectPoolListener<S>> listeners = cloneListeners ( id );
 
         this.executor.execute ( new Runnable () {
 
             @Override
             public void run ()
             {
-                for ( final ObjectPoolListener listener : listeners )
+                for ( final ObjectPoolListener<S> listener : listeners )
                 {
                     listener.serviceRemoved ( service, properties );
                 }
@@ -213,22 +213,22 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
                 @Override
                 public void run ()
                 {
-                    for ( final ObjectPoolListener listener : ObjectPoolImpl.this.anyListener )
+                    for ( final ObjectPoolListener<S> listener : ObjectPoolImpl.this.anyListener )
                     {
-                        for ( final Map<Object, Dictionary<?, ?>> map : ObjectPoolImpl.this.services.values () )
+                        for ( final Map<S, Dictionary<?, ?>> map : ObjectPoolImpl.this.services.values () )
                         {
-                            for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : map.entrySet () )
+                            for ( final Map.Entry<S, Dictionary<?, ?>> serviceEntry : map.entrySet () )
                             {
                                 listener.serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
                             }
                         }
                     }
-                    for ( final Map.Entry<String, ObjectPoolListener> entry : ObjectPoolImpl.this.idListeners.entries () )
+                    for ( final Map.Entry<String, ObjectPoolListener<S>> entry : ObjectPoolImpl.this.idListeners.entries () )
                     {
-                        final Map<Object, Dictionary<?, ?>> serviceMap = ObjectPoolImpl.this.services.get ( entry.getKey () );
+                        final Map<S, Dictionary<?, ?>> serviceMap = ObjectPoolImpl.this.services.get ( entry.getKey () );
                         if ( serviceMap != null )
                         {
-                            for ( final Map.Entry<Object, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
+                            for ( final Map.Entry<S, Dictionary<?, ?>> serviceEntry : serviceMap.entrySet () )
                             {
                                 entry.getValue ().serviceRemoved ( serviceEntry.getKey (), serviceEntry.getValue () );
                             }
@@ -253,29 +253,29 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
      * @see org.openscada.da.datasource.ObjectPool#addListener(java.lang.String, org.openscada.da.datasource.ObjectPoolListener)
      */
     @Override
-    public synchronized void addListener ( final String id, final ObjectPoolListener listener )
+    public synchronized void addListener ( final String id, final ObjectPoolListener<S> listener )
     {
         if ( this.disposed )
         {
             return;
         }
 
-        logger.debug ( "Adding listener for {}", new Object[] { id } );
+        logger.debug ( "Adding listener for {}", id );
 
         if ( this.idListeners.put ( id, listener ) )
         {
-            logger.debug ( "Added listener {} for {}", new Object[] { listener, id } );
+            logger.debug ( "Added listener {} for {}", listener, id );
 
-            final Map<Object, Dictionary<?, ?>> serviceMap = this.services.get ( id );
+            final Map<S, Dictionary<?, ?>> serviceMap = this.services.get ( id );
             if ( serviceMap != null )
             {
-                final Map<Object, Dictionary<?, ?>> serviceMapClone = new HashMap<Object, Dictionary<?, ?>> ( serviceMap );
+                final Map<S, Dictionary<?, ?>> serviceMapClone = new HashMap<S, Dictionary<?, ?>> ( serviceMap );
                 this.executor.execute ( new Runnable () {
 
                     @Override
                     public void run ()
                     {
-                        for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMapClone.entrySet () )
+                        for ( final Map.Entry<S, Dictionary<?, ?>> entry : serviceMapClone.entrySet () )
                         {
                             listener.serviceAdded ( entry.getKey (), entry.getValue () );
                         }
@@ -290,7 +290,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
      * @see org.openscada.da.datasource.ObjectPool#removeListener(java.lang.String, org.openscada.da.datasource.ObjectPoolListener)
      */
     @Override
-    public synchronized void removeListener ( final String id, final ObjectPoolListener listener )
+    public synchronized void removeListener ( final String id, final ObjectPoolListener<S> listener )
     {
         if ( this.disposed )
         {
@@ -301,7 +301,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
     }
 
     @Override
-    public synchronized void addListener ( final ObjectPoolListener listener )
+    public synchronized void addListener ( final ObjectPoolListener<S> listener )
     {
         if ( this.disposed )
         {
@@ -312,16 +312,16 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
 
         if ( this.anyListener.add ( listener ) )
         {
-            final Collection<Map<Object, Dictionary<?, ?>>> servicesClone = new ArrayList<Map<Object, Dictionary<?, ?>>> ( this.services.values () );
+            final Collection<Map<S, Dictionary<?, ?>>> servicesClone = new ArrayList<Map<S, Dictionary<?, ?>>> ( this.services.values () );
 
             this.executor.execute ( new Runnable () {
 
                 @Override
                 public void run ()
                 {
-                    for ( final Map<Object, Dictionary<?, ?>> serviceMap : servicesClone )
+                    for ( final Map<S, Dictionary<?, ?>> serviceMap : servicesClone )
                     {
-                        for ( final Map.Entry<Object, Dictionary<?, ?>> entry : serviceMap.entrySet () )
+                        for ( final Map.Entry<S, Dictionary<?, ?>> entry : serviceMap.entrySet () )
                         {
                             listener.serviceAdded ( entry.getKey (), entry.getValue () );
                         }
@@ -333,7 +333,7 @@ public class ObjectPoolImpl implements ObjectPool, ManageableObjectPool
     }
 
     @Override
-    public synchronized void removeListener ( final ObjectPoolListener listener )
+    public synchronized void removeListener ( final ObjectPoolListener<S> listener )
     {
         if ( this.disposed )
         {

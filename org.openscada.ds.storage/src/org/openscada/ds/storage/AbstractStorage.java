@@ -46,6 +46,7 @@ public abstract class AbstractStorage implements DataStore
      * <p>
      * This method is only called after the constructor is completed
      * </p>
+     * 
      * @return the executor to use, must never return <code>null</code>
      */
     protected abstract Executor getExecutor ();
@@ -79,6 +80,7 @@ public abstract class AbstractStorage implements DataStore
         {
             final NotifyFuture<DataNode> task = readNode ( nodeId );
 
+            // fire events in executor thread
             getExecutor ().execute ( new Runnable () {
 
                 @Override

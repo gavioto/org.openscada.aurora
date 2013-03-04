@@ -28,25 +28,43 @@ import org.slf4j.LoggerFactory;
 public final class DataSourceHelper
 {
 
+    public static final String DEFAULT_PREFIX = "org.openscada.jdbc";
+
     private final static Logger logger = LoggerFactory.getLogger ( DataSourceHelper.class );
 
     private DataSourceHelper ()
     {
     }
 
+    public static boolean isConnectionPool ( final String specificPrefix, final String defaultPrefix, final boolean defaultValue )
+    {
+        final String value = System.getProperty ( specificPrefix + ".usePool", System.getProperty ( defaultPrefix + ".usePool", "" + defaultValue ) );
+        return Boolean.parseBoolean ( value );
+    }
+
     public static String getDriver ( final String specificPrefix, final String defaultPrefix )
     {
-        return System.getProperty ( specificPrefix + ".driver", System.getProperty ( defaultPrefix + ".driver", null ) );
+        return getDriver ( System.getProperties (), specificPrefix, defaultPrefix );
+    }
+
+    public static String getDriver ( final Properties properties, final String specificPrefix, final String defaultPrefix )
+    {
+        return properties.getProperty ( specificPrefix + ".driver", properties.getProperty ( defaultPrefix + ".driver", null ) );
     }
 
     public static Properties getDataSourceProperties ( final String specificPrefix, final String defaultPrefix )
+    {
+        return getDataSourceProperties ( System.getProperties (), specificPrefix, defaultPrefix );
+    }
+
+    public static Properties getDataSourceProperties ( final Properties properties, final String specificPrefix, final String defaultPrefix )
     {
         logger.debug ( "Getting datasource properties - specific: {} / default: {}", specificPrefix, defaultPrefix );
 
         final Properties p = new Properties ();
 
         String prefix;
-        if ( System.getProperties ().containsKey ( specificPrefix + ".driver" ) )
+        if ( properties.containsKey ( specificPrefix + ".driver" ) )
         {
             prefix = specificPrefix + ".properties.";
         }
@@ -57,9 +75,9 @@ public final class DataSourceHelper
 
         logger.debug ( "Prefix is: {}", prefix );
 
-        for ( final Map.Entry<Object, Object> entry : System.getProperties ().entrySet () )
+        for ( final Map.Entry<Object, Object> entry : properties.entrySet () )
         {
-            logger.debug ( "Checking entry - key: {}, value: {}", entry.getKey (), entry.getValue () );
+            logger.trace ( "Checking entry - key: {}, value: {}", entry.getKey (), entry.getValue () );
 
             if ( entry.getKey () == null )
             {

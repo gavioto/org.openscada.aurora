@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ASCII"?>
+<properties:properties xmlns:properties="urn:openscada:doc:content:properties">
+  <properties:groups properties:prefix="org.openscada.utils.osgi.pidfile">
+    <properties:properties properties:name="user.home"/>
+    <properties:properties properties:name="org.openscada.utils.osgi.pidfile"/>
+  </properties:groups>
+</properties:properties>

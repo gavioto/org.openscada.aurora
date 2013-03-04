@@ -98,31 +98,22 @@
   <target name="postSetup">
     <antcall target="getBaseComponents" />
   	
+  	<openscada.builder.copyPlugin id="org.openscada.core"/>
+  	<openscada.builder.copyPlugin id="org.openscada.core.info"/>
+  		
 	<openscada.builder.copyPlugin id="org.openscada.utils" />
 	<openscada.builder.copyPlugin id="org.openscada.utils.osgi" />
+  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.exporter" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jaxws" />
 	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.pidfile" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.propertyeditors" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.filter" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jdbc" />
+  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jdbc.pool" />
   	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.autostart" />
-  	
-  	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.console" />
-  	<openscada.builder.copyPlugin id="org.openscada.osgi.equinox.ircbot" />
   	
   	<openscada.builder.copyFeature id="org.openscada.hds" />
   	<openscada.builder.copyPlugin id="org.openscada.hds" />
-  	
-  	<openscada.builder.copyFeature id="org.openscada.ca" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.servlet" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.servlet.jaxws" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.servlet.json" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.common" />
-	<openscada.builder.copyPlugin id="org.openscada.ca.console" />
-  	
-  	<openscada.builder.copyPlugin id="org.openscada.ca.file" />
-  	<openscada.builder.copyPlugin id="org.openscada.ca.jdbc" />
   	
   	<openscada.builder.copyFeature id="org.openscada.ds" />
   	<openscada.builder.copyFeature id="org.openscada.ds.sdk" />
@@ -131,20 +122,20 @@
   	<openscada.builder.copyPlugin id="org.openscada.ds.storage.file" />
   	<openscada.builder.copyPlugin id="org.openscada.ds.storage.jdbc" />
   	
-  	<openscada.builder.copyFeature id="org.openscada.hsdb" />
-  	<openscada.builder.copyPlugin id="org.openscada.hsdb" />
-  	<openscada.builder.copyPlugin id="org.openscada.hsdb.backend.file" />
-  	
   	<openscada.builder.copyPlugin id="org.openscada.sec" />
+  	<openscada.builder.copyPlugin id="org.openscada.sec.utils" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.osgi" />
+  	<openscada.builder.copyPlugin id="org.openscada.sec.equinox" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.provider.plain.property" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.provider.dummy" />
-  	<openscada.builder.copyPlugin id="org.openscada.sec.provider.script" />
+  	
   	<openscada.builder.copyFeature id="org.openscada.sec" />
   	<openscada.builder.copyFeature id="org.openscada.sec.sdk" />
   	
   	<openscada.builder.copyFeature id="org.openscada.aurora" />
   	<openscada.builder.copyFeature id="org.openscada.aurora.sdk" />
+  	
+  	<openscada.builder.copyPlugin id="org.openscada.aurora.doc.isv" />
   </target>
 
   <!-- ===================================================================== -->
@@ -176,6 +167,12 @@
   <!-- Steps to do before running the build.xmls for the elements being built. -->
   <!-- ===================================================================== -->
   <target name="preProcess">
+	<property file="${buildDirectory}/finalFeaturesVersions.properties"/>
+  	<echo message="Setting about versions: ${org.openscada.aurora}"/>
+  	<replace dir="${buildDirectory}/plugins" value="${org.openscada.aurora}">
+  		<include name="**/about.mappings"/>
+  		<replacetoken>@@VERSION@@</replacetoken>
+  	</replace>
   </target>
 
   <!-- ===================================================================== -->

@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -26,14 +26,25 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.osgi.service.jdbc.DataSourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataSourceConnectionAccessor extends CommonConnectionAccessor
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( DataSourceConnectionAccessor.class );
+
     private final DataSource dataSource;
 
     public DataSourceConnectionAccessor ( final DataSourceFactory dataSourceFactory, final Properties paramProperties ) throws SQLException
     {
+        logger.debug ( "Creating default data source accessor" );
         this.dataSource = dataSourceFactory.createDataSource ( paramProperties );
+    }
+
+    public DataSource getDataSource ()
+    {
+        return this.dataSource;
     }
 
     @Override

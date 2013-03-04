@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -27,27 +27,27 @@ import org.openscada.utils.osgi.pool.ObjectPoolTracker.ObjectPoolServiceListener
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractObjectPoolServiceTracker
+public abstract class AbstractObjectPoolServiceTracker<S>
 {
     private final static Logger logger = LoggerFactory.getLogger ( AbstractObjectPoolServiceTracker.class );
 
-    private final ObjectPoolTracker poolTracker;
+    private final ObjectPoolTracker<S> poolTracker;
 
-    private final ObjectPoolServiceListener poolListener;
+    private final ObjectPoolServiceListener<S> poolListener;
 
     protected final String serviceId;
 
-    private final Map<ObjectPool, PoolHandler> poolMap = new HashMap<ObjectPool, PoolHandler> ( 1 );
+    private final Map<ObjectPool<S>, PoolHandler> poolMap = new HashMap<ObjectPool<S>, PoolHandler> ( 1 );
 
-    protected class PoolHandler implements ObjectPoolListener
+    protected class PoolHandler implements ObjectPoolListener<S>
     {
-        private final ObjectPool pool;
+        private final ObjectPool<S> pool;
 
         private final String serviceId;
 
-        private final Map<Object, Dictionary<?, ?>> services = new HashMap<Object, Dictionary<?, ?>> ( 1 );
+        private final Map<S, Dictionary<?, ?>> services = new HashMap<S, Dictionary<?, ?>> ( 1 );
 
-        public PoolHandler ( final ObjectPool pool, final String serviceId )
+        public PoolHandler ( final ObjectPool<S> pool, final String serviceId )
         {
             this.pool = pool;
             this.serviceId = serviceId;
@@ -60,105 +60,126 @@ public abstract class AbstractObjectPoolServiceTracker
 
         public synchronized void dispose ()
         {
-            this.pool.removeListener ( this.serviceId, this );
+            Map<S, Dictionary<?, ?>> services;
+            synchronized ( this )
+            {
+                this.pool.removeListener ( this.serviceId, this );
+                services = new HashMap<S, Dictionary<?, ?>> ( this.services );
+                this.services.clear ();
+            }
 
-            for ( final Map.Entry<Object, Dictionary<?, ?>> entry : this.services.entrySet () )
+            for ( final Map.Entry<S, Dictionary<?, ?>> entry : services.entrySet () )
             {
                 fireServiceRemoved ( entry.getKey (), entry.getValue () );
             }
-            this.services.clear ();
         }
 
         @Override
-        public synchronized void serviceAdded ( final Object service, final Dictionary<?, ?> properties )
+        public void serviceAdded ( final S service, final Dictionary<?, ?> properties )
         {
-            this.services.put ( service, properties );
+            synchronized ( this )
+            {
+                this.services.put ( service, properties );
+            }
             fireServiceAdded ( service, properties );
         }
 
-        private void fireServiceAdded ( final Object service, final Dictionary<?, ?> properties )
+        private void fireServiceAdded ( final S service, final Dictionary<?, ?> properties )
         {
             logger.debug ( "Service added to pool: {} -> {}", new Object[] { this.serviceId, service } );
             handleServiceAdded ( service, properties );
         }
 
         @Override
-        public synchronized void serviceModified ( final Object service, final Dictionary<?, ?> properties )
+        public void serviceModified ( final S service, final Dictionary<?, ?> properties )
         {
-            this.services.put ( service, properties );
+            synchronized ( this )
+            {
+                this.services.put ( service, properties );
+            }
             fireServiceModified ( service, properties );
         }
 
-        private void fireServiceModified ( final Object service, final Dictionary<?, ?> properties )
+        private void fireServiceModified ( final S service, final Dictionary<?, ?> properties )
         {
             handleServiceModified ( service, properties );
         }
 
         @Override
-        public synchronized void serviceRemoved ( final Object service, final Dictionary<?, ?> properties )
+        public void serviceRemoved ( final S service, final Dictionary<?, ?> properties )
         {
-            final Dictionary<?, ?> oldProperties = this.services.remove ( service );
+            final Dictionary<?, ?> oldProperties;
+            synchronized ( this )
+            {
+                oldProperties = this.services.remove ( service );
+            }
+
             if ( oldProperties != null )
             {
                 fireServiceRemoved ( service, properties );
             }
         }
 
-        private void fireServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
+        private void fireServiceRemoved ( final S service, final Dictionary<?, ?> properties )
         {
             handleServiceRemoved ( service, properties );
         }
     }
 
-    public AbstractObjectPoolServiceTracker ( final ObjectPoolTracker poolTracker, final String serviceId )
+    public AbstractObjectPoolServiceTracker ( final ObjectPoolTracker<S> poolTracker, final String serviceId )
     {
         this.serviceId = serviceId;
         this.poolTracker = poolTracker;
 
-        this.poolListener = new ObjectPoolServiceListener () {
+        this.poolListener = new ObjectPoolServiceListener<S> () {
 
             @Override
-            public void poolRemoved ( final ObjectPool objectPool )
+            public void poolRemoved ( final ObjectPool<S> objectPool )
             {
                 AbstractObjectPoolServiceTracker.this.handlePoolRemove ( objectPool );
             }
 
             @Override
-            public void poolModified ( final ObjectPool objectPool, final int newPriority )
+            public void poolModified ( final ObjectPool<S> objectPool, final int newPriority )
             {
                 AbstractObjectPoolServiceTracker.this.handlePoolModified ( objectPool, newPriority );
             }
 
             @Override
-            public void poolAdded ( final ObjectPool objectPool, final int priority )
+            public void poolAdded ( final ObjectPool<S> objectPool, final int priority )
             {
                 AbstractObjectPoolServiceTracker.this.handlePoolAdd ( objectPool, priority );
             }
         };
     }
 
-    protected abstract void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties );
+    protected abstract void handleServiceAdded ( final S service, final Dictionary<?, ?> properties );
 
-    protected abstract void handleServiceModified ( final Object service, final Dictionary<?, ?> properties );
+    protected abstract void handleServiceModified ( final S service, final Dictionary<?, ?> properties );
 
-    protected abstract void handleServiceRemoved ( final Object service, final Dictionary<?, ?> properties );
+    protected abstract void handleServiceRemoved ( final S service, final Dictionary<?, ?> properties );
 
-    protected synchronized void handlePoolAdd ( final ObjectPool objectPool, final int priority )
+    protected synchronized void handlePoolAdd ( final ObjectPool<S> objectPool, final int priority )
     {
-        logger.debug ( "Pool added: {}/{}", new Object[] { objectPool, priority } );
+        logger.debug ( "Pool added: {}/{}", objectPool, priority );
         this.poolMap.put ( objectPool, new PoolHandler ( objectPool, this.serviceId ) );
     }
 
-    protected synchronized void handlePoolModified ( final ObjectPool objectPool, final int newPriority )
+    protected synchronized void handlePoolModified ( final ObjectPool<S> objectPool, final int newPriority )
     {
         // we don't care
     }
 
-    protected synchronized void handlePoolRemove ( final ObjectPool objectPool )
+    protected void handlePoolRemove ( final ObjectPool<S> objectPool )
     {
-        logger.debug ( "Pool removed: {}", objectPool );
+        final PoolHandler handler;
 
-        final PoolHandler handler = this.poolMap.get ( objectPool );
+        synchronized ( this )
+        {
+            logger.debug ( "Pool removed: {}", objectPool );
+            handler = this.poolMap.get ( objectPool );
+        }
+
         if ( handler != null )
         {
             handler.dispose ();

@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Toggle Service
 Bundle-SymbolicName: org.openscada.utils.toggle
-Bundle-Version: 0.18.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.openscada.utils.toggle.Activator
 Import-Package: org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.openscada.utils.toggle;version="0.15.0";uses:="org.osgi.framework"
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Export-Package: org.openscada.utils.toggle;version="1.0.0";uses:="org.osgi.framework"
+Bundle-Vendor: openSCADA.org

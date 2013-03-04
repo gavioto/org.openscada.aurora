@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -22,12 +22,17 @@ package org.openscada.ds.storage.jdbc;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.openscada.ds.DataStore;
-import org.openscada.ds.storage.jdbc.internal.JdbcStorageDAO;
-import org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBase64Impl;
-import org.openscada.ds.storage.jdbc.internal.JdbcStorageDAOBlobImpl;
+import org.openscada.ds.storage.jdbc.internal.BufferingStorageDao;
+import org.openscada.ds.storage.jdbc.internal.CachingStorageDao;
+import org.openscada.ds.storage.jdbc.internal.JdbcStorageDao;
+import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBase64Impl;
+import org.openscada.ds.storage.jdbc.internal.JdbcStorageDaoBlobImpl;
 import org.openscada.ds.storage.jdbc.internal.StorageImpl;
+import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.jdbc.DataSourceFactoryTracker;
 import org.openscada.utils.osgi.jdbc.DataSourceHelper;
@@ -50,6 +55,8 @@ public class Activator implements BundleActivator
     private ServiceRegistration<DataStore> serviceHandle;
 
     private StorageImpl storageImpl;
+
+    private ScheduledExecutorService scheduler;
 
     private static enum Type
     {
@@ -77,7 +84,8 @@ public class Activator implements BundleActivator
     @Override
     public void start ( final BundleContext context ) throws Exception
     {
-        final String driver = System.getProperty ( "org.openscada.ds.storage.jdbc.driver", System.getProperty ( "org.openscada.jdbc.driver", "" ) );
+        this.scheduler = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
+        final String driver = DataSourceHelper.getDriver ( "org.openscada.ds.storage.jdbc.driver", DataSourceHelper.DEFAULT_PREFIX );
 
         this.dataSourceFactoryTracker = new DataSourceFactoryTracker ( context, driver, new SingleServiceListener<DataSourceFactory> () {
 
@@ -96,20 +104,20 @@ public class Activator implements BundleActivator
 
     protected void register ( final DataSourceFactory service, final BundleContext context )
     {
-        JdbcStorageDAO storage = null;
+        JdbcStorageDao storage = null;
 
         try
         {
             switch ( getType () )
             {
-            case BLOB:
-                logger.info ( "Registering BLOB implemenation" );
-                storage = new JdbcStorageDAOBlobImpl ( service, getDataSourceProperties () );
-                break;
-            case BASE64:
-                logger.info ( "Registering BASE64 implemenation" );
-                storage = new JdbcStorageDAOBase64Impl ( service, getDataSourceProperties () );
-                break;
+                case BLOB:
+                    logger.info ( "Registering BLOB implemenation" );
+                    storage = configure ( new JdbcStorageDaoBlobImpl ( service, getDataSourceProperties (), isConnectionPool () ) );
+                    break;
+                case BASE64:
+                    logger.info ( "Registering BASE64 implemenation" );
+                    storage = configure ( new JdbcStorageDaoBase64Impl ( service, getDataSourceProperties (), isConnectionPool () ) );
+                    break;
             }
         }
         catch ( final Exception e )
@@ -127,9 +135,30 @@ public class Activator implements BundleActivator
         }
     }
 
+    private JdbcStorageDao configure ( final JdbcStorageDao storageImpl )
+    {
+        JdbcStorageDao result = storageImpl;
+        if ( !Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.disableBuffer" ) )
+        {
+            logger.info ( "Adding write buffer" );
+            result = new BufferingStorageDao ( result );
+        }
+        if ( !Boolean.getBoolean ( "org.openscada.ds.storage.jdbc.disableCache" ) )
+        {
+            logger.info ( "Adding cache" );
+            result = new CachingStorageDao ( result, this.scheduler, Long.getLong ( "org.openscada.ds.storage.jdbc.cleanUpCacheDelay", 10 * 60 ) ); // default is 10 min
+        }
+        return result;
+    }
+
     private static Properties getDataSourceProperties ()
     {
-        return DataSourceHelper.getDataSourceProperties ( "org.openscada.ds.storage.jdbc", "org.openscada.jdbc" );
+        return DataSourceHelper.getDataSourceProperties ( "org.openscada.ds.storage.jdbc", DataSourceHelper.DEFAULT_PREFIX );
+    }
+
+    private static boolean isConnectionPool ()
+    {
+        return DataSourceHelper.isConnectionPool ( "org.openscada.ds.storage.jdbc", DataSourceHelper.DEFAULT_PREFIX, false );
     }
 
     protected void unregister ()
@@ -156,6 +185,11 @@ public class Activator implements BundleActivator
     {
         unregister ();
         this.dataSourceFactoryTracker.close ();
+        if ( this.scheduler != null )
+        {
+            this.scheduler.shutdownNow ();
+            this.scheduler = null;
+        }
     }
 
 }

@@ -22,15 +22,13 @@ package org.openscada.ds.storage.jdbc.internal;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.openscada.ds.DataNode;
 import org.openscada.ds.storage.AbstractStorage;
+import org.openscada.utils.concurrent.ExportedExecutorService;
 import org.openscada.utils.concurrent.FutureTask;
 import org.openscada.utils.concurrent.InstantErrorFuture;
-import org.openscada.utils.concurrent.NamedThreadFactory;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +37,13 @@ public class StorageImpl extends AbstractStorage
 {
     private final static Logger logger = LoggerFactory.getLogger ( StorageImpl.class );
 
-    private final JdbcStorageDAO storage;
+    private final JdbcStorageDao storage;
 
     private final ExecutorService executorService;
 
-    private final LinkedBlockingQueue<Runnable> taskQueue;
-
-    public StorageImpl ( final JdbcStorageDAO storage )
+    public StorageImpl ( final JdbcStorageDao storage )
     {
-        this.taskQueue = new LinkedBlockingQueue<Runnable> ();
-        this.executorService = new ThreadPoolExecutor ( 1, 1, 0L, TimeUnit.MILLISECONDS, this.taskQueue, new NamedThreadFactory ( StorageImpl.class.getName () ) );
+        this.executorService = new ExportedExecutorService ( StorageImpl.class.getName (), 1, 1, 0L, TimeUnit.MILLISECONDS );
 
         this.storage = storage;
     }
@@ -60,7 +55,7 @@ public class StorageImpl extends AbstractStorage
     }
 
     @Override
-    public void dispose ()
+    public synchronized void dispose ()
     {
         super.dispose ();
 

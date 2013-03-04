@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -24,14 +24,14 @@ import java.util.Dictionary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ObjectPoolServiceTracker extends AbstractObjectPoolServiceTracker
+public class ObjectPoolServiceTracker<S> extends AbstractObjectPoolServiceTracker<S>
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( ObjectPoolServiceTracker.class );
 
-    private final ObjectPoolListener clientListener;
+    private final ObjectPoolListener<S> clientListener;
 
-    public ObjectPoolServiceTracker ( final ObjectPoolTracker poolTracker, final String serviceId, final ObjectPoolListener listener )
+    public ObjectPoolServiceTracker ( final ObjectPoolTracker<S> poolTracker, final String serviceId, final ObjectPoolListener<S> listener )
     {
         super ( poolTracker, serviceId );
         this.clientListener = listener;
@@ -39,34 +39,34 @@ public class ObjectPoolServiceTracker extends AbstractObjectPoolServiceTracker
     }
 
     @Override
-    protected void handleServiceAdded ( final Object service, final Dictionary<?, ?> properties )
+    protected void handleServiceAdded ( final S service, final Dictionary<?, ?> properties )
     {
         fireServiceAdded ( service, properties );
     }
 
-    private void fireServiceAdded ( final Object service, final Dictionary<?, ?> properties )
+    private void fireServiceAdded ( final S service, final Dictionary<?, ?> properties )
     {
         this.clientListener.serviceAdded ( service, properties );
     }
 
     @Override
-    protected void handleServiceModified ( final Object service, final Dictionary<?, ?> properties )
+    protected void handleServiceModified ( final S service, final Dictionary<?, ?> properties )
     {
         fireServiceModified ( service, properties );
     }
 
-    private void fireServiceModified ( final Object service, final Dictionary<?, ?> properties )
+    private void fireServiceModified ( final S service, final Dictionary<?, ?> properties )
     {
         this.clientListener.serviceModified ( service, properties );
     }
 
     @Override
-    protected void handleServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
+    protected void handleServiceRemoved ( final S service, final Dictionary<?, ?> properties )
     {
         fireServiceRemoved ( service, properties );
     }
 
-    private void fireServiceRemoved ( final Object service, final Dictionary<?, ?> properties )
+    private void fireServiceRemoved ( final S service, final Dictionary<?, ?> properties )
     {
         this.clientListener.serviceRemoved ( service, properties );
     }

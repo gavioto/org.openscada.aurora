@@ -2,18 +2,19 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JDBC Utils Package
 Bundle-SymbolicName: org.openscada.utils.osgi.jdbc
-Bundle-Version: 0.18.0.qualifier
-Bundle-Vendor: TH4 SYSTEMS GmbH
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: openSCADA.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.openscada.utils.osgi;version="0.17.0",
+Import-Package: org.openscada.utils.osgi;version="1.0.0",
+ org.openscada.utils.sql;version="1.0.0",
  org.osgi.framework;version="1.6.0",
  org.osgi.service.jdbc;version="1.0.0",
  org.osgi.util.tracker;version="1.5.0",
  org.slf4j;version="1.5.0"
-Export-Package: org.openscada.utils.osgi.jdbc;version="0.18.0";
+Export-Package: org.openscada.utils.osgi.jdbc;version="1.0.0";
   uses:="org.osgi.framework,
    org.openscada.utils.osgi.jdbc.task,
    org.openscada.utils.osgi,
    org.osgi.service.jdbc",
- org.openscada.utils.osgi.jdbc.data;version="0.18.0",
- org.openscada.utils.osgi.jdbc.task;version="0.18.0";uses:="org.openscada.utils.osgi.jdbc.data"
+ org.openscada.utils.osgi.jdbc.data;version="1.0.0",
+ org.openscada.utils.osgi.jdbc.task;version="1.0.0";uses:="org.openscada.utils.osgi.jdbc.data"

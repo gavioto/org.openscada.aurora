@@ -2,8 +2,8 @@
 <feature
       id="org.openscada.ds.sdk"
       label="openSCADA DS SDK"
-      version="0.18.0.qualifier"
-      provider-name="TH4 SYSTEMS GmbH">
+      version="1.0.0.qualifier"
+      provider-name="openSCADA.org">
 
    <description>
       The openSCADA DS (DataStore) SDK

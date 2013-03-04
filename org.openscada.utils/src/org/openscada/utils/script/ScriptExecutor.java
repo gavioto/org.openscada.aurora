@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,6 +19,9 @@
 
 package org.openscada.utils.script;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,9 +34,9 @@ import javax.script.ScriptException;
 
 /**
  * A wrapper to execute scripts
+ * 
  * @author Jens Reimann
- * @sicne 0.17.0
- *
+ * @since 0.17.0
  */
 public class ScriptExecutor
 {
@@ -45,22 +48,34 @@ public class ScriptExecutor
 
     private final ClassLoader classLoader;
 
+    private final URL commandUrl;
+
     public ScriptExecutor ( final ScriptEngineManager engineManager, final String engineName, final String command, final ClassLoader classLoader ) throws ScriptException
     {
         this ( engineName == null ? null : engineManager.getEngineByName ( engineName ), engineName == null ? null : command, classLoader );
     }
 
+    public ScriptExecutor ( final ScriptEngineManager engineManager, final String engineName, final URL commandUrl, final ClassLoader classLoader ) throws ScriptException, IOException
+    {
+        this ( engineName == null ? null : engineManager.getEngineByName ( engineName ), engineName == null ? null : commandUrl, classLoader );
+    }
+
     /**
      * Construct a new script executors
-     * @param engine the script engine to use, must not be <code>null</code>
-     * @param command the command to execute, may be <code>null</code>
-     * @param classLoader the class loader to use when executing, may be <code>null</code>
+     * 
+     * @param engine
+     *            the script engine to use, must not be <code>null</code>
+     * @param command
+     *            the command to execute, may be <code>null</code>
+     * @param classLoader
+     *            the class loader to use when executing, may be <code>null</code>
      * @throws ScriptException
      */
     public ScriptExecutor ( final ScriptEngine engine, final String command, final ClassLoader classLoader ) throws ScriptException
     {
         this.engine = engine;
         this.command = command;
+        this.commandUrl = null;
         this.classLoader = classLoader;
 
         if ( command != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
@@ -73,6 +88,31 @@ public class ScriptExecutor
                     Thread.currentThread ().setContextClassLoader ( classLoader );
                 }
                 this.compiledScript = ( (Compilable)engine ).compile ( command );
+            }
+            finally
+            {
+                Thread.currentThread ().setContextClassLoader ( currentClassLoader );
+            }
+        }
+    }
+
+    public ScriptExecutor ( final ScriptEngine engine, final URL commandUrl, final ClassLoader classLoader ) throws ScriptException, IOException
+    {
+        this.engine = engine;
+        this.command = null;
+        this.commandUrl = commandUrl;
+        this.classLoader = classLoader;
+
+        if ( commandUrl != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
+        {
+            final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
+            try
+            {
+                if ( classLoader != null )
+                {
+                    Thread.currentThread ().setContextClassLoader ( classLoader );
+                }
+                this.compiledScript = ( (Compilable)engine ).compile ( new InputStreamReader ( commandUrl.openStream () ) );
             }
             finally
             {
@@ -118,7 +158,7 @@ public class ScriptExecutor
         }
     }
 
-    private Object executeScript ( final ScriptContext scriptContext, final Map<String, Object> scriptObjects ) throws ScriptException
+    private Object executeScript ( final ScriptContext scriptContext, final Map<String, Object> scriptObjects ) throws ScriptException, IOException
     {
         Map<String, Object> vars = null;
         try
@@ -133,6 +173,10 @@ public class ScriptExecutor
             {
                 return this.engine.eval ( this.command, scriptContext );
             }
+            else if ( this.commandUrl != null )
+            {
+                return this.engine.eval ( new InputStreamReader ( this.commandUrl.openStream () ) );
+            }
             else
             {
                 return null;
@@ -144,12 +188,12 @@ public class ScriptExecutor
         }
     }
 
-    public Object execute ( final ScriptContext scriptContext ) throws ScriptException
+    public Object execute ( final ScriptContext scriptContext ) throws ScriptException, IOException
     {
         return execute ( scriptContext, null );
     }
 
-    public Object execute ( final ScriptContext scriptContext, final Map<String, Object> scriptObjects ) throws ScriptException
+    public Object execute ( final ScriptContext scriptContext, final Map<String, Object> scriptObjects ) throws ScriptException, IOException
     {
         final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
         try

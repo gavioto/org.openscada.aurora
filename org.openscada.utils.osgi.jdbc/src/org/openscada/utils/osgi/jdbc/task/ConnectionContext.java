@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -22,6 +22,7 @@ package org.openscada.utils.osgi.jdbc.task;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.openscada.utils.osgi.jdbc.data.RowMapper;
 
@@ -37,11 +38,21 @@ public interface ConnectionContext
 
     public <T> List<T> queryForList ( Class<T> clazz, String sql, Object... parameters ) throws SQLException;
 
+    public <T> List<T> queryForList ( Class<T> clazz, String sql, Map<String, Object> parameters ) throws SQLException;
+
     public void query ( ResultSetProcessor resultSetProcessor, String sql, Object... parameters ) throws SQLException;
+
+    public void query ( ResultSetProcessor resultSetProcessor, String sql, Map<String, Object> parameters ) throws SQLException;
 
     public int update ( String sql, Object... parameters ) throws SQLException;
 
+    public int update ( String sql, Map<String, Object> parameters ) throws SQLException;
+
     public void query ( RowCallback callback, String sql, Object... parameters ) throws SQLException;
 
+    public void query ( RowCallback callback, String sql, Map<String, Object> parameters ) throws SQLException;
+
     public <T> List<T> query ( RowMapper<T> rowMapper, String sql, Object... parameters ) throws SQLException;
+
+    public <T> List<T> query ( RowMapper<T> rowMapper, String sql, Map<String, Object> parameters ) throws SQLException;
 }

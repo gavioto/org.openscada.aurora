@@ -1,6 +1,6 @@
 /*
  * This file is part of the openSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -70,6 +70,10 @@ public class DataFileAccessorImpl implements DataFileAccessor
             while ( buffer.hasRemaining () )
             {
                 final int rc = this.channel.read ( buffer );
+                if ( rc < 0 )
+                {
+                    break;
+                }
                 logger.debug ( "Read {} bytes", rc );
             }
 
@@ -86,7 +90,9 @@ public class DataFileAccessorImpl implements DataFileAccessor
             {
                 logger.debug ( "File position after header: {}", this.channel.position () );
             }
-            // position is at end of file
+
+            // set position to end of file
+            this.channel.position ( this.channel.size () );
         }
         catch ( final Exception e )
         {
@@ -116,7 +122,7 @@ public class DataFileAccessorImpl implements DataFileAccessor
     {
         if ( logger.isDebugEnabled () )
         {
-            logger.debug ( "File position: {}", this.channel.position () );
+            logger.debug ( "File position - before: {}", this.channel.position () );
         }
 
         final ByteBuffer buffer = ByteBuffer.allocate ( 100 );
@@ -141,7 +147,16 @@ public class DataFileAccessorImpl implements DataFileAccessor
         while ( buffer.hasRemaining () )
         {
             final int rc = this.channel.write ( buffer );
+            if ( rc < 0 )
+            {
+                throw new IOException ( "Failed to write data" );
+            }
             logger.debug ( "Wrote {} bytes", rc );
+        }
+
+        if ( logger.isDebugEnabled () )
+        {
+            logger.debug ( "File position - after: {}", this.channel.position () );
         }
     }
 
@@ -150,11 +165,11 @@ public class DataFileAccessorImpl implements DataFileAccessor
     {
         logger.debug ( "Welcome backwards seeking visitor: {}", visitor );
 
-        logger.debug ( "Seeking at position: {}", this.channel.position () );
+        final long startPosition = this.channel.position ();
+
+        logger.debug ( "Seeking at position: {}", startPosition );
 
         final ByteBuffer buffer = ByteBuffer.allocate ( ENTRY_SIZE );
-
-        final long startPosition = this.channel.position ();
 
         try
         {
@@ -189,6 +204,7 @@ public class DataFileAccessorImpl implements DataFileAccessor
         finally
         {
             this.channel.position ( startPosition );
+            logger.debug ( "Returned to position: {}", startPosition );
         }
         return false;
     }
@@ -234,6 +250,7 @@ public class DataFileAccessorImpl implements DataFileAccessor
         finally
         {
             this.channel.position ( position );
+            logger.debug ( "Returned to position: {}", position );
         }
 
         return true; // continue reading
@@ -285,11 +302,12 @@ public class DataFileAccessorImpl implements DataFileAccessor
         finally
         {
             this.channel.position ( position );
+            logger.debug ( "Returned to position: {}", position );
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.openscada.hds.DataFileAccessor#dispose()
+    /**
+     * Dispose the file. Close all resources.
      */
     @Override
     public void dispose ()
@@ -312,6 +330,9 @@ public class DataFileAccessorImpl implements DataFileAccessor
         }
     }
 
+    /**
+     * Dispose and delete the file
+     */
     @Override
     public void delete ()
     {
@@ -339,6 +360,19 @@ public class DataFileAccessorImpl implements DataFileAccessor
         }
     }
 
+    /**
+     * Initialize a new file, write the empty structure to disk and return a new accessor to it
+     * 
+     * @param file
+     *            The file to create. This file must not exists.
+     * @param startDate
+     *            the start date of the file
+     * @param endDate
+     *            the end date of the file
+     * @return a newly created file accessor
+     * @throws Exception
+     *             if anything goes wrong
+     */
     public static DataFileAccessorImpl create ( final File file, final Date startDate, final Date endDate ) throws Exception
     {
         logger.debug ( "Creating new file: {}", file );
