@@ -127,7 +127,6 @@
   	<openscada.builder.copyPlugin id="org.openscada.sec.audit.log.slf4j" />
 	<openscada.builder.copyPlugin id="org.openscada.sec.auth.logon" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.authn.osgi.cfg.priority" />
-  	<openscada.builder.copyPlugin id="org.openscada.sec.authz.signature" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.equinox" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.osgi" />
   	
