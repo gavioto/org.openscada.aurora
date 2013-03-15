@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
-Import-Package: org.openscada.core.data;version="1.0.0",
- org.openscada.sec;version="1.1.0",
+Import-Package: org.openscada.sec;version="1.1.0",
  org.openscada.utils.lang;version="1.0.0",
  org.openscada.utils.statuscodes;version="1.0.0",
  org.openscada.utils.str;version="1.0.0",
