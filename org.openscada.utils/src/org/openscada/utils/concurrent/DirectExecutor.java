@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -21,19 +23,32 @@ package org.openscada.utils.concurrent;
 
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * An executor which directly calls the runnable
+ * 
  * @author Jens Reimann
- *
  */
 public class DirectExecutor implements Executor
 {
 
+    private final static Logger logger = LoggerFactory.getLogger ( DirectExecutor.class );
+
     public static Executor INSTANCE = new DirectExecutor ();
 
+    @Override
     public void execute ( final Runnable command )
     {
-        command.run ();
+        try
+        {
+            command.run ();
+        }
+        catch ( final Exception e )
+        {
+            logger.info ( "Failed to process", e );
+        }
     }
 
 }

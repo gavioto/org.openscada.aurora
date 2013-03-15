@@ -128,6 +128,10 @@
   	<openscada.builder.copyPlugin id="org.openscada.sec.equinox" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.provider.plain.property" />
   	<openscada.builder.copyPlugin id="org.openscada.sec.provider.dummy" />
+  	<openscada.builder.copyPlugin id="org.openscada.sec.authn.osgi.cfg.priority" />
+  	
+  	<openscada.builder.copyPlugin id="org.openscada.sec.audit.log.slf4j" />
+  	<openscada.builder.copyPlugin id="org.openscada.sec.authz.signature" />
   	
   	<openscada.builder.copyFeature id="org.openscada.sec" />
   	<openscada.builder.copyFeature id="org.openscada.sec.sdk" />

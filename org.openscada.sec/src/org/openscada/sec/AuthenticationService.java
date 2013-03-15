@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,6 +21,8 @@
 
 package org.openscada.sec;
 
+import org.openscada.sec.authn.CredentialsRequest;
+
 /**
  * An interface for a service that authenticates a user.
  * <p>
@@ -32,12 +36,8 @@ package org.openscada.sec;
 public interface AuthenticationService
 {
     /**
-     * Authenticate a user based on username and password.
+     * Authenticate a user based on credentials
      * 
-     * @param username
-     *            the username
-     * @param password
-     *            the password
      * @return a valid user information instance if the user is a known user and
      *         is allowed to log on using the provided credentials. Or
      *         <code>null</code> if it is a valid anonymous login.
@@ -45,5 +45,7 @@ public interface AuthenticationService
      *             in the case the login is invalid (e.g. username and
      *             password don't match)
      */
-    public UserInformation authenticate ( String username, String password ) throws AuthenticationException;
+    public UserInformation authenticate ( CredentialsRequest request ) throws AuthenticationException;
+
+    public void joinRequest ( CredentialsRequest request );
 }

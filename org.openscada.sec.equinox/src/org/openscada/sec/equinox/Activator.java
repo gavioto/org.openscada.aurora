@@ -1,7 +1,7 @@
 /*
  * This file is part of the openSCADA project
  * 
- * Copyright (C) Jens Reimann (ctron@dentrassi.de)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -20,9 +20,8 @@
 
 package org.openscada.sec.equinox;
 
-import org.openscada.sec.AuthenticationException;
-import org.openscada.sec.UserInformation;
-import org.openscada.sec.osgi.AuthenticationHelper;
+import org.openscada.sec.AuthenticationImplementation;
+import org.openscada.sec.osgi.TrackingAuthenticationImplementation;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -31,12 +30,12 @@ public class Activator implements BundleActivator
 
     private static Activator instance;
 
-    private AuthenticationHelper authentication;
+    private TrackingAuthenticationImplementation authentication;
 
     @Override
     public void start ( final BundleContext context ) throws Exception
     {
-        this.authentication = new AuthenticationHelper ( context );
+        this.authentication = new TrackingAuthenticationImplementation ( context );
         this.authentication.open ();
 
         instance = this;
@@ -56,8 +55,8 @@ public class Activator implements BundleActivator
         return instance;
     }
 
-    public UserInformation authenticate ( final String username, final char[] password ) throws AuthenticationException
+    public AuthenticationImplementation getAuthentication ()
     {
-        return this.authentication.authenticate ( username, String.valueOf ( password ) );
+        return this.authentication;
     }
 }

@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -44,13 +46,22 @@ public class UserInformation implements Serializable
     public final static UserInformation ANONYMOUS = new UserInformation ( null, null, Collections.<String> emptySet () );
 
     /**
-     * The name of the user or <code>null</code> if it is an anonymous user information.
+     * The name of the user or <code>null</code> if it is an anonymous user
+     * information.
      */
     private final String name;
 
     private final String password;
 
     private final Set<String> roles;
+
+    /**
+     * @since 1.1
+     */
+    public UserInformation ( final String name )
+    {
+        this ( name, null );
+    }
 
     public UserInformation ( final String name, final String password )
     {
@@ -82,7 +93,9 @@ public class UserInformation implements Serializable
      * Create a user information object
      * 
      * @param principal
-     * @return Returns the converted user information object or {@link #ANONYMOUS} if principal was <code>null</code>. Never returns <code>null</code>.
+     * @return Returns the converted user information object or
+     *         {@link #ANONYMOUS} if principal was <code>null</code>. Never
+     *         returns <code>null</code>.
      */
     public static UserInformation fromPrincipal ( final Principal principal )
     {
@@ -101,7 +114,8 @@ public class UserInformation implements Serializable
     /**
      * Get the name of the user
      * 
-     * @return the name of the user or <code>null</code> if it an anonymous user information
+     * @return the name of the user or <code>null</code> if it an anonymous user
+     *         information
      */
     public String getName ()
     {

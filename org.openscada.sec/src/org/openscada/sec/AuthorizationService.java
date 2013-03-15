@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -21,6 +23,8 @@ package org.openscada.sec;
 
 import java.util.Map;
 
+import org.openscada.sec.authz.AuthorizationRule;
+
 /**
  * An interface for a service authorizing an operation
  * <p>
@@ -33,29 +37,8 @@ import java.util.Map;
  */
 public interface AuthorizationService
 {
-    /**
-     * Authorizes a requested operation
-     * 
-     * @param objectId
-     *            The object id on which the request should be performed
-     * @param objectType
-     *            The type of object
-     * @param action
-     *            The action to be performed
-     * @param userInformation
-     *            The user information or <code>null</code> if
-     *            there is no user information the user is anonymous.
-     * @param context
-     *            Additional information that can be used by the
-     *            implementations.
-     *            The content must not be modified. The context may be
-     *            <code>null</code> if no data
-     *            would be present.
-     * @return Returns an authorization result if the implementation known
-     *         something
-     *         about the requested authorization and <code>null</code> if the
-     *         service can neither
-     *         approve or reject the request.
-     */
-    public AuthorizationResult authorize ( String objectType, String objectId, String action, UserInformation userInformation, Map<String, Object> context );
+    public static final String RULE_TYPES = "rule.types";
+
+    public AuthorizationRule createRule ( Map<String, String> properties ) throws Exception;
+
 }

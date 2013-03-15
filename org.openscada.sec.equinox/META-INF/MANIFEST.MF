@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: openSCADA Security Equinox JAAS Integration
 Bundle-SymbolicName: org.openscada.sec.equinox;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: openSCADA.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.equinox.security;bundle-version="1.1.0"
@@ -10,6 +10,8 @@ Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openscada.sec.equinox.Activator
 Import-Package: javax.security.auth.spi,
  org.openscada.sec;version="1.0.0",
+ org.openscada.sec.callback;version="1.1.0",
  org.openscada.sec.osgi;version="1.0.0",
+ org.openscada.utils.concurrent;version="1.1.0",
  org.openscada.utils.statuscodes;version="1.0.0",
  org.osgi.framework;version="1.7.0"
