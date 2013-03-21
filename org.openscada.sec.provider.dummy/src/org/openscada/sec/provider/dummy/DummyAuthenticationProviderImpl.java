@@ -39,7 +39,7 @@ public class DummyAuthenticationProviderImpl implements AuthenticationService
     @Override
     public UserInformation authenticate ( final CredentialsRequest request )
     {
-        return new UserInformation ( request.getUserName (), null, new String[0] );
+        return new UserInformation ( request.getUserName (), new String[0] );
     }
 
     @Override

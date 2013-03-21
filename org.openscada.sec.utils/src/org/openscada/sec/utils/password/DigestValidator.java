@@ -21,29 +21,68 @@
 
 package org.openscada.sec.utils.password;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-public class DigestValidator extends DigestBase implements PasswordValidator
+public class DigestValidator implements PasswordValidator
 {
 
     private final PasswordDigestCodec passwordDigestCodec;
 
-    public DigestValidator ( final String algorithm, final String passwordCharsetEncoder, final PasswordDigestCodec passwordDigestCodec ) throws NoSuchAlgorithmException
+    private final PasswordEncoding storedEncoding;
+
+    private final List<PasswordEncoding> supportedInputEncodings;
+
+    private final Charset passwordCharset;
+
+    public DigestValidator ( final PasswordEncoding storedEncoding, final String passwordCharsetEncoder, final PasswordDigestCodec passwordDigestCodec )
     {
-        super ( algorithm, passwordCharsetEncoder );
+        this.storedEncoding = storedEncoding;
         this.passwordDigestCodec = passwordDigestCodec;
+        this.supportedInputEncodings = Collections.unmodifiableList ( Arrays.asList ( storedEncoding, PasswordEncoding.PLAIN ) );
+        this.passwordCharset = Charset.forName ( passwordCharsetEncoder );
     }
 
     @Override
-    public boolean validatePassword ( final String providedPassword, final String storedPassword ) throws Exception
+    public List<PasswordEncoding> getSupportedInputEncodings ()
     {
-        return compare ( makeDigest ( providedPassword ), storedPassword );
+        return this.supportedInputEncodings;
     }
 
-    protected boolean compare ( final byte[] data, final String storedPassword )
+    @Override
+    public boolean validatePassword ( final Map<PasswordEncoding, String> passwords, final String storedPassword ) throws Exception
     {
-        return MessageDigest.isEqual ( data, this.passwordDigestCodec.decode ( storedPassword ) );
+        final byte[] storedDigest = this.passwordDigestCodec.decode ( storedPassword );
+
+        final String encodedPassword = passwords.get ( this.storedEncoding );
+        if ( encodedPassword != null )
+        {
+            final byte[] providedDigest = new HexCodec ().decode ( encodedPassword );
+            return MessageDigest.isEqual ( providedDigest, storedDigest );
+        }
+
+        final String plainPassword = passwords.get ( PasswordEncoding.PLAIN );
+        if ( plainPassword != null )
+        {
+            final byte[] providedDigest = makeDigest ( plainPassword );
+            return MessageDigest.isEqual ( providedDigest, storedDigest );
+        }
+
+        return false;
     }
 
+    private byte[] makeDigest ( final String plainPassword ) throws NoSuchAlgorithmException
+    {
+        final MessageDigest digest = this.storedEncoding.getDigest ();
+
+        final ByteBuffer data = this.passwordCharset.encode ( plainPassword );
+        digest.update ( data.array (), 0, data.remaining () );
+        return digest.digest ();
+    }
 }

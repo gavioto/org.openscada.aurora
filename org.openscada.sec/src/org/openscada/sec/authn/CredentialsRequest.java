@@ -21,7 +21,10 @@
 package org.openscada.sec.authn;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -29,6 +32,7 @@ import java.util.ResourceBundle;
 import org.openscada.sec.callback.Callback;
 import org.openscada.sec.callback.PasswordCallback;
 import org.openscada.sec.callback.UserNameCallback;
+import org.openscada.sec.utils.password.PasswordEncoding;
 
 /**
  * @since 1.1
@@ -36,20 +40,21 @@ import org.openscada.sec.callback.UserNameCallback;
  */
 public class CredentialsRequest
 {
-
     private static final int ORDER_USERNAME = 100;
 
     private static final int ORDER_PASSWORD = 200;
 
-    private final Object TAG_USERNAME = new Object ();
+    private static final Object TAG_USERNAME = new Object ();
 
-    private final Object TAG_PASSWORD = new Object ();
+    private static final Object TAG_PASSWORD = new Object ();
 
     private final Map<Object, Callback> callbackMap = new HashMap<Object, Callback> ();
 
     private final Locale locale;
 
     private final ResourceBundle bundle;
+
+    private final List<List<PasswordEncoding>> passwordEncodings = new LinkedList<List<PasswordEncoding>> ();
 
     public CredentialsRequest ()
     {
@@ -69,25 +74,46 @@ public class CredentialsRequest
 
     public void askUsername ()
     {
-        if ( !this.callbackMap.containsKey ( this.TAG_USERNAME ) )
+        if ( !this.callbackMap.containsKey ( CredentialsRequest.TAG_USERNAME ) )
         {
-            this.callbackMap.put ( this.TAG_USERNAME, new UserNameCallback ( getText ( "username", this.locale ), ORDER_USERNAME ) );
+            this.callbackMap.put ( CredentialsRequest.TAG_USERNAME, new UserNameCallback ( getText ( "username", this.locale ), ORDER_USERNAME ) );
         }
     }
 
-    public void askPassword ()
+    public void askPassword ( final PasswordEncoding type )
     {
-        if ( !this.callbackMap.containsKey ( this.TAG_PASSWORD ) )
+        askPassword ( Collections.singletonList ( type ) );
+    }
+
+    public void askPassword ( final List<PasswordEncoding> types )
+    {
+        if ( !this.callbackMap.containsKey ( CredentialsRequest.TAG_PASSWORD ) )
         {
-            this.callbackMap.put ( this.TAG_PASSWORD, new PasswordCallback ( getText ( "password", this.locale ), ORDER_PASSWORD ) );
+            this.callbackMap.put ( CredentialsRequest.TAG_PASSWORD, new PasswordCallback ( getText ( "password", this.locale ), ORDER_PASSWORD ) );
         }
+
+        this.passwordEncodings.add ( types );
     }
 
     public Callback[] buildCallbacks ()
     {
         final Callback[] result = this.callbackMap.values ().toArray ( new Callback[this.callbackMap.size ()] );
         Arrays.sort ( result, Callback.ORDER_COMPARATOR );
+
+        for ( final Callback cb : result )
+        {
+            if ( cb instanceof PasswordCallback )
+            {
+                fillPasswordTypes ( (PasswordCallback)cb );
+            }
+        }
+
         return result;
+    }
+
+    private void fillPasswordTypes ( final PasswordCallback cb )
+    {
+        cb.setRequestedTypes ( this.passwordEncodings );
     }
 
     public Callback getCallback ( final Object tag )
@@ -111,12 +137,12 @@ public class CredentialsRequest
 
     public UserNameCallback getUserNameCallback ()
     {
-        return getTypedCallback ( this.TAG_USERNAME, UserNameCallback.class );
+        return getTypedCallback ( CredentialsRequest.TAG_USERNAME, UserNameCallback.class );
     }
 
     public PasswordCallback getPasswordCallback ()
     {
-        return getTypedCallback ( this.TAG_PASSWORD, PasswordCallback.class );
+        return getTypedCallback ( CredentialsRequest.TAG_PASSWORD, PasswordCallback.class );
     }
 
     public String getUserName ()
@@ -132,7 +158,7 @@ public class CredentialsRequest
         }
     }
 
-    public String getPassword ()
+    public Map<PasswordEncoding, String> getPasswords ()
     {
         final PasswordCallback cb = getPasswordCallback ();
         if ( cb == null )
@@ -141,7 +167,20 @@ public class CredentialsRequest
         }
         else
         {
-            return cb.getPassword ();
+            return cb.getPasswords ();
+        }
+    }
+
+    public String getPassword ( final PasswordEncoding type )
+    {
+        final Map<PasswordEncoding, String> passwords = getPasswords ();
+        if ( passwords == null )
+        {
+            return null;
+        }
+        else
+        {
+            return passwords.get ( type );
         }
     }
 

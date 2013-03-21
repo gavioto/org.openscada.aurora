@@ -86,7 +86,7 @@ public class CallbackHandlerTranslator implements CallbackHandler
         @Override
         public void complete ()
         {
-            this.callback.setPassword ( this.adapter.getPassword ().toCharArray () );
+            this.callback.setPassword ( this.adapter.getPlainPassword ().toCharArray () );
         }
 
         @Override

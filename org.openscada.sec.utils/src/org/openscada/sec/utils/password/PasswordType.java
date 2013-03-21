@@ -21,12 +21,18 @@
 
 package org.openscada.sec.utils.password;
 
-import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 public enum PasswordType
 {
     PLAIN
     {
+        @Override
+        public PasswordEncoding getEncoding () throws Exception
+        {
+            return PasswordEncoding.PLAIN;
+        }
+
         @Override
         public PasswordValidator createValdiator ()
         {
@@ -36,18 +42,17 @@ public enum PasswordType
         @Override
         public PasswordEncoder createEncoder () throws Exception
         {
-            return new PasswordEncoder () {
-
-                @Override
-                public String encodePassword ( final String password )
-                {
-                    return password;
-                }
-            };
+            return getEncoding ().getEncoder ( "UTF-8", new HexCodec () );
         }
     },
     PLAIN_IGNORE_CASE
     {
+        @Override
+        public PasswordEncoding getEncoding () throws Exception
+        {
+            return PasswordEncoding.PLAIN;
+        }
+
         @Override
         public PasswordValidator createValdiator ()
         {
@@ -57,47 +62,62 @@ public enum PasswordType
         @Override
         public PasswordEncoder createEncoder () throws Exception
         {
-            return new PasswordEncoder () {
-
-                @Override
-                public String encodePassword ( final String password )
-                {
-                    return password;
-                }
-            };
+            return getEncoding ().getEncoder ( "UTF-8", new HexCodec () );
         }
     },
     MD5_HEX
     {
         @Override
-        public PasswordValidator createValdiator () throws NoSuchAlgorithmException
+        public PasswordEncoding getEncoding () throws Exception
         {
-            return new DigestValidator ( "MD5", "UTF-8", new HexCodec () );
+            return PasswordEncoding.MD5;
+        }
+
+        @Override
+        public PasswordValidator createValdiator ()
+        {
+            return new DigestValidator ( PasswordEncoding.MD5, "UTF-8", new HexCodec () );
         }
 
         @Override
         public PasswordEncoder createEncoder () throws Exception
         {
-            return new DigestEncoder ( "MD5", "UTF-8", new HexCodec () );
+            return getEncoding ().getEncoder ( "UTF-8", new HexCodec () );
         }
     },
     SHA1_HEX
     {
         @Override
-        public PasswordValidator createValdiator () throws NoSuchAlgorithmException
+        public PasswordEncoding getEncoding () throws Exception
         {
-            return new DigestValidator ( "SHA1", "UTF-8", new HexCodec () );
+            return PasswordEncoding.SHA1;
+        }
+
+        @Override
+        public PasswordValidator createValdiator ()
+        {
+            return new DigestValidator ( PasswordEncoding.SHA1, "UTF-8", new HexCodec () );
         }
 
         @Override
         public PasswordEncoder createEncoder () throws Exception
         {
-            return new DigestEncoder ( "SHA1", "UTF-8", new HexCodec () );
+            return getEncoding ().getEncoder ( "UTF-8", new HexCodec () );
         }
     };
 
-    public abstract PasswordValidator createValdiator () throws Exception;
+    public abstract PasswordEncoding getEncoding () throws Exception;
+
+    public abstract PasswordValidator createValdiator ();
 
     public abstract PasswordEncoder createEncoder () throws Exception;
+
+    /**
+     * @see PasswordValidator#getSupportedInputEncodings()
+     */
+    public List<PasswordEncoding> getSupportedInputEncodings ()
+    {
+        return createValdiator ().getSupportedInputEncodings ();
+    }
 
 }

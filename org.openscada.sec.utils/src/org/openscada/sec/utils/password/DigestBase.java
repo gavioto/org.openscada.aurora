@@ -2,6 +2,7 @@
  * This file is part of the openSCADA project
  * 
  * Copyright (C) 2011-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -31,14 +32,28 @@ public class DigestBase
 
     private final Charset passwordCharset;
 
-    public DigestBase ( final String algorithm, final String passwordCharsetEncoder ) throws NoSuchAlgorithmException
+    public DigestBase ( final String algorithm, final String passwordCharsetEncoder )
     {
-        this.digest = MessageDigest.getInstance ( algorithm );
         this.passwordCharset = Charset.forName ( passwordCharsetEncoder );
+
+        MessageDigest digest = null;
+        try
+        {
+            digest = MessageDigest.getInstance ( algorithm );
+        }
+        catch ( final NoSuchAlgorithmException e )
+        {
+        }
+        this.digest = digest;
     }
 
-    protected byte[] makeDigest ( final String providedPassword )
+    protected byte[] makeDigest ( final String providedPassword ) throws NoSuchAlgorithmException
     {
+        if ( this.digest == null )
+        {
+            throw new NoSuchAlgorithmException ();
+        }
+
         final ByteBuffer data = this.passwordCharset.encode ( providedPassword );
         this.digest.update ( data.array (), 0, data.remaining () );
         return this.digest.digest ();
