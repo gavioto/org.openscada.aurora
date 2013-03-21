@@ -53,6 +53,20 @@ public class TrackingAuthenticationImplementation implements AuthenticationImple
     }
 
     @Override
+    public UserInformation getUser ( final String user )
+    {
+        final AuthenticationImplementation service = this.tracker.getService ();
+        if ( service == null )
+        {
+            return null;
+        }
+        else
+        {
+            return service.getUser ( user );
+        }
+    }
+
+    @Override
     public NotifyFuture<UserInformation> authenticate ( final CallbackHandler callbackHandler )
     {
         final AuthenticationImplementation service = this.tracker.getService ();

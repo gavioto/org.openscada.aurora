@@ -137,6 +137,25 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
     protected abstract UserEntry getUserEntry ( final String name ) throws Exception;
 
     @Override
+    public UserInformation getUser ( final String user )
+    {
+        try
+        {
+            final UserEntry entry = getUserEntry ( user );
+            if ( entry == null )
+            {
+                return null;
+            }
+            return makeInfo ( user, entry );
+        }
+        catch ( final Exception e )
+        {
+            logger.debug ( "Failed to look up user - " + user, e );
+            return null;
+        }
+    }
+
+    @Override
     public UserInformation authenticate ( final CredentialsRequest credentialsRequest ) throws AuthenticationException
     {
         final String username = credentialsRequest.getUserName ();

@@ -47,5 +47,18 @@ public interface AuthenticationService
      */
     public UserInformation authenticate ( CredentialsRequest request ) throws AuthenticationException;
 
+    /**
+     * @since 1.1
+     */
     public void joinRequest ( CredentialsRequest request );
+
+    /**
+     * The the user information of the named user
+     * 
+     * @since 1.1
+     * @param user
+     *            the user to get the information for
+     * @return the user information or <code>null</code> if the user is unknown
+     */
+    public UserInformation getUser ( String user );
 }
