@@ -25,15 +25,18 @@ import java.util.concurrent.Future;
 import org.openscada.sec.AuthenticationImplementation;
 import org.openscada.sec.AuthorizationResult;
 import org.openscada.sec.UserInformation;
-import org.openscada.sec.authz.AbstractBaseRule;
 import org.openscada.sec.authz.AuthorizationContext;
+import org.openscada.sec.authz.AuthorizationRule;
 import org.openscada.utils.concurrent.CallingFuture;
 import org.openscada.utils.concurrent.InstantFuture;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AuthorizationRuleImpl extends AbstractBaseRule
+/**
+ * @since 1.1
+ */
+public final class AuthorizationRuleImpl implements AuthorizationRule
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( AuthorizationRuleImpl.class );
@@ -46,7 +49,12 @@ public final class AuthorizationRuleImpl extends AbstractBaseRule
     }
 
     @Override
-    protected NotifyFuture<AuthorizationResult> procesAuthorize ( final AuthorizationContext context )
+    public void dispose ()
+    {
+    }
+
+    @Override
+    public NotifyFuture<AuthorizationResult> authorize ( final AuthorizationContext context )
     {
         logger.debug ( "Authorizing - request: {}", context.getRequest () );
 
