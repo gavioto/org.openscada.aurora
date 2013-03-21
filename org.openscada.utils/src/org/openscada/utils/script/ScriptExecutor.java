@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -68,7 +70,8 @@ public class ScriptExecutor
      * @param command
      *            the command to execute, may be <code>null</code>
      * @param classLoader
-     *            the class loader to use when executing, may be <code>null</code>
+     *            the class loader to use when executing, may be
+     *            <code>null</code>
      * @throws ScriptException
      */
     public ScriptExecutor ( final ScriptEngine engine, final String command, final ClassLoader classLoader ) throws ScriptException
@@ -207,6 +210,19 @@ public class ScriptExecutor
         finally
         {
             Thread.currentThread ().setContextClassLoader ( currentClassLoader );
+        }
+    }
+
+    @Override
+    public String toString ()
+    {
+        if ( this.compiledScript != null )
+        {
+            return this.compiledScript.toString ();
+        }
+        else
+        {
+            return this.command;
         }
     }
 }
