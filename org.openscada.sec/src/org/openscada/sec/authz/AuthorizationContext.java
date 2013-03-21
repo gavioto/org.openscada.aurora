@@ -73,4 +73,10 @@ public class AuthorizationContext
     {
         this.request = AuthorizationRequest.changeUser ( this.request, userInformation );
     }
+
+    @Override
+    public String toString ()
+    {
+        return String.format ( "[AuthorizationContext - request: %s, context: %s, callbackHandler: %s]", this.request, this.context, this.callbackHandler );
+    }
 }
