@@ -24,10 +24,13 @@ import java.util.Map;
 
 import org.openscada.sec.AuthenticationImplementation;
 import org.openscada.sec.AuthorizationService;
-import org.openscada.sec.authz.AbstractBaseRule;
+import org.openscada.sec.authz.AuthorizationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @since 1.1
+ */
 public class LogonAuthorizationService implements AuthorizationService
 {
     private final static Logger logger = LoggerFactory.getLogger ( LogonAuthorizationService.class );
@@ -41,13 +44,9 @@ public class LogonAuthorizationService implements AuthorizationService
     }
 
     @Override
-    public AbstractBaseRule createRule ( final Map<String, String> properties )
+    public AuthorizationRule createRule ( final Map<String, String> properties )
     {
-        final AuthorizationRuleImpl result = new AuthorizationRuleImpl ( this.authenticator );
-
-        result.setPreFilter ( properties );
-
-        return result;
+        return new AuthorizationRuleImpl ( this.authenticator );
     }
 
 }

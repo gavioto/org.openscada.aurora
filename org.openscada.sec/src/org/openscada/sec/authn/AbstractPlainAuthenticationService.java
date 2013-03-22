@@ -31,6 +31,7 @@ import org.openscada.sec.AuthenticationException;
 import org.openscada.sec.AuthenticationService;
 import org.openscada.sec.StatusCodes;
 import org.openscada.sec.UserInformation;
+import org.openscada.sec.utils.password.PasswordType;
 import org.openscada.utils.lang.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,10 +137,28 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
     protected abstract UserEntry getUserEntry ( final String name ) throws Exception;
 
     @Override
+    public UserInformation getUser ( final String user )
+    {
+        try
+        {
+            final UserEntry entry = getUserEntry ( user );
+            if ( entry == null )
+            {
+                return null;
+            }
+            return makeInfo ( user, entry );
+        }
+        catch ( final Exception e )
+        {
+            logger.debug ( "Failed to look up user - " + user, e );
+            return null;
+        }
+    }
+
+    @Override
     public UserInformation authenticate ( final CredentialsRequest credentialsRequest ) throws AuthenticationException
     {
         final String username = credentialsRequest.getUserName ();
-        final String password = credentialsRequest.getPassword ();
 
         logger.debug ( "Authenticating user: '{}'", username );
 
@@ -164,26 +183,34 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
             // user has no password assigned
             return null;
         }
-        if ( !user.getPassword ().equals ( password ) )
-        {
-            // passwords don't match
-            return null;
-        }
 
-        // user was found and passwords did match
-        return makeInfo ( username, password, user );
+        try
+        {
+            if ( PasswordType.PLAIN.createValdiator ().validatePassword ( credentialsRequest.getPasswords (), user.getPassword () ) )
+            {
+                // user was found and passwords did match
+                return makeInfo ( username, user );
+            }
+        }
+        catch ( final Exception e )
+        {
+            logger.warn ( "Failed to authenticate", e );
+            throw new AuthenticationException ( StatusCodes.AUTHENTICATION_FAILED, e );
+        }
+        // passwords don't match
+        return null;
     }
 
     @Override
     public void joinRequest ( final CredentialsRequest request )
     {
         request.askUsername ();
-        request.askPassword ();
+        request.askPassword ( PasswordType.PLAIN.getSupportedInputEncodings () );
     }
 
-    protected UserInformation makeInfo ( final String name, final String password, final UserEntry user )
+    protected UserInformation makeInfo ( final String name, final UserEntry user )
     {
-        return new UserInformation ( name, password, user.getRoles () );
+        return new UserInformation ( name, user.getRoles () );
     }
 
 }

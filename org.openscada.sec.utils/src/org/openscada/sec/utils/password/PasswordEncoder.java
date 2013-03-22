@@ -20,7 +20,9 @@
 
 package org.openscada.sec.utils.password;
 
+import java.security.NoSuchAlgorithmException;
+
 public interface PasswordEncoder
 {
-    public String encodePassword ( String password );
+    public String encodePassword ( String password ) throws NoSuchAlgorithmException;
 }

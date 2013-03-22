@@ -26,4 +26,6 @@ import org.openscada.utils.concurrent.NotifyFuture;
 public interface AuthenticationImplementation
 {
     public NotifyFuture<UserInformation> authenticate ( CallbackHandler callbackHandler );
+
+    public UserInformation getUser ( String user );
 }

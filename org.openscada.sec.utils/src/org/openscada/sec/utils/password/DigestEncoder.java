@@ -27,14 +27,14 @@ public class DigestEncoder extends DigestBase implements PasswordEncoder
 
     private final PasswordDigestCodec passwordDigestCodec;
 
-    public DigestEncoder ( final String algorithm, final String passwordCharsetEncoder, final PasswordDigestCodec passwordDigestCodec ) throws NoSuchAlgorithmException
+    public DigestEncoder ( final String algorithm, final String passwordCharsetEncoder, final PasswordDigestCodec passwordDigestCodec )
     {
         super ( algorithm, passwordCharsetEncoder );
         this.passwordDigestCodec = passwordDigestCodec;
     }
 
     @Override
-    public String encodePassword ( final String password )
+    public String encodePassword ( final String password ) throws NoSuchAlgorithmException
     {
         return this.passwordDigestCodec.encode ( makeDigest ( password ) );
     }

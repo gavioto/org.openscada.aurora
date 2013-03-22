@@ -43,7 +43,7 @@ public class UserInformation implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    public final static UserInformation ANONYMOUS = new UserInformation ( null, null, Collections.<String> emptySet () );
+    public final static UserInformation ANONYMOUS = new UserInformation ( null, Collections.<String> emptySet () );
 
     /**
      * The name of the user or <code>null</code> if it is an anonymous user
@@ -51,29 +51,17 @@ public class UserInformation implements Serializable
      */
     private final String name;
 
-    private final String password;
-
     private final Set<String> roles;
 
-    /**
-     * @since 1.1
-     */
     public UserInformation ( final String name )
     {
-        this ( name, null );
-    }
-
-    public UserInformation ( final String name, final String password )
-    {
         this.name = name;
-        this.password = password;
         this.roles = Collections.emptySet ();
     }
 
-    public UserInformation ( final String name, final String password, final Collection<String> roles )
+    public UserInformation ( final String name, final Collection<String> roles )
     {
         this.name = name;
-        this.password = password;
         if ( roles != null )
         {
             this.roles = Collections.unmodifiableSet ( new HashSet<String> ( roles ) );
@@ -84,9 +72,9 @@ public class UserInformation implements Serializable
         }
     }
 
-    public UserInformation ( final String name, final String password, final String[] roles )
+    public UserInformation ( final String name, final String[] roles )
     {
-        this ( name, password, Arrays.asList ( roles ) );
+        this ( name, Arrays.asList ( roles ) );
     }
 
     /**
@@ -103,7 +91,7 @@ public class UserInformation implements Serializable
         {
             return ANONYMOUS;
         }
-        return new UserInformation ( principal.getName (), null );
+        return new UserInformation ( principal.getName () );
     }
 
     public boolean isAnonymous ()
@@ -120,11 +108,6 @@ public class UserInformation implements Serializable
     public String getName ()
     {
         return this.name;
-    }
-
-    public String getPassword ()
-    {
-        return this.password;
     }
 
     public Set<String> getRoles ()

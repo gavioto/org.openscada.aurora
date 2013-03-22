@@ -114,6 +114,30 @@ public class Authenticator implements AuthenticationImplementation
     }
 
     @Override
+    public UserInformation getUser ( final String user )
+    {
+        logger.debug ( "Getting user information - {}", user );
+
+        final Configuration cfg = this.manager.getConfiguration ();
+
+        for ( final ConfigurationGroup group : cfg.getGroups () )
+        {
+            for ( final AuthenticationService service : group.getServices () )
+            {
+                final UserInformation result = service.getUser ( user );
+                if ( result != null )
+                {
+                    logger.debug ( "Found user information from service - service: {}, user: {}", service, result );
+                    return result;
+                }
+            }
+        }
+
+        logger.debug ( "None found" );
+        return null;
+    }
+
+    @Override
     public NotifyFuture<UserInformation> authenticate ( final CallbackHandler callbackHandler )
     {
         logger.debug ( "Start authenticating - callbackHandler: {}", callbackHandler );

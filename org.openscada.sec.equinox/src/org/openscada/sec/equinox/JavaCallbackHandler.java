@@ -97,9 +97,9 @@ public class JavaCallbackHandler implements CallbackHandler
         {
             ( (UserNameCallback)cb ).setValue ( ( (NameCallback)jcb ).getName () );
         }
-        else if ( cb instanceof PasswordCallback && jcb instanceof PasswordCallback )
+        else if ( cb instanceof PasswordCallback && jcb instanceof javax.security.auth.callback.PasswordCallback )
         {
-            ( (PasswordCallback)cb ).setPassword ( ( (PasswordCallback)jcb ).getPassword () );
+            ( (PasswordCallback)cb ).setPassword ( String.valueOf ( ( (javax.security.auth.callback.PasswordCallback)jcb ).getPassword () ) );
         }
         else
         {

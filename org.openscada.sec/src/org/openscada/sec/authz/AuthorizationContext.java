@@ -63,8 +63,20 @@ public class AuthorizationContext
         return this.request;
     }
 
+    /**
+     * Change the user information to the provided user information
+     * 
+     * @param userInformation
+     *            the new user information
+     */
     public void changeUserInformation ( final UserInformation userInformation )
     {
         this.request = AuthorizationRequest.changeUser ( this.request, userInformation );
+    }
+
+    @Override
+    public String toString ()
+    {
+        return String.format ( "[AuthorizationContext - request: %s, context: %s, callbackHandler: %s]", this.request, this.context, this.callbackHandler );
     }
 }
