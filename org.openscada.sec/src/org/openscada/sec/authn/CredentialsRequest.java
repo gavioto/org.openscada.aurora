@@ -33,6 +33,8 @@ import org.openscada.sec.callback.Callback;
 import org.openscada.sec.callback.PasswordCallback;
 import org.openscada.sec.callback.UserNameCallback;
 import org.openscada.sec.utils.password.PasswordEncoding;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @since 1.1
@@ -40,6 +42,9 @@ import org.openscada.sec.utils.password.PasswordEncoding;
  */
 public class CredentialsRequest
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( CredentialsRequest.class );
+
     private static final int ORDER_USERNAME = 100;
 
     private static final int ORDER_PASSWORD = 200;
@@ -74,8 +79,10 @@ public class CredentialsRequest
 
     public void askUsername ()
     {
+        logger.debug ( "Ask for username" );
         if ( !this.callbackMap.containsKey ( CredentialsRequest.TAG_USERNAME ) )
         {
+            logger.debug ( "Add username callback" );
             this.callbackMap.put ( CredentialsRequest.TAG_USERNAME, new UserNameCallback ( getText ( "username", this.locale ), ORDER_USERNAME ) );
         }
     }
@@ -87,8 +94,11 @@ public class CredentialsRequest
 
     public void askPassword ( final List<PasswordEncoding> types )
     {
+        logger.debug ( "Asking for password: {}", types );
+
         if ( !this.callbackMap.containsKey ( CredentialsRequest.TAG_PASSWORD ) )
         {
+            logger.debug ( "Add password callback" );
             this.callbackMap.put ( CredentialsRequest.TAG_PASSWORD, new PasswordCallback ( getText ( "password", this.locale ), ORDER_PASSWORD ) );
         }
 
@@ -97,6 +107,8 @@ public class CredentialsRequest
 
     public Callback[] buildCallbacks ()
     {
+        logger.debug ( "Building callbacks for: {}", this );
+
         final Callback[] result = this.callbackMap.values ().toArray ( new Callback[this.callbackMap.size ()] );
         Arrays.sort ( result, Callback.ORDER_COMPARATOR );
 

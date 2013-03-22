@@ -72,10 +72,12 @@ public class PropertiesCredentialsCallback implements CallbackHandler
         {
             if ( cb instanceof PasswordCallback && this.props.contains ( PROP_PASSWORD ) )
             {
+                logger.debug ( "Answering password: ***" );
                 ( (PasswordCallback)cb ).setPassword ( this.props.getProperty ( PROP_PASSWORD ) );
             }
             else if ( cb instanceof UserNameCallback && this.props.contains ( PROP_USER ) )
             {
+                logger.debug ( "Answering user: {}", this.props.getProperty ( PROP_USER ) );
                 ( (UserNameCallback)cb ).setValue ( this.props.getProperty ( PROP_USER ) );
             }
             else
