@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -32,8 +32,11 @@ public interface ResultSetProcessor
      * <p>
      * There is no need to close the result set.
      * </p>
-     * @param resultSet the result set to process
-     * @throws SQLException any SQL exception
+     * 
+     * @param resultSet
+     *            the result set to process
+     * @throws SQLException
+     *             any SQL exception
      */
     public void processResult ( ResultSet resultSet ) throws SQLException;
 }

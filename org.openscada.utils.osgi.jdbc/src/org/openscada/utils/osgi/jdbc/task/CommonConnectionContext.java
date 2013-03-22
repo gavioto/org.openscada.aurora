@@ -1,6 +1,7 @@
 /*
  * This file is part of the OpenSCADA project
  * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jürgen Rose (cptmauli@googlemail.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -193,6 +194,44 @@ public abstract class CommonConnectionContext implements ConnectionContext
             {
                 stmt.close ();
             }
+        }
+    }
+
+    @Override
+    public <T> T queryForObject ( final RowMapper<T> rowMapper, final String sql, final Map<String, Object> parameters ) throws SQLException
+    {
+        final CaptureMappedResultSetProcessor<T> crsp = new CaptureMappedResultSetProcessor<T> ( rowMapper );
+        query ( crsp, sql, parameters );
+        if ( crsp.getResult ().size () == 0 )
+        {
+            return null;
+        }
+        else if ( crsp.getResult ().size () > 1 )
+        {
+            throw new SQLException ( "too many results" );
+        }
+        else
+        {
+            return crsp.getResult ().get ( 0 );
+        }
+    }
+
+    @Override
+    public <T> T queryForObject ( final RowMapper<T> rowMapper, final String sql, final Object... parameters ) throws SQLException
+    {
+        final CaptureMappedResultSetProcessor<T> crsp = new CaptureMappedResultSetProcessor<T> ( rowMapper );
+        query ( crsp, sql, parameters );
+        if ( crsp.getResult ().size () == 0 )
+        {
+            return null;
+        }
+        else if ( crsp.getResult ().size () > 1 )
+        {
+            throw new SQLException ( "too many results" );
+        }
+        else
+        {
+            return crsp.getResult ().get ( 0 );
         }
     }
 
