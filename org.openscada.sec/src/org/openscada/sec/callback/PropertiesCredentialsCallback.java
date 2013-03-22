@@ -37,9 +37,20 @@ import org.slf4j.LoggerFactory;
 public class PropertiesCredentialsCallback implements CallbackHandler
 {
 
+    private static final String PROP_USER = "user";
+
+    private static final String PROP_PASSWORD = "password";
+
     private final static Logger logger = LoggerFactory.getLogger ( PropertiesCredentialsCallback.class );
 
     private final Properties props;
+
+    public PropertiesCredentialsCallback ( final String username, final String password )
+    {
+        this.props = new Properties ();
+        this.props.put ( PROP_USER, username );
+        this.props.put ( PROP_PASSWORD, password );
+    }
 
     public PropertiesCredentialsCallback ( final Properties props )
     {
@@ -59,13 +70,13 @@ public class PropertiesCredentialsCallback implements CallbackHandler
 
         for ( final Callback cb : callbacks )
         {
-            if ( cb instanceof PasswordCallback )
+            if ( cb instanceof PasswordCallback && this.props.contains ( PROP_PASSWORD ) )
             {
-                ( (PasswordCallback)cb ).setPassword ( this.props.getProperty ( "password" ) );
+                ( (PasswordCallback)cb ).setPassword ( this.props.getProperty ( PROP_PASSWORD ) );
             }
-            else if ( cb instanceof UserNameCallback )
+            else if ( cb instanceof UserNameCallback && this.props.contains ( PROP_USER ) )
             {
-                ( (UserNameCallback)cb ).setValue ( this.props.getProperty ( "user" ) );
+                ( (UserNameCallback)cb ).setValue ( this.props.getProperty ( PROP_USER ) );
             }
             else
             {
