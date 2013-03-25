@@ -20,11 +20,17 @@
 
 package org.openscada.sec.audit.log.slf4j;
 
+import org.openscada.sec.AuthorizationReply;
+import org.openscada.sec.AuthorizationRequest;
 import org.openscada.sec.audit.AuditLogService;
+import org.openscada.sec.authz.AuthorizationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
+/**
+ * @since 1.1
+ */
 public class LogServiceImpl implements AuditLogService
 {
 
@@ -52,5 +58,30 @@ public class LogServiceImpl implements AuditLogService
     public void debug ( final String message, final Throwable e, final Object... arguments )
     {
         logger.debug ( MessageFormatter.arrayFormat ( message, arguments ).getMessage (), e );
+    }
+
+    @Override
+    public void authorizationRequested ( final AuthorizationRequest request )
+    {
+        logger.info ( "Authorization requested - {}", request );
+    }
+
+    @Override
+    public void authorizationFailed ( final AuthorizationContext context, final AuthorizationRequest request, final Throwable error )
+    {
+        logger.warn ( String.format ( "Authorization failed - %s", request ), error );
+    }
+
+    @Override
+    public void authorizationDone ( final AuthorizationContext context, final AuthorizationRequest request, final AuthorizationReply reply )
+    {
+        if ( reply.isGranted () )
+        {
+            logger.info ( "Authorization granted - {} -> {}", request, reply );
+        }
+        else
+        {
+            logger.warn ( "Authorization rejected - {} -> {}", request, reply );
+        }
     }
 }

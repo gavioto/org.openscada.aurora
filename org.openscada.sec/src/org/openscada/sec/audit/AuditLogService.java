@@ -20,18 +20,27 @@
 
 package org.openscada.sec.audit;
 
+import org.openscada.sec.AuthorizationReply;
+import org.openscada.sec.AuthorizationRequest;
+import org.openscada.sec.authz.AuthorizationContext;
+
 /**
  * @since 1.1
  */
 public interface AuditLogService
 {
 
-    void info ( String message, Object... arguments );
+    public void info ( String message, Object... arguments );
 
-    void debug ( String message, Object... arguments );
+    public void debug ( String message, Object... arguments );
 
-    void info ( String message, Throwable e, Object... arguments );
+    public void info ( String message, Throwable e, Object... arguments );
 
-    void debug ( String message, Throwable e, Object... arguments );
+    public void debug ( String message, Throwable e, Object... arguments );
 
+    public void authorizationRequested ( AuthorizationRequest request );
+
+    public void authorizationFailed ( AuthorizationContext context, AuthorizationRequest request, Throwable error );
+
+    public void authorizationDone ( AuthorizationContext context, AuthorizationRequest request, AuthorizationReply reply );
 }

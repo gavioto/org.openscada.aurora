@@ -4,4 +4,6 @@
    <service>
       <provide interface="org.openscada.sec.audit.AuditLogService"/>
    </service>
+   <property name="service.vendor" type="String" value="openSCADA.org"/>
+   <property name="service.description" type="String" value="An audit log which forwards logs messages to SLF4J"/>
 </scr:component>
