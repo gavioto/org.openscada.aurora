@@ -247,20 +247,13 @@ public class BoundedPriorityQueueSet<E> implements SortedSet<E>, BoundedQueue<E>
     @Override
     public E poll ()
     {
-        try
-        {
-            return this.internalSet.last ();
-        }
-        catch ( final NoSuchElementException e )
-        {
-            return null;
-        }
+        return this.internalSet.pollFirst ();
     }
 
     @Override
     public E remove ()
     {
-        final E result = this.internalSet.last ();
+        final E result = this.internalSet.first ();
         this.internalSet.remove ( result );
         return result;
     }
