@@ -34,9 +34,13 @@ public class XMLSignatureCallback extends AbstractCallback
 
     public static final String PROP_SIGNED_DOCUMENT = "signedDocument";
 
+    public static final String PROP_MAXIMUM_REMEMBER_PERIOD = "maximumRememberPeriod";
+
     private String document;
 
     private String signedDocument;
+
+    private int maximumRememberPeriod;
 
     public XMLSignatureCallback ()
     {
@@ -72,6 +76,7 @@ public class XMLSignatureCallback extends AbstractCallback
     {
         super.injectRequestAttributes ( request );
         request.put ( PROP_DOCUMENT, this.document );
+        request.put ( PROP_MAXIMUM_REMEMBER_PERIOD, "" + this.maximumRememberPeriod );
     }
 
     @Override
@@ -79,6 +84,7 @@ public class XMLSignatureCallback extends AbstractCallback
     {
         super.parseRequestAttributes ( attributes );
         this.document = attributes.get ( PROP_DOCUMENT );
+        this.maximumRememberPeriod = parseInteger ( attributes, PROP_MAXIMUM_REMEMBER_PERIOD, 5 * 1000 * 60 /* 5 minutes */);
     }
 
     @Override
@@ -102,6 +108,16 @@ public class XMLSignatureCallback extends AbstractCallback
     public String getType ()
     {
         return TYPE;
+    }
+
+    public void setMaximumRememberPeriod ( final int maximumRememberPeriod )
+    {
+        this.maximumRememberPeriod = maximumRememberPeriod;
+    }
+
+    public int getMaximumRememberPeriod ()
+    {
+        return this.maximumRememberPeriod;
     }
 
 }
