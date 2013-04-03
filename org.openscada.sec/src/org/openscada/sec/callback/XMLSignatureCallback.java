@@ -40,7 +40,7 @@ public class XMLSignatureCallback extends AbstractCallback
 
     private String signedDocument;
 
-    private int maximumRememberPeriod;
+    private int maximumRememberPeriod = Integer.getInteger ( "org.openscada.sec.callback.XMLSignatureCallback.maxKeepKeyOpenTimeout", 5 * 60 * 1000 /*5 minutes*/);
 
     public XMLSignatureCallback ()
     {
