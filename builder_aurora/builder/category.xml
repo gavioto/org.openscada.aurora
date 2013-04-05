@@ -19,7 +19,7 @@
       <category name="org.openscada.aurora.ca"/>
    </feature>
    <category-def name="org.openscada.aurora.category" label="openSCADA Aurora"/>
-   <category-def name="org.openscada.aurora.sdk.category" label="openSCADA Aurora (SDK)"/>
+   <category-def name="org.openscada.aurora.sdk.category" label="openSCADA Aurora SDK"/>
    <category-def name="org.openscada.aurora.ca" label="openSCADA CA"/>
    <category-def name="org.openscada.aurora.sec" label="openSCADA Security"/>
    <category-def name="org.openscada.aurora.ds" label="openSCADA DS"/>
