@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -24,9 +26,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.openscada.utils.osgi.FilterUtil;
 import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.SingleServiceTracker;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 public class DataNodeTracker
@@ -37,9 +42,23 @@ public class DataNodeTracker
 
     private final Map<String, Set<DataListener>> listeners = new HashMap<String, Set<DataListener>> ();
 
+    private static Filter FILTER;
+
+    static
+    {
+        try
+        {
+            FILTER = FilterUtil.createClassFilter ( DataStore.class.getName () );
+        }
+        catch ( final InvalidSyntaxException e )
+        {
+            throw new RuntimeException ( e );
+        }
+    }
+
     public DataNodeTracker ( final BundleContext context )
     {
-        this.tracker = new SingleServiceTracker<DataStore> ( context, DataStore.class, new SingleServiceListener<DataStore> () {
+        this.tracker = new SingleServiceTracker<DataStore> ( context, FILTER, new SingleServiceListener<DataStore> () {
 
             @Override
             public void serviceChange ( final ServiceReference<DataStore> reference, final DataStore service )
@@ -90,8 +109,11 @@ public class DataNodeTracker
 
     /**
      * Add a listener for a data node
-     * @param nodeId the node to listen to
-     * @param listener the listener to add
+     * 
+     * @param nodeId
+     *            the node to listen to
+     * @param listener
+     *            the listener to add
      */
     public synchronized void addListener ( final String nodeId, final DataListener listener )
     {
@@ -110,8 +132,11 @@ public class DataNodeTracker
 
     /**
      * Remove a listener for a data node
-     * @param nodeId the node to remove the listener from
-     * @param listener the listener to remove
+     * 
+     * @param nodeId
+     *            the node to remove the listener from
+     * @param listener
+     *            the listener to remove
      */
     public synchronized void removeListener ( final String nodeId, final DataListener listener )
     {
@@ -134,9 +159,11 @@ public class DataNodeTracker
 
     /**
      * Write to the data node if there currently is a service attached
-     * @param node the node to write
+     * 
+     * @param node
+     *            the node to write
      * @return <code>true</code> if the service was attached an the request was
-     * passed on to the service, <code>false</code> otherwise.
+     *         passed on to the service, <code>false</code> otherwise.
      */
     public boolean write ( final DataNode node )
     {
