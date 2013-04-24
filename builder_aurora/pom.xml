@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.openscada.aurora</groupId>
+	<artifactId>org.openscada.aurora-parent</artifactId>
+	<version>1.1.0</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho-version>0.17.0</tycho-version>
+		<tychoExtrasVersion>0.17.0</tychoExtrasVersion>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>juno</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/juno</url>
+		</repository>
+		<repository>
+			<id>openscada.external</id>
+			<layout>p2</layout>
+			<url>http://repo.openscada.org/p2/external/I/1.1.0/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+
+			<!-- source bundles -->
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<modules>
+		<module>../org.openscada.aurora.feature</module>
+		<module>../org.openscada.aurora.sdk.feature</module>
+
+		<module>builder</module> <!-- holds the p2 build -->
+		
+		<module>../org.openscada.aurora.doc.isv</module>
+		<module>../org.openscada.core</module>
+		<module>../org.openscada.core.info</module>
+		<module>../org.openscada.core.test</module>
+		<module>../org.openscada.ds</module>
+		<module>../org.openscada.ds.feature</module>
+		<module>../org.openscada.ds.sdk.feature</module>
+		<module>../org.openscada.ds.storage</module>
+		<module>../org.openscada.ds.storage.file</module>
+		<module>../org.openscada.ds.storage.jdbc</module>
+		<module>../org.openscada.hds</module>
+		<module>../org.openscada.hds.feature</module>
+		<module>../org.openscada.sec</module>
+		<module>../org.openscada.sec.audit.log.slf4j</module>
+		<module>../org.openscada.sec.auth.logon</module>
+		<module>../org.openscada.sec.authn.osgi.cfg.priority</module>
+		<module>../org.openscada.sec.equinox</module>
+		<module>../org.openscada.sec.feature</module>
+		<module>../org.openscada.sec.osgi</module>
+		<module>../org.openscada.sec.provider.dummy</module>
+		<module>../org.openscada.sec.provider.plain.property</module>
+		<module>../org.openscada.sec.sdk.feature</module>
+		<module>../org.openscada.sec.utils</module>
+		<module>../org.openscada.utils</module>
+		<module>../org.openscada.utils.filter</module>
+		<module>../org.openscada.utils.osgi</module>
+		<module>../org.openscada.utils.osgi.autostart</module>
+		<module>../org.openscada.utils.osgi.exporter</module>
+		<module>../org.openscada.utils.osgi.jaxws</module>
+		<module>../org.openscada.utils.osgi.jdbc</module>
+		<module>../org.openscada.utils.osgi.jdbc.pool</module>
+		<module>../org.openscada.utils.osgi.pidfile</module>
+		<module>../org.openscada.utils.propertyeditors</module>
+	</modules>
+
+</project>
