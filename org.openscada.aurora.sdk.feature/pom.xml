@@ -6,7 +6,7 @@
     <version>1.1.0</version>
     <relativePath>../builder_aurora</relativePath>
   </parent>
-  <groupId>org.openscada.aurora</groupId>
+  <groupId>org.openscada.aurora.features</groupId>
   <artifactId>org.openscada.aurora.sdk</artifactId>
   <version>1.1.0.qualifier</version>
   <packaging>eclipse-feature</packaging>
