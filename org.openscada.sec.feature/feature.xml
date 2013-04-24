@@ -19,9 +19,10 @@
 
    <requires>
       <import plugin="org.openscada.utils"/>
-      <import plugin="org.eclipse.osgi"/>
       <import plugin="slf4j.api"/>
-      <import plugin="org.openscada.ca"/>
+      <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.openscada.utils.osgi"/>
+      <import plugin="org.eclipse.equinox.security" version="1.1.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
