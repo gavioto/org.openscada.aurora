@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author jrose
- * 
  */
 public class PropertyEditorRegistry
 {
@@ -110,7 +109,7 @@ public class PropertyEditorRegistry
      * @param requiredType
      * @param propertyEditor
      */
-    public void registerCustomEditor ( final Class<?> requiredType, final PropertyEditor propertyEditor )
+    public final void registerCustomEditor ( final Class<?> requiredType, final PropertyEditor propertyEditor )
     {
         registerCustomEditor ( requiredType, "", propertyEditor );
     }
