@@ -37,11 +37,11 @@ public class AuthorizationReply
     {
         if ( result == null )
         {
-            throw new NullPointerException ( "'result' must not be null" );
+            throw new IllegalArgumentException ( "'result' must not be null" );
         }
         if ( context == null )
         {
-            throw new NullPointerException ( "'context' must not be null" );
+            throw new IllegalArgumentException ( "'context' must not be null" );
         }
 
         this.result = result;
