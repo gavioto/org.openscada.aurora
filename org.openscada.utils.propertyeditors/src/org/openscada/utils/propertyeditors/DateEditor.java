@@ -27,15 +27,15 @@ import java.util.Date;
 
 public class DateEditor extends PropertyEditorSupport
 {
-    private static final SimpleDateFormat dfDateTimeS = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss.S" ); // 23 
+    private final SimpleDateFormat dfDateTimeS = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss.S" ); // 23 
 
-    private static final SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" ); // 19
+    private final SimpleDateFormat dfDateTime = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" ); // 19
 
-    private static final SimpleDateFormat dfDate = new SimpleDateFormat ( "yyyy-MM-dd" ); // 10 
+    private final SimpleDateFormat dfDate = new SimpleDateFormat ( "yyyy-MM-dd" ); // 10 
 
-    private static final SimpleDateFormat dfTimeS = new SimpleDateFormat ( "HH:mm:ss.S" ); // 12
+    private final SimpleDateFormat dfTimeS = new SimpleDateFormat ( "HH:mm:ss.S" ); // 12
 
-    private static final SimpleDateFormat dfTime = new SimpleDateFormat ( "HH:mm:ss" ); // 8
+    private final SimpleDateFormat dfTime = new SimpleDateFormat ( "HH:mm:ss" ); // 8
 
     @Override
     public void setAsText ( final String text ) throws IllegalArgumentException
@@ -50,23 +50,23 @@ public class DateEditor extends PropertyEditorSupport
         {
             if ( text.length () == 23 )
             {
-                d = dfDateTimeS.parse ( text );
+                d = this.dfDateTimeS.parse ( text );
             }
             else if ( text.length () == 19 )
             {
-                d = dfDateTime.parse ( text );
+                d = this.dfDateTime.parse ( text );
             }
             else if ( text.length () == 10 )
             {
-                d = dfDate.parse ( text );
+                d = this.dfDate.parse ( text );
             }
             else if ( text.length () == 12 )
             {
-                d = dfTimeS.parse ( text );
+                d = this.dfTimeS.parse ( text );
             }
             else if ( text.length () == 8 )
             {
-                d = dfTime.parse ( text );
+                d = this.dfTime.parse ( text );
             }
         }
         catch ( final ParseException e )
