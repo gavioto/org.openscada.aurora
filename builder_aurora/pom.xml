@@ -28,6 +28,15 @@
 	</repositories>
 
 	<build>
+
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-file</artifactId>
+				<version>2.2</version>
+			</extension>
+		</extensions>
+
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -95,7 +104,7 @@
 		<module>../org.openscada.aurora.sdk.feature</module>
 
 		<module>builder</module> <!-- holds the p2 build -->
-		
+
 		<module>../org.openscada.aurora.doc.isv</module>
 		<module>../org.openscada.core</module>
 		<module>../org.openscada.core.info</module>
