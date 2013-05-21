@@ -2,7 +2,7 @@
 <feature
       id="org.openscada.ds.sdk"
       label="openSCADA DS SDK"
-      version="1.0.0.qualifier"
+      version="1.2.0.qualifier"
       provider-name="openSCADA.org">
 
    <description>
