@@ -57,7 +57,15 @@ public final class ServiceLoaderProcessor
         {
             final Initializer initializer = i.next ();
             logger.debug ( "Processing: {}", initializer );
-            initializer.initialize ( type );
+
+            try
+            {
+                initializer.initialize ( type );
+            }
+            catch ( final Exception e )
+            {
+                logger.info ( "Failed to initialize", e );
+            }
         }
     }
 }
