@@ -11,6 +11,7 @@ Export-Package: org.openscada.utils;version="1.1.0",
  org.openscada.utils.concurrent.task;version="1.1.0";uses:="org.openscada.utils.concurrent",
  org.openscada.utils.exec;version="1.1.0",
  org.openscada.utils.factory;version="1.1.0";uses:="org.openscada.utils.statuscodes",
+ org.openscada.utils.init;version="1.2.0",
  org.openscada.utils.interner;version="1.1.0";uses:="com.google.common.collect",
  org.openscada.utils.lang;version="1.1.0",
  org.openscada.utils.lifecycle;version="1.1.0",
@@ -18,7 +19,7 @@ Export-Package: org.openscada.utils;version="1.1.0",
  org.openscada.utils.sql;version="1.1.0",
  org.openscada.utils.statuscodes;version="1.1.0",
  org.openscada.utils.str;version="1.1.0";uses:="org.openscada.utils.lang"
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Name: openSCADA Common Utilities
 Bundle-Description: Utility classes for use throughout the OpenSCADA p
  roject
