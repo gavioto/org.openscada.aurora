@@ -1,6 +1,8 @@
 /*
  * This file is part of the openSCADA project
+ * 
  * Copyright (C) 2011-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,7 +21,17 @@
 
 package org.openscada.sec.utils.password;
 
+import java.util.List;
+import java.util.Map;
+
 public interface PasswordValidator
 {
-    public boolean validatePassword ( String providedPassword, String storedPassword ) throws Exception;
+    /**
+     * Get the list of supported password encodings in order of preference
+     * 
+     * @return the list of supported password encodings
+     */
+    public List<PasswordEncoding> getSupportedInputEncodings ();
+
+    public boolean validatePassword ( Map<PasswordEncoding, String> passwords, String password ) throws Exception;
 }

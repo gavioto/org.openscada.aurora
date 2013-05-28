@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.openscada.aurora_1.0.0.qualifier.jar" id="org.openscada.aurora" version="1.0.0.qualifier">
+   <feature url="features/org.openscada.aurora_1.1.0.qualifier.jar" id="org.openscada.aurora" version="1.1.0.qualifier">
       <category name="org.openscada.aurora.category"/>
    </feature>
-   <feature url="features/org.openscada.aurora.sdk_1.0.0.qualifier.jar" id="org.openscada.aurora.sdk" version="1.0.0.qualifier">
-      <category name="org.openscada.aurora.category"/>
+   <feature url="features/org.openscada.aurora.sdk_1.1.0.qualifier.jar" id="org.openscada.aurora.sdk" version="1.1.0.qualifier">
+      <category name="org.openscada.aurora.sdk.category"/>
    </feature>
-   <feature url="features/org.openscada.sec_1.0.0.qualifier.jar" id="org.openscada.sec" version="1.0.0.qualifier">
+   <feature url="features/org.openscada.sec_1.1.0.qualifier.jar" id="org.openscada.sec" version="1.1.0.qualifier">
       <category name="org.openscada.aurora.sec"/>
    </feature>
    <feature url="features/org.openscada.ds_1.0.0.qualifier.jar" id="org.openscada.ds" version="1.0.0.qualifier">
@@ -15,11 +15,8 @@
    <feature url="features/org.openscada.hds_1.0.0.qualifier.jar" id="org.openscada.hds" version="1.0.0.qualifier">
       <category name="org.openscada.aurora.hds"/>
    </feature>
-   <feature url="features/org.openscada.ca_1.0.0.qualifier.jar" id="org.openscada.ca" version="1.0.0.qualifier">
-      <category name="org.openscada.aurora.ca"/>
-   </feature>
    <category-def name="org.openscada.aurora.category" label="openSCADA Aurora"/>
-   <category-def name="org.openscada.aurora.ca" label="openSCADA CA"/>
+   <category-def name="org.openscada.aurora.sdk.category" label="openSCADA Aurora SDK"/>
    <category-def name="org.openscada.aurora.sec" label="openSCADA Security"/>
    <category-def name="org.openscada.aurora.ds" label="openSCADA DS"/>
    <category-def name="org.openscada.aurora.hds" label="openSCADA Historical Data Store"/>

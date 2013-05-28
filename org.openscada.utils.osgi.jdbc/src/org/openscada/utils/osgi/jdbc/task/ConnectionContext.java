@@ -1,6 +1,7 @@
 /*
  * This file is part of the OpenSCADA project
  * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jürgen Rose (cptmauli@googlemail.com)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -55,4 +56,9 @@ public interface ConnectionContext
     public <T> List<T> query ( RowMapper<T> rowMapper, String sql, Object... parameters ) throws SQLException;
 
     public <T> List<T> query ( RowMapper<T> rowMapper, String sql, Map<String, Object> parameters ) throws SQLException;
+
+    public <T> T queryForObject ( RowMapper<T> rowMapper, String sql, Object... parameters ) throws SQLException;
+
+    public <T> T queryForObject ( RowMapper<T> rowMapper, String sql, Map<String, Object> parameters ) throws SQLException;
+
 }

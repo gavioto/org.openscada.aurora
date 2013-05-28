@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -27,6 +29,7 @@ import org.openscada.utils.statuscodes.StatusCode;
 
 /**
  * The result of an authentication request
+ * 
  * @author Jens Reimann
  * @since 0.1.0
  */
@@ -34,25 +37,29 @@ import org.openscada.utils.statuscodes.StatusCode;
 public class AuthorizationResult
 {
 
-    /**
-     * A static default constant for a granted result 
-     */
-    public static AuthorizationResult GRANTED = new AuthorizationResult ();
-
     private final StatusCode errorCode;
 
     private final String message;
 
-    public static AuthorizationResult create ()
+    public static final AuthorizationResult GRANTED = new AuthorizationResult ();
+
+    public static final AuthorizationResult ABSTAIN = null;
+
+    public static AuthorizationResult createGranted ()
     {
         return GRANTED;
     }
 
-    public static AuthorizationResult create ( final StatusCode statusCode, final String message )
+    public static AuthorizationResult createAbstain ()
+    {
+        return ABSTAIN;
+    }
+
+    public static AuthorizationResult createReject ( final StatusCode statusCode, final String message )
     {
         if ( statusCode == null )
         {
-            return GRANTED;
+            return createGranted ();
         }
         else
         {
@@ -60,11 +67,11 @@ public class AuthorizationResult
         }
     }
 
-    public static AuthorizationResult create ( final Throwable error )
+    public static AuthorizationResult createReject ( final Throwable error )
     {
         if ( error == null )
         {
-            return GRANTED;
+            return createGranted ();
         }
         else if ( error instanceof CodedExceptionBase )
         {
@@ -90,7 +97,7 @@ public class AuthorizationResult
 
     public boolean isGranted ()
     {
-        return this.errorCode == null;
+        return this.errorCode == null && this.message == null;
     }
 
     public StatusCode getErrorCode ()
@@ -105,25 +112,49 @@ public class AuthorizationResult
 
     public <T> NotifyFuture<T> asFuture ()
     {
-        if ( this.errorCode == null )
+        final PermissionDeniedException e = asException ();
+        if ( e == null )
         {
             return null;
         }
         else
         {
-            return new InstantErrorFuture<T> ( new PermissionDeniedException ( this.errorCode, this.message ) );
+            return new InstantErrorFuture<T> ( e.fillInStackTrace () );
         }
+    }
 
+    /**
+     * @since 1.1
+     */
+    public PermissionDeniedException asException ()
+    {
+        if ( isGranted () )
+        {
+            return null;
+        }
+        else
+        {
+            return new PermissionDeniedException ( this.errorCode, this.message );
+        }
     }
 
     @Override
     public String toString ()
     {
+        final StringBuilder sb = new StringBuilder ( "[" );
+
         if ( this.errorCode == null )
         {
-            return "[GRANTED]";
+            sb.append ( "GRANTED" );
+        }
+        else
+        {
+            sb.append ( String.format ( "%s: %s", this.errorCode, this.message ) );
         }
 
-        return String.format ( "%s: %s", this.errorCode, this.message );
+        sb.append ( "]" );
+
+        return sb.toString ();
     }
+
 }

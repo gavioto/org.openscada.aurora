@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: openSCADA Security Authenticator Configuration Priority Based
+Bundle-SymbolicName: org.openscada.sec.authn.osgi.cfg.priority
+Bundle-Version: 1.1.0.qualifier
+Bundle-Vendor: openSCADA.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.openscada.sec;version="1.1.0",
+ org.openscada.sec.authn;version="1.1.0",
+ org.openscada.sec.callback;version="1.1.0",
+ org.openscada.utils;version="1.0.0",
+ org.openscada.utils.concurrent;version="1.1.0",
+ org.osgi.framework;version="1.7.0",
+ org.osgi.util.tracker;version="1.5.1",
+ org.slf4j;version="1.6.0"
+Service-Component: OSGI-INF/component.xml

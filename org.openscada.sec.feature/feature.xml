@@ -2,7 +2,7 @@
 <feature
       id="org.openscada.sec"
       label="openSCADA Security"
-      version="1.0.0.qualifier"
+      version="1.1.0.qualifier"
       provider-name="openSCADA.org">
 
    <description>
@@ -19,9 +19,10 @@
 
    <requires>
       <import plugin="org.openscada.utils"/>
-      <import plugin="org.eclipse.osgi"/>
       <import plugin="slf4j.api"/>
-      <import plugin="org.openscada.ca"/>
+      <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.openscada.utils.osgi"/>
+      <import plugin="org.eclipse.equinox.security" version="1.1.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -61,6 +62,27 @@
 
    <plugin
          id="org.openscada.sec.equinox"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.sec.authn.osgi.cfg.priority"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.sec.audit.log.slf4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openscada.sec.auth.logon"
          download-size="0"
          install-size="0"
          version="0.0.0"

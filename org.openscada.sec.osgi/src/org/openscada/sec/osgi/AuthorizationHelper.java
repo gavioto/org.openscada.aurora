@@ -21,96 +21,98 @@
 
 package org.openscada.sec.osgi;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.concurrent.Future;
 
+import org.openscada.sec.AuthorizationReply;
 import org.openscada.sec.AuthorizationResult;
-import org.openscada.sec.AuthorizationService;
 import org.openscada.sec.StatusCodes;
-import org.openscada.sec.UserInformation;
-import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
+import org.openscada.sec.authz.AuthorizationContext;
+import org.openscada.sec.authz.AuthorizationRule;
+import org.openscada.utils.concurrent.InstantFuture;
+import org.openscada.utils.concurrent.IteratingFuture;
+import org.openscada.utils.concurrent.NotifyFuture;
+import org.openscada.utils.concurrent.TransformResultFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuthorizationHelper
 {
-    protected static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.create ( StatusCodes.AUTHORIZATION_FAILED, Messages.getString ( "AuthorizationHelper.DefaultMessage" ) ); //$NON-NLS-1$
-
-    private final static Logger logger = LoggerFactory.getLogger ( AuthorizationHelper.class );
-
-    private final ServiceTracker<AuthorizationService, AuthorizationService> tracker;
-
-    public AuthorizationHelper ( final BundleContext context )
+    public static final class IteratingAuthorizer extends IteratingFuture<AuthorizationResult, AuthorizationRule>
     {
-        this.tracker = new ServiceTracker<AuthorizationService, AuthorizationService> ( context, AuthorizationService.class, null );
-    }
+        private final AuthorizationResult defaultResult;
 
-    public void open ()
-    {
-        this.tracker.open ();
-    }
+        private final AuthorizationContext context;
 
-    public void close ()
-    {
-        this.tracker.close ();
-    }
-
-    /**
-     * Check all authentication services for authorization.
-     * <p>
-     * This method calls
-     * {@link #authorize(String, String, String, UserInformation, AuthorizationResult)}
-     * with a default failure if there is not authorization provider or none
-     * voted.
-     * </p>
-     * 
-     * @param objectId
-     *            the id of the object to check for
-     * @param objectType
-     *            the object type
-     * @param action
-     *            the action to perform
-     * @param userInformation
-     *            the user information or <code>null</code> if there is none
-     * @return always returns a result, never returns <code>null</code>
-     */
-    public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context )
-    {
-        return authorize ( objectType, objectId, action, userInformation, context, DEFAULT_RESULT );
-    }
-
-    public AuthorizationResult authorize ( final AuthorizationRequest request, final AuthorizationResult defaultResult )
-    {
-        logger.debug ( "Authorizing - {}", request );
-        final AuthorizationResult result = authorize ( this.tracker.getTracked ().values (), request, defaultResult );
-        logger.debug ( "Authorizing - {} -> {}", request, result );
-        return result;
-    }
-
-    public AuthorizationResult authorize ( final String objectType, final String objectId, final String action, final UserInformation userInformation, final Map<String, Object> context, final AuthorizationResult defaultResult )
-    {
-        return authorize ( new AuthorizationRequest ( objectType, objectId, action, userInformation, context ), defaultResult );
-    }
-
-    public static AuthorizationResult authorize ( final Collection<? extends AuthorizationService> services, final AuthorizationRequest request, final AuthorizationResult defaultResult )
-    {
-        if ( services == null )
+        public IteratingAuthorizer ( final Iterable<? extends AuthorizationRule> iterable, final AuthorizationResult defaultResult, final AuthorizationContext context )
         {
-            return defaultResult;
+            super ( iterable );
+            this.defaultResult = defaultResult;
+            this.context = context;
         }
 
-        for ( final AuthorizationService service : services )
+        @Override
+        protected void handleComplete ( final Future<AuthorizationResult> future, final AuthorizationRule current ) throws Exception
         {
-            final AuthorizationResult result = service.authorize ( request.getObjectType (), request.getObjectId (), request.getAction (), request.getUserInformation (), request.getContext () );
-            if ( result != null )
+            final AuthorizationResult reply = future.get ();
+            if ( reply == null )
             {
-                // service did not abstain .. so use the result
-                logger.debug ( "Got result ({}). Returning ... ", result ); //$NON-NLS-1$
-                return result;
+                // abstain
+
+                logger.debug ( "We got an abstain" );
+                processNext ();
+            }
+            else
+            {
+                // rejected or granted
+
+                logger.debug ( "Somebody voted: {}", reply );
+                setResult ( reply );
             }
         }
 
-        return defaultResult;
+        @Override
+        protected NotifyFuture<AuthorizationResult> perform ( final AuthorizationRule s )
+        {
+            logger.debug ( "Try next service: {}", s );
+            return s.authorize ( this.context );
+        }
+
+        @Override
+        protected NotifyFuture<AuthorizationResult> last ()
+        {
+            return new InstantFuture<AuthorizationResult> ( this.defaultResult );
+        }
     }
+
+    public static final AuthorizationResult DEFAULT_RESULT = AuthorizationResult.createReject ( StatusCodes.AUTHORIZATION_FAILED, Messages.getString ( "AuthorizationHelper.DefaultMessage" ) ); //$NON-NLS-1$
+
+    private final static Logger logger = LoggerFactory.getLogger ( AuthorizationHelper.class );
+
+    public static NotifyFuture<AuthorizationReply> authorize ( final Iterable<? extends AuthorizationRule> services, final AuthorizationContext context, final AuthorizationResult defaultResult )
+    {
+        logger.debug ( "Iterating authorize - {}", context.getRequest () );
+
+        final IteratingFuture<AuthorizationResult, AuthorizationRule> future = new IteratingAuthorizer ( services, defaultResult, context );
+
+        future.startIterating ();
+
+        return new TransformResultFuture<AuthorizationResult, AuthorizationReply> ( future ) {
+
+            @Override
+            protected AuthorizationReply transform ( final AuthorizationResult from ) throws Exception
+            {
+                logger.debug ( "Transforming result: {}", from );
+                if ( from == null )
+                {
+                    return AuthorizationReply.create ( defaultResult, context );
+                }
+                else
+                {
+                    return AuthorizationReply.create ( from, context );
+                }
+            }
+
+        };
+    }
+
 }

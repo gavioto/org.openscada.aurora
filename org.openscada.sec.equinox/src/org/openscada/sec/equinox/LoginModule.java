@@ -1,7 +1,7 @@
 /*
  * This file is part of the openSCADA project
  * 
- * Copyright (C) Jens Reimann (ctron@dentrassi.de)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -23,13 +23,10 @@ package org.openscada.sec.equinox;
 import java.util.Map;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 
-import org.openscada.sec.AuthenticationException;
+import org.openscada.sec.AuthenticationImplementation;
 import org.openscada.sec.UserInformation;
 import org.openscada.sec.UserInformationPrincipal;
 
@@ -60,25 +57,13 @@ public class LoginModule implements javax.security.auth.spi.LoginModule
     {
         this.userInformation = null;
 
-        final NameCallback name = new NameCallback ( "Username:" );
-        final PasswordCallback password = new PasswordCallback ( "Password:", false );
+        final AuthenticationImplementation auth = Activator.getInstance ().getAuthentication ();
 
         try
         {
-            this.callbackHandler.handle ( new Callback[] { name, password } );
+            this.userInformation = auth.authenticate ( new JavaCallbackHandler ( this.callbackHandler ) ).get ();
         }
         catch ( final Exception e )
-        {
-            final LoginException loginException = new LoginException ();
-            loginException.initCause ( e );
-            throw loginException;
-        }
-
-        try
-        {
-            this.userInformation = Activator.getInstance ().authenticate ( name.getName (), password.getPassword () );
-        }
-        catch ( final AuthenticationException e )
         {
             final LoginException loginException = new LoginException ();
             loginException.initCause ( e );
