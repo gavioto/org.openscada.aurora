@@ -49,9 +49,23 @@ public final class ServiceLoaderProcessor
      */
     public static void initialize ( final Object type )
     {
+        initialize ( type, null );
+    }
+
+    /**
+     * Initialize a specific type
+     * 
+     * @param type
+     *            the initializer specific type, see
+     *            {@link Initializer#initialize(Object)}
+     * @param classloader
+     *            a specific class loader to use
+     */
+    public static void initialize ( final Object type, final ClassLoader classloader )
+    {
         logger.debug ( "Initializing: {}", type );
 
-        final ServiceLoader<Initializer> loader = ServiceLoader.load ( Initializer.class );
+        final ServiceLoader<Initializer> loader = ServiceLoader.load ( Initializer.class, classloader );
         final Iterator<Initializer> i = loader.iterator ();
         while ( i.hasNext () )
         {
