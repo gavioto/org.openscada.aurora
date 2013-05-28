@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Process all initialization found using the {@link ServiceLoader} mechnism
+ * Process all initialization found using the {@link ServiceLoader} mechanism
  * 
  * @author Jens Reimann
  */
