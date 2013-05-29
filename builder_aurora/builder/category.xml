@@ -9,10 +9,10 @@
    <feature url="features/org.openscada.sec_1.1.0.qualifier.jar" id="org.openscada.sec" version="1.1.0.qualifier">
       <category name="org.openscada.aurora.sec"/>
    </feature>
-   <feature url="features/org.openscada.ds_1.0.0.qualifier.jar" id="org.openscada.ds" version="1.0.0.qualifier">
+   <feature url="features/org.openscada.ds_1.1.0.qualifier.jar" id="org.openscada.ds" version="1.1.0.qualifier">
       <category name="org.openscada.aurora.ds"/>
    </feature>
-   <feature url="features/org.openscada.hds_1.0.0.qualifier.jar" id="org.openscada.hds" version="1.0.0.qualifier">
+   <feature url="features/org.openscada.hds_1.1.0.qualifier.jar" id="org.openscada.hds" version="1.1.0.qualifier">
       <category name="org.openscada.aurora.hds"/>
    </feature>
    <category-def name="org.openscada.aurora.category" label="openSCADA Aurora"/>

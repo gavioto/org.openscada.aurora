@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="org.openscada.ds"
-      label="openSCADA DS"
-      version="1.0.0.qualifier"
-      provider-name="openSCADA.org">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><feature id="org.openscada.ds" label="openSCADA DS" provider-name="openSCADA.org" version="1.1.0.v20130529">
 
    <description>
       The OpenSCADA DS (DataStore) Runtime Libraries
@@ -17,32 +12,12 @@
       %license
    </license>
 
-   <plugin
-         id="org.openscada.ds"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.openscada.ds" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.openscada.ds.storage.file"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.openscada.ds.storage.file" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.openscada.ds.storage"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.openscada.ds.storage" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.openscada.ds.storage.jdbc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.openscada.ds.storage.jdbc" install-size="0" unpack="false" version="0.0.0"/>
 
 </feature>

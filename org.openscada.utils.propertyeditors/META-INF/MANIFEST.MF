@@ -1,8 +1,9 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: openSCADA Property Editors
-Bundle-SymbolicName: org.openscada.utils.propertyeditors
-Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.openscada.utils.propertyeditors;version="1.0.0"
 Bundle-Vendor: openSCADA.org
+Bundle-Version: 1.1.0.v20130529
+Bundle-Name: openSCADA Property Editors
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.openscada.utils.propertyeditors
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

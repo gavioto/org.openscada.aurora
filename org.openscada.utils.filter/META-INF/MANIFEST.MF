@@ -1,11 +1,13 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: openSCADA Filter
-Bundle-SymbolicName: org.openscada.utils.filter
-Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.openscada.utils.filter;version="1.0.0",
- org.openscada.utils.filter.bean;version="1.0.0";uses:="org.openscada.utils.propertyeditors,org.openscada.utils.filter"
+Export-Package: org.openscada.utils.filter;version="1.0.0",org.opensca
+ da.utils.filter.bean;version="1.0.0";uses:="org.openscada.utils.prope
+ rtyeditors,org.openscada.utils.filter"
 Bundle-Vendor: openSCADA.org
-Import-Package: org.openscada.utils.propertyeditors;version="1.0.0",
- org.slf4j;version="[1.5.0,2.0.0)"
+Bundle-Version: 1.1.0.v20130529
+Bundle-Name: openSCADA Filter
+Bundle-ManifestVersion: 2
+Import-Package: org.openscada.utils.propertyeditors;version="1.0.0",or
+ g.slf4j;version="[1.5.0,2.0.0)"
+Bundle-SymbolicName: org.openscada.utils.filter
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

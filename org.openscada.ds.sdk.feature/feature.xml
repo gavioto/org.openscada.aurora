@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="org.openscada.ds.sdk"
-      label="openSCADA DS SDK"
-      version="1.0.0.qualifier"
-      provider-name="openSCADA.org">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><feature id="org.openscada.ds.sdk" label="openSCADA DS SDK" provider-name="openSCADA.org" version="1.1.0.v20130529">
 
    <description>
       The openSCADA DS (DataStore) SDK
@@ -17,12 +12,8 @@
       %license
    </license>
 
-   <includes
-         id="org.openscada.ds"
-         version="0.0.0"/>
+   <includes id="org.openscada.ds" version="0.0.0"/>
 
-   <includes
-         id="org.openscada.ds.source"
-         version="0.0.0"/>
+   <includes id="org.openscada.ds.source" version="0.0.0"/>
 
 </feature>

@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="org.openscada.hds"
-      label="openSCADA Historical Data Store Feature"
-      version="1.0.0.qualifier"
-      provider-name="openSCADA.org">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><feature id="org.openscada.hds" label="openSCADA Historical Data Store Feature" provider-name="openSCADA.org" version="1.1.0.v20130529">
 
    <description>
       openSCADA Historical Data Store
@@ -22,11 +17,6 @@
       <import plugin="slf4j.api"/>
    </requires>
 
-   <plugin
-         id="org.openscada.hds"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.openscada.hds" install-size="0" unpack="false" version="0.0.0"/>
 
 </feature>

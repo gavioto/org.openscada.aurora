@@ -1,10 +1,12 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: openSCADA Historical Data Storage
-Bundle-SymbolicName: org.openscada.hds
-Bundle-Version: 1.0.0.qualifier
+Export-Package: org.openscada.hds;version="1.0.0";uses:="org.openscada
+ .utils.lang"
 Bundle-Vendor: openSCADA.org
+Bundle-Version: 1.1.0.v20130529
+Bundle-Name: openSCADA Historical Data Storage
+Bundle-ManifestVersion: 2
+Import-Package: org.openscada.utils.lang;version="1.0.0",org.slf4j;ver
+ sion="1.5.0"
+Bundle-SymbolicName: org.openscada.hds
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.openscada.utils.lang;version="1.0.0",
- org.slf4j;version="1.5.0"
-Export-Package: org.openscada.hds;version="1.0.0";uses:="org.openscada.utils.lang"
+
