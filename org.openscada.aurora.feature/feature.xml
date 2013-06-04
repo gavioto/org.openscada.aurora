@@ -30,7 +30,7 @@
          version="0.0.0"/>
 
    <requires>
-      <import plugin="slf4j.api"/>
+      <import plugin="org.slf4j.api"/>
       <import plugin="org.eclipse.osgi"/>
       <import plugin="org.apache.mina.core" version="2.0.0" match="greaterOrEqual"/>
    </requires>
