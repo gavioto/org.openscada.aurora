@@ -129,6 +129,7 @@
 		<module>../org.openscada.sec.sdk.feature</module>
 		<module>../org.openscada.sec.utils</module>
 		<module>../org.openscada.utils</module>
+		<module>../org.openscada.utils.test</module>
 		<module>../org.openscada.utils.filter</module>
 		<module>../org.openscada.utils.osgi</module>
 		<module>../org.openscada.utils.osgi.autostart</module>
