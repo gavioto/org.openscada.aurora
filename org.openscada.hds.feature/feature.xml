@@ -19,7 +19,7 @@
 
    <requires>
       <import plugin="org.openscada.utils"/>
-      <import plugin="slf4j.api"/>
+      <import plugin="org.slf4j.api"/>
    </requires>
 
    <plugin
