@@ -36,6 +36,12 @@ public class DataSourceFactoryTracker extends SingleServiceTracker<DataSourceFac
         this.driver = driver;
     }
 
+    public DataSourceFactoryTracker ( final BundleContext context, final String driver, final SingleServiceListener<DataSourceFactory> listener, final boolean isConnectionPool ) throws InvalidSyntaxException
+    {
+        super ( context, context.createFilter ( "(&(objectClass=" + DataSourceFactory.class.getName () + ")(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + driver + ")(isConnectionPool=" + isConnectionPool + "))" ), listener );
+        this.driver = driver;
+    }
+
     public String getDriver ()
     {
         return this.driver;
