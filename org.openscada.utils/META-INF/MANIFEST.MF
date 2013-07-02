@@ -17,7 +17,7 @@ Export-Package: org.openscada.utils;version="1.1.0",
  org.openscada.utils.script;version="1.1.0";uses:="javax.script",
  org.openscada.utils.sql;version="1.1.0",
  org.openscada.utils.statuscodes;version="1.1.0",
- org.openscada.utils.str;version="1.1.0";uses:="org.openscada.utils.lang"
+ org.openscada.utils.str;version="1.2.0";uses:="org.openscada.utils.lang"
 Bundle-Version: 1.2.0.qualifier
 Bundle-Name: openSCADA Common Utilities
 Bundle-Description: Utility classes for use throughout the OpenSCADA p
