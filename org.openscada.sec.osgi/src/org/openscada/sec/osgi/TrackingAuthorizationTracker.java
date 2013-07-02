@@ -65,7 +65,7 @@ public class TrackingAuthorizationTracker implements AuthorizationTracker
 
     public void open ()
     {
-        this.executor = new ExportedExecutorService ( "org.openscada.sec.osgi.TrackingAuthorizationTracker", 1, 1, 1, TimeUnit.MINUTES ); //$NON-NLS-1$
+        this.executor = new ExportedExecutorService ( TrackingAuthorizationTracker.class.getName (), 1, 1, 1, TimeUnit.MINUTES );
         this.tracker.open ();
     }
 
