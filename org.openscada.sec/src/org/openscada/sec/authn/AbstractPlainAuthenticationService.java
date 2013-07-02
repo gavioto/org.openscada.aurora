@@ -42,7 +42,7 @@ public abstract class AbstractPlainAuthenticationService implements Authenticati
     private final static Logger logger = LoggerFactory.getLogger ( AbstractPlainAuthenticationService.class );
 
     @Immutable
-    protected static class UserEntry implements Serializable
+    public static class UserEntry implements Serializable
     {
         private static final long serialVersionUID = -6899786759766310861L;
 
