@@ -36,6 +36,7 @@ import org.openscada.utils.concurrent.ExportedExecutorService;
 import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.InstantFuture;
 import org.openscada.utils.concurrent.NotifyFuture;
+import org.openscada.utils.str.StringReplacer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,15 +55,23 @@ public class StorageImpl extends AbstractStorage
     {
         this.executorService = new ExportedExecutorService ( StorageImpl.class.getName (), 1, 1, 0L, TimeUnit.MILLISECONDS );
 
-        this.rootFolder = new File ( System.getProperty ( "org.openscada.ds.storage.file.root", System.getProperty ( "user.home" ) + File.separator + ".openscadaDS" ) );
+        this.rootFolder = new File ( getRootFolder () );
+
         if ( !this.rootFolder.exists () )
         {
             this.rootFolder.mkdirs ();
         }
+
         if ( !this.rootFolder.exists () || !this.rootFolder.isDirectory () )
         {
             throw new IOException ( String.format ( "Unable to use directory: %s", this.rootFolder ) );
         }
+    }
+
+    private static String getRootFolder ()
+    {
+        final String str = System.getProperty ( "org.openscada.ds.storage.file.root", "${user.home}" + File.separator + "openscadaDS" );
+        return StringReplacer.replace ( str, System.getProperties () );
     }
 
     @Override
