@@ -41,11 +41,13 @@ import org.openscada.sec.authn.AbstractPlainAuthenticationService;
  */
 public class PropertyAuthenticationService extends AbstractPlainAuthenticationService
 {
+    public static final String PROP = "org.openscada.sec.provider.plain.property.data";
+
     protected Map<String, UserEntry> userInformation = new HashMap<String, UserEntry> ();
 
     public PropertyAuthenticationService ()
     {
-        final String data = System.getProperty ( "org.openscada.sec.provider.plain.property.data", "" );
+        final String data = System.getProperty ( PROP, "" );
 
         final StringTokenizer tok = new StringTokenizer ( data, "|" );
         while ( tok.hasMoreElements () )
