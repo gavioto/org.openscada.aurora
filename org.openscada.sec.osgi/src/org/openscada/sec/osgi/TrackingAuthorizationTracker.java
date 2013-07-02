@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openscada.sec.AuthorizationReply;
 import org.openscada.sec.AuthorizationRequest;
@@ -40,6 +41,8 @@ public class TrackingAuthorizationTracker implements AuthorizationTracker
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( TrackingAuthorizationTracker.class );
+
+    private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger ();
 
     private final SingleServiceListener<AuthorizationTracker> listener = new SingleServiceListener<AuthorizationTracker> () {
 
@@ -65,8 +68,13 @@ public class TrackingAuthorizationTracker implements AuthorizationTracker
 
     public void open ()
     {
-        this.executor = new ExportedExecutorService ( TrackingAuthorizationTracker.class.getName (), 1, 1, 1, TimeUnit.MINUTES );
+        this.executor = new ExportedExecutorService ( getName (), 1, 1, 1, TimeUnit.MINUTES );
         this.tracker.open ();
+    }
+
+    private static String getName ()
+    {
+        return String.format ( "%s/%s", TrackingAuthorizationTracker.getName (), INSTANCE_COUNT.incrementAndGet () );
     }
 
     public void close ()
