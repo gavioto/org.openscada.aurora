@@ -1,6 +1,8 @@
 /*
  * This file is part of the OpenSCADA project
+ * 
  * Copyright (C) 2006-2011 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * OpenSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -19,7 +21,7 @@
 
 package org.openscada.utils.str;
 
-import java.util.Hashtable;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,11 +40,26 @@ public class StringReplacer
      * 
      * @param string
      * @param properties
-     * @return
+     * @return the source string with patterns replaced
      */
-    public static String replace ( final String string, final Hashtable<?, ?> properties )
+    public static String replace ( final String string, final Map<?, ?> properties )
     {
-        return replace ( string, new ReplaceSource () {
+        return replace ( string, newSource ( properties ), DEFAULT_PATTERN );
+    }
+
+    /**
+     * Create a new ReplaceSource for Map sources
+     * <p>
+     * The source will not replace elements that are not found in the map.
+     * </p>
+     * 
+     * @param properties
+     *            the Map acting as a source
+     * @return the new replace source based on the Map
+     */
+    public static ReplaceSource newSource ( final Map<?, ?> properties )
+    {
+        return new ReplaceSource () {
 
             @Override
             public String replace ( final String context, final String key )
@@ -54,7 +71,7 @@ public class StringReplacer
                 }
                 return result.toString ();
             }
-        }, DEFAULT_PATTERN );
+        };
     }
 
     public static String replace ( final String string, final ReplaceSource replaceSource, final Pattern pattern )
