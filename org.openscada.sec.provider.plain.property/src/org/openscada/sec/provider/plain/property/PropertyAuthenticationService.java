@@ -47,9 +47,15 @@ public class PropertyAuthenticationService extends AbstractPlainAuthenticationSe
 
     public PropertyAuthenticationService ()
     {
-        final String data = System.getProperty ( PROP, "" );
+        this.userInformation.putAll ( split ( System.getProperty ( PROP, "" ) ) );
+    }
 
+    public static Map<String, UserEntry> split ( final String data )
+    {
         final StringTokenizer tok = new StringTokenizer ( data, "|" );
+
+        final Map<String, UserEntry> result = new HashMap<String, UserEntry> ();
+
         while ( tok.hasMoreElements () )
         {
             final String[] toks = tok.nextToken ().split ( ":" );
@@ -59,9 +65,11 @@ public class PropertyAuthenticationService extends AbstractPlainAuthenticationSe
                 final String password = toks[1];
                 final String[] roles = toks[2].split ( "," );
                 final UserEntry entry = new UserEntry ( password, Arrays.asList ( roles ) );
-                this.userInformation.put ( name, entry );
+                result.put ( name, entry );
             }
         }
+
+        return result;
     }
 
     @Override
