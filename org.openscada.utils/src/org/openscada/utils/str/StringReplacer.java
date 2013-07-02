@@ -25,6 +25,23 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A helper class for replacing strings in strings
+ * <p>
+ * The default is to replace <code>${var}</code> with
+ * <q>var</q> from a {@link Map} instance. But there are other ways possible by
+ * using different {@link Pattern} and {@link ReplaceSource} implementations.
+ * </p>
+ * <p>
+ * In order to replace a string with the ${var} pattern using Java System
+ * Properties use:
+ * </p>
+ * <code>
+ * String str = StringReplacer.replace ( "Hello ${user.name}!", System.getProperties () );
+ * </code>
+ * 
+ * @author Jens Reimann
+ */
 public class StringReplacer
 {
 
