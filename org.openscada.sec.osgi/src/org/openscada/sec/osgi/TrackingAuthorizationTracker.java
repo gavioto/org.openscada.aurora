@@ -74,7 +74,7 @@ public class TrackingAuthorizationTracker implements AuthorizationTracker
 
     private static String getName ()
     {
-        return String.format ( "%s/%s", TrackingAuthorizationTracker.getName (), INSTANCE_COUNT.incrementAndGet () );
+        return String.format ( "%s/%s", TrackingAuthorizationTracker.class.getName (), INSTANCE_COUNT.incrementAndGet () );
     }
 
     public void close ()
