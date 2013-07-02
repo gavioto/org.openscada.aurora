@@ -30,12 +30,16 @@ import org.openscada.utils.concurrent.InstantErrorFuture;
 import org.openscada.utils.concurrent.NotifyFuture;
 import org.openscada.utils.osgi.SingleServiceTracker;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @since 1.1
  */
 public class TrackingAuthorizationImplementation implements AuthorizationImplementation
 {
+    private final static Logger logger = LoggerFactory.getLogger ( TrackingAuthorizationImplementation.class );
+
     private final SingleServiceTracker<AuthorizationManager> tracker;
 
     public TrackingAuthorizationImplementation ( final BundleContext context )
@@ -56,9 +60,12 @@ public class TrackingAuthorizationImplementation implements AuthorizationImpleme
     @Override
     public NotifyFuture<AuthorizationReply> authorize ( final AuthorizationContext context, final AuthorizationResult defaultResult )
     {
+        logger.trace ( "Authorizing - {}", context );
+
         final AuthorizationManager service = this.tracker.getService ();
         if ( service == null )
         {
+            logger.info ( "We don't have an authorization manager" );
             return new InstantErrorFuture<AuthorizationReply> ( new AuthenticationException ( StatusCodes.AUTHORIZATION_FAILED, Messages.getString ( "TrackingAuthenticationImplementation.DefaultMessage" ) ) );
         }
 

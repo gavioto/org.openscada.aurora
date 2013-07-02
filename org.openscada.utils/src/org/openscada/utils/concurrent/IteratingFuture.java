@@ -24,6 +24,9 @@ import java.util.Iterator;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @since 1.1
  * @author Jens Reimann
@@ -34,6 +37,9 @@ import java.util.concurrent.Future;
  */
 public abstract class IteratingFuture<T, S> extends AbstractFuture<T>
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( IteratingFuture.class );
+
     public final class FutureListenerImpl implements FutureListener<T>
     {
         private final S current;
@@ -52,6 +58,7 @@ public abstract class IteratingFuture<T, S> extends AbstractFuture<T>
             }
             catch ( final Exception e )
             {
+                logger.debug ( "Failed to complete", e );
                 setError ( e );
             }
         }
@@ -89,6 +96,7 @@ public abstract class IteratingFuture<T, S> extends AbstractFuture<T>
         }
         catch ( final Exception e )
         {
+            logger.debug ( "Failed to process current", e );
             setError ( e );
         }
     }
@@ -101,6 +109,7 @@ public abstract class IteratingFuture<T, S> extends AbstractFuture<T>
         }
         catch ( final Exception e )
         {
+            logger.debug ( "Failed to process next", e );
             setError ( e );
         }
     }
