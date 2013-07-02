@@ -22,6 +22,7 @@
 package org.openscada.sec.provider.plain.property;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -65,6 +66,13 @@ public class PropertyAuthenticationService extends AbstractPlainAuthenticationSe
                 final String password = toks[1];
                 final String[] roles = toks[2].split ( "," );
                 final UserEntry entry = new UserEntry ( password, Arrays.asList ( roles ) );
+                result.put ( name, entry );
+            }
+            else if ( toks.length == 2 )
+            {
+                final String name = toks[0];
+                final String password = toks[1];
+                final UserEntry entry = new UserEntry ( password, Collections.<String> emptyList () );
                 result.put ( name, entry );
             }
         }
