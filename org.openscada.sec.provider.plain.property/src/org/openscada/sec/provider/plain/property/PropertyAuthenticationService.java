@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.openscada.sec.AuthenticationService;
 import org.openscada.sec.authn.AbstractPlainAuthenticationService;
 
 /**
@@ -40,7 +39,7 @@ import org.openscada.sec.authn.AbstractPlainAuthenticationService;
  * @author Jens Reimann
  * @since 0.1.0
  */
-public class PropertyAuthenticationService extends AbstractPlainAuthenticationService implements AuthenticationService
+public class PropertyAuthenticationService extends AbstractPlainAuthenticationService
 {
     protected Map<String, UserEntry> userInformation = new HashMap<String, UserEntry> ();
 
