@@ -96,6 +96,8 @@
   <target name="postSetup">
     <antcall target="getBaseComponents" />
   	
+  	<openscada.builder.copyFeature id="org.eclipse.scada.license"/>
+  	
   	<openscada.builder.copyPlugin id="org.openscada.core"/>
   	<openscada.builder.copyPlugin id="org.openscada.core.info"/>
   		

@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openscada.aurora"
+      id="org.openscada.core"
       label="%featureName"
       version="1.2.0.qualifier"
-      provider-name="openSCADA.org">
+      provider-name="%providerName"
+      plugin="org.openscada.core"
+      license-feature="org.eclipse.scada.license"
+      license-feature-version="0.1.0.qualifier">
 
-   <description url="http://openscada.org">
-      The Aurora project contains a lot of tools.
+   <description>
+      %description
    </description>
 
    <copyright>
       %copyright
    </copyright>
 
-   <license url="http://opensource.org/licenses/lgpl-3.0.html">
+   <license url="%licenseURL">
       %license
    </license>
 
@@ -27,6 +30,10 @@
 
    <includes
          id="org.openscada.hds"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.scada.license"
          version="0.0.0"/>
 
    <requires>

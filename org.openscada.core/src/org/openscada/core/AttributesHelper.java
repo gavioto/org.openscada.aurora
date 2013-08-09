@@ -1,22 +1,13 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2007, 2012 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.core;
 
 import java.util.Collections;
@@ -25,16 +16,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
 public class AttributesHelper
 {
     /**
      * merges the difference attributes into the target
      * <p>
-     * returns the real changes performed on <code>target</code> in <code>diff</code>
-     * @param target the attributes to merge the difference in
-     * @param change the attributes to change
-     * @param diff output of real changes that were made
+     * returns the real changes performed on <code>target</code> in
+     * <code>diff</code>
+     * 
+     * @param target
+     *            the attributes to merge the difference in
+     * @param change
+     *            the attributes to change
+     * @param diff
+     *            output of real changes that were made
      */
     public static void mergeAttributes ( final Map<String, Variant> target, final Map<String, Variant> change, final Map<String, Variant> diff )
     {
@@ -91,8 +86,11 @@ public class AttributesHelper
 
     /**
      * merges the difference attributes into the target
-     * @param target the attributes to merge the difference in
-     * @param change the attributes to change
+     * 
+     * @param target
+     *            the attributes to merge the difference in
+     * @param change
+     *            the attributes to change
      */
     public static void mergeAttributes ( final Map<String, Variant> target, final Map<String, Variant> change )
     {
@@ -100,14 +98,18 @@ public class AttributesHelper
     }
 
     /**
-     * merges the attribute differences. But respects the initial flag sent by many events.
-     * 
-     * in the case the difference is flagged initial the target will be cleared first. This
+     * merges the attribute differences. But respects the initial flag sent by
+     * many events.
+     * in the case the difference is flagged initial the target will be cleared
+     * first. This
      * is a convenient method to easy the merge.
      * 
-     * @param target the attributes to merge the difference in
-     * @param diff the difference attributes
-     * @param initial initial flag
+     * @param target
+     *            the attributes to merge the difference in
+     * @param diff
+     *            the difference attributes
+     * @param initial
+     *            initial flag
      */
     public static void mergeAttributes ( final Map<String, Variant> target, final Map<String, Variant> diff, final boolean initial )
     {
@@ -120,10 +122,14 @@ public class AttributesHelper
     }
 
     /**
-     * update the target attributes to contain only the requested attributes 
-     * @param target the attributes to update the difference to
-     * @param attributes the new attributes set
-     * @param diff the actual difference
+     * update the target attributes to contain only the requested attributes
+     * 
+     * @param target
+     *            the attributes to update the difference to
+     * @param attributes
+     *            the new attributes set
+     * @param diff
+     *            the actual difference
      */
     public static void set ( final Map<String, Variant> target, Map<String, Variant> attributes, final Map<String, Variant> diff )
     {
@@ -175,8 +181,11 @@ public class AttributesHelper
 
     /**
      * Generate the difference between two maps
-     * @param source the source map
-     * @param target the target map
+     * 
+     * @param source
+     *            the source map
+     * @param target
+     *            the target map
      * @return the difference
      */
     public static Map<String, Variant> diff ( Map<String, Variant> source, final Map<String, Variant> target )
