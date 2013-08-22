@@ -52,6 +52,8 @@ public class ScriptExecutor
 
     private final URL commandUrl;
 
+    private final String sourceName;
+
     public ScriptExecutor ( final ScriptEngineManager engineManager, final String engineName, final String command, final ClassLoader classLoader ) throws ScriptException
     {
         this ( engineName == null ? null : engineManager.getEngineByName ( engineName ), engineName == null ? null : command, classLoader );
@@ -74,15 +76,17 @@ public class ScriptExecutor
      *            <code>null</code>
      * @throws ScriptException
      */
-    public ScriptExecutor ( final ScriptEngine engine, final String command, final ClassLoader classLoader ) throws ScriptException
+    public ScriptExecutor ( final ScriptEngine engine, final String command, final ClassLoader classLoader, final String sourceName ) throws ScriptException
     {
         this.engine = engine;
         this.command = command;
         this.commandUrl = null;
         this.classLoader = classLoader;
+        this.sourceName = sourceName;
 
         if ( command != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
         {
+            engine.put ( ScriptEngine.FILENAME, sourceName );
             final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
             try
             {
@@ -99,12 +103,30 @@ public class ScriptExecutor
         }
     }
 
+    /**
+     * Construct a new script executors
+     * 
+     * @param engine
+     *            the script engine to use, must not be <code>null</code>
+     * @param command
+     *            the command to execute, may be <code>null</code>
+     * @param classLoader
+     *            the class loader to use when executing, may be
+     *            <code>null</code>
+     * @throws ScriptException
+     */
+    public ScriptExecutor ( final ScriptEngine engine, final String command, final ClassLoader classLoader ) throws ScriptException
+    {
+        this ( engine, command, classLoader, null );
+    }
+
     public ScriptExecutor ( final ScriptEngine engine, final URL commandUrl, final ClassLoader classLoader ) throws ScriptException, IOException
     {
         this.engine = engine;
         this.command = null;
         this.commandUrl = commandUrl;
         this.classLoader = classLoader;
+        this.sourceName = commandUrl.toString ();
 
         if ( commandUrl != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
         {
@@ -166,6 +188,8 @@ public class ScriptExecutor
         Map<String, Object> vars = null;
         try
         {
+            this.engine.put ( ScriptEngine.FILENAME, this.sourceName );
+
             vars = applyVars ( scriptContext, scriptObjects );
 
             if ( this.compiledScript != null )
