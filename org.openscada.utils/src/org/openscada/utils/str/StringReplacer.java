@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 /**
  * A helper class for replacing strings in strings
  * <p>
@@ -87,6 +89,40 @@ public class StringReplacer
                     return context;
                 }
                 return result.toString ();
+            }
+        };
+    }
+
+    /**
+     * Create a new ReplaceSource that handles bean references
+     * 
+     * @param properties
+     *            the properties to use for replacing
+     * @return the new ReplaceSource instance
+     */
+    public static ReplaceSource newBeansSource ( final Map<?, ?> properties )
+    {
+        return new ReplaceSource () {
+
+            @Override
+            public String replace ( final String context, final String key )
+            {
+                String result = null;
+                try
+                {
+                    result = BeanUtils.getProperty ( properties, key );
+                }
+                catch ( final Exception e )
+                {
+                }
+                if ( result != null )
+                {
+                    return result;
+                }
+                else
+                {
+                    return context;
+                }
             }
         };
     }
