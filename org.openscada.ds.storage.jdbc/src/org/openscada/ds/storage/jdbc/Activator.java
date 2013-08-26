@@ -1,6 +1,8 @@
 /*
  * This file is part of the openSCADA project
+ * 
  * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2013 Jens Reimann (ctron@dentrassi.de)
  *
  * openSCADA is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License version 3
@@ -86,6 +88,12 @@ public class Activator implements BundleActivator
     {
         this.scheduler = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
         final String driver = DataSourceHelper.getDriver ( "org.openscada.ds.storage.jdbc.driver", DataSourceHelper.DEFAULT_PREFIX );
+
+        if ( driver == null )
+        {
+            logger.error ( "JDBC driver is not set" );
+            throw new IllegalStateException ( "JDBC driver name is not set" );
+        }
 
         this.dataSourceFactoryTracker = new DataSourceFactoryTracker ( context, driver, new SingleServiceListener<DataSourceFactory> () {
 
