@@ -50,6 +50,8 @@ import org.slf4j.LoggerFactory;
 public class Activator implements BundleActivator
 {
 
+    private static final String DS_PREFIX = "org.openscada.ds.storage.jdbc";
+
     private final static Logger logger = LoggerFactory.getLogger ( Activator.class );
 
     private DataSourceFactoryTracker dataSourceFactoryTracker;
@@ -87,7 +89,7 @@ public class Activator implements BundleActivator
     public void start ( final BundleContext context ) throws Exception
     {
         this.scheduler = Executors.newSingleThreadScheduledExecutor ( new NamedThreadFactory ( context.getBundle ().getSymbolicName () ) );
-        final String driver = DataSourceHelper.getDriver ( "org.openscada.ds.storage.jdbc.driver", DataSourceHelper.DEFAULT_PREFIX );
+        final String driver = DataSourceHelper.getDriver ( DS_PREFIX, DataSourceHelper.DEFAULT_PREFIX );
 
         if ( driver == null )
         {
@@ -161,12 +163,12 @@ public class Activator implements BundleActivator
 
     private static Properties getDataSourceProperties ()
     {
-        return DataSourceHelper.getDataSourceProperties ( "org.openscada.ds.storage.jdbc", DataSourceHelper.DEFAULT_PREFIX );
+        return DataSourceHelper.getDataSourceProperties ( DS_PREFIX, DataSourceHelper.DEFAULT_PREFIX );
     }
 
     private static boolean isConnectionPool ()
     {
-        return DataSourceHelper.isConnectionPool ( "org.openscada.ds.storage.jdbc", DataSourceHelper.DEFAULT_PREFIX, false );
+        return DataSourceHelper.isConnectionPool ( DS_PREFIX, DataSourceHelper.DEFAULT_PREFIX, false );
     }
 
     protected void unregister ()
