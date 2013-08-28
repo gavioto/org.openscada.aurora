@@ -28,12 +28,17 @@ import org.openscada.utils.osgi.SingleServiceListener;
 import org.openscada.utils.osgi.SingleServiceTracker;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @since 1.1
  */
 public class TrackingAuditLogImplementation implements AuditLogService
 {
+
+    private final static Logger logger = LoggerFactory.getLogger ( TrackingAuditLogImplementation.class );
+
     private final SingleServiceTracker<AuditLogService> tracker;
 
     private volatile AuditLogService service;
@@ -54,6 +59,7 @@ public class TrackingAuditLogImplementation implements AuditLogService
 
     protected void setService ( final AuditLogService service )
     {
+        logger.info ( "Setting audit log service: {}", service );
         this.service = service;
     }
 
