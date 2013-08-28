@@ -70,43 +70,53 @@ public class TrackingAuditLogImplementation implements AuditLogService
     @Override
     public void info ( final String message, final Object... arguments )
     {
-        this.service.info ( message, arguments );
+        checkService ().info ( message, arguments );
     }
 
     @Override
     public void debug ( final String message, final Object... arguments )
     {
-        this.service.debug ( message, arguments );
+        checkService ().debug ( message, arguments );
     }
 
     @Override
     public void info ( final String message, final Throwable e, final Object... arguments )
     {
-        this.service.info ( message, e, arguments );
+        checkService ().info ( message, e, arguments );
     }
 
     @Override
     public void debug ( final String message, final Throwable e, final Object... arguments )
     {
-        this.service.debug ( message, e, arguments );
+        checkService ().debug ( message, e, arguments );
     }
 
     @Override
     public void authorizationRequested ( final AuthorizationRequest request )
     {
-        this.service.authorizationRequested ( request );
+        checkService ().authorizationRequested ( request );
     }
 
     @Override
     public void authorizationFailed ( final AuthorizationContext context, final AuthorizationRequest request, final Throwable error )
     {
-        this.service.authorizationFailed ( context, request, error );
+        checkService ().authorizationFailed ( context, request, error );
     }
 
     @Override
     public void authorizationDone ( final AuthorizationContext context, final AuthorizationRequest request, final AuthorizationReply reply )
     {
-        this.service.authorizationDone ( context, request, reply );
+        checkService ().authorizationDone ( context, request, reply );
+    }
+
+    protected AuditLogService checkService ()
+    {
+        final AuditLogService service = this.service;
+        if ( service != null )
+        {
+            return service;
+        }
+        throw new IllegalStateException ( String.format ( "No audit log service found" ) );
     }
 
 }
