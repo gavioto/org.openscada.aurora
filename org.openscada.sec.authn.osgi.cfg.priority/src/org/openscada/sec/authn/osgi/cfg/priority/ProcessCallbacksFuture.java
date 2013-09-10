@@ -51,7 +51,7 @@ public abstract class ProcessCallbacksFuture extends TransformResultFuture<Callb
     @Override
     protected UserInformation transform ( final Callback[] from ) throws Exception
     {
-        logger.debug ( "Processing reply - callbacks: {}", from );
+        logger.debug ( "Processing reply - callbacks: {}", new Object[] { from } );
 
         return processCallbacks ( getRequest (), getServices () );
     }
