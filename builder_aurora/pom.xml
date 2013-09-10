@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.eclipse.scada.aurora</groupId>
@@ -17,11 +19,6 @@
 			<id>kepler</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/kepler</url>
-		</repository>
-		<repository>
-			<id>openscada.external</id>
-			<layout>p2</layout>
-			<url>http://repo.openscada.org/p2/external/I/1.2.0/</url>
 		</repository>
 	</repositories>
 
@@ -98,6 +95,8 @@
 	</build>
 
 	<modules>
+		<module>../org.eclipse.scada.license.feature</module>
+
 		<module>../org.eclipse.scada.aurora.feature</module>
 		<module>../org.eclipse.scada.aurora.sdk.feature</module>
 
@@ -137,6 +136,6 @@
 		<module>../org.eclipse.scada.utils.osgi.jdbc.pool</module>
 		<module>../org.eclipse.scada.utils.osgi.pidfile</module>
 		<module>../org.eclipse.scada.utils.propertyeditors</module>
-	<module>../org.eclipse.scada.license.feature</module></modules>
+	</modules>
 
 </project>
