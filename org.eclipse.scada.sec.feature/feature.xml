@@ -20,71 +20,71 @@
    </license>
 
    <requires>
-      <import plugin="org.openscada.utils"/>
+      <import plugin="org.eclipse.scada.utils"/>
       <import plugin="org.slf4j.api"/>
       <import plugin="org.eclipse.osgi"/>
-      <import plugin="org.openscada.utils.osgi"/>
+      <import plugin="org.eclipse.scada.utils.osgi"/>
       <import plugin="org.eclipse.equinox.security" version="1.1.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
-         id="org.openscada.sec"
+         id="org.eclipse.scada.sec"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.osgi"
+         id="org.eclipse.scada.sec.osgi"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.provider.plain.property"
+         id="org.eclipse.scada.sec.provider.plain.property"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.provider.dummy"
+         id="org.eclipse.scada.sec.provider.dummy"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.utils"
+         id="org.eclipse.scada.sec.utils"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.equinox"
+         id="org.eclipse.scada.sec.equinox"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.authn.osgi.cfg.priority"
+         id="org.eclipse.scada.sec.authn.osgi.cfg.priority"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.audit.log.slf4j"
+         id="org.eclipse.scada.sec.audit.log.slf4j"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.sec.auth.logon"
+         id="org.eclipse.scada.sec.auth.logon"
          download-size="0"
          install-size="0"
          version="0.0.0"

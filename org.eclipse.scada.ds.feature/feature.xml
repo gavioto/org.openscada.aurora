@@ -20,28 +20,28 @@
    </license>
 
    <plugin
-         id="org.openscada.ds"
+         id="org.eclipse.scada.ds"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.ds.storage.file"
+         id="org.eclipse.scada.ds.storage.file"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.ds.storage"
+         id="org.eclipse.scada.ds.storage"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.ds.storage.jdbc"
+         id="org.eclipse.scada.ds.storage.jdbc"
          download-size="0"
          install-size="0"
          version="0.0.0"

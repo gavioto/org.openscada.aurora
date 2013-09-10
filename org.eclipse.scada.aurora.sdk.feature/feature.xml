@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openscada.aurora.sdk"
+      id="org.eclipse.scada.aurora.sdk"
       label="openSCADA Aurora SDK"
       version="1.2.0.qualifier"
       provider-name="openSCADA.org"
-      plugin="org.openscada.core">
+      plugin="org.eclipse.scada.core">
 
    <description>
       %description
@@ -19,23 +19,23 @@
    </license>
 
    <includes
-         id="org.openscada.aurora"
+         id="org.eclipse.scada.aurora"
          version="0.0.0"/>
 
    <includes
-         id="org.openscada.aurora.source"
+         id="org.eclipse.scada.aurora.source"
          version="0.0.0"/>
 
    <includes
-         id="org.openscada.sec.sdk"
+         id="org.eclipse.scada.sec.sdk"
          version="0.0.0"/>
 
    <includes
-         id="org.openscada.ds.sdk"
+         id="org.eclipse.scada.ds.sdk"
          version="0.0.0"/>
 
    <plugin
-         id="org.openscada.aurora.doc.isv"
+         id="org.eclipse.scada.aurora.doc.isv"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

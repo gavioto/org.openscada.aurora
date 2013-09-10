@@ -20,12 +20,12 @@
    </license>
 
    <requires>
-      <import plugin="org.openscada.utils"/>
+      <import plugin="org.eclipse.scada.utils"/>
       <import plugin="org.slf4j.api"/>
    </requires>
 
    <plugin
-         id="org.openscada.hds"
+         id="org.eclipse.scada.hds"
          download-size="0"
          install-size="0"
          version="0.0.0"

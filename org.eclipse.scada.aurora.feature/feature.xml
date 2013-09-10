@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openscada.aurora"
+      id="org.eclipse.scada.aurora"
       label="%featureName"
       version="1.2.0.qualifier"
       provider-name="%providerName"
-      plugin="org.openscada.core"
+      plugin="org.eclipse.scada.core"
       license-feature="org.eclipse.scada.license"
       license-feature-version="0.1.0.qualifier">
 
@@ -21,15 +21,15 @@
    </license>
 
    <includes
-         id="org.openscada.sec"
+         id="org.eclipse.scada.sec"
          version="0.0.0"/>
 
    <includes
-         id="org.openscada.ds"
+         id="org.eclipse.scada.ds"
          version="0.0.0"/>
 
    <includes
-         id="org.openscada.hds"
+         id="org.eclipse.scada.hds"
          version="0.0.0"/>
 
    <includes
@@ -43,82 +43,82 @@
    </requires>
 
    <plugin
-         id="org.openscada.utils"
+         id="org.eclipse.scada.utils"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.osgi"
+         id="org.eclipse.scada.utils.osgi"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.propertyeditors"
+         id="org.eclipse.scada.utils.propertyeditors"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.filter"
+         id="org.eclipse.scada.utils.filter"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.osgi.jaxws"
+         id="org.eclipse.scada.utils.osgi.jaxws"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.osgi.pidfile"
+         id="org.eclipse.scada.utils.osgi.pidfile"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.osgi.jdbc"
+         id="org.eclipse.scada.utils.osgi.jdbc"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.osgi.autostart"
+         id="org.eclipse.scada.utils.osgi.autostart"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.osgi.jdbc.pool"
+         id="org.eclipse.scada.utils.osgi.jdbc.pool"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.openscada.utils.osgi.exporter"
+         id="org.eclipse.scada.utils.osgi.exporter"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.openscada.core"
+         id="org.eclipse.scada.core"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.openscada.core.info"
+         id="org.eclipse.scada.core.info"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
