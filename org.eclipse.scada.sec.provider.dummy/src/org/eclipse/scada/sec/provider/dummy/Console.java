@@ -51,7 +51,7 @@ public class Console
 
         final Dictionary<String, Object> properties = new Hashtable<String, Object> ();
         properties.put ( Constants.SERVICE_DESCRIPTION, "A dummy authentication service" );
-        properties.put ( Constants.SERVICE_VENDOR, "openSCADA.org" );
+        properties.put ( Constants.SERVICE_VENDOR, "Eclipse SCADA Project" );
         properties.put ( Constants.SERVICE_RANKING, this.authenticationPriority );
 
         System.out.println ( String.format ( "Injecting dummy authentication service with priority: %s", this.authenticationPriority ) );

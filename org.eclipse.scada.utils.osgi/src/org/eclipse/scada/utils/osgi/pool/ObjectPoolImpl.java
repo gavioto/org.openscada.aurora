@@ -240,9 +240,6 @@ public class ObjectPoolImpl<S> implements ObjectPool<S>, ManageableObjectPool<S>
         this.executor.shutdown ();
     }
 
-    /* (non-Javadoc)
-     * @see org.openscada.da.datasource.ObjectPool#addListener(java.lang.String, org.openscada.da.datasource.ObjectPoolListener)
-     */
     @Override
     public synchronized void addListener ( final String id, final ObjectPoolListener<S> listener )
     {
@@ -277,9 +274,6 @@ public class ObjectPoolImpl<S> implements ObjectPool<S>, ManageableObjectPool<S>
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.openscada.da.datasource.ObjectPool#removeListener(java.lang.String, org.openscada.da.datasource.ObjectPoolListener)
-     */
     @Override
     public synchronized void removeListener ( final String id, final ObjectPoolListener<S> listener )
     {

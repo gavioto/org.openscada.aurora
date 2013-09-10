@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: openSCADA Service Exporter
+Bundle-Name: Eclipse SCADA Service Exporter
 Bundle-SymbolicName: org.eclipse.scada.utils.osgi.exporter
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: openSCADA.org
+Bundle-Vendor: Eclipse SCADA Project
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.eclipse.scada.utils.osgi.exporter;version="1.0.0"
+Export-Package: org.eclipse.scada.utils.osgi.exporter;version="1.0.0";uses:="org.osgi.framework"
 Import-Package: org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.5.0"

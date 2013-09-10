@@ -59,7 +59,7 @@ public class CredentialsRequest
     public CredentialsRequest ( final Locale locale )
     {
         this.locale = locale == null ? Locale.getDefault () : locale;
-        this.bundle = ResourceBundle.getBundle ( "org/openscada/sec/authn/request", this.locale );
+        this.bundle = ResourceBundle.getBundle ( "org/eclipse/scada/sec/authn/request", this.locale );
     }
 
     protected String getText ( final String textId, final Locale locale )

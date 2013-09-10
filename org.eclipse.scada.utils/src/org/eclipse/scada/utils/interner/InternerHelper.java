@@ -41,7 +41,7 @@ public final class InternerHelper
 
     public static Interner<String> makeInterner ( final String specificPropertyName, final String defaultType )
     {
-        final String type = System.getProperty ( specificPropertyName, System.getProperty ( "org.openscada.defaultStringInterner", defaultType ) );
+        final String type = System.getProperty ( specificPropertyName, System.getProperty ( "org.eclipse.scada.defaultStringInterner", defaultType ) );
         if ( "weak".equals ( type ) )
         {
             return new NullSafeInterner ( Interners.<String> newWeakInterner () );

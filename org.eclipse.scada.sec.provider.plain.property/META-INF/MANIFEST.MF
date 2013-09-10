@@ -1,13 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: openSCADA Security Plain Property Provider
+Bundle-Name: Eclipse SCADA Security Plain Property Provider
 Bundle-SymbolicName: org.eclipse.scada.sec.provider.plain.property
 Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: org.eclipse.scada.sec.provider.plain.property.internal.Activator
-Bundle-Vendor: openSCADA.org
+Bundle-Vendor: Eclipse SCADA Project
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.eclipse.scada.sec;version="1.1.0",
  org.eclipse.scada.sec.authn;version="1.1.0",
  org.eclipse.scada.utils.statuscodes;version="1.0.0",
  org.osgi.framework;version="1.6.0"
-Export-Package: org.eclipse.scada.sec.provider.plain.property;version="1.2.0";uses:="org.openscada.sec.authn"
+Export-Package: org.eclipse.scada.sec.provider.plain.property;version="1.2.0";uses:="org.eclipse.scada.sec.authn"

@@ -12,7 +12,7 @@
         		nonavbar="false"
         		notree="false"
         		source="1.6"
-        		sourcepath="../org.openscada.utils/src"
+        		sourcepath="../org.eclipse.scada.utils/src"
         		splitindex="true"
         		use="true"
         		version="true"/>

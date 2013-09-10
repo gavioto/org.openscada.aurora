@@ -61,7 +61,7 @@ public class StorageImpl extends AbstractStorage
 
     private static String getRootFolder ()
     {
-        final String str = System.getProperty ( "org.eclipse.scada.ds.storage.file.root", "${user.home}" + File.separator + "openscadaDS" );
+        final String str = System.getProperty ( "org.eclipse.scada.ds.storage.file.root", "${user.home}" + File.separator + "scadaDS" );
         return StringReplacer.replace ( str, System.getProperties () );
     }
 

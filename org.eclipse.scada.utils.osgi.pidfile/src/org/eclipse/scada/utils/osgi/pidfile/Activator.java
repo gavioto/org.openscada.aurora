@@ -117,7 +117,7 @@ public class Activator implements BundleActivator
 
     private String getPidFilePath ()
     {
-        final File pidFile = new File ( new File ( System.getProperty ( "user.home" ), ".openscada" ), "openscada.pid" );
+        final File pidFile = new File ( new File ( System.getProperty ( "user.home" ), ".scada" ), "scada.pid" );
         return System.getProperty ( "org.eclipse.scada.utils.osgi.pidfile", pidFile.getAbsolutePath () );
     }
 }

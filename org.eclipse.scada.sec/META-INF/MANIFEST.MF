@@ -1,15 +1,20 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: openSCADA Security
+Bundle-Name: Eclipse SCADA Security
 Bundle-SymbolicName: org.eclipse.scada.sec
 Bundle-Version: 1.1.0.qualifier
-Bundle-Vendor: openSCADA.org
+Bundle-Vendor: Eclipse SCADA Project
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.eclipse.scada.sec;version="1.1.0";uses:="org.openscada.utils.concurrent,org.openscada.utils.statuscodes",
- org.eclipse.scada.sec.audit;version="1.1.0",
- org.eclipse.scada.sec.authn;version="1.1.0",
- org.eclipse.scada.sec.authz;version="1.1.0",
- org.eclipse.scada.sec.callback;version="1.1.0"
+Export-Package: org.eclipse.scada.sec;version="1.1.0";
+  uses:="org.eclipse.scada.utils.concurrent,
+   org.eclipse.scada.sec.authz,
+   org.eclipse.scada.utils.statuscodes,
+   org.eclipse.scada.sec.callback,
+   org.eclipse.scada.sec.authn",
+ org.eclipse.scada.sec.audit;version="1.1.0";uses:="org.eclipse.scada.sec.authz,org.eclipse.scada.sec",
+ org.eclipse.scada.sec.authn;version="1.1.0";uses:="org.eclipse.scada.sec.utils.password,org.eclipse.scada.sec.callback,org.eclipse.scada.sec",
+ org.eclipse.scada.sec.authz;version="1.1.0";uses:="org.eclipse.scada.utils.concurrent,org.eclipse.scada.sec.callback,org.eclipse.scada.sec",
+ org.eclipse.scada.sec.callback;version="1.1.0";uses:="org.eclipse.scada.utils.concurrent,javax.security.auth.callback,org.eclipse.scada.sec.utils.password"
 Import-Package: org.eclipse.scada.sec.utils.password;version="1.0.0",
  org.eclipse.scada.utils.concurrent;version="1.0.0",
  org.eclipse.scada.utils.lang;version="1.0.0",

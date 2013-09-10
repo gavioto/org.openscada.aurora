@@ -12,5 +12,5 @@ package org.eclipse.scada.utils.osgi.exporter;
 
 public interface JaxWsExporter
 {
-    public static final String EXPORT_ENABLED = "org.openscada.utils.osgi.jaxws.exportEnabled";
+    public static final String EXPORT_ENABLED = "org.eclipse.scada.utils.osgi.jaxws.exportEnabled";
 }

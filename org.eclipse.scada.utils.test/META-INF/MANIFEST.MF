@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: openSCADA Utils Testing
+Bundle-Name: Eclipse SCADA Utils Testing
 Bundle-SymbolicName: org.eclipse.scada.utils.test
 Bundle-Version: 1.2.0.qualifier
-Bundle-Vendor: openSCADA.org
+Bundle-Vendor: Eclipse SCADA Project
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Fragment-Host: org.eclipse.scada.utils;bundle-version="1.0.0"
 Require-Bundle: org.junit;bundle-version="4.8.0"

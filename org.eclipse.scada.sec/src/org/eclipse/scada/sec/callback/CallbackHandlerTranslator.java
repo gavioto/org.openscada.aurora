@@ -21,7 +21,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.eclipse.scada.utils.concurrent.NotifyFuture;
 
 /**
- * Translates java {@link CallbackHandler} calls to openSCADA
+ * Translates java {@link CallbackHandler} calls to Eclipse SCADA
  * {@link org.eclipse.scada.sec.callback.CallbackHandler} calls.
  * 
  * @since 1.1

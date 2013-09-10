@@ -74,7 +74,7 @@ public class ScriptExecutor
         this.classLoader = classLoader;
         this.sourceName = sourceName;
 
-        if ( command != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
+        if ( command != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.eclipse.scada.ScriptExecutor.disableCompile" ) )
         {
             engine.put ( ScriptEngine.FILENAME, sourceName );
             final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
@@ -118,7 +118,7 @@ public class ScriptExecutor
         this.classLoader = classLoader;
         this.sourceName = commandUrl.toString ();
 
-        if ( commandUrl != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.openscada.ScriptExecutor.disableCompile" ) )
+        if ( commandUrl != null && engine instanceof Compilable && !Boolean.getBoolean ( "org.eclipse.scada.ScriptExecutor.disableCompile" ) )
         {
             final ClassLoader currentClassLoader = Thread.currentThread ().getContextClassLoader ();
             try

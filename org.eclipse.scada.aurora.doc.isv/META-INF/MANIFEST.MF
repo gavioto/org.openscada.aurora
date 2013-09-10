@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Documentation
 Bundle-SymbolicName: org.eclipse.scada.aurora.doc.isv;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: openSCADA.org
+Bundle-Vendor: Eclipse SCADA Project
 Require-Bundle: org.eclipse.pde.core

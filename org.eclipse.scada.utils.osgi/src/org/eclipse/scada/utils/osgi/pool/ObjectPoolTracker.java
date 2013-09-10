@@ -36,7 +36,7 @@ public class ObjectPoolTracker<S>
 
     private final static Logger logger = LoggerFactory.getLogger ( ObjectPoolTracker.class );
 
-    private final int DEFAULT_PRIORITY = Integer.getInteger ( "org.openscada.osgi.objectPool.defaultPriority", 0 );
+    private final int DEFAULT_PRIORITY = Integer.getInteger ( "org.eclipse.scada.osgi.objectPool.defaultPriority", 0 );
 
     private final ServiceTracker<ObjectPool<S>, ObjectPool<S>> poolTracker;
 

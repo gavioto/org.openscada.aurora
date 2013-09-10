@@ -525,7 +525,7 @@ public class DataStoreAccesor extends AbstractValueSource
 
         try
         {
-            p.storeToXML ( new FileOutputStream ( new File ( basePath, "settings.xml" ) ), "openSCADA HDS Settings" );
+            p.storeToXML ( new FileOutputStream ( new File ( basePath, "settings.xml" ) ), "Eclipse SCADA HDS Settings" );
         }
         catch ( final Exception e )
         {

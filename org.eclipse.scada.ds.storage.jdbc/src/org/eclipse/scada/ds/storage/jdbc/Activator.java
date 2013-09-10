@@ -130,7 +130,7 @@ public class Activator implements BundleActivator
             this.storageImpl = new StorageImpl ( storage );
 
             final Dictionary<String, Object> properties = new Hashtable<String, Object> ( 1 );
-            properties.put ( Constants.SERVICE_VENDOR, "openSCADA.org" );
+            properties.put ( Constants.SERVICE_VENDOR, "Eclipse SCADA Project" );
             this.serviceHandle = context.registerService ( org.eclipse.scada.ds.DataStore.class, this.storageImpl, properties );
         }
     }
