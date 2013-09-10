@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.openscada.aurora</groupId>
-	<artifactId>org.openscada.aurora-parent</artifactId>
+	<groupId>org.eclipse.scada.aurora</groupId>
+	<artifactId>org.eclipse.scada.aurora-parent</artifactId>
 	<version>1.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -98,45 +98,45 @@
 	</build>
 
 	<modules>
-		<module>../org.openscada.aurora.feature</module>
-		<module>../org.openscada.aurora.sdk.feature</module>
+		<module>../org.eclipse.scada.aurora.feature</module>
+		<module>../org.eclipse.scada.aurora.sdk.feature</module>
 
 		<module>builder</module> <!-- holds the p2 build -->
 
-		<module>../org.openscada.aurora.doc.isv</module>
-		<module>../org.openscada.core</module>
-		<module>../org.openscada.core.info</module>
-		<module>../org.openscada.core.test</module>
-		<module>../org.openscada.ds</module>
-		<module>../org.openscada.ds.feature</module>
-		<module>../org.openscada.ds.sdk.feature</module>
-		<module>../org.openscada.ds.storage</module>
-		<module>../org.openscada.ds.storage.file</module>
-		<module>../org.openscada.ds.storage.jdbc</module>
-		<module>../org.openscada.hds</module>
-		<module>../org.openscada.hds.feature</module>
-		<module>../org.openscada.sec</module>
-		<module>../org.openscada.sec.audit.log.slf4j</module>
-		<module>../org.openscada.sec.auth.logon</module>
-		<module>../org.openscada.sec.authn.osgi.cfg.priority</module>
-		<module>../org.openscada.sec.equinox</module>
-		<module>../org.openscada.sec.feature</module>
-		<module>../org.openscada.sec.osgi</module>
-		<module>../org.openscada.sec.provider.dummy</module>
-		<module>../org.openscada.sec.provider.plain.property</module>
-		<module>../org.openscada.sec.sdk.feature</module>
-		<module>../org.openscada.sec.utils</module>
-		<module>../org.openscada.utils</module>
-		<module>../org.openscada.utils.test</module>
-		<module>../org.openscada.utils.filter</module>
-		<module>../org.openscada.utils.osgi</module>
-		<module>../org.openscada.utils.osgi.autostart</module>
-		<module>../org.openscada.utils.osgi.exporter</module>
-		<module>../org.openscada.utils.osgi.jaxws</module>
-		<module>../org.openscada.utils.osgi.jdbc</module>
-		<module>../org.openscada.utils.osgi.jdbc.pool</module>
-		<module>../org.openscada.utils.osgi.pidfile</module>
-		<module>../org.openscada.utils.propertyeditors</module>
+		<module>../org.eclipse.scada.aurora.doc.isv</module>
+		<module>../org.eclipse.scada.core</module>
+		<module>../org.eclipse.scada.core.info</module>
+		<module>../org.eclipse.scada.core.test</module>
+		<module>../org.eclipse.scada.ds</module>
+		<module>../org.eclipse.scada.ds.feature</module>
+		<module>../org.eclipse.scada.ds.sdk.feature</module>
+		<module>../org.eclipse.scada.ds.storage</module>
+		<module>../org.eclipse.scada.ds.storage.file</module>
+		<module>../org.eclipse.scada.ds.storage.jdbc</module>
+		<module>../org.eclipse.scada.hds</module>
+		<module>../org.eclipse.scada.hds.feature</module>
+		<module>../org.eclipse.scada.sec</module>
+		<module>../org.eclipse.scada.sec.audit.log.slf4j</module>
+		<module>../org.eclipse.scada.sec.auth.logon</module>
+		<module>../org.eclipse.scada.sec.authn.osgi.cfg.priority</module>
+		<module>../org.eclipse.scada.sec.equinox</module>
+		<module>../org.eclipse.scada.sec.feature</module>
+		<module>../org.eclipse.scada.sec.osgi</module>
+		<module>../org.eclipse.scada.sec.provider.dummy</module>
+		<module>../org.eclipse.scada.sec.provider.plain.property</module>
+		<module>../org.eclipse.scada.sec.sdk.feature</module>
+		<module>../org.eclipse.scada.sec.utils</module>
+		<module>../org.eclipse.scada.utils</module>
+		<module>../org.eclipse.scada.utils.test</module>
+		<module>../org.eclipse.scada.utils.filter</module>
+		<module>../org.eclipse.scada.utils.osgi</module>
+		<module>../org.eclipse.scada.utils.osgi.autostart</module>
+		<module>../org.eclipse.scada.utils.osgi.exporter</module>
+		<module>../org.eclipse.scada.utils.osgi.jaxws</module>
+		<module>../org.eclipse.scada.utils.osgi.jdbc</module>
+		<module>../org.eclipse.scada.utils.osgi.jdbc.pool</module>
+		<module>../org.eclipse.scada.utils.osgi.pidfile</module>
+		<module>../org.eclipse.scada.utils.propertyeditors</module>
 	<module>../org.eclipse.scada.license.feature</module></modules>
 
 </project>

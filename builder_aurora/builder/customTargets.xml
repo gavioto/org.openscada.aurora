@@ -98,50 +98,50 @@
   	
   	<openscada.builder.copyFeature id="org.eclipse.scada.license"/>
   	
-  	<openscada.builder.copyPlugin id="org.openscada.core"/>
-  	<openscada.builder.copyPlugin id="org.openscada.core.info"/>
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.core"/>
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.core.info"/>
   		
-	<openscada.builder.copyPlugin id="org.openscada.utils" />
-	<openscada.builder.copyPlugin id="org.openscada.utils.osgi" />
-  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.exporter" />
-  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jaxws" />
-	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.pidfile" />
-  	<openscada.builder.copyPlugin id="org.openscada.utils.propertyeditors" />
-  	<openscada.builder.copyPlugin id="org.openscada.utils.filter" />
-  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jdbc" />
-  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.jdbc.pool" />
-  	<openscada.builder.copyPlugin id="org.openscada.utils.osgi.autostart" />
+	<openscada.builder.copyPlugin id="org.eclipse.scada.utils" />
+	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.osgi" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.osgi.exporter" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.osgi.jaxws" />
+	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.osgi.pidfile" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.propertyeditors" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.filter" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.osgi.jdbc" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.osgi.jdbc.pool" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.utils.osgi.autostart" />
   	
-  	<openscada.builder.copyFeature id="org.openscada.hds" />
-  	<openscada.builder.copyPlugin id="org.openscada.hds" />
+  	<openscada.builder.copyFeature id="org.eclipse.scada.hds" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.hds" />
   	
-  	<openscada.builder.copyFeature id="org.openscada.ds" />
-  	<openscada.builder.copyFeature id="org.openscada.ds.sdk" />
-  	<openscada.builder.copyPlugin id="org.openscada.ds" />
-  	<openscada.builder.copyPlugin id="org.openscada.ds.storage" />
-  	<openscada.builder.copyPlugin id="org.openscada.ds.storage.file" />
-  	<openscada.builder.copyPlugin id="org.openscada.ds.storage.jdbc" />
+  	<openscada.builder.copyFeature id="org.eclipse.scada.ds" />
+  	<openscada.builder.copyFeature id="org.eclipse.scada.ds.sdk" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.ds" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.ds.storage" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.ds.storage.file" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.ds.storage.jdbc" />
   	
-  	<openscada.builder.copyPlugin id="org.openscada.sec" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec" />
 
-  	<openscada.builder.copyPlugin id="org.openscada.sec.audit.log.slf4j" />
-	<openscada.builder.copyPlugin id="org.openscada.sec.auth.logon" />
-  	<openscada.builder.copyPlugin id="org.openscada.sec.authn.osgi.cfg.priority" />
-  	<openscada.builder.copyPlugin id="org.openscada.sec.equinox" />
-  	<openscada.builder.copyPlugin id="org.openscada.sec.osgi" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.audit.log.slf4j" />
+	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.auth.logon" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.authn.osgi.cfg.priority" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.equinox" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.osgi" />
   	
-  	<openscada.builder.copyPlugin id="org.openscada.sec.utils" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.utils" />
   	
-  	<openscada.builder.copyPlugin id="org.openscada.sec.provider.dummy" />
-  	<openscada.builder.copyPlugin id="org.openscada.sec.provider.plain.property" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.provider.dummy" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.sec.provider.plain.property" />
   	
-  	<openscada.builder.copyFeature id="org.openscada.sec" />
-  	<openscada.builder.copyFeature id="org.openscada.sec.sdk" />
+  	<openscada.builder.copyFeature id="org.eclipse.scada.sec" />
+  	<openscada.builder.copyFeature id="org.eclipse.scada.sec.sdk" />
   	
-  	<openscada.builder.copyFeature id="org.openscada.aurora" />
-  	<openscada.builder.copyFeature id="org.openscada.aurora.sdk" />
+  	<openscada.builder.copyFeature id="org.eclipse.scada.aurora" />
+  	<openscada.builder.copyFeature id="org.eclipse.scada.aurora.sdk" />
   	
-  	<openscada.builder.copyPlugin id="org.openscada.aurora.doc.isv" />
+  	<openscada.builder.copyPlugin id="org.eclipse.scada.aurora.doc.isv" />
   </target>
 
   <!-- ===================================================================== -->
@@ -174,8 +174,8 @@
   <!-- ===================================================================== -->
   <target name="preProcess">
 	<property file="${buildDirectory}/finalFeaturesVersions.properties"/>
-  	<echo message="Setting about versions: ${org.openscada.aurora}"/>
-  	<replace dir="${buildDirectory}/plugins" value="${org.openscada.aurora}">
+  	<echo message="Setting about versions: ${org.eclipse.scada.aurora}"/>
+  	<replace dir="${buildDirectory}/plugins" value="${org.eclipse.scada.aurora}">
   		<include name="**/about.mappings"/>
   		<replacetoken>@@VERSION@@</replacetoken>
   	</replace>
@@ -216,7 +216,7 @@
   <!-- ===================================================================== -->
   <target name="postBuild">
     <antcall target="gatherLogs" />
-  	<openscada.deploy.repository name="org.openscada.aurora.sdk"/>
+  	<openscada.deploy.repository name="org.eclipse.scada.aurora.sdk"/>
   </target>
 
   <!-- ===================================================================== -->
