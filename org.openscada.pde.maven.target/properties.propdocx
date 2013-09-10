@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.pde.maven.target">
-    <properties:properties properties:name="user.home">
-      <properties:defaultValue>/</properties:defaultValue>
-    </properties:properties>
-  </properties:groups>
-</properties:properties>
