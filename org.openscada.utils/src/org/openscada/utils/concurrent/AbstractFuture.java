@@ -1,22 +1,13 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2006, 2010 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.concurrent;
 
 import java.util.concurrent.CancellationException;
@@ -55,21 +46,25 @@ public abstract class AbstractFuture<T> implements NotifyFuture<T>
         this.setLock = new Object ();
     }
 
+    @Override
     public void addListener ( final FutureListener<T> listener )
     {
         this.notifier.addListener ( listener );
     }
 
+    @Override
     public void addListener ( final Runnable listener )
     {
         this.notifier.addListener ( listener );
     }
 
+    @Override
     public void removeListener ( final FutureListener<T> listener )
     {
         this.notifier.removeListener ( listener );
     }
 
+    @Override
     public void removeListener ( final Runnable listener )
     {
         this.notifier.removeListener ( listener );
@@ -111,6 +106,7 @@ public abstract class AbstractFuture<T> implements NotifyFuture<T>
         this.notifier.done ();
     }
 
+    @Override
     public boolean cancel ( final boolean mayInterruptIfRunning )
     {
         synchronized ( this.setLock )
@@ -130,6 +126,7 @@ public abstract class AbstractFuture<T> implements NotifyFuture<T>
         return true;
     }
 
+    @Override
     public T get () throws InterruptedException, ExecutionException
     {
         this.lock.acquire ( 0 );
@@ -150,6 +147,7 @@ public abstract class AbstractFuture<T> implements NotifyFuture<T>
         return this.result;
     }
 
+    @Override
     public T get ( final long timeout, final TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException
     {
         if ( !this.lock.tryAcquire ( 0, timeout, unit ) )
@@ -159,11 +157,13 @@ public abstract class AbstractFuture<T> implements NotifyFuture<T>
         return fetchResult ();
     }
 
+    @Override
     public boolean isCancelled ()
     {
         return this.state == State.CANCELED;
     }
 
+    @Override
     public boolean isDone ()
     {
         final State state = this.state;

@@ -1,27 +1,17 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2006, 2012 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.filter;
 
 /**
  * @author jrose
- *
  */
 public enum Assertion
 {
@@ -47,22 +37,22 @@ public enum Assertion
     {
         switch ( op )
         {
-        case 0:
-            return Assertion.EQUALITY;
-        case 1:
-            return Assertion.PRESENCE;
-        case 2:
-            return Assertion.SUBSTRING;
-        case 3:
-            return Assertion.GREATEREQ;
-        case 4:
-            return Assertion.LESSEQ;
-        case 6:
-            return Assertion.APPROXIMATE;
-        case 7:
-            return Assertion.LESSTHAN;
-        case 8:
-            return Assertion.GREATERTHAN;
+            case 0:
+                return Assertion.EQUALITY;
+            case 1:
+                return Assertion.PRESENCE;
+            case 2:
+                return Assertion.SUBSTRING;
+            case 3:
+                return Assertion.GREATEREQ;
+            case 4:
+                return Assertion.LESSEQ;
+            case 6:
+                return Assertion.APPROXIMATE;
+            case 7:
+                return Assertion.LESSTHAN;
+            case 8:
+                return Assertion.GREATERTHAN;
         }
         return null;
     }
@@ -105,22 +95,22 @@ public enum Assertion
     {
         switch ( this.op )
         {
-        case 0:
-            return "="; //$NON-NLS-1$
-        case 1:
-            return "=*"; //$NON-NLS-1$
-        case 2:
-            return "="; //$NON-NLS-1$
-        case 3:
-            return ">="; //$NON-NLS-1$
-        case 4:
-            return "<="; //$NON-NLS-1$
-        case 6:
-            return "~="; //$NON-NLS-1$
-        case 7:
-            return "<"; //$NON-NLS-1$
-        case 8:
-            return ">"; //$NON-NLS-1$
+            case 0:
+                return "="; //$NON-NLS-1$
+            case 1:
+                return "=*"; //$NON-NLS-1$
+            case 2:
+                return "="; //$NON-NLS-1$
+            case 3:
+                return ">="; //$NON-NLS-1$
+            case 4:
+                return "<="; //$NON-NLS-1$
+            case 6:
+                return "~="; //$NON-NLS-1$
+            case 7:
+                return "<"; //$NON-NLS-1$
+            case 8:
+                return ">"; //$NON-NLS-1$
         }
         return null;
     }

@@ -1,22 +1,13 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2006, 2012 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.filter.bean;
 
 import java.beans.BeanInfo;
@@ -71,7 +62,7 @@ public class BeanMatcher
         }
         catch ( final Exception e )
         {
-            throw new RuntimeException ( Messages.getString("BeanMatcher.Error.FailedToFilter"), e ); //$NON-NLS-1$
+            throw new RuntimeException ( Messages.getString ( "BeanMatcher.Error.FailedToFilter" ), e ); //$NON-NLS-1$
         }
     }
 
@@ -97,30 +88,30 @@ public class BeanMatcher
     {
         switch ( filterExpression.getOperator () )
         {
-        case AND:
-            for ( final Filter filter : filterExpression.getFilterSet () )
-            {
-                if ( !matches ( filter, object, ifEmpty, registry ) )
+            case AND:
+                for ( final Filter filter : filterExpression.getFilterSet () )
                 {
-                    return false;
+                    if ( !matches ( filter, object, ifEmpty, registry ) )
+                    {
+                        return false;
+                    }
                 }
-            }
-            return true;
-        case OR:
-            for ( final Filter filter : filterExpression.getFilterSet () )
-            {
-                if ( matches ( filter, object, ifEmpty, registry ) )
+                return true;
+            case OR:
+                for ( final Filter filter : filterExpression.getFilterSet () )
                 {
-                    return true;
+                    if ( matches ( filter, object, ifEmpty, registry ) )
+                    {
+                        return true;
+                    }
                 }
-            }
-            return false;
-        case NOT:
-            if ( !filterExpression.getFilterSet ().isEmpty () )
-            {
-                return !matches ( filterExpression.getFilterSet ().get ( 0 ), object, ifEmpty, registry );
-            }
-            break;
+                return false;
+            case NOT:
+                if ( !filterExpression.getFilterSet ().isEmpty () )
+                {
+                    return !matches ( filterExpression.getFilterSet ().get ( 0 ), object, ifEmpty, registry );
+                }
+                break;
         }
         return ifEmpty;
     }
@@ -141,86 +132,86 @@ public class BeanMatcher
 
         switch ( filterAssertion.getAssertion () )
         {
-        case EQUALITY:
-        {
-            final Object value = getValue ( m, object );
-            if ( value == null )
+            case EQUALITY:
             {
-                return false;
+                final Object value = getValue ( m, object );
+                if ( value == null )
+                {
+                    return false;
+                }
+                final int i = compare ( value, (String)filterAssertion.getValue (), registry );
+                return i == 0;
             }
-            final int i = compare ( value, (String)filterAssertion.getValue (), registry );
-            return i == 0;
-        }
-        case GREATERTHAN:
-        {
-            final Object value = getValue ( m, object );
-            if ( value == null )
+            case GREATERTHAN:
             {
-                return false;
+                final Object value = getValue ( m, object );
+                if ( value == null )
+                {
+                    return false;
+                }
+                final int i = compare ( value, (String)filterAssertion.getValue (), registry );
+                return i > 0;
             }
-            final int i = compare ( value, (String)filterAssertion.getValue (), registry );
-            return i > 0;
-        }
-        case LESSTHAN:
-        {
-            final Object value = getValue ( m, object );
-            if ( value == null )
+            case LESSTHAN:
             {
-                return false;
-            }
-            final int i = compare ( value, (String)filterAssertion.getValue (), registry );
-            return i < 0;
+                final Object value = getValue ( m, object );
+                if ( value == null )
+                {
+                    return false;
+                }
+                final int i = compare ( value, (String)filterAssertion.getValue (), registry );
+                return i < 0;
 
-        }
-        case GREATEREQ:
-        {
-            final Object value = getValue ( m, object );
-            if ( value == null )
-            {
-                return false;
             }
-            final int i = compare ( value, (String)filterAssertion.getValue (), registry );
-            return i >= 0;
-        }
-        case LESSEQ:
-        {
-            final Object value = getValue ( m, object );
-            if ( value == null )
+            case GREATEREQ:
             {
-                return false;
+                final Object value = getValue ( m, object );
+                if ( value == null )
+                {
+                    return false;
+                }
+                final int i = compare ( value, (String)filterAssertion.getValue (), registry );
+                return i >= 0;
             }
-            final int i = compare ( value, (String)filterAssertion.getValue (), registry );
-            return i <= 0;
-        }
-        case SUBSTRING:
-        {
-            final Object value = getValue ( m, object );
-            if ( value == null )
+            case LESSEQ:
             {
-                return false;
+                final Object value = getValue ( m, object );
+                if ( value == null )
+                {
+                    return false;
+                }
+                final int i = compare ( value, (String)filterAssertion.getValue (), registry );
+                return i <= 0;
             }
-            else
+            case SUBSTRING:
             {
-                return matchSubString ( value.toString (), (Collection<String>)filterAssertion.getValue () );
+                final Object value = getValue ( m, object );
+                if ( value == null )
+                {
+                    return false;
+                }
+                else
+                {
+                    return matchSubString ( value.toString (), (Collection<String>)filterAssertion.getValue () );
+                }
             }
-        }
-        case PRESENCE:
-        {
-            final Object value = getValue ( m, object );
-            return value != null;
-        }
-        case APPROXIMATE:
-        {
-            final Object value = getValue ( m, object );
-            if ( value == null )
+            case PRESENCE:
             {
-                return false;
+                final Object value = getValue ( m, object );
+                return value != null;
             }
-            else
+            case APPROXIMATE:
             {
-                return matchRegexString ( value.toString (), (String)filterAssertion.getValue () );
+                final Object value = getValue ( m, object );
+                if ( value == null )
+                {
+                    return false;
+                }
+                else
+                {
+                    return matchRegexString ( value.toString (), (String)filterAssertion.getValue () );
+                }
             }
-        }
         }
         return false;
     }
@@ -284,13 +275,13 @@ public class BeanMatcher
             }
             catch ( final Exception e )
             {
-                throw new IllegalArgumentException ( String.format ( Messages.getString("BeanMatcher.Error.FailedToConvert"), stringValue, clazz ), e ); //$NON-NLS-1$
+                throw new IllegalArgumentException ( String.format ( Messages.getString ( "BeanMatcher.Error.FailedToConvert" ), stringValue, clazz ), e ); //$NON-NLS-1$
             }
         }
 
         if ( editor == null )
         {
-            throw new IllegalArgumentException ( String.format ( Messages.getString("BeanMatcher.Error.UnableToConvert"), stringValue, clazz ) ); //$NON-NLS-1$
+            throw new IllegalArgumentException ( String.format ( Messages.getString ( "BeanMatcher.Error.UnableToConvert" ), stringValue, clazz ) ); //$NON-NLS-1$
         }
 
         editor.setAsText ( stringValue );

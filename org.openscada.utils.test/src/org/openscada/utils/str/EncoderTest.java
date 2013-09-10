@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2009 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006, 2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,6 @@ package org.openscada.utils.str;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openscada.utils.str.StringEncoder;
 
 public class EncoderTest
 {
@@ -49,7 +48,7 @@ public class EncoderTest
         assertEquals ( "+", StringEncoder.decode ( "%2B" ) );
     }
 
-    private void assertStringEquals ( String string )
+    private void assertStringEquals ( final String string )
     {
         assertEquals ( string, StringEncoder.decode ( StringEncoder.encode ( string ) ) );
     }

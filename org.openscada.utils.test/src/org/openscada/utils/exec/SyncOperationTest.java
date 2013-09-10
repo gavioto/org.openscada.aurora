@@ -1,6 +1,6 @@
 /*
  * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2009 TH4 SYSTEMS GmbH (http://th4-systems.com)
+ * Copyright (C) 2006, 2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,9 +22,6 @@ package org.openscada.utils.exec;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openscada.utils.exec.Operation;
-import org.openscada.utils.exec.OperationResult;
-import org.openscada.utils.exec.SyncBasedOperation;
 
 public class SyncOperationTest
 {
@@ -33,9 +30,10 @@ public class SyncOperationTest
     @Before
     public void setUp () throws Exception
     {
-        _opSyncSuccess = new SyncBasedOperation<String, String> () {
+        this._opSyncSuccess = new SyncBasedOperation<String, String> () {
 
-            public String execute ( String arg0 ) throws Exception
+            @Override
+            public String execute ( final String arg0 ) throws Exception
             {
                 Thread.sleep ( 1000 );
                 System.out.println ( "Say hello: " + arg0 );
@@ -48,13 +46,13 @@ public class SyncOperationTest
     @Test
     public void testSync () throws Exception
     {
-        Assert.assertEquals ( _opSyncSuccess.execute ( "Alice" ), "Hello to: Alice" );
+        Assert.assertEquals ( this._opSyncSuccess.execute ( "Alice" ), "Hello to: Alice" );
     }
 
     @Test
     public void testAsync () throws Exception
     {
-        OperationResult<String> or = _opSyncSuccess.startExecute ( "Bob" );
+        final OperationResult<String> or = this._opSyncSuccess.startExecute ( "Bob" );
         System.out.println ( "Started execution" );
 
         or.complete ();
@@ -66,9 +64,9 @@ public class SyncOperationTest
     @Test
     public void testAsyncHandler () throws Exception
     {
-        OperationHandlerTestImpl<String> handler = new OperationHandlerTestImpl<String> ();
+        final OperationHandlerTestImpl<String> handler = new OperationHandlerTestImpl<String> ();
 
-        OperationResult<String> or = _opSyncSuccess.startExecute ( handler, "Bob" );
+        final OperationResult<String> or = this._opSyncSuccess.startExecute ( handler, "Bob" );
         System.out.println ( "Started execution" );
 
         or.complete ();

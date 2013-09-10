@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2006, 2011 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.osgi.pidfile;
 
 import java.io.File;
@@ -29,13 +39,14 @@ public class Activator implements BundleActivator
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
-    public void start ( BundleContext bundleContext ) throws Exception
+    @Override
+    public void start ( final BundleContext bundleContext ) throws Exception
     {
         Activator.context = bundleContext;
 
-        fl = new FrameworkListener () {
+        this.fl = new FrameworkListener () {
             @Override
-            public void frameworkEvent ( FrameworkEvent event )
+            public void frameworkEvent ( final FrameworkEvent event )
             {
                 if ( event.getType () == FrameworkEvent.STARTED )
                 {
@@ -43,34 +54,35 @@ public class Activator implements BundleActivator
                     {
                         createPidFile ( getPidFilePath () );
                     }
-                    catch ( Throwable th )
+                    catch ( final Throwable th )
                     {
                         logger.error ( "a unexpected error happened", th );
                     }
                 }
             }
         };
-        bundleContext.addFrameworkListener ( fl );
+        bundleContext.addFrameworkListener ( this.fl );
     }
 
     /*
      * (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
-    public void stop ( BundleContext bundleContext ) throws Exception
+    @Override
+    public void stop ( final BundleContext bundleContext ) throws Exception
     {
-        if ( fl != null )
+        if ( this.fl != null )
         {
-            bundleContext.removeFrameworkListener ( fl );
+            bundleContext.removeFrameworkListener ( this.fl );
         }
-        fl = null;
+        this.fl = null;
         Activator.context = null;
     }
 
-    private void createPidFile ( String pidFilePath )
+    private void createPidFile ( final String pidFilePath )
     {
-        File file = new File ( pidFilePath );
-        File parent = new File ( file.getParent () );
+        final File file = new File ( pidFilePath );
+        final File parent = new File ( file.getParent () );
         if ( !parent.exists () )
         {
             if ( !parent.mkdirs () )
@@ -87,15 +99,15 @@ public class Activator implements BundleActivator
                     logger.warn ( "could not remove old pidfile at '{}'", file.getAbsolutePath () );
                 }
             }
-            String string = ManagementFactory.getRuntimeMXBean ().getName ();
-            String pid = string.contains ( "@" ) ? string.split ( "@" )[0] : string;
+            final String string = ManagementFactory.getRuntimeMXBean ().getName ();
+            final String pid = string.contains ( "@" ) ? string.split ( "@" )[0] : string;
             try
             {
-                FileWriter fw = new FileWriter ( file );
+                final FileWriter fw = new FileWriter ( file );
                 fw.write ( pid );
                 fw.close ();
             }
-            catch ( IOException e )
+            catch ( final IOException e )
             {
                 logger.error ( "could not create pid file at '{}'", file.getAbsolutePath () );
             }
@@ -105,7 +117,7 @@ public class Activator implements BundleActivator
 
     private String getPidFilePath ()
     {
-        File pidFile = new File ( new File ( System.getProperty ( "user.home" ), ".openscada" ), "openscada.pid" );
+        final File pidFile = new File ( new File ( System.getProperty ( "user.home" ), ".openscada" ), "openscada.pid" );
         return System.getProperty ( "org.openscada.utils.osgi.pidfile", pidFile.getAbsolutePath () );
     }
 }

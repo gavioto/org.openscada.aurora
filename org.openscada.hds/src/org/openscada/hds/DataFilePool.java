@@ -1,22 +1,13 @@
-/*
- * This file is part of the openSCADA project
- * Copyright (C) 2006-2012 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2011, 2012 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * openSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with openSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.hds;
 
 import java.io.File;
@@ -187,17 +178,21 @@ public class DataFilePool
     /**
      * get access to a file
      * <p>
-     * If the parameter <code>create</code> is <code>true</code> then start and end must not be null
+     * If the parameter <code>create</code> is <code>true</code> then start and
+     * end must not be null
      * </p>
      * 
      * @param file
      *            the file to get access to
      * @param start
-     *            the start date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
+     *            the start date required for creating the file, can be
+     *            <code>null</code> if <code>create</code> is <code>false</code>
      * @param end
-     *            the end date required for creating the file, can be <code>null</code> if <code>create</code> is <code>false</code>
+     *            the end date required for creating the file, can be
+     *            <code>null</code> if <code>create</code> is <code>false</code>
      * @param create
-     *            <code>true</code> will create a new file it if the file does not currently exists
+     *            <code>true</code> will create a new file it if the file does
+     *            not currently exists
      * @return the accessor information
      * @throws Exception
      *             if anything goes wrong

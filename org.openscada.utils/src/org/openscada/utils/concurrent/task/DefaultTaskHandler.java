@@ -1,22 +1,13 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2006, 2010 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.concurrent.task;
 
 import java.util.HashMap;
@@ -44,6 +35,7 @@ public class DefaultTaskHandler implements TaskHandler
             this.handler = handler;
         }
 
+        @Override
         public Long getId ()
         {
             return this.id;
@@ -56,6 +48,7 @@ public class DefaultTaskHandler implements TaskHandler
             super.finalize ();
         }
 
+        @Override
         public void dispose ()
         {
             this.handler.removeTask ( this.id );
@@ -82,11 +75,13 @@ public class DefaultTaskHandler implements TaskHandler
         }
     }
 
+    @Override
     public Handle addTask ( final NotifyFuture<?> task )
     {
         return new HandleImpl ( allocateId ( task ), this );
     }
 
+    @Override
     public boolean cancelTask ( final Long id )
     {
         if ( id == null )
@@ -107,6 +102,7 @@ public class DefaultTaskHandler implements TaskHandler
         return false;
     }
 
+    @Override
     public void dispose ()
     {
         synchronized ( this.taskMap )
@@ -119,6 +115,7 @@ public class DefaultTaskHandler implements TaskHandler
         }
     }
 
+    @Override
     public boolean removeTask ( final Long id )
     {
         if ( id == null )

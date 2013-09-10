@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2006, 2013 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.filter.test;
 
 import org.junit.Assert;
@@ -62,8 +72,8 @@ public class FilterParserTest
     @Test
     public void testBug0001 () throws Exception
     {
-        String fs = "(&(stockBalance.stockBalanceType=RECEIPT)(snapshotType=START)(tank.id=6906))";
-        Filter f = new FilterParser ( fs ).getFilter ();
+        final String fs = "(&(stockBalance.stockBalanceType=RECEIPT)(snapshotType=START)(tank.id=6906))";
+        final Filter f = new FilterParser ( fs ).getFilter ();
         System.out.println ( f );
     }
 }

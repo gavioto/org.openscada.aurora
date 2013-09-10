@@ -1,22 +1,13 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2006, 2012 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.filter.internal;
 
 import java.util.Iterator;
@@ -94,7 +85,7 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
             overflow += 1;
             if ( this.pos >= this.filter.length || overflow > this.filter.length )
             {
-                throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
+                throw new TokenizeException ( String.format ( Messages.getString ( "Tokenizer.Error.InvalidSyntax" ), this.pos ) ); //$NON-NLS-1$
             }
             final String currentChar = String.valueOf ( this.filter[this.pos] );
 
@@ -131,7 +122,7 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
             {
                 if ( this.pos + 1 >= this.filter.length )
                 {
-                    throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
+                    throw new TokenizeException ( String.format ( Messages.getString ( "Tokenizer.Error.InvalidSyntax" ), this.pos ) ); //$NON-NLS-1$
                 }
                 final String lookahead = currentChar + this.filter[this.pos + 1] + ( this.filter.length > this.pos + 2 ? this.filter[this.pos + 2] : "" ); //$NON-NLS-1$
                 if ( TokenAssertion.isAssertion ( lookahead ) )
@@ -146,7 +137,7 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
                 {
                     if ( this.buffer == null )
                     {
-                        throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
+                        throw new TokenizeException ( String.format ( Messages.getString ( "Tokenizer.Error.InvalidSyntax" ), this.pos ) ); //$NON-NLS-1$
                     }
                     this.buffer.append ( currentChar );
                     this.pos += 1;
@@ -187,7 +178,7 @@ public class Tokenizer implements Iterable<Token>, Iterator<Token>
                 this.pos += 1;
                 continue;
             }
-            throw new TokenizeException ( String.format ( Messages.getString("Tokenizer.Error.InvalidSyntax"), this.pos ) ); //$NON-NLS-1$
+            throw new TokenizeException ( String.format ( Messages.getString ( "Tokenizer.Error.InvalidSyntax" ), this.pos ) ); //$NON-NLS-1$
         }
     }
 

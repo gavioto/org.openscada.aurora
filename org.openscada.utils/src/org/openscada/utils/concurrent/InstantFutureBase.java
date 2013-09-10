@@ -1,29 +1,21 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2006, 2010 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.concurrent;
 
 /**
  * A base class for instant futures
+ * 
  * @author Jens Reimann
- *
- * @param <T> the value type
+ * @param <T>
+ *            the value type
  */
 public abstract class InstantFutureBase<T> implements NotifyFuture<T>
 {
@@ -33,37 +25,44 @@ public abstract class InstantFutureBase<T> implements NotifyFuture<T>
         super ();
     }
 
+    @Override
     public boolean isCancelled ()
     {
         return false;
     }
 
+    @Override
     public boolean isDone ()
     {
         return true;
     }
 
+    @Override
     public boolean cancel ( final boolean mayInterruptIfRunning )
     {
         return false;
     }
 
+    @Override
     public void addListener ( final FutureListener<T> listener )
     {
         // we can simple trigger the listener
         listener.complete ( this );
     }
 
+    @Override
     public void removeListener ( final FutureListener<T> listener )
     {
         // nothing to do
     }
 
+    @Override
     public void addListener ( final Runnable listener )
     {
         listener.run ();
     }
 
+    @Override
     public void removeListener ( final Runnable listener )
     {
         // nothing to do

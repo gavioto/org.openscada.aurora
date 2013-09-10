@@ -1,22 +1,13 @@
-/*
- * This file is part of the OpenSCADA project
- * Copyright (C) 2006-2010 TH4 SYSTEMS GmbH (http://th4-systems.com)
+/*******************************************************************************
+ * Copyright (c) 2006, 2010 TH4 SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * OpenSCADA is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License version 3
- * only, as published by the Free Software Foundation.
- *
- * OpenSCADA is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License version 3 for more details
- * (a copy is included in the LICENSE file that accompanied this code).
- *
- * You should have received a copy of the GNU Lesser General Public License
- * version 3 along with OpenSCADA. If not, see
- * <http://opensource.org/licenses/lgpl-3.0.html> for a copy of the LGPLv3 License.
- */
-
+ * Contributors:
+ *     TH4 SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.openscada.utils.exec;
 
 /**
@@ -32,6 +23,7 @@ package org.openscada.utils.exec;
 public abstract class AsyncBasedOperation<R, T> implements Operation<R, T>
 {
 
+    @Override
     public R execute ( final T arg0 ) throws Exception
     {
         final OperationResult<R> result = startExecute ( arg0 );
@@ -50,6 +42,7 @@ public abstract class AsyncBasedOperation<R, T> implements Operation<R, T>
 
     protected abstract void startExecute ( OperationResult<R> or, T arg0 );
 
+    @Override
     public OperationResult<R> startExecute ( final T arg0 )
     {
         final OperationResult<R> or = new OperationResult<R> ();
@@ -59,6 +52,7 @@ public abstract class AsyncBasedOperation<R, T> implements Operation<R, T>
         return or;
     }
 
+    @Override
     public OperationResult<R> startExecute ( final OperationResultHandler<R> handler, final T arg0 )
     {
         final OperationResult<R> or = new OperationResult<R> ( handler );
