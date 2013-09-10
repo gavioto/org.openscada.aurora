@@ -21,8 +21,8 @@ package org.openscada.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ConnectionInformationTest1
@@ -52,13 +52,13 @@ public class ConnectionInformationTest1
     {
         final ConnectionInformation expected = new ConnectionInformation ();
         expected.setInterface ( "da" );
-        expected.getProperties ().put ( "user", "jens" );
-        expected.getProperties ().put ( "password", "test" );
+        expected.getProperties ().put ( "user", "user" );
+        expected.getProperties ().put ( "password", "password" );
         expected.setDriver ( "net" );
         expected.setTarget ( "localhost" );
         expected.setSecondaryTarget ( 1202 );
 
-        testParserEqual ( "da:net://jens:test@localhost:1202", expected );
+        testParserEqual ( "da:net://user:password@localhost:1202", expected );
     }
 
     @Test
@@ -148,8 +148,8 @@ public class ConnectionInformationTest1
         final ConnectionInformation expected = new ConnectionInformation ();
         expected.setInterface ( "da" );
         expected.setDriver ( "net" );
-        expected.getProperties ().put ( "user", "jens" );
-        expected.getProperties ().put ( "password", "test" );
+        expected.getProperties ().put ( "user", "user" );
+        expected.getProperties ().put ( "password", "password" );
         expected.setTarget ( "localhost" );
         expected.getSubtargets ().add ( "sub1" );
         expected.getSubtargets ().add ( "sub2" );
@@ -157,7 +157,7 @@ public class ConnectionInformationTest1
         expected.getProperties ().put ( "key1", "value1" );
         expected.getProperties ().put ( "key2", "value2" );
 
-        testParserEqual ( "da:net://jens:test@localhost:1202/sub1/sub2?key1=value1&key2=value2", expected );
+        testParserEqual ( "da:net://user:password@localhost:1202/sub1/sub2?key1=value1&key2=value2", expected );
     }
 
     @Test
@@ -234,14 +234,14 @@ public class ConnectionInformationTest1
         final ConnectionInformation o = new ConnectionInformation ();
         o.setInterface ( "da" );
         o.setDriver ( "net" );
-        o.getProperties ().put ( "user", "jens" );
-        o.getProperties ().put ( "password", "test" );
+        o.getProperties ().put ( "user", "user" );
+        o.getProperties ().put ( "password", "password" );
         o.setTarget ( "localhost" );
         o.setSecondaryTarget ( 1202 );
         o.getSubtargets ().add ( "sub1" );
         o.getSubtargets ().add ( "sub2" );
         o.getProperties ().put ( "key", "value" );
-        Assert.assertEquals ( "da:net://jens:test@localhost:1202/sub1/sub2?key=value", o.toString () );
+        Assert.assertEquals ( "da:net://user:password@localhost:1202/sub1/sub2?key=value", o.toString () );
     }
 
     @Test
