@@ -2,8 +2,7 @@ package org.openscada.utils.filter.test;
 
 import java.util.GregorianCalendar;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openscada.utils.filter.Filter;

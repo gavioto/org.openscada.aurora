@@ -1,7 +1,6 @@
 package org.openscada.utils.filter.test;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.openscada.utils.filter.Filter;
 import org.openscada.utils.filter.FilterParseException;
