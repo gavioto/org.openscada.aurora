@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Security Utilities Unit Test
-Bundle-SymbolicName: org.openscada.sec.utils.test
-Bundle-Version: 1.1.0.qualifier
-Bundle-Vendor: openSCADA.org
-Fragment-Host: org.openscada.sec.utils;bundle-version="1.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.junit;bundle-version="4.8.0"

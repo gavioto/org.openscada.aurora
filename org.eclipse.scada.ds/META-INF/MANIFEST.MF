@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: openSCADA DA
+Bundle-SymbolicName: org.eclipse.scada.ds
+Bundle-Version: 1.1.0.qualifier
+Bundle-Vendor: openSCADA.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.eclipse.scada.ds;version="1.0.0";uses:="org.openscada.utils.concurrent,org.osgi.framework"
+Import-Package: org.eclipse.scada.utils.concurrent;version="1.0.0",
+ org.eclipse.scada.utils.concurrent.task;version="1.0.0",
+ org.eclipse.scada.utils.lang;version="1.0.0",
+ org.eclipse.scada.utils.osgi;version="1.0.0",
+ org.osgi.framework;version="1.6.0";resolution:=optional
