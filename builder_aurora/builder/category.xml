@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.openscada.aurora_1.2.0.qualifier.jar" id="org.openscada.aurora" version="1.2.0.qualifier">
-      <category name="org.openscada.aurora.category"/>
+   <feature url="features/org.eclipse.scada.aurora_0.0.0.qualifier.jar" id="org.eclipse.scada.aurora" version="0.0.0.qualifier">
+      <category name="org.eclipse.scada.aurora.category"/>
    </feature>
-   <feature url="features/org.openscada.aurora.sdk_1.2.0.qualifier.jar" id="org.openscada.aurora.sdk" version="1.2.0.qualifier">
-      <category name="org.openscada.aurora.sdk.category"/>
+   <feature url="features/org.eclipse.scada.aurora.sdk_0.0.0.qualifier.jar" id="org.eclipse.scada.aurora.sdk" version="0.0.0.qualifier">
+      <category name="org.eclipse.scada.aurora.sdk.category"/>
    </feature>
-   <feature url="features/org.openscada.sec_1.2.0.qualifier.jar" id="org.openscada.sec" version="1.2.0.qualifier">
-      <category name="org.openscada.aurora.sec"/>
+   <feature url="features/org.eclipse.scada.sec_0.0.0.qualifier.jar" id="org.eclipse.scada.sec" version="0.0.0.qualifier">
+      <category name="org.eclipse.scada.aurora.sec"/>
    </feature>
-   <feature url="features/org.openscada.ds_1.2.0.qualifier.jar" id="org.openscada.ds" version="1.2.0.qualifier">
-      <category name="org.openscada.aurora.ds"/>
+   <feature url="features/org.eclipse.scada.ds_0.0.0.qualifier.jar" id="org.eclipse.scada.ds" version="0.0.0.qualifier">
+      <category name="org.eclipse.scada.aurora.ds"/>
    </feature>
-   <feature url="features/org.openscada.hds_1.2.0.qualifier.jar" id="org.openscada.hds" version="1.2.0.qualifier">
-      <category name="org.openscada.aurora.hds"/>
+   <feature url="features/org.eclipse.scada.hds_0.0.0.qualifier.jar" id="org.eclipse.scada.hds" version="0.0.0.qualifier">
+      <category name="org.eclipse.scada.aurora.hds"/>
    </feature>
-   <category-def name="org.openscada.aurora.category" label="openSCADA Aurora"/>
-   <category-def name="org.openscada.aurora.sdk.category" label="openSCADA Aurora SDK"/>
-   <category-def name="org.openscada.aurora.sec" label="openSCADA Security"/>
-   <category-def name="org.openscada.aurora.ds" label="openSCADA DS"/>
-   <category-def name="org.openscada.aurora.hds" label="openSCADA Historical Data Store"/>
+   <category-def name="org.eclipse.scada.aurora.category" label="Eclipse SCADA Aurora"/>
+   <category-def name="org.eclipse.scada.aurora.sdk.category" label="Eclipse SCADA Aurora SDK"/>
+   <category-def name="org.eclipse.scada.aurora.sec" label="Eclipse SCADA Security"/>
+   <category-def name="org.eclipse.scada.aurora.ds" label="Eclipse SCADA DS"/>
+   <category-def name="org.eclipse.scada.aurora.hds" label="Eclipse SCADA Historical Data Store"/>
 </site>

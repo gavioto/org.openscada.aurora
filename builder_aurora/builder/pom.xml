@@ -4,13 +4,12 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>org.openscada.aurora-parent</artifactId>
-		<groupId>org.openscada.aurora</groupId>
-		<version>1.2.0-SNAPSHOT</version>
+		<artifactId>org.eclipse.scada.aurora-parent</artifactId>
+		<groupId>org.eclipse.scada.aurora</groupId>
+		<version>0.1.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.openscada.aurora</groupId>
-	<artifactId>org.openscada.aurora.p2</artifactId>
-	<version>1.2.0</version>
+	<groupId>org.eclipse.scada.aurora</groupId>
+	<artifactId>org.eclipse.scada.aurora.p2</artifactId>
 	<packaging>eclipse-repository</packaging>
 </project>

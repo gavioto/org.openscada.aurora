@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.utils.deadlogger">
-    <properties:properties properties:name="period" properties:dataType="INTEGER" properties:shortDescription="The period to check for deadlocks in milliseconds">
-      <properties:defaultValue>10000</properties:defaultValue>
-    </properties:properties>
-  </properties:groups>
-</properties:properties>

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-Vendor: Eclipse SCADA Project
+Bundle-Version: 0.1.0.qualifier
+Bundle-Name: Eclipse SCADA OSGi PID file creator
+Bundle-Activator: org.eclipse.scada.utils.osgi.pidfile.Activator
+Bundle-ManifestVersion: 2
+Import-Package: org.osgi.framework;version="1.3.0",org.slf4j;version="
+ 1.5.0"
+Bundle-SymbolicName: org.eclipse.scada.utils.osgi.pidfile
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

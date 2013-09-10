@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<properties:properties xmlns:properties="urn:openscada:doc:content:properties">
-  <properties:groups properties:prefix="org.openscada.ds.storage.file">
-    <properties:properties properties:name="org.openscada.ds.storage.file.root" properties:shortDescription="The file system location of the DS storage"/>
-    <properties:properties properties:name="user.home"/>
-  </properties:groups>
-</properties:properties>

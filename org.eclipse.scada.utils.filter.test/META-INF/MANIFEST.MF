@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Filter Test
+Bundle-SymbolicName: org.eclipse.scada.utils.filter.test
+Bundle-Version: 0.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: junit.framework;version="4.0.0",
+ org.eclipse.scada.utils.filter;version="1.0.0",
+ org.eclipse.scada.utils.filter.bean;version="1.0.0",
+ org.eclipse.scada.utils.propertyeditors;version="1.0.0",
+ org.junit;version="4.0.0",
+ org.junit.runner;version="4.0.0",
+ org.junit.runners;version="4.0.0"
+Bundle-Vendor: Eclipse SCADA Project

@@ -4,9 +4,9 @@
      openSCADA Aurora
      ====================================================================== -->
 
-<project name="org.openscada.aurora" default="default" basedir=".">
+<project name="org.eclipse.scada.aurora" default="default" basedir=".">
     <description>
-		openSCADA Aurora
+		Eclipse SCADA Aurora
     </description>
 
     <property name="build.root" location="${basedir}"/>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry excluding="org/eclipse/scada/utils/filter/FilterObjectMatcherTest.java|org/eclipse/scada/utils/filter/FilterOperationTest.java|org/eclipse/scada/utils/filter/FilterOperatorTest.java|org/eclipse/scada/utils/filter/FilterTermTest.java|org/eclipse/scada/utils/filter/FilterTestSuite.java|org/eclipse/scada/utils/filter/test/FilterObjectMatcherTest.java|org/eclipse/scada/utils/filter/test/FilterOperationTest.java|org/eclipse/scada/utils/filter/test/FilterOperatorTest.java|org/eclipse/scada/utils/filter/test/FilterTermTest.java|org/eclipse/scada/utils/filter/test/FilterTestSuite.java" kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
