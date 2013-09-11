@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.scada.aurora_1.2.0.qualifier.jar" id="org.eclipse.scada.aurora" version="1.2.0.qualifier">
+   <feature url="features/org.eclipse.scada.aurora_0.0.0.qualifier.jar" id="org.eclipse.scada.aurora" version="0.0.0.qualifier">
       <category name="org.eclipse.scada.aurora.category"/>
    </feature>
-   <feature url="features/org.eclipse.scada.aurora.sdk_1.2.0.qualifier.jar" id="org.eclipse.scada.aurora.sdk" version="1.2.0.qualifier">
+   <feature url="features/org.eclipse.scada.aurora.sdk_0.0.0.qualifier.jar" id="org.eclipse.scada.aurora.sdk" version="0.0.0.qualifier">
       <category name="org.eclipse.scada.aurora.sdk.category"/>
    </feature>
-   <feature url="features/org.eclipse.scada.sec_1.2.0.qualifier.jar" id="org.eclipse.scada.sec" version="1.2.0.qualifier">
+   <feature url="features/org.eclipse.scada.sec_0.0.0.qualifier.jar" id="org.eclipse.scada.sec" version="0.0.0.qualifier">
       <category name="org.eclipse.scada.aurora.sec"/>
    </feature>
-   <feature url="features/org.eclipse.scada.ds_1.2.0.qualifier.jar" id="org.eclipse.scada.ds" version="1.2.0.qualifier">
+   <feature url="features/org.eclipse.scada.ds_0.0.0.qualifier.jar" id="org.eclipse.scada.ds" version="0.0.0.qualifier">
       <category name="org.eclipse.scada.aurora.ds"/>
    </feature>
-   <feature url="features/org.eclipse.scada.hds_1.2.0.qualifier.jar" id="org.eclipse.scada.hds" version="1.2.0.qualifier">
+   <feature url="features/org.eclipse.scada.hds_0.0.0.qualifier.jar" id="org.eclipse.scada.hds" version="0.0.0.qualifier">
       <category name="org.eclipse.scada.aurora.hds"/>
    </feature>
    <category-def name="org.eclipse.scada.aurora.category" label="Eclipse SCADA Aurora"/>

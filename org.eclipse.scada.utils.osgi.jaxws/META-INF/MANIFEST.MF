@@ -1,14 +1,14 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse SCADA Aurora OSGi JAX-WS Exporter
-Bundle-SymbolicName: org.eclipse.scada.utils.osgi.jaxws
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.eclipse.scada.utils.osgi.jaxws.Activator
+Export-Package: org.eclipse.scada.utils.osgi.jaxws;version="1.0.0";use
+ s:="org.osgi.framework,org.eclipse.scada.utils.osgi.exporter"
 Bundle-Vendor: Eclipse SCADA Project
+Bundle-Version: 0.1.0.qualifier
+Bundle-Name: Eclipse SCADA Aurora OSGi JAX-WS Exporter
+Bundle-Activator: org.eclipse.scada.utils.osgi.jaxws.Activator
+Bundle-ManifestVersion: 2
+Import-Package: javax.jws,javax.xml.ws,org.eclipse.scada.utils.osgi.ex
+ porter;version="1.0.0",org.osgi.framework;version="1.6.0",org.slf4j;v
+ ersion="1.5.0"
+Bundle-SymbolicName: org.eclipse.scada.utils.osgi.jaxws
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: javax.jws,
- javax.xml.ws,
- org.eclipse.scada.utils.osgi.exporter;version="1.0.0",
- org.osgi.framework;version="1.6.0",
- org.slf4j;version="1.5.0"
-Export-Package: org.eclipse.scada.utils.osgi.jaxws;version="1.0.0";uses:="org.osgi.framework,org.eclipse.scada.utils.osgi.exporter"
+
